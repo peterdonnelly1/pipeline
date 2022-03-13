@@ -372,7 +372,7 @@ fi
 echo "=====> STEP 3 OF 3: RUNNING THE NETWORK (PYTORCH DATASET WILL BE GENERATED AND TILING WILL BE PERFORMED IF IMAGE MODE, UNLESS EITHER SUPPRESSED BY USER OPTION)"
 sleep ${SLEEP_TIME}
 cd ${NN_APPLICATION_PATH}
-CUDA_LAUNCH_BLOCKING=1 python ${MAIN_APPLICATION_NAM} \
+CUDA_LAUNCH_BLOCKING=1 python ${MAIN_APPLICATION_NAME} \
 --input_mode ${INPUT_MODE} --multimode ${MULTIMODE} --just_profile ${JUST_PROFILE} --just_test ${JUST_TEST} --skip_tiling ${SKIP_TILING} --skip_generation ${SKIP_GENERATION} \
 --dataset ${DATASET} --cases ${CASES} --data_dir ${DATA_DIR} --data_source ${DATA_SOURCE} --divide_cases ${DIVIDE_CASES} --cases_reserved_for_image_rna ${CASES_RESERVED_FOR_IMAGE_RNA} \
 --global_data ${GLOBAL_DATA} --mapping_file_name ${MAPPING_FILE_NAME} \

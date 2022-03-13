@@ -176,29 +176,29 @@ def main(args):
   os.system("taskset -p 0xffffffff %d" % os.getpid())
   
   now = time.localtime(time.time())
-  print(time.strftime( f"TRAINLENEJ:     INFO:  start time = %Y-%m-%d %H:%M:%S %Z", now ))
+  print(time.strftime( f"CLASSI:         INFO:  start time = %Y-%m-%d %H:%M:%S %Z", now ))
   start_time = time.time() 
 
   if DEBUG>0:
-    print ( f"\nTRAINLENEJ:     INFO:     torch         version =  {MIKADO}{torch.__version__}{RESET}"      )
-    print ( f"TRAINLENEJ:     INFO:     torchvision   version =  {MIKADO}{torchvision.__version__}{RESET}"  )
-    print ( f"TRAINLENEJ:     INFO:     scipy         version =  {MIKADO}{scipy.version.version}{RESET}"    )
-    print ( f"TRAINLENEJ:     INFO:     sklearn       version =  {MIKADO}{sklearn.__version__}{RESET}"      )
-    print ( f"TRAINLENEJ:     INFO:     matplotlib    version =  {MIKADO}{matplotlib.__version__}{RESET}"   ) 
-    print ( f"TRAINLENEJ:     INFO:     seaborn       version =  {MIKADO}{sns.__version__}{RESET}"          )
-    print ( f"TRAINLENEJ:     INFO:     pandas        version =  {MIKADO}{pd.__version__}{RESET}"           )  
-    print ( f"TRAINLENEJ:     INFO:     numpy         version =  {MIKADO}{np.version.version}{RESET}"       )  
-    print ( f"TRAINLENEJ:     INFO:     cuda toolkit  version =  {MIKADO}{torch.version.cuda}{RESET}\n"     )  
-#    print ( f"TRAINLENEJ:     INFO:     cuda          version via os command = \n{MIKADO}",    flush=True   )  
+    print ( f"\nCLASSI:         INFO:     torch         version =  {MIKADO}{torch.__version__}{RESET}"      )
+    print ( f"CLASSI:         INFO:     torchvision   version =  {MIKADO}{torchvision.__version__}{RESET}"  )
+    print ( f"CLASSI:         INFO:     scipy         version =  {MIKADO}{scipy.version.version}{RESET}"    )
+    print ( f"CLASSI:         INFO:     sklearn       version =  {MIKADO}{sklearn.__version__}{RESET}"      )
+    print ( f"CLASSI:         INFO:     matplotlib    version =  {MIKADO}{matplotlib.__version__}{RESET}"   ) 
+    print ( f"CLASSI:         INFO:     seaborn       version =  {MIKADO}{sns.__version__}{RESET}"          )
+    print ( f"CLASSI:         INFO:     pandas        version =  {MIKADO}{pd.__version__}{RESET}"           )  
+    print ( f"CLASSI:         INFO:     numpy         version =  {MIKADO}{np.version.version}{RESET}"       )  
+    print ( f"CLASSI:         INFO:     cuda toolkit  version =  {MIKADO}{torch.version.cuda}{RESET}\n"     )  
+#    print ( f"CLASSI:         INFO:     cuda          version via os command = \n{MIKADO}",    flush=True   )  
 #    print ( f"{os.system('/usr/local/cuda/bin/nvcc --version')}{RESET}\n",                    flush=True    )
-#    print ( f"TRAINLENEJ:     INFO:     cuda driver  version via os command = \n{MIKADO}",    flush=True    )  
+#    print ( f"CLASSI:         INFO:     cuda driver  version via os command = \n{MIKADO}",    flush=True    )  
 #    print ( f"{os.system('cat /proc/driver/nvidia/version')}{RESET}\n",                       flush=True    )
   
 
 
   mode = 'TRAIN' if args.just_test!='True' else 'TEST'
 
-  print( f"{GREY_BACKGROUND}TRAINLENEJ:     INFO:  common args:  \
+  print( f"{GREY_BACKGROUND}CLASSI:         INFO:  common args:  \
 {WHITE}mode={AUREOLIN}{mode if args.clustering=='NONE' else 'CLUSTERING' }{WHITE}, \
 input={AUREOLIN}{args.input_mode}{WHITE}, \
 network={AUREOLIN}{args.nn_mode}{WHITE}, \
@@ -217,7 +217,7 @@ max_consec_losses={AUREOLIN}{args.max_consecutive_losses}{WHITE} \
 
   
   if args.input_mode=='image':
-    print( f"{GREY_BACKGROUND}TRAINLENEJ:     INFO:  image  args:  \
+    print( f"{GREY_BACKGROUND}CLASSI:         INFO:  image  args:  \
 {WHITE}nn_type_img={AUREOLIN}{args.nn_type_img}{WHITE}, \
 h_class={AUREOLIN}{args.highest_class_number}{WHITE}, \
 n_tiles={AUREOLIN}{args.n_tiles}{WHITE}, \
@@ -236,7 +236,7 @@ probs_matrix_interpolation={AUREOLIN}{args.probs_matrix_interpolation}{WHITE} \
 , flush=True )
 
   elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
-    print( f"{GREY_BACKGROUND}TRAINLENEJ:     INFO:  rna-seq args: \
+    print( f"{GREY_BACKGROUND}CLASSI:         INFO:  rna-seq args: \
 nn_type_rna={CYAN}{args.nn_type_rna}{WHITE}, \
 hidden_layer_neurons={YELLOW}{args.hidden_layer_neurons if args.nn_type_rna[0]=='DENSE' else args.hidden_layer_neurons  if args.nn_type_rna[0]=='AEDENSE' else ' N/A' }{WHITE}, \
 topology={YELLOW}{args.hidden_layer_encoder_topology  if args.nn_type_rna[0]=='DEEPDENSE' else args.hidden_layer_encoder_topology  if args.nn_type_rna[0]=='AEDEEPDENSE' else ' N/A' }{WHITE}, \
@@ -251,7 +251,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
   if args.clustering != "NONE":
     if args.input_mode=='image':
-      print( f"{GREY_BACKGROUND}TRAINLENEJ:     INFO:  additional: \
+      print( f"{GREY_BACKGROUND}CLASSI:         INFO:  additional: \
   {BOLD}{WHITE}clustering algorithm={CARRIBEAN_GREEN}{args.clustering}{WHITE} \
                   {RESET}"
   , flush=True )
@@ -391,12 +391,12 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
               svs_file_count +=1
             
       if svs_file_count<np.max(args.n_samples):
-        print( f"{BOLD}{ORANGE}TRAINLENEJ:     WARNG:  there aren't enough samples. A file count reveals a total of {MIKADO}{svs_file_count}{RESET}{BOLD}{ORANGE} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}{BOLD}{ORANGE}, whereas the largest value in user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{BOLD}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
-        print( f"{BOLD}{ORANGE}TRAINLENEJ:     WARNG:  changing values of '{CYAN}N_SAMPLES{RESET}{BOLD}{ORANGE} that are greater than {RESET}{MIKADO}{svs_file_count}{RESET}{BOLD}{ORANGE} to exactly {MIKADO}{svs_file_count}{RESET}{BOLD}{ORANGE} and continuing{RESET}" )
+        print( f"{BOLD}{ORANGE}CLASSI:         WARNG:  there aren't enough samples. A file count reveals a total of {MIKADO}{svs_file_count}{RESET}{BOLD}{ORANGE} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}{BOLD}{ORANGE}, whereas the largest value in user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{BOLD}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
+        print( f"{BOLD}{ORANGE}CLASSI:         WARNG:  changing values of '{CYAN}N_SAMPLES{RESET}{BOLD}{ORANGE} that are greater than {RESET}{MIKADO}{svs_file_count}{RESET}{BOLD}{ORANGE} to exactly {MIKADO}{svs_file_count}{RESET}{BOLD}{ORANGE} and continuing{RESET}" )
         args.n_samples = [  el if el<=svs_file_count else svs_file_count for el in args.n_samples   ]
         n_samples = args.n_samples
       else:
-        print( f"TRAINLENEJ:     INFO:  {WHITE}a file count shows there is a total of {MIKADO}{svs_file_count}{RESET} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' = {MIKADO}{np.max(args.n_samples)}{RESET})" )
+        print( f"CLASSI:         INFO:  {WHITE}a file count shows there is a total of {MIKADO}{svs_file_count}{RESET} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' = {MIKADO}{np.max(args.n_samples)}{RESET})" )
 
 
     if stain_norm[0]=='spcn':
@@ -415,12 +415,12 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
               spcn_file_count +=1
             
       if spcn_file_count<np.max(args.n_samples):
-        print( f"{BOLD}{ORANGE}TRAINLENEJ:     WARNG:  there aren't enough samples. A file count reveals a total of {MIKADO}{spcn_file_count}{RESET}{BOLD}{ORANGE} {RESET}{MIKADO}spcn{RESET}{ORANGE} files in {MAGENTA}{args.data_dir}{RESET}{BOLD}{ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{BOLD}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
-        print( f"{BOLD}{ORANGE}TRAINLENEJ:     WARNG:  changing values of '{CYAN}N_SAMPLES{RESET}{BOLD}{ORANGE} that are greater than {RESET}{MIKADO}{spcn_file_count}{RESET}{BOLD}{ORANGE} to exactly {MIKADO}{spcn_file_count}{RESET}{BOLD}{ORANGE} and continuing{RESET}" )
+        print( f"{BOLD}{ORANGE}CLASSI:         WARNG:  there aren't enough samples. A file count reveals a total of {MIKADO}{spcn_file_count}{RESET}{BOLD}{ORANGE} {RESET}{MIKADO}spcn{RESET}{ORANGE} files in {MAGENTA}{args.data_dir}{RESET}{BOLD}{ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{BOLD}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
+        print( f"{BOLD}{ORANGE}CLASSI:         WARNG:  changing values of '{CYAN}N_SAMPLES{RESET}{BOLD}{ORANGE} that are greater than {RESET}{MIKADO}{spcn_file_count}{RESET}{BOLD}{ORANGE} to exactly {MIKADO}{spcn_file_count}{RESET}{BOLD}{ORANGE} and continuing{RESET}" )
         args.n_samples = [  el if el<=spcn_file_count else spcn_file_count for el in args.n_samples   ]
         n_samples = args.n_samples
       else:
-        print( f"TRAINLENEJ:     INFO:  {WHITE}a file count shows there is a total of {MIKADO}{spcn_file_count}{RESET} spcn files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' = {MIKADO}{np.max(args.n_samples)}{RESET})" )
+        print( f"CLASSI:         INFO:  {WHITE}a file count shows there is a total of {MIKADO}{spcn_file_count}{RESET} spcn files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' = {MIKADO}{np.max(args.n_samples)}{RESET})" )
 
 
     # if tiling is to be skipped, make sure there tiling has been previously conducted (i.e. tile files exist)
@@ -439,40 +439,40 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
               png_file_count +=1
             
       if png_file_count<20:
-        print( f"{BOLD}{RED}TRAINLENEJ:     FATAL:  a count just now reveals a total of {MIKADO}{png_file_count}{RESET}{BOLD}{RED} tiles (png files) in {MAGENTA}{args.data_dir}{RESET}{BOLD}{RED} !!!{RESET}" ) 
-        print( f"{BOLD}{RED}TRAINLENEJ:     FATAL:  possible remedy: do not use either the '{CYAN}SKIP_TILING{RESET}{BOLD}{RED}' flag ({CYAN}-s {RESET}{BOLD}{RED}) or the '{CYAN}SKIP_GENERATION{RESET}{BOLD}{RED}' flag ({CYAN}-g {RESET}{BOLD}{RED}), so that tiling and dataset generation can occur. After you've tiled and generated once, it's OK to used these flags, which save a lot of time{RESET}"      ) 
+        print( f"{BOLD}{RED}CLASSI:         FATAL:  a count just now reveals a total of {MIKADO}{png_file_count}{RESET}{BOLD}{RED} tiles (png files) in {MAGENTA}{args.data_dir}{RESET}{BOLD}{RED} !!!{RESET}" ) 
+        print( f"{BOLD}{RED}CLASSI:         FATAL:  possible remedy: do not use either the '{CYAN}SKIP_TILING{RESET}{BOLD}{RED}' flag ({CYAN}-s {RESET}{BOLD}{RED}) or the '{CYAN}SKIP_GENERATION{RESET}{BOLD}{RED}' flag ({CYAN}-g {RESET}{BOLD}{RED}), so that tiling and dataset generation can occur. After you've tiled and generated once, it's OK to used these flags, which save a lot of time{RESET}"      ) 
         time.sleep(10)
         sys.exit(0)
 
 
   if  ( stain_norm[0]=='spcn' ):
-    print( f"{MAGENTA}{BOLD}TRAINLENEJ:     INFO:  '{CYAN}{BOLD}stain_norm{RESET}{MAGENTA}'{BOLD} option '{CYAN}{BOLD}spcn{RESET}{MAGENTA}{BOLD}' is set. The spcn slide set will be used and the svs side set will be ignored{RESET}", flush=True)
+    print( f"{MAGENTA}{BOLD}CLASSI:         INFO:  '{CYAN}{BOLD}stain_norm{RESET}{MAGENTA}'{BOLD} option '{CYAN}{BOLD}spcn{RESET}{MAGENTA}{BOLD}' is set. The spcn slide set will be used and the svs side set will be ignored{RESET}", flush=True)
 
   
   if (input_mode=='image') & (nn_type_img[0]=='INCEPT3') &  ( ( args.tile_size[0]!=299 ) | ( len(set(args.tile_size))!=1 )  ):
-    print( f"{RED}TRAINLENEJ:     FATAL:  For Inception 3 ('{CYAN}NN_TYPE_IMG={CYAN}{nn_type_img[0]}{RESET}{RED}' corresponding to python argument '{CYAN}--nn_type_img{RESET}{RED}') the only permitted tile size is {MIKADO}299{RESET}{RED}, however the tile size parameter ('{CYAN}TILE_SIZE{RESET}'{RED}) is currently set at {MIKADO}{tile_size[0]}{RESET}{RED}'", flush=True)
-    print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
+    print( f"{RED}CLASSI:         FATAL:  For Inception 3 ('{CYAN}NN_TYPE_IMG={CYAN}{nn_type_img[0]}{RESET}{RED}' corresponding to python argument '{CYAN}--nn_type_img{RESET}{RED}') the only permitted tile size is {MIKADO}299{RESET}{RED}, however the tile size parameter ('{CYAN}TILE_SIZE{RESET}'{RED}) is currently set at {MIKADO}{tile_size[0]}{RESET}{RED}'", flush=True)
+    print( f"{RED}CLASSI:         FATAL: ... halting now{RESET}" )
     sys.exit(0)
     
 
   if DEBUG>1:
     if  0 in highest_class_number:
-      print( f"{RED}TRAINLENEJ:     FATAL:  config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{RED}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{RED}') is not permitted to have the value {MIKADO}0{RESET}", flush=True)
-      print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
+      print( f"{RED}CLASSI:         FATAL:  config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{RED}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{RED}') is not permitted to have the value {MIKADO}0{RESET}", flush=True)
+      print( f"{RED}CLASSI:         FATAL: ... halting now{RESET}" )
       time.sleep(4)
   
     if  1 in highest_class_number:
-      print( f"\n{CHARTREUSE}TRAINLENEJ:     WARNG:  config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{CHARTREUSE}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{CHARTREUSE}') contains the value {MIKADO}1{RESET}{CHARTREUSE}, which seems very odd", flush=True)
-      print( f"{CHARTREUSE}TRAINLENEJ:     WARNG: ... continuing{RESET}" )
+      print( f"\n{CHARTREUSE}CLASSI:         WARNG:  config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{CHARTREUSE}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{CHARTREUSE}') contains the value {MIKADO}1{RESET}{CHARTREUSE}, which seems very odd", flush=True)
+      print( f"{CHARTREUSE}CLASSI:         WARNG: ... continuing{RESET}" )
       time.sleep(4)
   
     if  2 in highest_class_number:
-      print( f"\n{CHARTREUSE}TRAINLENEJ:     WARNG:  config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{CHARTREUSE}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{CHARTREUSE}') contains the value {MIKADO}2{RESET}{CHARTREUSE}, which is very low. Was this intentional?", flush=True)
-      print( f"{CHARTREUSE}TRAINLENEJ:     WARNG: ... continuing{RESET}" )
+      print( f"\n{CHARTREUSE}CLASSI:         WARNG:  config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{CHARTREUSE}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{CHARTREUSE}') contains the value {MIKADO}2{RESET}{CHARTREUSE}, which is very low. Was this intentional?", flush=True)
+      print( f"{CHARTREUSE}CLASSI:         WARNG: ... continuing{RESET}" )
       time.sleep(4)
 
   if sum(args.zoom_out_prob)!=1:
-    print( f"\r{RESET}{ORANGE}TRAINLENEJ:     WARNG: the probabilities contained in configuration vectors '{CYAN}args.zoom_out_prob{RESET}{ORANGE}' do not add up to {MIKADO}1{RESET}{ORANGE} (FYI they add up to {MIKADO}{sum(args.zoom_out_prob)}{RESET}{ORANGE}) ... adjusting  first entry to make the total equal {MIKADO}1{RESET}", flush=True)
+    print( f"\r{RESET}{ORANGE}CLASSI:         WARNG: the probabilities contained in configuration vectors '{CYAN}args.zoom_out_prob{RESET}{ORANGE}' do not add up to {MIKADO}1{RESET}{ORANGE} (FYI they add up to {MIKADO}{sum(args.zoom_out_prob)}{RESET}{ORANGE}) ... adjusting  first entry to make the total equal {MIKADO}1{RESET}", flush=True)
     
     first_entry = 1 - sum(args.zoom_out_prob[1:])
     args.zoom_out_prob[0] = first_entry
@@ -480,91 +480,91 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   if args.clustering == 'NONE':
     if  'VGG' in nn_type_img[0]:
       if  min(args.tile_size)<32:
-        print( f"{RED}TRAINLENEJ:     FATAL:  for the VGG models, tile size ('{CYAN}TILE_SIZE{RESET}{RED}' corresponding to python argument '{CYAN}--tile_size{RESET}{RED}') is not permitted to be less than {MIKADO}32{RESET}", flush=True)
-        print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
+        print( f"{RED}CLASSI:         FATAL:  for the VGG models, tile size ('{CYAN}TILE_SIZE{RESET}{RED}' corresponding to python argument '{CYAN}--tile_size{RESET}{RED}') is not permitted to be less than {MIKADO}32{RESET}", flush=True)
+        print( f"{RED}CLASSI:         FATAL: ... halting now{RESET}" )
         sys.exit(0)
 
   if  ( pretrain=='True' ) & ( input_mode=='image' ):
-    print( f"{COTTON_CANDY}TRAINLENEJ:     INFO:  {CYAN}PRETRAIN{RESET}{COTTON_CANDY} option ({CYAN}-p True{RESET}{COTTON_CANDY}) (corresponding to python argument '{CYAN}--pretrain True{RESET}{COTTON_CANDY}') has been selected{RESET}", flush=True)
+    print( f"{COTTON_CANDY}CLASSI:         INFO:  {CYAN}PRETRAIN{RESET}{COTTON_CANDY} option ({CYAN}-p True{RESET}{COTTON_CANDY}) (corresponding to python argument '{CYAN}--pretrain True{RESET}{COTTON_CANDY}') has been selected{RESET}", flush=True)
 
   if  ( pretrain=='True' ) & ( input_mode!='image' ):
-    print( f"{RED}TRAINLENEJ:     FATAL: the {CYAN}PRETRAIN{RESET}{RED} option ({CYAN}-p True{RESET}{RED}) (corresponding to python argument '{CYAN}--pretrain True{RESET}{RED}') is only supported in image mode{RESET}", flush=True)
-    print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
+    print( f"{RED}CLASSI:         FATAL: the {CYAN}PRETRAIN{RESET}{RED} option ({CYAN}-p True{RESET}{RED}) (corresponding to python argument '{CYAN}--pretrain True{RESET}{RED}') is only supported in image mode{RESET}", flush=True)
+    print( f"{RED}CLASSI:         FATAL: ... halting now{RESET}" )
     sys.exit(0)
 
   if just_test!='True':
     if  not (  ( args.cases=='ALL_ELIGIBLE_CASES' ) | ( args.cases=='UNIMODE_CASE' ) | ( args.cases=='MULTIMODE____TEST' )  ):
-      print( f"{RED}TRAINLENEJ:     FATAL: user option  {CYAN}-c ('cases')  {RESET}{RED} = '{CYAN}{args.cases}{RESET}{RED}' is not supported{RESET}" )
-      print( f"{RED}TRAINLENEJ:     FATAL: explanation:  in training mode the following options are supported: '{CYAN}ALL_ELGIBLE_CASES{RESET}{RED}', '{CYAN}MULTIMODE____TEST{RESET}{RED}', '{CYAN}UNIMODE_CASE{RESET}{RED}'" )
-      print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
+      print( f"{RED}CLASSI:         FATAL: user option  {CYAN}-c ('cases')  {RESET}{RED} = '{CYAN}{args.cases}{RESET}{RED}' is not supported{RESET}" )
+      print( f"{RED}CLASSI:         FATAL: explanation:  in training mode the following options are supported: '{CYAN}ALL_ELGIBLE_CASES{RESET}{RED}', '{CYAN}MULTIMODE____TEST{RESET}{RED}', '{CYAN}UNIMODE_CASE{RESET}{RED}'" )
+      print( f"{RED}CLASSI:         FATAL: ... halting now{RESET}" )
       sys.exit(0)
   else:
     if pretrain=='True':
-      print( f"{RED}TRAINLENEJ:     FATAL: the {CYAN}PRETRAIN{RESET}{RED} option ({CYAN}-p True{RESET}{RED}) corresponding to python argument {CYAN}--pretrain True{RESET}{RED} is not supported in test mode (because it makes no sense){RESET}", flush=True)
-      print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
+      print( f"{RED}CLASSI:         FATAL: the {CYAN}PRETRAIN{RESET}{RED} option ({CYAN}-p True{RESET}{RED}) corresponding to python argument {CYAN}--pretrain True{RESET}{RED} is not supported in test mode (because it makes no sense){RESET}", flush=True)
+      print( f"{RED}CLASSI:         FATAL: ... halting now{RESET}" )
       sys.exit(0)
     if args.cases=='ALL_ELIGIBLE_CASES':
-      print( f"{RED}TRAINLENEJ:     FATAL: in test mode '{RESET}{CYAN}-c ALL_ELIGIBLE_CASES{RESET}{RED}' is not supported{RESET}" )
-      print( f"{RED}TRAINLENEJ:     FATAL:   explanation:  The '{CYAN}CASES{RESET}{RED}' subset '{CYAN}ALL_ELIGIBLE_CASES{RESET}{RED}' includes examples used to train the model that is about to be deployed. Therefore, the results would be meaningless{RESET}" )
-      print( f"{RED}TRAINLENEJ:     FATAL:   explanation:  in test mode the following case subsets are supported: ''{CYAN}UNIMODE_CASE{RESET}{RED}', '{CYAN}MULTIMODE____TEST{RESET}{RED}'" )
-      print( f"{RED}TRAINLENEJ:     FATAL:   ... halting now{RESET}" )
+      print( f"{RED}CLASSI:         FATAL: in test mode '{RESET}{CYAN}-c ALL_ELIGIBLE_CASES{RESET}{RED}' is not supported{RESET}" )
+      print( f"{RED}CLASSI:         FATAL:   explanation:  The '{CYAN}CASES{RESET}{RED}' subset '{CYAN}ALL_ELIGIBLE_CASES{RESET}{RED}' includes examples used to train the model that is about to be deployed. Therefore, the results would be meaningless{RESET}" )
+      print( f"{RED}CLASSI:         FATAL:   explanation:  in test mode the following case subsets are supported: ''{CYAN}UNIMODE_CASE{RESET}{RED}', '{CYAN}MULTIMODE____TEST{RESET}{RED}'" )
+      print( f"{RED}CLASSI:         FATAL:   ... halting now{RESET}" )
       sys.exit(0)
     elif  not ( ( args.cases=='UNIMODE_CASE' ) | ( args.cases=='MULTIMODE____TEST' )  ):
-      print( f"{RED}TRAINLENEJ:     FATAL: unknown case subset: {CYAN}-c ('cases')  {RESET}{RED} = '{CYAN}{args.cases}{RESET}{RED}'{RESET}" )
-      print( f"{RED}TRAINLENEJ:     FATAL:   ... halting now{RESET}" )
+      print( f"{RED}CLASSI:         FATAL: unknown case subset: {CYAN}-c ('cases')  {RESET}{RED} = '{CYAN}{args.cases}{RESET}{RED}'{RESET}" )
+      print( f"{RED}CLASSI:         FATAL:   ... halting now{RESET}" )
       sys.exit(0)
 
       
 
   if  ( args.cases!='ALL_ELIGIBLE_CASES' ) & ( args.divide_cases == 'False' ):
-    print( f"{ORANGE}TRAINLENEJ:     CAUTION: user option {CYAN}-v ('divide_cases') {RESET}{ORANGE} = {CYAN}False{RESET}{ORANGE}, however option {CYAN}-c ('cases'){RESET}{ORANGE} is NOT '{CYAN}ALL_ELIGIBLE_CASES{RESET}{ORANGE}', so the requested subset of cases may or may not already exist{RESET}" )
-    print( f"{ORANGE}TRAINLENEJ:     CAUTION:   this will definitely cause problems unless the requested subset of cases ({RESET}{ORANGE}'{CYAN}{args.cases}{RESET}{ORANGE}') already exists (in {RESET}{ORANGE}'{CYAN}{args.data_dir}{RESET}{ORANGE}') as a result of a previous run which had {CYAN}-v {'divide_cases'}{RESET}{ORANGE} flag set" )
-    print( f"{ORANGE}TRAINLENEJ:     CAUTION:   ... NOT halting, but if the program crashes, you'll at least know the likely cause{RESET}" )
+    print( f"{ORANGE}CLASSI:         CAUTION: user option {CYAN}-v ('divide_cases') {RESET}{ORANGE} = {CYAN}False{RESET}{ORANGE}, however option {CYAN}-c ('cases'){RESET}{ORANGE} is NOT '{CYAN}ALL_ELIGIBLE_CASES{RESET}{ORANGE}', so the requested subset of cases may or may not already exist{RESET}" )
+    print( f"{ORANGE}CLASSI:         CAUTION:   this will definitely cause problems unless the requested subset of cases ({RESET}{ORANGE}'{CYAN}{args.cases}{RESET}{ORANGE}') already exists (in {RESET}{ORANGE}'{CYAN}{args.data_dir}{RESET}{ORANGE}') as a result of a previous run which had {CYAN}-v {'divide_cases'}{RESET}{ORANGE} flag set" )
+    print( f"{ORANGE}CLASSI:         CAUTION:   ... NOT halting, but if the program crashes, you'll at least know the likely cause{RESET}" )
       
   c_m = f"plt.cm.{eval('colour_map')}"                                                                    # the 'eval' is so that the user input string will be treated as a variable
   class_colors = [ eval(c_m)(i) for i in range(len(args.class_names))]                                    # makes an array of colours by calling the user defined colour map (which is a function, not a variable)
   if DEBUG>555:
-    print (f"TRAINLENEJ:     INFO:  class_colors = \n{MIKADO}{class_colors}{RESET}" )
+    print (f"CLASSI:         INFO:  class_colors = \n{MIKADO}{class_colors}{RESET}" )
             
   
   pplog.set_logfiles( log_dir )
 
   if ( input_mode=='image' ): 
     if 1 in batch_size:
-      print ( f"{RED}TRAINLENEJ:     INFO: sorry - parameter '{CYAN}BATCH_SIZE{RESET}{RED}' (currently '{MIKADO}{batch_size}{RESET}{RED}' cannot include a value <2 for images{RESET}" )
-      print ( f"{RED}TRAINLENEJ:     INFO: halting now{RESET}" )      
+      print ( f"{RED}CLASSI:         INFO: sorry - parameter '{CYAN}BATCH_SIZE{RESET}{RED}' (currently '{MIKADO}{batch_size}{RESET}{RED}' cannot include a value <2 for images{RESET}" )
+      print ( f"{RED}CLASSI:         INFO: halting now{RESET}" )      
       sys.exit(0) 
  
   if  ( just_test=='True' ) & ( use_autoencoder_output=='True' ):
-    print( f"{ORANGE}TRAINLENEJ:     INFO:  flag USE_AUTOENCODER_OUTPUT' isn't compatible with flag 'JUST_TEST' ... will disable test mode and continues{RESET}" )
+    print( f"{ORANGE}CLASSI:         INFO:  flag USE_AUTOENCODER_OUTPUT' isn't compatible with flag 'JUST_TEST' ... will disable test mode and continues{RESET}" )
     args.just_test=False
 
   
   if  (nn_mode=='dlbcl_image') & (args.clustering=='NONE'):
     if  'AE' in nn_type_img[0]:
-      print( f"{RED}TRAINLENEJ:     FATAL: the network model must not be an autoencoder if nn_mode='{MIKADO}{nn_mode}{RESET}{RED}' (you have NN_TYPE_IMG='{MIKADO}{nn_type_img[0]}{RESET}{RED}', which is an autoencoder) ... halting now{RESET}" )
+      print( f"{RED}CLASSI:         FATAL: the network model must not be an autoencoder if nn_mode='{MIKADO}{nn_mode}{RESET}{RED}' (you have NN_TYPE_IMG='{MIKADO}{nn_type_img[0]}{RESET}{RED}', which is an autoencoder) ... halting now{RESET}" )
       sys.exit(0)
     if  'AE' in nn_type_rna[0]:
-      print( f"{RED}TRAINLENEJ:     FATAL: the network model must {UNDER}not{RESET}{RED} be an autoencoder if nn_mode='{MIKADO}{nn_mode}{RESET}{RED}' (you have NN_TYPE_RNA='{MIKADO}{nn_type_rna[0]}{RESET}{RED}', which is an autoencoder) ... halting now{RESET}" )
+      print( f"{RED}CLASSI:         FATAL: the network model must {UNDER}not{RESET}{RED} be an autoencoder if nn_mode='{MIKADO}{nn_mode}{RESET}{RED}' (you have NN_TYPE_RNA='{MIKADO}{nn_type_rna[0]}{RESET}{RED}', which is an autoencoder) ... halting now{RESET}" )
       sys.exit(0)
       
 
   if clustering=='NONE':
     if  ( use_autoencoder_output=='True' ):
       if  ( input_mode=='image' ) &  ( 'AE' in nn_type_img[0] )==False:
-        print( f"{RED}TRAINLENEJ:     FATAL: the network model must be an autoencoder if flag '{CYAN}USE_AUTOENCODER_OUTPUT{RESET}{RED}=='{MIKADO}{True}{RESET}{RED}' (you have NN_TYPE_IMG='{CYAN}{nn_type_img[0]}{RESET}{RED}', which is not an autoencoder) ... halting now{RESET}" )
+        print( f"{RED}CLASSI:         FATAL: the network model must be an autoencoder if flag '{CYAN}USE_AUTOENCODER_OUTPUT{RESET}{RED}=='{MIKADO}{True}{RESET}{RED}' (you have NN_TYPE_IMG='{CYAN}{nn_type_img[0]}{RESET}{RED}', which is not an autoencoder) ... halting now{RESET}" )
         sys.exit(0)
       if  ( input_mode=='image' ) &  ( 'AE' in nn_type_rna[0] )==False:
-        print( f"{RED}TRAINLENEJ:     FATAL: the network model must be an autoencoder if flag '{CYAN}USE_AUTOENCODER_OUTPUT{RESET}{RED}=='{MIKADO}{True}{RESET}{RED}' (you have NN_TYPE_RNA='{CYAN}{nn_type_rna[0]}{RESET}{RED}', which is not an autoencoder) ... halting now{RESET}" )
+        print( f"{RED}CLASSI:         FATAL: the network model must be an autoencoder if flag '{CYAN}USE_AUTOENCODER_OUTPUT{RESET}{RED}=='{MIKADO}{True}{RESET}{RED}' (you have NN_TYPE_RNA='{CYAN}{nn_type_rna[0]}{RESET}{RED}', which is not an autoencoder) ... halting now{RESET}" )
         sys.exit(0)
     
   if supergrid_size<1:
-    print( f"{RED}TRAINLENEJ:     FATAL:    parameter 'supergrid_size' (current value {supergrid_size}) must be an integer greater than zero ... halting now{RESET}" )
+    print( f"{RED}CLASSI:         FATAL:    parameter 'supergrid_size' (current value {supergrid_size}) must be an integer greater than zero ... halting now{RESET}" )
     sys.exit(0)
 
   if ( args.cases=='MULTIMODE____TEST' ):                                                                           
     if DEBUG>0:
-      print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}args.cases{RESET}{ORANGE}' = {MAGENTA}{args.cases}{RESET}{ORANGE}! Therefore '{CYAN}N_SAMPLES{RESET}{ORANGE}' (currently {MIKADO}{n_samples[0]}{RESET}{ORANGE}) will be changed to the value of '{CYAN}CASES_RESERVED_FOR_IMAGE_RNA{RESET}{ORANGE} ({MIKADO}{args.cases_reserved_for_image_rna}{RESET}{ORANGE})" ) 
+      print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}args.cases{RESET}{ORANGE}' = {MAGENTA}{args.cases}{RESET}{ORANGE}! Therefore '{CYAN}N_SAMPLES{RESET}{ORANGE}' (currently {MIKADO}{n_samples[0]}{RESET}{ORANGE}) will be changed to the value of '{CYAN}CASES_RESERVED_FOR_IMAGE_RNA{RESET}{ORANGE} ({MIKADO}{args.cases_reserved_for_image_rna}{RESET}{ORANGE})" ) 
     args.n_samples[0] = cases_reserved_for_image_rna
     n_samples         = args.n_samples
   
@@ -578,52 +578,52 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   
 
   if just_test=='True':
-    print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set. No training will be performed{RESET}" )
+    print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set. No training will be performed{RESET}" )
     if n_epochs>1:
-      print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set, so n_epochs (currently {MIKADO}{n_epochs}{RESET}{ORANGE}) has been set to {MIKADO}1{RESET}{ORANGE} for this run{RESET}" ) 
+      print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set, so n_epochs (currently {MIKADO}{n_epochs}{RESET}{ORANGE}) has been set to {MIKADO}1{RESET}{ORANGE} for this run{RESET}" ) 
       n_epochs=1
     if args.just_test=='True':
       if ( input_mode=='image' ):
-        print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set. {CYAN}N_TESTS ('-Z'){RESET}{ORANGE} ({MIKADO}{args.n_tests}{RESET}{ORANGE}) is greater than {CYAN}N_SAMPLES{RESET}{ORANGE} ({MIKADO}{args.n_samples[0]}{RESET}{ORANGE}). Changing {CYAN}N_TESTS{RESET}{ORANGE} to {MIKADO}{args.n_samples[0]}",  flush=True        ) 
+        print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set. {CYAN}N_TESTS ('-Z'){RESET}{ORANGE} ({MIKADO}{args.n_tests}{RESET}{ORANGE}) is greater than {CYAN}N_SAMPLES{RESET}{ORANGE} ({MIKADO}{args.n_samples[0]}{RESET}{ORANGE}). Changing {CYAN}N_TESTS{RESET}{ORANGE} to {MIKADO}{args.n_samples[0]}",  flush=True        ) 
         if args.n_tests > args.n_samples[0]:      
           args.n_tests = args.n_samples[0]
           n_tests      = args.n_samples[0]
     if ( multimode!='image_rna' ) & ( input_mode!='image_rna' ):
-      print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set. Only one thread will be used for processing to ensure patch tiles will be processed in the correct sequence{RESET}" )
+      print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set. Only one thread will be used for processing to ensure patch tiles will be processed in the correct sequence{RESET}" )
       if len(args.hidden_layer_neurons)>1:
-        print( f"{RED}TRAINLENEJ:     INFO:  in test mode, ({CYAN}JUST_TEST=\"True\"{RESET}{RED}), only one value is allowed for the parameter '{CYAN}HIDDEN_LAYER_NEURONS{RESET}{RED}'. At the moment it has {MIKADO}{len(args.hidden_layer_neurons)}{RESET}{RED} values ... halting{RESET}" )
+        print( f"{RED}CLASSI:         INFO:  in test mode, ({CYAN}JUST_TEST=\"True\"{RESET}{RED}), only one value is allowed for the parameter '{CYAN}HIDDEN_LAYER_NEURONS{RESET}{RED}'. At the moment it has {MIKADO}{len(args.hidden_layer_neurons)}{RESET}{RED} values ... halting{RESET}" )
         sys.exit(0)        
       if input_mode=='image':
         if not tile_size_max**0.5 == int(tile_size_max**0.5):
-          print( f"{RED}TRAINLENEJ:     INFO:  in test_mode, '{CYAN}TILE_SIZE ('-T'){RESET}{RED}' (currently {MIKADO}{tile_size[0]}{RESET}{RED}) must be a perfect square (eg. 49, 64, 144, 256 ) ... halting [1586]{RESET}" )
+          print( f"{RED}CLASSI:         INFO:  in test_mode, '{CYAN}TILE_SIZE ('-T'){RESET}{RED}' (currently {MIKADO}{tile_size[0]}{RESET}{RED}) must be a perfect square (eg. 49, 64, 144, 256 ) ... halting [1586]{RESET}" )
           sys.exit(0)
       if len(batch_size)>1:
-        print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'   flag is set but but '{CYAN}BATCH_SIZE{RESET}{ORANGE}' has {MIKADO}{len(batch_size)}{RESET}{ORANGE} values ({MIKADO}{batch_size}{RESET}{ORANGE}). Only the first value ({MIKADO}{batch_size[0]}{ORANGE}) will be used{RESET}" )
+        print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'   flag is set but but '{CYAN}BATCH_SIZE{RESET}{ORANGE}' has {MIKADO}{len(batch_size)}{RESET}{ORANGE} values ({MIKADO}{batch_size}{RESET}{ORANGE}). Only the first value ({MIKADO}{batch_size[0]}{ORANGE}) will be used{RESET}" )
         del batch_size[1:]       
       if len(n_tiles)>1:
-        print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'   flag is set but but '{CYAN}N_TILES{RESET}{ORANGE}'    has {MIKADO}{len(n_tiles)}{RESET}{ORANGE} values ({MIKADO}{n_tiles}{RESET}{ORANGE}). Only the first value ({MIKADO}{n_tiles[0]}{RESET}{ORANGE}) will be used{RESET}" )
+        print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'   flag is set but but '{CYAN}N_TILES{RESET}{ORANGE}'    has {MIKADO}{len(n_tiles)}{RESET}{ORANGE} values ({MIKADO}{n_tiles}{RESET}{ORANGE}). Only the first value ({MIKADO}{n_tiles[0]}{RESET}{ORANGE}) will be used{RESET}" )
         del n_tiles[1:] 
       n_tiles[0] = supergrid_size**2 * batch_size[0]
-      print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set, therefore '{CYAN}N_TILES{RESET}{ORANGE}' has been set to '{CYAN}SUPERGRID_SIZE^2 * BATCH_SIZE{RESET}{ORANGE}' ({MIKADO}{supergrid_size} * {supergrid_size} * {batch_size} =  {n_tiles}{RESET} {ORANGE}) for this job{RESET}" )          
+      print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set, therefore '{CYAN}N_TILES{RESET}{ORANGE}' has been set to '{CYAN}SUPERGRID_SIZE^2 * BATCH_SIZE{RESET}{ORANGE}' ({MIKADO}{supergrid_size} * {supergrid_size} * {batch_size} =  {n_tiles}{RESET} {ORANGE}) for this job{RESET}" )          
     else:
-      print( f"{ORANGE}TRAINLENEJ:     INFO:   user argument  'MULTIMODE' = '{CHARTREUSE}{multimode}{RESET}{ORANGE}'. Embeddings will be generated.{RESET}"   )      
+      print( f"{ORANGE}CLASSI:         INFO:   user argument  'MULTIMODE' = '{CHARTREUSE}{multimode}{RESET}{ORANGE}'. Embeddings will be generated.{RESET}"   )      
   else:
     if ( input_mode=='image' ) &  ( pretrain!='True' ):
       if not tile_size_max**0.5 == int(tile_size_max**0.5):
-        print( f"{ORANGE}TRAINLENEJ:     WARNG: '{CYAN}TILE_SIZE{RESET}{ORANGE}' ({MIKADO}{tile_size_max}{RESET}{ORANGE}) isn't a perfect square, which is fine for training, but will mean you won't be able to use test mode on the model you train here{RESET}" )
+        print( f"{ORANGE}CLASSI:         WARNG: '{CYAN}TILE_SIZE{RESET}{ORANGE}' ({MIKADO}{tile_size_max}{RESET}{ORANGE}) isn't a perfect square, which is fine for training, but will mean you won't be able to use test mode on the model you train here{RESET}" )
       if supergrid_size>1:
         if DEBUG>99:
-          print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'  flag is NOT set, so supergrid_size (currently {MIKADO}{supergrid_size}{RESET}{ORANGE}) will be ignored{RESET}" )
+          print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'  flag is NOT set, so supergrid_size (currently {MIKADO}{supergrid_size}{RESET}{ORANGE}) will be ignored{RESET}" )
         args.supergrid_size=1
 
            
   if rand_tiles=='False':
-    print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}RANDOM_TILES{RESET}{ORANGE}'  flag is not set. Tiles will be selected sequentially rather than at random. This is appropriate for test mode, but not training mode{RESET}" )     
+    print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}RANDOM_TILES{RESET}{ORANGE}'  flag is not set. Tiles will be selected sequentially rather than at random. This is appropriate for test mode, but not training mode{RESET}" )     
 
 
 
   if use_same_seed=='True':
-    print( f"{ORANGE}TRAINLENEJ:     WARNG: '{CYAN}USE_SAME_SEED{RESET}{ORANGE}' flag is set. The same seed will be used for all runs in this job{RESET}" )
+    print( f"{ORANGE}CLASSI:         WARNG: '{CYAN}USE_SAME_SEED{RESET}{ORANGE}' flag is set. The same seed will be used for all runs in this job{RESET}" )
     torch.manual_seed(0.223124)    
 
   if ( input_mode=='rna' ): 
@@ -642,24 +642,24 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
             rna_file_count +=1
           
     if rna_file_count<np.max(args.n_samples):
-      print( f"{BOLD}{ORANGE}TRAINLENEJ:     WARNG: there are not {MIKADO}{np.max(args.n_samples)}{BOLD}{ORANGE} RNA-Seq examples available to be used. A file count reveals a total of {MIKADO}{rna_file_count}{RESET}{BOLD}{ORANGE} rna files in {MAGENTA}{args.data_dir}{RESET}{BOLD}{ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES{RESET}{BOLD}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET}" ) 
-      print( f"{BOLD}{ORANGE}TRAINLENEJ:     WARNG: changing all values in the user configuration parameter '{CYAN}N_SAMPLES{RESET}{BOLD}{ORANGE}' that are greater than {RESET}{BOLD}{MIKADO}{rna_file_count}{RESET}{BOLD}{ORANGE} to exactly {MIKADO}{rna_file_count}{RESET}{BOLD}{ORANGE}{RESET}" )
+      print( f"{BOLD}{ORANGE}CLASSI:         WARNG: there are not {MIKADO}{np.max(args.n_samples)}{BOLD}{ORANGE} RNA-Seq examples available to be used. A file count reveals a total of {MIKADO}{rna_file_count}{RESET}{BOLD}{ORANGE} rna files in {MAGENTA}{args.data_dir}{RESET}{BOLD}{ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES{RESET}{BOLD}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET}" ) 
+      print( f"{BOLD}{ORANGE}CLASSI:         WARNG: changing all values in the user configuration parameter '{CYAN}N_SAMPLES{RESET}{BOLD}{ORANGE}' that are greater than {RESET}{BOLD}{MIKADO}{rna_file_count}{RESET}{BOLD}{ORANGE} to exactly {MIKADO}{rna_file_count}{RESET}{BOLD}{ORANGE}{RESET}" )
       args.n_samples = [  el if el<=rna_file_count else rna_file_count for el in args.n_samples   ]
       n_samples      = args.n_samples
 
     else:
       if just_test!='True':
-        print( f"TRAINLENEJ:     INFO:  {WHITE}a file count shows there is a total of {MIKADO}{rna_file_count}{RESET} rna files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' = {MIKADO}{np.max(args.n_samples)}{RESET})" )
+        print( f"CLASSI:         INFO:  {WHITE}a file count shows there is a total of {MIKADO}{rna_file_count}{RESET} rna files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' = {MIKADO}{np.max(args.n_samples)}{RESET})" )
       else:
-        print( f"TRAINLENEJ:     INFO:  {WHITE}a file count shows there is a total of {MIKADO}{rna_file_count}{RESET} rna files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_TESTS{RESET}' = {MIKADO}{np.max(args.n_tests)}{RESET})" )
+        print( f"CLASSI:         INFO:  {WHITE}a file count shows there is a total of {MIKADO}{rna_file_count}{RESET} rna files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_TESTS{RESET}' = {MIKADO}{np.max(args.n_tests)}{RESET})" )
 
 
   if (DEBUG>8):
-    print ( f"TRAINLENEJ:     INFO:  highest_class_number = {MIKADO}{highest_class_number}{RESET}",    flush=True)
-    print ( f"TRAINLENEJ:     INFO:  n_samples            = {MIKADO}{n_samples}{RESET}",               flush=True)
+    print ( f"CLASSI:         INFO:  highest_class_number = {MIKADO}{highest_class_number}{RESET}",    flush=True)
+    print ( f"CLASSI:         INFO:  n_samples            = {MIKADO}{n_samples}{RESET}",               flush=True)
     if ( input_mode=='image' ):
-      print ( f"TRAINLENEJ:     INFO:  n_tiles              = {MIKADO}{n_tiles}{RESET}",                 flush=True)
-      print ( f"TRAINLENEJ:     INFO:  tile_size            = {MIKADO}{tile_size}{RESET}",               flush=True)
+      print ( f"CLASSI:         INFO:  n_tiles              = {MIKADO}{n_tiles}{RESET}",                 flush=True)
+      print ( f"CLASSI:         INFO:  tile_size            = {MIKADO}{tile_size}{RESET}",               flush=True)
 
     
 
@@ -701,10 +701,10 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   param_values = [v for v in parameters.values()]
   
   if DEBUG>2:
-    print ( f"\n\n\nTRAINLENEJ:     INFO:  parameters      =  \n{BOLD}{HOT_PINK}{parameters}{RESET}"  )
+    print ( f"\n\n\nCLASSI:         INFO:  parameters      =  \n{BOLD}{HOT_PINK}{parameters}{RESET}"  )
   if DEBUG>99:
-    print ( f"TRAINLENEJ:     INFO:  param_keys      =  \n{BOLD}{HOT_PINK}{param_keys}{RESET}"  )
-    print ( f"TRAINLENEJ:     INFO:  param_values    =  \n{BOLD}{HOT_PINK}{param_values}{RESET}"  )
+    print ( f"CLASSI:         INFO:  param_keys      =  \n{BOLD}{HOT_PINK}{param_keys}{RESET}"  )
+    print ( f"CLASSI:         INFO:  param_values    =  \n{BOLD}{HOT_PINK}{param_values}{RESET}"  )
 
   start_column  = 0
   offset        = 14
@@ -720,7 +720,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   
   
   if DEBUG>0:
-    print ( f"TRAINLENEJ:     INFO:  total_runs_in_job    =  {CARRIBEAN_GREEN}{total_runs_in_job}{RESET}"  )
+    print ( f"CLASSI:         INFO:  total_runs_in_job    =  {CARRIBEAN_GREEN}{total_runs_in_job}{RESET}"  )
 
   image_headings =\
 f"\
@@ -810,7 +810,7 @@ f"\
 
   if (just_test=='True') & (input_mode=='image') & (multimode!= 'image_rna'):   
     if not ( batch_size == int( math.sqrt(batch_size) + 0.5) ** 2 ):
-      print( f"{RED}TRAINLENEJ:     FATAL:  in test mode {CYAN}BATCH_SIZE ('-b') {RESET}{RED}(currently {MIKADO}{batch_size}{RESET}{RED}) must be a perfect square (4, 9, 16, 25 ...) to permit selection of a a 2D contiguous patch. Halting [2989].\033[m" )
+      print( f"{RED}CLASSI:         FATAL:  in test mode {CYAN}BATCH_SIZE ('-b') {RESET}{RED}(currently {MIKADO}{batch_size}{RESET}{RED}) must be a perfect square (4, 9, 16, 25 ...) to permit selection of a a 2D contiguous patch. Halting [2989].\033[m" )
       sys.exit(0)      
 
   
@@ -825,9 +825,9 @@ f"\
       if just_test=='False':                                                                      
         multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count =  segment_cases( pct_test )  # boils down to setting flags in the directories of certain cases, esp. 'MULTIMODE_CASE_FLAG'
       else:
-        print( f"{RED}TRAINLENEJ:     FATAL: user option  {CYAN}-v ('args.cases'){RESET}{RED} is not allowed in test mode ({CYAN}JUST_TEST=True{RESET}, {CYAN}--just_test 'True'{RESET}){RED}{RESET}" )
-        print( f"{RED}TRAINLENEJ:     FATAL: explanation:  it will resegment the cases, meaning there is every chance cases you've trained on will end up in the test set{RESET}" )
-        print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
+        print( f"{RED}CLASSI:         FATAL: user option  {CYAN}-v ('args.cases'){RESET}{RED} is not allowed in test mode ({CYAN}JUST_TEST=True{RESET}, {CYAN}--just_test 'True'{RESET}){RED}{RESET}" )
+        print( f"{RED}CLASSI:         FATAL: explanation:  it will resegment the cases, meaning there is every chance cases you've trained on will end up in the test set{RESET}" )
+        print( f"{RED}CLASSI:         FATAL: ... halting now{RESET}" )
         sys.exit(0)
  
     if use_unfiltered_data == True:
@@ -876,7 +876,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
 
 
     # ~ if just_test=='True':
-        # ~ print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set, so n_samples (currently {MIKADO}{n_samples}{RESET}{ORANGE}) has been set to {MIKADO}1{RESET}{ORANGE} for this run{RESET}" ) 
+        # ~ print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set, so n_samples (currently {MIKADO}{n_samples}{RESET}{ORANGE}) has been set to {MIKADO}1{RESET}{ORANGE} for this run{RESET}" ) 
         # ~ n_samples = int(pct_test * n_samples )
 
 
@@ -910,9 +910,9 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
 
       if DEBUG>0:
         print ( f"\n\n" )
-        print ( f"TRAINLENEJ:     INFO:      test(): args.n_tests                     = {PALE_GREEN}{args.n_tests}{RESET}"                  )
-        print ( f"TRAINLENEJ:     INFO:      test(): n_classes                        = {PALE_GREEN}{n_classes}{RESET}"                     )
-        print ( f"TRAINLENEJ:     INFO:      test(): probabilities_matrix.shape       = {PALE_GREEN}{probabilities_matrix.shape}{RESET}"    )                                    
+        print ( f"CLASSI:         INFO:      test(): args.n_tests                     = {PALE_GREEN}{args.n_tests}{RESET}"                  )
+        print ( f"CLASSI:         INFO:      test(): n_classes                        = {PALE_GREEN}{n_classes}{RESET}"                     )
+        print ( f"CLASSI:         INFO:      test(): probabilities_matrix.shape       = {PALE_GREEN}{probabilities_matrix.shape}{RESET}"    )                                    
 
 
     if DEBUG>0:
@@ -971,29 +971,29 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
     final_test_batch_size =   int(n_samples * n_tiles * pct_test)
     
     if DEBUG>99:
-      print( f"TRAINLENEJ:     INFO:          requested FINAL_TEST_BATCH_SIZE = {MIKADO}{int(args.final_test_batch_size)}{RESET}" )      
-      print( f"TRAINLENEJ:     INFO:          N_SAMPLES (notional)            = {MIKADO}{n_samples}{RESET}" )
-      print( f"TRAINLENEJ:     INFO:          N_TILES (per sample)            = {MIKADO}{n_tiles}{RESET}" )
-      print( f"TRAINLENEJ:     INFO:          PCT_TEST                        = {MIKADO}{pct_test}{RESET}" )
-      print( f"TRAINLENEJ:     INFO:          hence available test tiles      = {MIKADO}{int(final_test_batch_size)}{RESET}" )
+      print( f"CLASSI:         INFO:          requested FINAL_TEST_BATCH_SIZE = {MIKADO}{int(args.final_test_batch_size)}{RESET}" )      
+      print( f"CLASSI:         INFO:          N_SAMPLES (notional)            = {MIKADO}{n_samples}{RESET}" )
+      print( f"CLASSI:         INFO:          N_TILES (per sample)            = {MIKADO}{n_tiles}{RESET}" )
+      print( f"CLASSI:         INFO:          PCT_TEST                        = {MIKADO}{pct_test}{RESET}" )
+      print( f"CLASSI:         INFO:          hence available test tiles      = {MIKADO}{int(final_test_batch_size)}{RESET}" )
     if args.final_test_batch_size > final_test_batch_size:
-      print ( f"{ORANGE}TRAINLENEJ:     WARNING: there aren't enough test tiles to support a {CYAN}FINAL_TEST_BATCH_SIZE{RESET}{ORANGE} of {MIKADO}{args.final_test_batch_size}{RESET}{ORANGE} for this run{RESET}", flush=True )                
-      print ( f"{ORANGE}TRAINLENEJ:              the number of test tiles available is {CYAN}N_SAMPLES{RESET} x {CYAN}N_TILES{RESET} x {CYAN}PCT_TEST{RESET}  = {MIKADO}{n_samples}{RESET} x {MIKADO}{n_tiles}{RESET} x {MIKADO}{pct_test}{RESET} = {MIKADO}{int(final_test_batch_size)}{RESET}{ORANGE}{RESET}", flush=True )                
-      print ( f"{ORANGE}TRAINLENEJ:              {CYAN}FINAL_TEST_BATCH_SIZE{RESET}{ORANGE} has accordingly been set to {MIKADO}{int(final_test_batch_size)}{RESET} {ORANGE}for this run {RESET}", flush=True )
+      print ( f"{ORANGE}CLASSI:         WARNING: there aren't enough test tiles to support a {CYAN}FINAL_TEST_BATCH_SIZE{RESET}{ORANGE} of {MIKADO}{args.final_test_batch_size}{RESET}{ORANGE} for this run{RESET}", flush=True )                
+      print ( f"{ORANGE}CLASSI:                  the number of test tiles available is {CYAN}N_SAMPLES{RESET} x {CYAN}N_TILES{RESET} x {CYAN}PCT_TEST{RESET}  = {MIKADO}{n_samples}{RESET} x {MIKADO}{n_tiles}{RESET} x {MIKADO}{pct_test}{RESET} = {MIKADO}{int(final_test_batch_size)}{RESET}{ORANGE}{RESET}", flush=True )                
+      print ( f"{ORANGE}CLASSI:                  {CYAN}FINAL_TEST_BATCH_SIZE{RESET}{ORANGE} has accordingly been set to {MIKADO}{int(final_test_batch_size)}{RESET} {ORANGE}for this run {RESET}", flush=True )
       args.final_test_batch_size = final_test_batch_size
 
 
     # (1) set up Tensorboard
     
     if DEBUG>1:    
-      print( "TRAINLENEJ:     INFO: \033[1m3 about to set up Tensorboard\033[m" )
+      print( "CLASSI:         INFO: \033[1m3 about to set up Tensorboard\033[m" )
     
     writer = SummaryWriter(comment=f'_{randint(100, 999)}_{descriptor}' )
 
 
     #print ( f"\033[36B",  flush=True )
     if DEBUG>1:    
-      print( "TRAINLENEJ:     INFO:   \033[3mTensorboard has been set up\033[m" )
+      print( "CLASSI:         INFO:   \033[3mTensorboard has been set up\033[m" )
 
 
     # (2) Potentially schedule and run tiler threads
@@ -1005,22 +1005,22 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         # need to re-tile if certain parameters have eiher INCREASED ('n_tiles' or 'n_samples') or simply CHANGED ( 'stain_norm' or 'tile_size') since the last run
         if ( ( already_tiled==True ) & ( ( stain_norm==last_stain_norm ) | (last_stain_norm=="NULL") ) & (n_tiles<=n_tiles_last ) & ( n_samples<=n_samples_last ) & ( tile_size_last==tile_size ) ):
           if DEBUG>0:
-            print( f"TRAINLENEJ:     INFO: {BOLD}no need to re-tile{RESET}" )
+            print( f"CLASSI:         INFO: {BOLD}no need to re-tile{RESET}" )
           pass                                                                                             # no need to re-tile 
                                                                        
         else:                                                                                              # must re-tile
           if DEBUG>0:
-            print( f"TRAINLENEJ:     INFO: {BOLD}1 about to launch tiling processes{RESET}" )
+            print( f"CLASSI:         INFO: {BOLD}1 about to launch tiling processes{RESET}" )
           if DEBUG>1:
-            print( f"TRAINLENEJ:     INFO:     stain normalization method = {CYAN}{stain_norm}{RESET}" )
+            print( f"CLASSI:         INFO:     stain normalization method = {CYAN}{stain_norm}{RESET}" )
 
           delete_selected( data_dir, "png" )
           last_stain_norm=stain_norm
           already_tiled=True
 
           if DEBUG>999:
-            print( f"TRAINLENEJ:       INFO:   n_samples_max                   = {MIKADO}{n_samples_max}{RESET}")
-            print( f"TRAINLENEJ:       INFO:   n_tiles_max                     = {MIKADO}{n_tiles_max}{RESET}")
+            print( f"CLASSI:           INFO:   n_samples_max                   = {MIKADO}{n_samples_max}{RESET}")
+            print( f"CLASSI:           INFO:   n_tiles_max                     = {MIKADO}{n_tiles_max}{RESET}")
   
           if stain_norm!="reinhard":                                                                           # we are NOT going to stain normalize ...
           # ~ if stain_norm=="NONE":                                                                       
@@ -1028,11 +1028,11 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
           # ~ else:                                                                                        # we ARE going to stain normalize ...
           elif stain_norm=="reinhard":                                                                     # <---------------------------------------------- 'spcn' is now handled by the standalone process 'normalise_stain' 
             if DEBUG>0:
-              print( f"TRAINLENEJ:       INFO: {BOLD}about to set up stain normalization target{RESET}" )
+              print( f"CLASSI:           INFO: {BOLD}about to set up stain normalization target{RESET}" )
             if stain_norm_target.endswith(".svs"):                                                       # ... then grab the user provided target
               norm_method = tiler_set_target( args, n_tiles, tile_size, stain_norm, stain_norm_target, writer )
             else:                                                                                        # ... and there MUST be a target
-              print( f"TRAINLENEJ:     FATAL:    for {MIKADO}{stain_norm}{RESET} an SVS file must be provided from which the stain normalization target will be extracted" )
+              print( f"CLASSI:         FATAL:    for {MIKADO}{stain_norm}{RESET} an SVS file must be provided from which the stain normalization target will be extracted" )
               sys.exit(0)
 
 
@@ -1051,7 +1051,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
                 flag  = 'UNIMODE_CASE____IMAGE_TEST'
                 count = n_samples
                 if DEBUG>0:
-                  print( f"{SAVE_CURSOR}\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; count = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles = {MIKADO}{n_tiles}{RESET}{RESTORE_CURSOR}", flush=True )
+                  print( f"{SAVE_CURSOR}\r\033[{num_cpus}B{WHITE}CLASSI:         INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; count = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles = {MIKADO}{n_tiles}{RESET}{RESTORE_CURSOR}", flush=True )
                 slides_tiled_count = tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_norm, norm_method )
 
               if (  args.cases == 'MULTIMODE____TEST' ):
@@ -1059,7 +1059,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
                 flag  = 'MULTIMODE____TEST'
                 count = cases_reserved_for_image_rna
                 if DEBUG>0:
-                  print( f"{SAVE_CURSOR}\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; count = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles = {MIKADO}{n_tiles}{RESET}{RESTORE_CURSOR}", flush=True )
+                  print( f"{SAVE_CURSOR}\r\033[{num_cpus}B{WHITE}CLASSI:         INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; count = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles = {MIKADO}{n_tiles}{RESET}{RESTORE_CURSOR}", flush=True )
                 slides_tiled_count = tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_norm, norm_method )
 
               if (  args.cases == 'ALL_ELIGIBLE_CASES' ):
@@ -1069,7 +1069,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
                 flag  = 'HAS_IMAGE'
               
                 if DEBUG>0:
-                  print( f"{SAVE_CURSOR}\r\033[{num_cpus+1}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; slides_to_be_tiled = {MIKADO}{slides_to_be_tiled:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
+                  print( f"{SAVE_CURSOR}\r\033[{num_cpus+1}B{WHITE}CLASSI:         INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; slides_to_be_tiled = {MIKADO}{slides_to_be_tiled:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
                 slides_tiled_count = tiler_threader( args, flag, slides_to_be_tiled, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
 
 
@@ -1088,7 +1088,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
               flag  = 'HAS_IMAGE'
             
               if DEBUG>0:
-                print( f"{SAVE_CURSOR}\r\033[{num_cpus+1}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; slides_to_be_tiled = {MIKADO}{slides_to_be_tiled:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
+                print( f"{SAVE_CURSOR}\r\033[{num_cpus+1}B{WHITE}CLASSI:         INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; slides_to_be_tiled = {MIKADO}{slides_to_be_tiled:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
               slides_tiled_count = tiler_threader( args, flag, slides_to_be_tiled, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
 
               
@@ -1107,12 +1107,12 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
 
               flag  = 'UNIMODE_CASE____IMAGE'
               if DEBUG>0:
-                print( f"{SAVE_CURSOR}\r{WHITE}TRAINLENEJ:     INFO: about to call {MAGENTA}tiler_threader{RESET}: flag={CYAN}{flag}{RESET}; train_count={MIKADO}{train_count:3d}{RESET}; %_test={MIKADO}{pct_test:2.2f}{RESET}; n_samples={MIKADO}{n_samples_max:3d}{RESET}; n_tiles={MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
+                print( f"{SAVE_CURSOR}\r{WHITE}CLASSI:         INFO: about to call {MAGENTA}tiler_threader{RESET}: flag={CYAN}{flag}{RESET}; train_count={MIKADO}{train_count:3d}{RESET}; %_test={MIKADO}{pct_test:2.2f}{RESET}; n_samples={MIKADO}{n_samples_max:3d}{RESET}; n_tiles={MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
               slides_tiled_count = tiler_threader( args, flag, train_count, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
 
               flag  = 'UNIMODE_CASE____IMAGE_TEST'
               if DEBUG>0:
-                print( f"{SAVE_CURSOR}\r{WHITE}TRAINLENEJ:     INFO: about to call {MAGENTA}tiler_threader{RESET}: flag={CYAN}{flag}{RESET}; test_count={MIKADO}{test_count:3d}{RESET}; %_test={MIKADO}{pct_test:2.2f}{RESET}; n_samples={MIKADO}{n_samples_max:3d}{RESET}; n_tiles={MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
+                print( f"{SAVE_CURSOR}\r{WHITE}CLASSI:         INFO: about to call {MAGENTA}tiler_threader{RESET}: flag={CYAN}{flag}{RESET}; test_count={MIKADO}{test_count:3d}{RESET}; %_test={MIKADO}{pct_test:2.2f}{RESET}; n_samples={MIKADO}{n_samples_max:3d}{RESET}; n_tiles={MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
               slides_tiled_count = tiler_threader( args, flag, test_count, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
               
 
@@ -1134,9 +1134,9 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         else:
           if global_batch_count==0:
             if DEBUG>1:
-              print( f"\r{RESET}TRAINLENEJ:     INFO: {BOLD}2  now generating torch '.pt' file from contents of dataset directories{RESET}" )
+              print( f"\r{RESET}CLASSI:         INFO: {BOLD}2  now generating torch '.pt' file from contents of dataset directories{RESET}" )
           else:
-            print( f"\rTRAINLENEJ:     INFO: {BOLD}2  will regenerate torch '.pt' file from files, for the following reason(s):{RESET}" )            
+            print( f"\rCLASSI:         INFO: {BOLD}2  will regenerate torch '.pt' file from files, for the following reason(s):{RESET}" )            
             if n_tiles>n_tiles_last:
               print( f"                                    -- value of n_tiles   {MIKADO}({n_tiles})        \r\033[60Chas increased since last run{RESET}" )
             if n_samples>n_samples_last:
@@ -1145,28 +1145,28 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
               print( f"                                    -- value of tile_size {MIKADO}({tile_size})      \r\033[60Chas changed   since last run{RESET}")
          
         if DEBUG>0:
-          print( f"TRAINLENEJ:     INFO: n_samples               = {MAGENTA}{n_samples}{RESET}"       )
-          print( f"TRAINLENEJ:     INFO: args.n_samples          = {MAGENTA}{args.n_samples}{RESET}"  )
-          print( f"TRAINLENEJ:     INFO: n_tiles                 = {MAGENTA}{n_tiles}{RESET}"         )
-          print( f"TRAINLENEJ:     INFO: args.n_tiles            = {MAGENTA}{args.n_tiles}{RESET}"    )
-          print( f"TRAINLENEJ:     INFO: batch_size              = {MAGENTA}{batch_size}{RESET}"      )
-          print( f"TRAINLENEJ:     INFO: args.batch_size         = {MAGENTA}{args.batch_size}{RESET}" )
-          print( f"TRAINLENEJ:     INFO: n_genes                 = {MAGENTA}{n_genes}{RESET}"         )
-          print( f"TRAINLENEJ:     INFO: args.n_genes            = {MAGENTA}{args.n_genes}{RESET}"    )
-          print( f"TRAINLENEJ:     INFO: gene_data_norm          = {MAGENTA}{gene_data_norm}{RESET}"  )            
+          print( f"CLASSI:         INFO: n_samples               = {MAGENTA}{n_samples}{RESET}"       )
+          print( f"CLASSI:         INFO: args.n_samples          = {MAGENTA}{args.n_samples}{RESET}"  )
+          print( f"CLASSI:         INFO: n_tiles                 = {MAGENTA}{n_tiles}{RESET}"         )
+          print( f"CLASSI:         INFO: args.n_tiles            = {MAGENTA}{args.n_tiles}{RESET}"    )
+          print( f"CLASSI:         INFO: batch_size              = {MAGENTA}{batch_size}{RESET}"      )
+          print( f"CLASSI:         INFO: args.batch_size         = {MAGENTA}{args.batch_size}{RESET}" )
+          print( f"CLASSI:         INFO: n_genes                 = {MAGENTA}{n_genes}{RESET}"         )
+          print( f"CLASSI:         INFO: args.n_genes            = {MAGENTA}{args.n_genes}{RESET}"    )
+          print( f"CLASSI:         INFO: gene_data_norm          = {MAGENTA}{gene_data_norm}{RESET}"  )            
                         
         _, _,  _ = generate( args, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, tile_size, cov_threshold, cutoff_percentile, gene_data_norm, gene_data_transform  ) 
 
         if DEBUG>0:
-          print( f"TRAINLENEJ:     INFO: n_samples               = {BLEU}{n_samples}{RESET}"       )
-          print( f"TRAINLENEJ:     INFO: args.n_samples          = {BLEU}{args.n_samples}{RESET}"  )
-          print( f"TRAINLENEJ:     INFO: n_tiles                 = {BLEU}{n_tiles}{RESET}"         )
-          print( f"TRAINLENEJ:     INFO: args.n_tiles            = {BLEU}{args.n_tiles}{RESET}"    )
-          print( f"TRAINLENEJ:     INFO: batch_size              = {BLEU}{batch_size}{RESET}"      )
-          print( f"TRAINLENEJ:     INFO: args.batch_size         = {BLEU}{args.batch_size}{RESET}" )
-          print( f"TRAINLENEJ:     INFO: n_genes                 = {BLEU}{n_genes}{RESET}"         )
-          print( f"TRAINLENEJ:     INFO: args.n_genes            = {MAGENTA}{args.n_genes}{RESET}" )
-          print( f"TRAINLENEJ:     INFO: gene_data_norm          = {BLEU}{gene_data_norm}{RESET}"  )            
+          print( f"CLASSI:         INFO: n_samples               = {BLEU}{n_samples}{RESET}"       )
+          print( f"CLASSI:         INFO: args.n_samples          = {BLEU}{args.n_samples}{RESET}"  )
+          print( f"CLASSI:         INFO: n_tiles                 = {BLEU}{n_tiles}{RESET}"         )
+          print( f"CLASSI:         INFO: args.n_tiles            = {BLEU}{args.n_tiles}{RESET}"    )
+          print( f"CLASSI:         INFO: batch_size              = {BLEU}{batch_size}{RESET}"      )
+          print( f"CLASSI:         INFO: args.batch_size         = {BLEU}{args.batch_size}{RESET}" )
+          print( f"CLASSI:         INFO: n_genes                 = {BLEU}{n_genes}{RESET}"         )
+          print( f"CLASSI:         INFO: args.n_genes            = {MAGENTA}{args.n_genes}{RESET}" )
+          print( f"CLASSI:         INFO: gene_data_norm          = {BLEU}{gene_data_norm}{RESET}"  )            
           
         n_tiles_last   = n_tiles                                                                           # for the next run
         n_samples_last = n_samples                                                                         # for the next run
@@ -1190,7 +1190,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
                                                    )
 
           if DEBUG>0:
-            print( f"TRAINLENEJ:     INFO:    n_genes (calculated)           = {MIKADO}{n_genes:,}{RESET}",   flush=True     )
+            print( f"CLASSI:         INFO:    n_genes (calculated)           = {MIKADO}{n_genes:,}{RESET}",   flush=True     )
 
           last_gene_norm=gene_data_norm
           already_generated=True
@@ -1198,31 +1198,31 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
 
         else:
           if DEBUG>0:      
-            print( f"\nTRAINLENEJ:     INFO: \033[1m3 gene_data_norm = {MIKADO}{gene_data_norm}{RESET} and last_gene_norm = {MIKADO}{last_gene_norm}{RESET} so no need to regenerate torch '.pt' file" )
+            print( f"\nCLASSI:         INFO: \033[1m3 gene_data_norm = {MIKADO}{gene_data_norm}{RESET} and last_gene_norm = {MIKADO}{last_gene_norm}{RESET} so no need to regenerate torch '.pt' file" )
 
       elif input_mode=='image_rna':
-        print( f"{ORANGE}TRAINLENEJ:     INFO:   input mode = '{CHARTREUSE}{input_mode}{RESET}{ORANGE}'. concatentated image_rna embeddings will be generated.{RESET}"  )
+        print( f"{ORANGE}CLASSI:         INFO:   input mode = '{CHARTREUSE}{input_mode}{RESET}{ORANGE}'. concatentated image_rna embeddings will be generated.{RESET}"  )
 
       else:
-        print( f"{RED}TRAINLENEJ:   FATAL:    input mode of type '{MIKADO}{input_mode}{RESET}{RED}' is not supported [200]{RESET}" )
+        print( f"{RED}CLASSI:       FATAL:    input mode of type '{MIKADO}{input_mode}{RESET}{RED}' is not supported [200]{RESET}" )
         sys.exit(0)
 
       if DEBUG>5:
-        print( f"TRAINLENEJ:     INFO: n_samples               = {MAGENTA}{n_samples}{RESET}"       )
-        print( f"TRAINLENEJ:     INFO: args.n_samples          = {MAGENTA}{args.n_samples}{RESET}"  )
-        print( f"TRAINLENEJ:     INFO: n_tiles                 = {MAGENTA}{n_tiles}{RESET}"         )
-        print( f"TRAINLENEJ:     INFO: args.n_tiles            = {MAGENTA}{args.n_tiles}{RESET}"    )
-        print( f"TRAINLENEJ:     INFO: batch_size              = {MAGENTA}{batch_size}{RESET}"      )
-        print( f"TRAINLENEJ:     INFO: args.batch_size         = {MAGENTA}{args.batch_size}{RESET}" )
-        print( f"TRAINLENEJ:     INFO: n_genes (from args)     = {MAGENTA}{n_genes}{RESET}"         )
-        print( f"TRAINLENEJ:     INFO: gene_data_norm          = {MAGENTA}{gene_data_norm}{RESET}"  )            
+        print( f"CLASSI:         INFO: n_samples               = {MAGENTA}{n_samples}{RESET}"       )
+        print( f"CLASSI:         INFO: args.n_samples          = {MAGENTA}{args.n_samples}{RESET}"  )
+        print( f"CLASSI:         INFO: n_tiles                 = {MAGENTA}{n_tiles}{RESET}"         )
+        print( f"CLASSI:         INFO: args.n_tiles            = {MAGENTA}{args.n_tiles}{RESET}"    )
+        print( f"CLASSI:         INFO: batch_size              = {MAGENTA}{batch_size}{RESET}"      )
+        print( f"CLASSI:         INFO: args.batch_size         = {MAGENTA}{args.batch_size}{RESET}" )
+        print( f"CLASSI:         INFO: n_genes (from args)     = {MAGENTA}{n_genes}{RESET}"         )
+        print( f"CLASSI:         INFO: gene_data_norm          = {MAGENTA}{gene_data_norm}{RESET}"  )            
 
 
 
     if clustering!='NONE':
        if args.input_mode == 'rna':
-        print ( f"{BOLD}{RED}TRAINLENEJ:     WARNG:  there are almost certainly not enough data points to do meaningful clustering on rna gene expression values{RESET}",   flush=True )
-        print ( f"{BOLD}{RED}TRAINLENEJ:     WARNG:  continuing, but don't be surprised if the clustering algorith crashes{RESET}",                                         flush=True )
+        print ( f"{BOLD}{RED}CLASSI:         WARNG:  there are almost certainly not enough data points to do meaningful clustering on rna gene expression values{RESET}",   flush=True )
+        print ( f"{BOLD}{RED}CLASSI:         WARNG:  continuing, but don't be surprised if the clustering algorith crashes{RESET}",                                         flush=True )
         time.sleep(4)
      
     if clustering=='o_tsne':
@@ -1231,7 +1231,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
       hours   = round( (time.time() - start_time) / 3600,  1   )
       minutes = round( (time.time() - start_time) /   60,  1   )
       seconds = round( (time.time() - start_time)       ,  0   )
-      print( f'TRAINLENEJ:      INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
+      print( f'CLASSI:          INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
       sys.exit(0)
 
     elif clustering=='cuda_tsne':
@@ -1240,7 +1240,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
       hours   = round( (time.time() - start_time) / 3600,  1   )
       minutes = round( (time.time() - start_time) /   60,  1   )
       seconds = round( (time.time() - start_time)       ,  0   )
-      print( f'TRAINLENEJ:      INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
+      print( f'CLASSI:          INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
       sys.exit(0)
       
     elif clustering=='sk_tsne':
@@ -1249,7 +1249,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
       hours   = round( (time.time() - start_time) / 3600,  1   )
       minutes = round( (time.time() - start_time) /   60,  1   )
       seconds = round( (time.time() - start_time)       ,  0   )
-      print( f'TRAINLENEJ:      INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
+      print( f'CLASSI:          INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
       sys.exit(0)
 
     elif clustering=='sk_agglom':
@@ -1258,7 +1258,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
       hours   = round( (time.time() - start_time) / 3600,  1   )
       minutes = round( (time.time() - start_time) /   60,  1   )
       seconds = round( (time.time() - start_time)       ,  0   )
-      print( f'TRAINLENEJ:      INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
+      print( f'CLASSI:          INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
       sys.exit(0)
       
     elif clustering=='sk_spectral':
@@ -1267,7 +1267,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
       hours   = round( (time.time() - start_time) / 3600,  1   )
       minutes = round( (time.time() - start_time) /   60,  1   )
       seconds = round( (time.time() - start_time)       ,  0   )
-      print( f'TRAINLENEJ:      INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
+      print( f'CLASSI:          INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
       sys.exit(0)
       
     elif clustering=='dbscan':
@@ -1276,7 +1276,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
       hours   = round( (time.time() - start_time) / 3600,  1   )
       minutes = round( (time.time() - start_time) /   60,  1   )
       seconds = round( (time.time() - start_time)       ,  0   )
-      print( f'TRAINLENEJ:      INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
+      print( f'CLASSI:          INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
       sys.exit(0)
       
     elif clustering=='h_dbscan':
@@ -1285,13 +1285,13 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
       hours   = round( (time.time() - start_time) / 3600,  1   )
       minutes = round( (time.time() - start_time) /   60,  1   )
       seconds = round( (time.time() - start_time)       ,  0   )
-      print( f'TRAINLENEJ:       INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
+      print( f'CLASSI:           INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
       sys.exit(0)
 
     elif clustering!='NONE':
-      print ( f"{RED}TRAINLENEJ:     FATAL:    there's no such clustering option as '{CYAN}{clustering}{RESET}'", flush=True)
-      print ( f"{RED}TRAINLENEJ:     FATAL:    supported clustering algorithms are cuda-tsne ('{CYAN}cuda_tsne{RESET}{RED}'), scikit-learn tsne ('{CYAN}sk_tsne{RESET}{RED}'), agglomerative clustering ('{CYAN}sk_agglom{RESET}{RED}') and spectral clustering ('{CYAN}sk_spectral{RESET}{RED}'); , open tsne ('{CYAN}otsne{RESET}{RED}'), DBSCAN ('{CYAN}dbscan{RESET}{RED}'), HDBSCAN ('{CYAN}h_dbscan{RESET}{RED}'){RESET}", flush=True)
-      print ( f"{RED}TRAINLENEJ:     FATAL:    halting now...{RESET}", flush=True)      
+      print ( f"{RED}CLASSI:         FATAL:    there's no such clustering option as '{CYAN}{clustering}{RESET}'", flush=True)
+      print ( f"{RED}CLASSI:         FATAL:    supported clustering algorithms are cuda-tsne ('{CYAN}cuda_tsne{RESET}{RED}'), scikit-learn tsne ('{CYAN}sk_tsne{RESET}{RED}'), agglomerative clustering ('{CYAN}sk_agglom{RESET}{RED}') and spectral clustering ('{CYAN}sk_spectral{RESET}{RED}'); , open tsne ('{CYAN}otsne{RESET}{RED}'), DBSCAN ('{CYAN}dbscan{RESET}{RED}'), HDBSCAN ('{CYAN}h_dbscan{RESET}{RED}'){RESET}", flush=True)
+      print ( f"{RED}CLASSI:         FATAL:    halting now...{RESET}", flush=True)      
       sys.exit(0)
 
       
@@ -1302,7 +1302,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
       # ~ hours   = round( (time.time() - start_time) / 3600,  1   )
       # ~ minutes = round( (time.time() - start_time) /   60,  1   )
       # ~ seconds = round( (time.time() - start_time)       ,  0   )
-      # ~ print( f'TRAINLENEJ:       INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
+      # ~ print( f'CLASSI:           INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
       # ~ sys.exit(0)
       
       
@@ -1310,7 +1310,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
     # (4) Load experiment config.  (NOTE: Almost all configurable parameters are now provided via user arguments rather than this config file)
     
     if DEBUG>1:    
-      print( f"TRAINLENEJ:     INFO: {BOLD}4 about to load experiment config{RESET}" )
+      print( f"CLASSI:         INFO: {BOLD}4 about to load experiment config{RESET}" )
     cfg = loader.get_config( nn_mode, lr, batch_size )                                                     #################################################################### change to just args at some point
 #    GTExV6Config.INPUT_MODE         = input_mode                                                          # now using args
     GTExV6Config.MAKE_GREY          = make_grey_pct                                                    # modify config class variable to take into account user preference
@@ -1321,7 +1321,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
     # ~ pplog.log_args(args)
 
     if DEBUG>1:      
-      print( f"TRAINLENEJ:     INFO:   {ITALICS}experiment config has been loaded{RESET}" )
+      print( f"CLASSI:         INFO:   {ITALICS}experiment config has been loaded{RESET}" )
    
 
 
@@ -1329,12 +1329,12 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
     #(5) Load network
 
     if DEBUG>1:                                                                                                       
-      print( f"TRAINLENEJ:     INFO: {BOLD}5 about to load network {MIKADO}{nn_type_img}{RESET}{BOLD} and {MIKADO}{nn_type_rna}{RESET}" )  
+      print( f"CLASSI:         INFO: {BOLD}5 about to load network {MIKADO}{nn_type_img}{RESET}{BOLD} and {MIKADO}{nn_type_rna}{RESET}" )  
 
     model = LENETIMAGE( args, cfg, input_mode, nn_type_img, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, dropout_1, dropout_2, tile_size, args.latent_dim, args.em_iters  )
 
     if DEBUG>1: 
-      print( f"TRAINLENEJ:     INFO:    {ITALICS}network loaded{RESET}" )
+      print( f"CLASSI:         INFO:    {ITALICS}network loaded{RESET}" )
 
 
 
@@ -1349,14 +1349,14 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
 
       try:
         model.load_state_dict(torch.load(fqn_pretrained))
-        print( f"{ORANGE}TRAINLENEJ:     INFO:  pre-trained model named {CYAN}{fqn_pretrained}{RESET}{ORANGE} exists.  Will load and use pre-trained model{RESET}", flush=True)
+        print( f"{ORANGE}CLASSI:         INFO:  pre-trained model named {CYAN}{fqn_pretrained}{RESET}{ORANGE} exists.  Will load and use pre-trained model{RESET}", flush=True)
       except Exception as e:
-        print( f"{ORANGE}TRAINLENEJ:     INFO:  no pre-trained model named {CYAN}{fqn_pretrained}{RESET}{ORANGE} exists.  Will attempt to used model {CYAN}{fqn_image}{RESET}{ORANGE}, if it exists{RESET}", flush=True)
+        print( f"{ORANGE}CLASSI:         INFO:  no pre-trained model named {CYAN}{fqn_pretrained}{RESET}{ORANGE} exists.  Will attempt to used model {CYAN}{fqn_image}{RESET}{ORANGE}, if it exists{RESET}", flush=True)
         try:
           model.load_state_dict(torch.load(fqn_image))
-          print( f"{ORANGE}TRAINLENEJ:     INFO:  model named {CYAN}{fqn_image}{RESET}{ORANGE} exists.  Will load and use this network model as the starting point for training{RESET}", flush=True)
+          print( f"{ORANGE}CLASSI:         INFO:  model named {CYAN}{fqn_image}{RESET}{ORANGE} exists.  Will load and use this network model as the starting point for training{RESET}", flush=True)
         except Exception as e:
-          print( f"{RED}TRAINLENEJ:     INFO:  mo model named {CYAN}{fqn_image}{RESET}{RED} exists.  Cannot continue{RESET}", flush=True)
+          print( f"{RED}CLASSI:         INFO:  mo model named {CYAN}{fqn_image}{RESET}{RED} exists.  Cannot continue{RESET}", flush=True)
           time.sleep(4)
           sys.exit(0)
 
@@ -1370,19 +1370,19 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         fqn = fqn_image_rna
 
       if DEBUG>0:
-        print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test' flag is set.  About to load model state dictionary {MAGENTA}{fqn}{RESET}" )
+        print( f"{ORANGE}CLASSI:         INFO:  'just_test' flag is set.  About to load model state dictionary {MAGENTA}{fqn}{RESET}" )
         
       try:
         model.load_state_dict(torch.load(fqn))       
       except Exception as e:
-        print ( f"{RED}TRAINLENEJ:     FATAL:  error when trying to load model {MAGENTA}'{fqn}'{RESET}", flush=True)    
-        print ( f"{RED}TRAINLENEJ:     FATAL:    reported error was: '{e}'{RESET}", flush=True)
+        print ( f"{RED}CLASSI:         FATAL:  error when trying to load model {MAGENTA}'{fqn}'{RESET}", flush=True)    
+        print ( f"{RED}CLASSI:         FATAL:    reported error was: '{e}'{RESET}", flush=True)
         if args.input_mode == 'image':
-          print ( f"{RED}TRAINLENEJ:     FATAL:    explanation 1: this is a test run. ({CYAN}JUST_TEST==TRUE{RESET}{RED} (shell) or {CYAN}'just_test'=='True'{RESET}{RED} (python user argument). Did you forget to train a model ?{RESET}", flush=True)
-          print ( f"{RED}TRAINLENEJ:     FATAL:    explanation 2: perhaps you're using a different tile size ({CYAN}'TILE_SIZE'{RESET}{RED})than than the saved model uses{RESET}", flush=True)
+          print ( f"{RED}CLASSI:         FATAL:    explanation 1: this is a test run. ({CYAN}JUST_TEST==TRUE{RESET}{RED} (shell) or {CYAN}'just_test'=='True'{RESET}{RED} (python user argument). Did you forget to train a model ?{RESET}", flush=True)
+          print ( f"{RED}CLASSI:         FATAL:    explanation 2: perhaps you're using a different tile size ({CYAN}'TILE_SIZE'{RESET}{RED})than than the saved model uses{RESET}", flush=True)
         if args.input_mode == 'rna':
-          print ( f"{RED}TRAINLENEJ:     FATAL:    explanation: this is a test run. ({CYAN}JUST_TEST==TRUE{RESET}{RED} (shell) or {CYAN}'just_test'=='True'{RESET}{RED} (python user argument). Did you forget to train a model ?{RESET}", flush=True)
-        print ( f"{RED}TRAINLENEJ:     FATAL:    halting now...{RESET}", flush=True)      
+          print ( f"{RED}CLASSI:         FATAL:    explanation: this is a test run. ({CYAN}JUST_TEST==TRUE{RESET}{RED} (shell) or {CYAN}'just_test'=='True'{RESET}{RED} (python user argument). Did you forget to train a model ?{RESET}", flush=True)
+        print ( f"{RED}CLASSI:         FATAL:    halting now...{RESET}", flush=True)      
         time.sleep(4)
         sys.exit(0)
                                             
@@ -1391,17 +1391,17 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
     #(7) Send model to GPU(s)
     
     if DEBUG>1:    
-      print( f"TRAINLENEJ:     INFO: {BOLD}6 about to send model to device{RESET}" )   
+      print( f"CLASSI:         INFO: {BOLD}6 about to send model to device{RESET}" )   
     model = model.to(device)
     if DEBUG>1:
-      print( f"TRAINLENEJ:     INFO:     {ITALICS}model sent to device{RESET}" ) 
+      print( f"CLASSI:         INFO:     {ITALICS}model sent to device{RESET}" ) 
   
     #pplog.log_section('Model specs.')
     #pplog.log_model(model)
      
     
     if DEBUG>9:
-      print( f"TRAINLENEJ:     INFO:   pytorch Model = {MIKADO}{model}{RESET}" )
+      print( f"CLASSI:         INFO:   pytorch Model = {MIKADO}{model}{RESET}" )
 
 
 
@@ -1413,7 +1413,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
     
 
     if DEBUG>1: 
-      print( f"TRAINLENEJ:     INFO: {BOLD}7 about to call dataset loader" )
+      print( f"CLASSI:         INFO: {BOLD}7 about to call dataset loader" )
     train_loader, test_loader, final_test_batch_size, final_test_loader = loader.get_data_loaders( args,
                                                          gpu,
                                                          cfg,
@@ -1427,7 +1427,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
                                                          writer
                                                         )
     if DEBUG>1:
-      print( "TRAINLENEJ:     INFO:   \033[3mdataset loaded\033[m" )
+      print( "CLASSI:         INFO:   \033[3mdataset loaded\033[m" )
   
     #if just_test=='False':                                                                                # c.f. loader() Sequential'SequentialSampler' doesn't return indices
     #  pplog.save_test_indices(test_loader.sampler.indices)
@@ -1442,53 +1442,53 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
     if nn_optimizer=='ADAM':
       optimizer = optim.Adam       ( model.parameters(),  lr=lr,  weight_decay=0,  betas=(0.9, 0.999),  eps=1e-08,               amsgrad=False                                    )
       if DEBUG>1:
-        print( "TRAINLENEJ:     INFO:   \033[3mAdam optimizer selected and configured\033[m" )
+        print( "CLASSI:         INFO:   \033[3mAdam optimizer selected and configured\033[m" )
     elif nn_optimizer=='ADAMAX':
       optimizer = optim.Adamax     ( model.parameters(),  lr=lr,  weight_decay=0,  betas=(0.9, 0.999),  eps=1e-08                                                                 )
       if DEBUG>1:
-        print( "TRAINLENEJ:     INFO:   \033[3mAdamax optimizer selected and configured\033[m" )
+        print( "CLASSI:         INFO:   \033[3mAdamax optimizer selected and configured\033[m" )
     elif nn_optimizer=='ADAMW':                                                                            # Decoupled Weight Decay Regularization (https://arxiv.org/abs/1711.05101)
       optimizer = optim.AdamW     ( model.parameters(),  lr=lr,  weight_decay=0.01,  betas=(0.9, 0.999),  eps=1e-08,   amsgrad=False                                              )
       if DEBUG>1:
-        print( "TRAINLENEJ:     INFO:   \033[3mAdamax optimizer selected and configured\033[m" )
+        print( "CLASSI:         INFO:   \033[3mAdamax optimizer selected and configured\033[m" )
     elif nn_optimizer=='ADAMW_AMSGRAD':                                                                            # Decoupled Weight Decay Regularization (https://arxiv.org/abs/1711.05101)
       optimizer = optim.AdamW     ( model.parameters(),  lr=lr,  weight_decay=0.01,  betas=(0.9, 0.999),  eps=1e-08,   amsgrad=True                                               )
       if DEBUG>1:
-        print( "TRAINLENEJ:     INFO:   \033[3mAdamax optimizer selected and configured\033[m" )
+        print( "CLASSI:         INFO:   \033[3mAdamax optimizer selected and configured\033[m" )
     elif nn_optimizer=='ADAGRAD':
       optimizer = optim.Adagrad    ( model.parameters(),  lr=lr,  weight_decay=0,                       eps=1e-10,               lr_decay=0, initial_accumulator_value=0          )
       if DEBUG>1:
-        print( "TRAINLENEJ:     INFO:   \033[3mAdam optimizer selected and configured\033[m" )
+        print( "CLASSI:         INFO:   \033[3mAdam optimizer selected and configured\033[m" )
     elif nn_optimizer=='SPARSEADAM':
       optimizer = optim.SparseAdam ( model.parameters(),  lr=lr,                   betas=(0.9, 0.999),  eps=1e-08                                                                 )
       if DEBUG>1:
-        print( "TRAINLENEJ:     INFO:   \033[3mSparseAdam optimizer selected and configured\033[m" )
+        print( "CLASSI:         INFO:   \033[3mSparseAdam optimizer selected and configured\033[m" )
     elif nn_optimizer=='ADADELTA':
       optimizer = optim.Adadelta   ( model.parameters(),  lr=lr,  weight_decay=0,                       eps=1e-06, rho=0.9                                                        )
       if DEBUG>1:
-        print( "TRAINLENEJ:     INFO:   \033[3mAdagrad optimizer selected and configured\033[m" )
+        print( "CLASSI:         INFO:   \033[3mAdagrad optimizer selected and configured\033[m" )
     elif nn_optimizer=='ASGD':
       optimizer = optim.ASGD       ( model.parameters(),  lr=lr,  weight_decay=0,                                               alpha=0.75, lambd=0.0001, t0=1000000.0            )
       if DEBUG>1:
-        print( "TRAINLENEJ:     INFO:   \033[3mAveraged Stochastic Gradient Descent optimizer selected and configured\033[m" )
+        print( "CLASSI:         INFO:   \033[3mAveraged Stochastic Gradient Descent optimizer selected and configured\033[m" )
     elif   nn_optimizer=='RMSPROP':
       optimizer = optim.RMSprop    ( model.parameters(),  lr=lr,  weight_decay=0,                       eps=1e-08,  momentum=0,  alpha=0.99, centered=False                       )
       if DEBUG>1:
-        print( "TRAINLENEJ:     INFO:   \033[3mRMSProp optimizer selected and configured\033[m" )
+        print( "CLASSI:         INFO:   \033[3mRMSProp optimizer selected and configured\033[m" )
     elif   nn_optimizer=='RPROP':
       optimizer = optim.Rprop      ( model.parameters(),  lr=lr,                                                                etas=(0.5, 1.2), step_sizes=(1e-06, 50)           )
       if DEBUG>1:
-        print( "TRAINLENEJ:     INFO:   \033[3mResilient backpropagation algorithm optimizer selected and configured\033[m" )
+        print( "CLASSI:         INFO:   \033[3mResilient backpropagation algorithm optimizer selected and configured\033[m" )
     elif nn_optimizer=='SGD':
       optimizer = optim.SGD        ( model.parameters(),  lr=lr,  weight_decay=0,                                   momentum=0.9, dampening=0, nesterov=True                      )
       if DEBUG>1:
-        print( "TRAINLENEJ:     INFO:   \033[3mStochastic Gradient Descent optimizer selected and configured\033[m" )
+        print( "CLASSI:         INFO:   \033[3mStochastic Gradient Descent optimizer selected and configured\033[m" )
     elif nn_optimizer=='LBFGS':
       optimizer = optim.LBFGS      ( model.parameters(),  lr=lr, max_iter=20, max_eval=None, tolerance_grad=1e-07, tolerance_change=1e-09, history_size=100, line_search_fn=None  )
       if DEBUG>1:
-        print( "TRAINLENEJ:     INFO:   \033[3mL-BFGS optimizer selected and configured\033[m" )
+        print( "CLASSI:         INFO:   \033[3mL-BFGS optimizer selected and configured\033[m" )
     else:
-      print( "TRAINLENEJ:     FATAL:    Optimizer '{:}' not supported".format( nn_optimizer ) )
+      print( "CLASSI:         FATAL:    Optimizer '{:}' not supported".format( nn_optimizer ) )
       sys.exit(0)
  
  
@@ -1498,11 +1498,11 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
     # (10) Select Loss function
     
     if DEBUG>1:
-      print( f"TRAINLENEJ:     INFO: {BOLD}9 about to select CrossEntropyLoss function{RESET}" )  
+      print( f"CLASSI:         INFO: {BOLD}9 about to select CrossEntropyLoss function{RESET}" )  
     loss_function = torch.nn.CrossEntropyLoss()
     
     if DEBUG>1:
-      print( "TRAINLENEJ:     INFO:   \033[3mCross Entropy loss function selected\033[m" )  
+      print( "CLASSI:         INFO:   \033[3mCross Entropy loss function selected\033[m" )  
     
     
 #    show,  via Tensorboard, what the samples look like
@@ -1527,7 +1527,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
    
     # (11) Train/Test
                      
-    print( f"TRAINLENEJ:     INFO: {BOLD}about to commence main loop, one iteration per epoch{RESET}",  end='' )
+    print( f"CLASSI:         INFO:  {BOLD}about to commence main loop, one iteration per epoch{RESET}",  end='' )
 
     global_correct_prediction_count = 0
     global_number_tested            = 0
@@ -1567,11 +1567,11 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
     for epoch in range(1, n_epochs+1):
   
         if   args.input_mode=='image':
-          print( f'\nTRAINLENEJ      INFO  in epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  mode:{MIKADO}{input_mode}{RESET} lr:{MIKADO}{lr:<9.6f}{RESET} samples:{MIKADO}{n_samples}{RESET} batch size:{MIKADO}{batch_size}{RESET} tile size:{MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide:{MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+          print( f'\nCLASSI:         INFO:  in epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  mode:{MIKADO}{input_mode}{RESET} lr:{MIKADO}{lr:<9.6f}{RESET} samples:{MIKADO}{n_samples}{RESET} batch size:{MIKADO}{batch_size}{RESET} tile size:{MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide:{MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
         elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
-          print( f'\nTRAINLENEJ      INFO  in epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  mode:{MIKADO}{input_mode}{RESET} lr:{MIKADO}{lr:<9.6f}{RESET} samples:{MIKADO}{n_samples}{RESET} batch size:{MIKADO}{batch_size}{RESET} hidden layer neurons:{MIKADO}{hidden_layer_neurons}{RESET} embedded dimensions:{MIKADO}{batch_size if args.use_autoencoder_output==True  else "N/A" }{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+          print( f'\nCLASSI:         INFO:  in epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  mode:{MIKADO}{input_mode}{RESET} lr:{MIKADO}{lr:<9.6f}{RESET} samples:{MIKADO}{n_samples}{RESET} batch size:{MIKADO}{batch_size}{RESET} hidden layer neurons:{MIKADO}{hidden_layer_neurons}{RESET} embedded dimensions:{MIKADO}{batch_size if args.use_autoencoder_output==True  else "N/A" }{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
         else:
-          print( f'\nTRAINLENEJ      INFO  in epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  mode:{MIKADO}{input_mode}{RESET} lr:{MIKADO}{lr:<9.6f}{RESET} samples:{MIKADO}{n_samples}{RESET} batch size:{MIKADO}{batch_size}{RESET} tile size:{MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide:{MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+          print( f'\nCLASSI:         INFO:  in epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  mode:{MIKADO}{input_mode}{RESET} lr:{MIKADO}{lr:<9.6f}{RESET} samples:{MIKADO}{n_samples}{RESET} batch size:{MIKADO}{batch_size}{RESET} tile size:{MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide:{MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
 
     
         if just_test=='True':                                                                              # skip trainiNG in 'test mode'
@@ -1651,9 +1651,9 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
           global_number_tested            += number_tested
           
           if DEBUG>99:
-            print( f"TRAINLENEJ:       INFO:   global_correct_prediction_count   = {MIKADO}{global_correct_prediction_count:>}{RESET}")        
-            print( f"TRAINLENEJ:       INFO:   global_number_tested              = {MIKADO}{global_number_tested}{RESET:>}")
-            print( f"TRAINLENEJ:       INFO:   global_percent_correct            = {MIKADO}{global_correct_prediction_count/global_number_tested*100:<3.0f}%{RESET}")                    
+            print( f"CLASSI:           INFO:   global_correct_prediction_count   = {MIKADO}{global_correct_prediction_count:>}{RESET}")        
+            print( f"CLASSI:           INFO:   global_number_tested              = {MIKADO}{global_number_tested}{RESET:>}")
+            print( f"CLASSI:           INFO:   global_percent_correct            = {MIKADO}{global_correct_prediction_count/global_number_tested*100:<3.0f}%{RESET}")                    
           
           if ( (test_total_loss_sum_ave <= ( test_total_loss_sum_ave_last )) | (epoch==1) ):
             consecutive_test_loss_increases = 0
@@ -1699,7 +1699,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
               
             if consecutive_test_loss_increases>args.max_consecutive_losses:                                # Stop one before, so that the most recent model for which the loss improved will be saved
                 now = time.localtime(time.time())
-                print(time.strftime("TRAINLENEJ:     INFO: %Y-%m-%d %H:%M:%S %Z", now))
+                print(time.strftime("CLASSI:         INFO: %Y-%m-%d %H:%M:%S %Z", now))
                 break
           else:
             print ( "\033[5A", end='' )
@@ -1741,9 +1741,9 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
       
         if DEBUG>0:
           print ( "\033[8B" )        
-          print ( f"TRAINLENEJ:     INFO:      test(): {BOLD}about to classify {MIKADO}{final_test_batch_size}{RESET}{BOLD} test samples through the best model this run produced"        )
+          print ( f"CLASSI:         INFO:      test(): {BOLD}about to classify {MIKADO}{final_test_batch_size}{RESET}{BOLD} test samples through the best model this run produced"        )
         
-        pplog.log ( f"\nTRAINLENEJ:     INFO:  test(): about to classify {final_test_batch_size} test samples through the best model this run produced"                                 )
+        pplog.log ( f"\nCLASSI:         INFO:  test(): about to classify {final_test_batch_size} test samples through the best model this run produced"                                 )
 
 
         if args.input_mode == 'image':
@@ -1754,7 +1754,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
           fqn = '%s/model_image_rna.pt' % log_dir
     
           if DEBUG>0:
-            print( f"TRAINLENEJ:     INFO:  about to load model state dictionary for best model (from {MIKADO}{fqn}{RESET})" )
+            print( f"CLASSI:         INFO:  about to load model state dictionary for best model (from {MIKADO}{fqn}{RESET})" )
   
           try:
             model.load_state_dict(torch.load(fqn))
@@ -1769,7 +1769,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         show_all_test_examples=True
         
         if DEBUG>1:
-          print ( f"TRAINLENEJ:     INFO:      test(): final_test_batch_size = {MIKADO}{final_test_batch_size}{RESET}" )
+          print ( f"CLASSI:         INFO:      test(): final_test_batch_size = {MIKADO}{final_test_batch_size}{RESET}" )
           
         # note that we pass 'final_test_loader' to test()
         test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min, embedding     =\
@@ -1786,7 +1786,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
     if (just_test=='True') & (multimode=="image_rna"):
 
       if DEBUG>0:
-        print( f"\r\033[7BTRAINLENEJ:     INFO:      test(): {BOLD}about to generate and save embeddings for all test samples{RESET}", flush=True )
+        print( f"\r\033[7BCLASSI:         INFO:      test(): {BOLD}about to generate and save embeddings for all test samples{RESET}", flush=True )
 
       model.eval()                                                                                         # set model to evaluation mode
 
@@ -1799,15 +1799,15 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         image_labels = image_labels.to(device)
 
         if DEBUG>6:
-          print( f"TRAINLENEJ:     INFO:      test(): for embeddings: embedding_count         = {MIKADO}{embedding_count+1}{RESET}",              flush=True )
-          print( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch count             = {MIKADO}{i+1}{RESET}",                        flush=True )
+          print( f"CLASSI:         INFO:      test(): for embeddings: embedding_count         = {MIKADO}{embedding_count+1}{RESET}",              flush=True )
+          print( f"CLASSI:         INFO:      test(): for embeddings: batch count             = {MIKADO}{i+1}{RESET}",                        flush=True )
           if args.input_mode=='image': 
-            print( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_images size       = {BLEU}{batch_images.size()}{RESET}                                                     {MAGENTA}<<<<< Note: don't use dropout in test runs{RESET}", flush=True)
+            print( f"CLASSI:         INFO:      test(): for embeddings: batch_images size       = {BLEU}{batch_images.size()}{RESET}                                                     {MAGENTA}<<<<< Note: don't use dropout in test runs{RESET}", flush=True)
           if ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
-            print( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_genes size        = {BLEU}{batch_genes.size()}{RESET}                                                     {MAGENTA}<<<<< Note: don't use dropout in test runs{RESET}", flush=True)
-          print( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames size       = {BLEU}{batch_fnames.size()}{RESET}",          flush=True)
+            print( f"CLASSI:         INFO:      test(): for embeddings: batch_genes size        = {BLEU}{batch_genes.size()}{RESET}                                                     {MAGENTA}<<<<< Note: don't use dropout in test runs{RESET}", flush=True)
+          print( f"CLASSI:         INFO:      test(): for embeddings: batch_fnames size       = {BLEU}{batch_fnames.size()}{RESET}",          flush=True)
         if DEBUG>888:
-          print( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames            = {PURPLE}{batch_fnames.cpu().numpy()}{RESET}", flush=True )
+          print( f"CLASSI:         INFO:      test(): for embeddings: batch_fnames            = {PURPLE}{batch_fnames.cpu().numpy()}{RESET}", flush=True )
 
         gpu                = 0
         encoder_activation = 0
@@ -1820,21 +1820,21 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
                         
 
         if DEBUG>88:
-          print( f"TRAINLENEJ:     INFO:      test(): for embeddings: embedding_count         = {MIKADO}{embedding_count+1}{RESET}",              flush=True )
-          print( f"TRAINLENEJ:     INFO:      test(): for embeddings: returned embedding size = {ARYLIDE}{embedding.size()}{RESET}",          flush=True )
+          print( f"CLASSI:         INFO:      test(): for embeddings: embedding_count         = {MIKADO}{embedding_count+1}{RESET}",              flush=True )
+          print( f"CLASSI:         INFO:      test(): for embeddings: returned embedding size = {ARYLIDE}{embedding.size()}{RESET}",          flush=True )
   
         batch_fnames_npy = batch_fnames.numpy()                                                            # batch_fnames was set up during dataset generation: it contains a link to the SVS file corresponding to the tile it was extracted from - refer to generate() for details
 
         if DEBUG>6:
           fq_link       = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"                                    # convert the saved integer to the matching file name
           save_path     =   os.path.dirname(os.readlink(fq_link))                 
-          print( f"TRAINLENEJ:     INFO:      test(): (global count {MIKADO}{embedding_count:6d}{RESET}) saving {MIKADO}{batch_fnames_npy.shape[0]}{RESET} embeddings associated with case {MAGENTA}{save_path}{RESET}",                        flush=True )
+          print( f"CLASSI:         INFO:      test(): (global count {MIKADO}{embedding_count:6d}{RESET}) saving {MIKADO}{batch_fnames_npy.shape[0]}{RESET} embeddings associated with case {MAGENTA}{save_path}{RESET}",                        flush=True )
           
                   
         if DEBUG>2:
           np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-          print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames_npy.shape  = {batch_fnames_npy.shape}", flush=True )        
-          print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames_npy        = {batch_fnames_npy}",       flush=True )
+          print ( f"CLASSI:         INFO:      test(): for embeddings: batch_fnames_npy.shape  = {batch_fnames_npy.shape}", flush=True )        
+          print ( f"CLASSI:         INFO:      test(): for embeddings: batch_fnames_npy        = {batch_fnames_npy}",       flush=True )
   
         # save each embedding in its associated case directory using a randomly generated name
         if just_test=='True':                                                                               #  in test mode we are pushing inputs through the optimised model, which was saved during training mode
@@ -1845,46 +1845,46 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
               fq_link       = f"{args.data_dir}/{batch_fnames_npy[n]}.fqln"                                # where to save the embedding (which case directory to save it to)
               if DEBUG>2:
                 np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-                print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames_npy[{MIKADO}{n}{RESET}]   = {PINK}{batch_fnames_npy[n]}{RESET}",              flush=True )
-                print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: fq_link                = {PINK}{fq_link}{RESET}",                          flush=True )
+                print ( f"CLASSI:         INFO:      test(): for embeddings: batch_fnames_npy[{MIKADO}{n}{RESET}]   = {PINK}{batch_fnames_npy[n]}{RESET}",              flush=True )
+                print ( f"CLASSI:         INFO:      test(): for embeddings: fq_link                = {PINK}{fq_link}{RESET}",                          flush=True )
               save_path     =  os.path.dirname(os.readlink(fq_link))
               if DEBUG>8:
                 np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-                print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: save_path              = {PINK}{save_path}{RESET}",              flush=True )
+                print ( f"CLASSI:         INFO:      test(): for embeddings: save_path              = {PINK}{save_path}{RESET}",              flush=True )
               random_name   = f"_{randint(10000000, 99999999)}_image_rna_matched___image"
               save_fqn      = f"{save_path}/{random_name}"
               if DEBUG>8:
                 np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-                print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: save_fqn               = {PINK}{save_fqn}{RESET}",              flush=True )
+                print ( f"CLASSI:         INFO:      test(): for embeddings: save_fqn               = {PINK}{save_fqn}{RESET}",              flush=True )
               np.save( save_fqn, embedding.cpu().numpy()[n] )
   
             if ( args.input_mode=='rna' ):
               fq_link       = f"{args.data_dir}/{batch_fnames_npy[n]}.fqln"
               if DEBUG>2:
                 np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-                print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames_npy[{MIKADO}{n}{RESET}]   = {PINK}{batch_fnames_npy[n]}{RESET}",              flush=True )
-                print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: fq_link                = {BLEU}{fq_link}{RESET}",                          flush=True )
+                print ( f"CLASSI:         INFO:      test(): for embeddings: batch_fnames_npy[{MIKADO}{n}{RESET}]   = {PINK}{batch_fnames_npy[n]}{RESET}",              flush=True )
+                print ( f"CLASSI:         INFO:      test(): for embeddings: fq_link                = {BLEU}{fq_link}{RESET}",                          flush=True )
               save_path     =   os.readlink(fq_link)                                                       # link is to the case directory for rna_seq (for tiles, it's to the patch file within the case directory)
               if DEBUG>2:
                 np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-                print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: save_path              = {BLEU}{save_path}{RESET}",              flush=True )
+                print ( f"CLASSI:         INFO:      test(): for embeddings: save_path              = {BLEU}{save_path}{RESET}",              flush=True )
               random_name   = f"_image_rna_matched___rna"
               save_fqn      = f"{save_path}/{random_name}"
               if DEBUG>2:
                 np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-                print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: save_fqn               = {BLEU}{save_fqn}{RESET}",              flush=True )
+                print ( f"CLASSI:         INFO:      test(): for embeddings: save_fqn               = {BLEU}{save_fqn}{RESET}",              flush=True )
               np.save( save_fqn, embedding.cpu().numpy()[n] )
 
             
         
           if DEBUG>88:
             np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-            print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: embedding [{MIKADO}{n},0:10{RESET}]     = {PINK}{embedding.cpu().numpy()[n,0:10]}{RESET}",  flush=True )
-            print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: fq_link [{MIKADO}{n}{RESET}]            = {PINK}{fq_link}{RESET}",                          flush=True )
-            print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: random name [{MIKADO}{n}{RESET}]        = {PINK}{ranndom_name}{RESET}",                     flush=True )
-           #print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: points to                               = {PINK}{os.readlink(fq_link)}{RESET}",             flush=True )
-            print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: save path                               = {BLEU}{save_path}{RESET}",                        flush=True )
-            print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: save fqn                                = {BLEU}{save_fqn}{RESET}",                         flush=True )
+            print ( f"CLASSI:         INFO:      test(): for embeddings: embedding [{MIKADO}{n},0:10{RESET}]     = {PINK}{embedding.cpu().numpy()[n,0:10]}{RESET}",  flush=True )
+            print ( f"CLASSI:         INFO:      test(): for embeddings: fq_link [{MIKADO}{n}{RESET}]            = {PINK}{fq_link}{RESET}",                          flush=True )
+            print ( f"CLASSI:         INFO:      test(): for embeddings: random name [{MIKADO}{n}{RESET}]        = {PINK}{ranndom_name}{RESET}",                     flush=True )
+           #print ( f"CLASSI:         INFO:      test(): for embeddings: points to                               = {PINK}{os.readlink(fq_link)}{RESET}",             flush=True )
+            print ( f"CLASSI:         INFO:      test(): for embeddings: save path                               = {BLEU}{save_path}{RESET}",                        flush=True )
+            print ( f"CLASSI:         INFO:      test(): for embeddings: save fqn                                = {BLEU}{save_fqn}{RESET}",                         flush=True )
     
           embedding_count+=1
 
@@ -1910,8 +1910,8 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         pd.set_option('display.width',       2000)
         
         if DEBUG>0:
-          print ( f"\nTRAINLENEJ:     INFO:      patches_true_classes                                        = \n{AZURE}{patches_true_classes}{RESET}", flush=True )
-          print ( f"\nTRAINLENEJ:     INFO:      patches_case_id                                             = \n{BLEU}{patches_case_id}{RESET}",     flush=True )        
+          print ( f"\nCLASSI:         INFO:      patches_true_classes                                        = \n{AZURE}{patches_true_classes}{RESET}", flush=True )
+          print ( f"\nCLASSI:         INFO:      patches_case_id                                             = \n{BLEU}{patches_case_id}{RESET}",     flush=True )        
 
         if args.cases=='MULTIMODE____TEST':
           upper_bound_of_indices_to_plot_image = cases_reserved_for_image_rna
@@ -1923,11 +1923,11 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         
         if DEBUG>88:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nTRAINLENEJ:     INFO:      aggregate_tile_probabilities_matrix                 = \n{CHARTREUSE}{aggregate_tile_probabilities_matrix}{RESET}", flush=True )
+          print ( f"\nCLASSI:         INFO:      aggregate_tile_probabilities_matrix                 = \n{CHARTREUSE}{aggregate_tile_probabilities_matrix}{RESET}", flush=True )
 
         if DEBUG>88:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nTRAINLENEJ:     INFO:      args.class_names                 = \n{CHARTREUSE}{class_names}{RESET}", flush=True )
+          print ( f"\nCLASSI:         INFO:      args.class_names                 = \n{CHARTREUSE}{class_names}{RESET}", flush=True )
           
   
         figure_width  = 20
@@ -1951,9 +1951,9 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
 
         if DEBUG>88:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>3d}"})
-          print ( f"\nTRAINLENEJ:     INFO:      upper_bound_of_indices_to_plot_image                              = {CHARTREUSE}{upper_bound_of_indices_to_plot_image}{RESET}",     flush=True      ) 
-          print ( f"\nTRAINLENEJ:     INFO:      pd_aggregate_tile_probabilities_matrix[ 'case_id' ]         = \n{CHARTREUSE}{pd_aggregate_tile_probabilities_matrix[ 'case_id' ]}{RESET}",     flush=True      ) 
-          print ( f"\nTRAINLENEJ:     INFO:      pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]    = \n{CHARTREUSE}{pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]}{RESET}",     flush=True )            
+          print ( f"\nCLASSI:         INFO:      upper_bound_of_indices_to_plot_image                              = {CHARTREUSE}{upper_bound_of_indices_to_plot_image}{RESET}",     flush=True      ) 
+          print ( f"\nCLASSI:         INFO:      pd_aggregate_tile_probabilities_matrix[ 'case_id' ]         = \n{CHARTREUSE}{pd_aggregate_tile_probabilities_matrix[ 'case_id' ]}{RESET}",     flush=True      ) 
+          print ( f"\nCLASSI:         INFO:      pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]    = \n{CHARTREUSE}{pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]}{RESET}",     flush=True )            
   
         if bar_chart_x_labels=='case_id':
           c_id = pd_aggregate_tile_probabilities_matrix[ 'case_id' ]
@@ -1963,16 +1963,16 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         if DEBUG>1:
           print ( "\033[20B" )
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nTRAINLENEJ:     INFO:       (extended) pd_aggregate_tile_probabilities_matrix = \n{CHARTREUSE}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True )
-          # ~ print ( f"\nTRAINLENEJ:     INFO:       (extended) aggregate_tile_probabilities_matrix    = \n{CHARTREUSE}{aggregate_tile_probabilities_matrix}{RESET}", flush=True )
+          print ( f"\nCLASSI:         INFO:       (extended) pd_aggregate_tile_probabilities_matrix = \n{CHARTREUSE}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True )
+          # ~ print ( f"\nCLASSI:         INFO:       (extended) aggregate_tile_probabilities_matrix    = \n{CHARTREUSE}{aggregate_tile_probabilities_matrix}{RESET}", flush=True )
        
         if DEBUG>88:          
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nTRAINLENEJ:     INFO:                                             aggregate_tile_probabilities_matrix = \n{CHARTREUSE}{aggregate_tile_probabilities_matrix}{RESET}", flush=True )
+          print ( f"\nCLASSI:         INFO:                                             aggregate_tile_probabilities_matrix = \n{CHARTREUSE}{aggregate_tile_probabilities_matrix}{RESET}", flush=True )
         if DEBUG>88:          
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nTRAINLENEJ:     INFO:          aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot_image]  = \n{CHARTREUSE}{aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot_image]}{RESET}", flush=True )
-          print ( f"\nTRAINLENEJ:     INFO: np.argmax(aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot_image] = \n{CHARTREUSE}{np.argmax(aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot_image], axis=1)}{RESET}", flush=True )
+          print ( f"\nCLASSI:         INFO:          aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot_image]  = \n{CHARTREUSE}{aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot_image]}{RESET}", flush=True )
+          print ( f"\nCLASSI:         INFO: np.argmax(aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot_image] = \n{CHARTREUSE}{np.argmax(aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot_image], axis=1)}{RESET}", flush=True )
           
         x_labels = [  str(el) for el in c_id ]
         cols     = [ class_colors[el] for el in np.argmax(aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot_image], axis=1)  ]
@@ -1980,11 +1980,11 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         if DEBUG>88:
           print ( "\033[20B" )
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nTRAINLENEJ:     INFO:                                                     cols = \n{CHARTREUSE}{cols}{RESET}", flush=True )
-          print ( f"\nTRAINLENEJ:     INFO:                                                len(cols) = \n{CHARTREUSE}{len(cols)}{RESET}", flush=True )
+          print ( f"\nCLASSI:         INFO:                                                     cols = \n{CHARTREUSE}{cols}{RESET}", flush=True )
+          print ( f"\nCLASSI:         INFO:                                                len(cols) = \n{CHARTREUSE}{len(cols)}{RESET}", flush=True )
           
         # ~ if DEBUG>0:
-          # ~ print ( f"\nTRAINLENEJ:     INFO:      cols                = {MIKADO}{cols}{RESET}", flush=True )        
+          # ~ print ( f"\nCLASSI:         INFO:      cols                = {MIKADO}{cols}{RESET}", flush=True )        
         
         p1 = plt.bar( x=x_labels, height=pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ], color=cols ) 
               
@@ -2012,18 +2012,18 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
           if not np.isnan(p.get_height()):                                                                   # if it's a number, then it will be a height (y value)
             for index, row in pd_aggregate_tile_probabilities_matrix.iterrows():
               if DEBUG>888:
-                print ( f"TRAINLENEJ:     INFO:      row['max_agg_prob']                       = {CHARTREUSE}{row['max_agg_prob']}{RESET}", flush=True )            
-                print ( f"TRAINLENEJ:     INFO:      p.get_height()                            = {CHARTREUSE}{p.get_height()}{RESET}", flush=True )
-                print ( f"TRAINLENEJ:     INFO:      patches_true_classes[{MIKADO}{i}{RESET}]  = {CHARTREUSE}{patches_true_classes[i]}{RESET}", flush=True ) 
+                print ( f"CLASSI:         INFO:      row['max_agg_prob']                       = {CHARTREUSE}{row['max_agg_prob']}{RESET}", flush=True )            
+                print ( f"CLASSI:         INFO:      p.get_height()                            = {CHARTREUSE}{p.get_height()}{RESET}", flush=True )
+                print ( f"CLASSI:         INFO:      patches_true_classes[{MIKADO}{i}{RESET}]  = {CHARTREUSE}{patches_true_classes[i]}{RESET}", flush=True ) 
               if row['max_agg_prob'] == p.get_height():                                                      # this logic is just used to map the bar back to the example (it's ugly, but couldn't come up with any other way)
                 true_class = row['true_class']
                 if DEBUG>888:
-                    print ( f"TRAINLENEJ:     INFO:      {GREEN}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< FOUND IT {RESET}",        flush=True ) 
-                    print ( f"TRAINLENEJ:     INFO:      {GREEN}index                                = {RESET}{MIKADO}{index}{RESET}",                               flush=True ) 
-                    print ( f"TRAINLENEJ:     INFO:      {GREEN}true class                           = {RESET}{MIKADO}{true_class}{RESET}",                          flush=True )
-                    print ( f"TRAINLENEJ:     INFO:      {GREEN}args.class_names[row['true_class']]  = {RESET}{MIKADO}{args.class_names[row['true_class']]}{RESET}", flush=True )
-                    print ( f"TRAINLENEJ:     INFO:      {GREEN}pred class                           = {RESET}{MIKADO}{row['pred_class'][0]}{RESET}",                flush=True )
-                    print ( f"TRAINLENEJ:     INFO:      {GREEN}correct_count                        = {RESET}{MIKADO}{correct_count}{RESET}",                       flush=True )                       
+                    print ( f"CLASSI:         INFO:      {GREEN}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< FOUND IT {RESET}",        flush=True ) 
+                    print ( f"CLASSI:         INFO:      {GREEN}index                                = {RESET}{MIKADO}{index}{RESET}",                               flush=True ) 
+                    print ( f"CLASSI:         INFO:      {GREEN}true class                           = {RESET}{MIKADO}{true_class}{RESET}",                          flush=True )
+                    print ( f"CLASSI:         INFO:      {GREEN}args.class_names[row['true_class']]  = {RESET}{MIKADO}{args.class_names[row['true_class']]}{RESET}", flush=True )
+                    print ( f"CLASSI:         INFO:      {GREEN}pred class                           = {RESET}{MIKADO}{row['pred_class'][0]}{RESET}",                flush=True )
+                    print ( f"CLASSI:         INFO:      {GREEN}correct_count                        = {RESET}{MIKADO}{correct_count}{RESET}",                       flush=True )                       
                 if not args.class_names[row['true_class']] == row['pred_class'][0]:                          # this logic determines whether the prediction was correct or not
                   ax.annotate( f"{true_class}", (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center', fontsize=14, color=pkmn_type_colors[true_class], xytext=(0, 5), textcoords='offset points')
                 else:
@@ -2031,7 +2031,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
             i+=1 
   
         if DEBUG>1:
-          print ( f"\nTRAINLENEJ:     INFO:      number correct (pd_aggregate_tile_probabilities_matrix) = {CHARTREUSE}{correct_count}{RESET}", flush=True )
+          print ( f"\nCLASSI:         INFO:      number correct (pd_aggregate_tile_probabilities_matrix) = {CHARTREUSE}{correct_count}{RESET}", flush=True )
   
         pct_correct = correct_count/n_samples
         stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
@@ -2055,7 +2055,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         
         if DEBUG>88:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nTRAINLENEJ:     INFO:      aggregate_tile_level_winners_matrix                = \n{AMETHYST}{aggregate_tile_level_winners_matrix}{RESET}", flush=True )
+          print ( f"\nCLASSI:         INFO:      aggregate_tile_level_winners_matrix                = \n{AMETHYST}{aggregate_tile_level_winners_matrix}{RESET}", flush=True )
   
         figure_width  = 20
         figure_height = 10
@@ -2081,15 +2081,15 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
 
         if DEBUG>1:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nTRAINLENEJ:     INFO:       (extended) pd_aggregate_tile_level_winners_matrix  = \n{BLEU}{pd_aggregate_tile_level_winners_matrix}{RESET}", flush=True )  
+          print ( f"\nCLASSI:         INFO:       (extended) pd_aggregate_tile_level_winners_matrix  = \n{BLEU}{pd_aggregate_tile_level_winners_matrix}{RESET}", flush=True )  
           
 
         if DEBUG>88:
           print ( "\033[20B" )
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nTRAINLENEJ:     INFO:                                             aggregate_tile_level_winners_matrix = \n{AMETHYST}{aggregate_tile_level_winners_matrix}{RESET}", flush=True )
-          print ( f"\nTRAINLENEJ:     INFO:          aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot_image]  = \n{AMETHYST}{aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot_image]}{RESET}", flush=True )
-          print ( f"\nTRAINLENEJ:     INFO: np.argmax(aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot_image] = \n{AMETHYST}{np.argmax(aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot_image], axis=1)}{RESET}", flush=True )
+          print ( f"\nCLASSI:         INFO:                                             aggregate_tile_level_winners_matrix = \n{AMETHYST}{aggregate_tile_level_winners_matrix}{RESET}", flush=True )
+          print ( f"\nCLASSI:         INFO:          aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot_image]  = \n{AMETHYST}{aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot_image]}{RESET}", flush=True )
+          print ( f"\nCLASSI:         INFO: np.argmax(aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot_image] = \n{AMETHYST}{np.argmax(aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot_image], axis=1)}{RESET}", flush=True )
           
         x_labels = [  str(el) for el in c_id ]
         cols     = [ class_colors[el] for el in np.argmax(aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot_image], axis=1)  ]
@@ -2112,18 +2112,18 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
           if not np.isnan(p.get_height()):
             for index, row in pd_aggregate_tile_level_winners_matrix.iterrows():
               if DEBUG>888:
-                print ( f"TRAINLENEJ:     INFO:      row['max_tile_count']                     = {MIKADO}{row['max_tile_count']}{RESET}", flush=True )            
-                print ( f"TRAINLENEJ:     INFO:      p.get_height()                            = {MIKADO}{p.get_height()}{RESET}", flush=True )
-                print ( f"TRAINLENEJ:     INFO:      patches_true_classes[{MIKADO}{i}{RESET}]  = {MIKADO}{patches_true_classes[i]}{RESET}", flush=True ) 
+                print ( f"CLASSI:         INFO:      row['max_tile_count']                     = {MIKADO}{row['max_tile_count']}{RESET}", flush=True )            
+                print ( f"CLASSI:         INFO:      p.get_height()                            = {MIKADO}{p.get_height()}{RESET}", flush=True )
+                print ( f"CLASSI:         INFO:      patches_true_classes[{MIKADO}{i}{RESET}]  = {MIKADO}{patches_true_classes[i]}{RESET}", flush=True ) 
               if row['max_tile_count'] == p.get_height():                                                    # this logic is just used to map the bar back to the example (it's ugly, but couldn't come up with any other way)
                 true_class = row['true_class']
                 if DEBUG>888 :
-                    print ( f"TRAINLENEJ:     INFO:      {GREEN}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< FOUND IT {RESET}",        flush=True ) 
-                    print ( f"TRAINLENEJ:     INFO:      {GREEN}index                                = {RESET}{MIKADO}{index}{RESET}",                               flush=True ) 
-                    print ( f"TRAINLENEJ:     INFO:      {GREEN}true class                           = {RESET}{MIKADO}{true_class}{RESET}",                          flush=True )
-                    print ( f"TRAINLENEJ:     INFO:      {GREEN}args.class_names[row['true_class']]  = {RESET}{MIKADO}{args.class_names[row['true_class']]}{RESET}", flush=True )
-                    print ( f"TRAINLENEJ:     INFO:      {GREEN}pred class                           = {RESET}{MIKADO}{row['pred_class'][0]}{RESET}",                flush=True )
-                    print ( f"TRAINLENEJ:     INFO:      {GREEN}correct_count   max_tilmax                     = {RESET}{MIKADO}{correct_count}{RESET}",                       flush=True )                       
+                    print ( f"CLASSI:         INFO:      {GREEN}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< FOUND IT {RESET}",        flush=True ) 
+                    print ( f"CLASSI:         INFO:      {GREEN}index                                = {RESET}{MIKADO}{index}{RESET}",                               flush=True ) 
+                    print ( f"CLASSI:         INFO:      {GREEN}true class                           = {RESET}{MIKADO}{true_class}{RESET}",                          flush=True )
+                    print ( f"CLASSI:         INFO:      {GREEN}args.class_names[row['true_class']]  = {RESET}{MIKADO}{args.class_names[row['true_class']]}{RESET}", flush=True )
+                    print ( f"CLASSI:         INFO:      {GREEN}pred class                           = {RESET}{MIKADO}{row['pred_class'][0]}{RESET}",                flush=True )
+                    print ( f"CLASSI:         INFO:      {GREEN}correct_count   max_tilmax                     = {RESET}{MIKADO}{correct_count}{RESET}",                       flush=True )                       
                 if not args.class_names[row['true_class']] == row['pred_class'][0]:                          # this logic determines whether the prediction was correct or not
                   ax.annotate( f"{true_class}", (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center', fontsize=14, color=pkmn_type_colors[true_class], xytext=(0, 5), textcoords='offset points')
                 else:
@@ -2131,7 +2131,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
             i+=1 
   
         if DEBUG>88:
-          print ( f"\nTRAINLENEJ:     INFO:      number correct (pd_aggregate_tile_level_winners_matrix) = {MIKADO}{correct_count}{RESET}", flush=True )
+          print ( f"\nCLASSI:         INFO:      number correct (pd_aggregate_tile_level_winners_matrix) = {MIKADO}{correct_count}{RESET}", flush=True )
   
         pct_correct = correct_count/n_samples
         stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
@@ -2165,7 +2165,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         # ~ pd_aggregate_tile_probabilities_matrix.sort_values( by='max_agg_prob', ascending=False, ignore_index=True, inplace=True )
 
         if DEBUG>0:
-          print ( f"\nTRAINLENEJ:     INFO:      pd_aggregate_tile_probabilities_matrix {CYAN}image{RESET} = \n{COTTON_CANDY}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True )    
+          print ( f"\nCLASSI:         INFO:      pd_aggregate_tile_probabilities_matrix {CYAN}image{RESET} = \n{COTTON_CANDY}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True )    
                 
                 
         if bar_chart_x_labels=='case_id':                                                                  # user wants case ids as labels
@@ -2177,11 +2177,11 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
           agg_prob = pd_aggregate_tile_probabilities_matrix[ 'agg_prob'][i]
           arg_max  = np.argmax( aggregate_tile_probabilities_matrix[i,:] )
           if DEBUG>88:
-            print ( f"TRAINLENEJ:     INFO:      i                                                                       = {COTTON_CANDY}{i}{RESET}", flush=True ) 
-            print ( f"TRAINLENEJ:     INFO:      str(c_id[i])                                                            = {COTTON_CANDY}{str(c_id[i])}{RESET}", flush=True ) 
-            print ( f"TRAINLENEJ:     INFO:      arg_max                                                                 = {COTTON_CANDY}{arg_max}{RESET}", flush=True ) 
-            print ( f"TRAINLENEJ:     INFO:      class_names[ arg_max ]                                                  = {COTTON_CANDY}{class_names[ arg_max ]}{RESET}", flush=True ) 
-            print ( f"TRAINLENEJ:     INFO:      height = [ aggregate_tile_probabilities_matrix[i,arg_max] / agg_prob ]  = {COTTON_CANDY}{[ aggregate_tile_probabilities_matrix[i,arg_max] / agg_prob ]}{RESET}", flush=True ) 
+            print ( f"CLASSI:         INFO:      i                                                                       = {COTTON_CANDY}{i}{RESET}", flush=True ) 
+            print ( f"CLASSI:         INFO:      str(c_id[i])                                                            = {COTTON_CANDY}{str(c_id[i])}{RESET}", flush=True ) 
+            print ( f"CLASSI:         INFO:      arg_max                                                                 = {COTTON_CANDY}{arg_max}{RESET}", flush=True ) 
+            print ( f"CLASSI:         INFO:      class_names[ arg_max ]                                                  = {COTTON_CANDY}{class_names[ arg_max ]}{RESET}", flush=True ) 
+            print ( f"CLASSI:         INFO:      height = [ aggregate_tile_probabilities_matrix[i,arg_max] / agg_prob ]  = {COTTON_CANDY}{[ aggregate_tile_probabilities_matrix[i,arg_max] / agg_prob ]}{RESET}", flush=True ) 
           plt.bar( x=[ str(c_id[i]) ],   height=[ aggregate_tile_probabilities_matrix[i,arg_max] / agg_prob ],  color=class_colors[ arg_max ], label=class_names[ arg_max ] )  # just plots the maximum value
 
 
@@ -2219,7 +2219,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
 
         if DEBUG>55:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nTRAINLENEJ:     INFO:       pd_aggregate_tile_probabilities_matrix = \n{BLEU}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True ) 
+          print ( f"\nCLASSI:         INFO:       pd_aggregate_tile_probabilities_matrix = \n{BLEU}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True ) 
 
         true_class_prob = aggregate_tile_probabilities_matrix[ range(0, patches_true_classes.shape[0]), patches_true_classes ]
         pred_class_idx  = np.argmax( aggregate_tile_probabilities_matrix, axis=1   )
@@ -2227,11 +2227,11 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
 
         if DEBUG>88:
           print ( f"\033[16B" )
-          print ( f"\nTRAINLENEJ:     INFO:      patches_case_id                                = \n{ASPARAGUS}{patches_case_id}{RESET}",                              flush=True )  
-          print ( f"\nTRAINLENEJ:     INFO:      pd_aggregate_tile_probabilities_matrix.shape   = {ASPARAGUS}{pd_aggregate_tile_probabilities_matrix.shape}{RESET}",  flush=True )                
-          print ( f"\nTRAINLENEJ:     INFO:      true_class_prob                                = \n{ASPARAGUS}{true_class_prob}{RESET}",                               flush=True )
-          print ( f"\nTRAINLENEJ:     INFO:      pred_class_idx                                 = \n{ASPARAGUS}{pred_class_idx}{RESET}",                               flush=True )
-          print ( f"\nTRAINLENEJ:     INFO:      patches_true_classes                           = \n{ASPARAGUS}{patches_true_classes}{RESET}",                                 flush=True )
+          print ( f"\nCLASSI:         INFO:      patches_case_id                                = \n{ASPARAGUS}{patches_case_id}{RESET}",                              flush=True )  
+          print ( f"\nCLASSI:         INFO:      pd_aggregate_tile_probabilities_matrix.shape   = {ASPARAGUS}{pd_aggregate_tile_probabilities_matrix.shape}{RESET}",  flush=True )                
+          print ( f"\nCLASSI:         INFO:      true_class_prob                                = \n{ASPARAGUS}{true_class_prob}{RESET}",                               flush=True )
+          print ( f"\nCLASSI:         INFO:      pred_class_idx                                 = \n{ASPARAGUS}{pred_class_idx}{RESET}",                               flush=True )
+          print ( f"\nCLASSI:         INFO:      patches_true_classes                           = \n{ASPARAGUS}{patches_true_classes}{RESET}",                                 flush=True )
   
         plt.xticks( rotation=90 )
         pd_aggregate_tile_probabilities_matrix[ 'pred_class_idx'  ]  = pred_class_idx                                        [0:upper_bound_of_indices_to_plot_image]   # possibly truncate rows  because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c MULTIMODE____TEST')
@@ -2286,10 +2286,10 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         try:
           pd_aggregate_tile_probabilities_matrix.to_csv ( fqn, sep='\t' )
           if DEBUG>88:
-            print ( f"TRAINLENEJ:     INFO:     now saving  probabilities dataframe {ASPARAGUS}(image){RESET} to   {MAGENTA}{fqn}{RESET}"  )
+            print ( f"CLASSI:         INFO:     now saving  probabilities dataframe {ASPARAGUS}(image){RESET} to   {MAGENTA}{fqn}{RESET}"  )
         except Exception as e:
-          print ( f"{ORANGE}TRAINLENEJ:     WARNING:     could not save file   = {ORANGE}{fqn}{RESET}"  )
-          # ~ print ( f"{ORANGE}TRAINLENEJ:     WARNING:     error was: {e}{RESET}" )
+          print ( f"{ORANGE}CLASSI:         WARNING:     could not save file   = {ORANGE}{fqn}{RESET}"  )
+          # ~ print ( f"{ORANGE}CLASSI:         WARNING:     error was: {e}{RESET}" )
           
 
 
@@ -2307,9 +2307,9 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
                           
         if DEBUG>55:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nTRAINLENEJ:     INFO:      probabilities_matrix                 = \n{CAMEL}{probabilities_matrix}{RESET}", flush=True )
+          print ( f"\nCLASSI:         INFO:      probabilities_matrix                 = \n{CAMEL}{probabilities_matrix}{RESET}", flush=True )
         if DEBUG>0:
-          print ( f"\nTRAINLENEJ:     INFO:      probabilities_matrix.shape                   = {MIKADO}{probabilities_matrix.shape}{RESET}", flush=True )
+          print ( f"\nCLASSI:         INFO:      probabilities_matrix.shape                   = {MIKADO}{probabilities_matrix.shape}{RESET}", flush=True )
 
 
         figure_width  = 20
@@ -2326,10 +2326,10 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
           upper_bound_of_indices_to_plot_rna   = n_samples
 
         if DEBUG>8:
-          print ( f"\nTRAINLENEJ:     INFO:                                 n_samples                                    = {MIKADO}{n_samples}{RESET}",                                        flush=True )
-          print ( f"\nTRAINLENEJ:     INFO:                                 n_tests                                      = {MIKADO}{n_tests}{RESET}",                                          flush=True )
-          print ( f"\nTRAINLENEJ:     INFO:                                 cases_reserved_for_image_rna                 = {MIKADO}{cases_reserved_for_image_rna}{RESET}",                     flush=True )
-          print ( f"\nTRAINLENEJ:     INFO:                                 upper_bound_of_indices_to_plot_rna           = {MIKADO}{upper_bound_of_indices_to_plot_rna}{RESET}\n\n\n\n\n\n  ", flush=True )
+          print ( f"\nCLASSI:         INFO:                                 n_samples                                    = {MIKADO}{n_samples}{RESET}",                                        flush=True )
+          print ( f"\nCLASSI:         INFO:                                 n_tests                                      = {MIKADO}{n_tests}{RESET}",                                          flush=True )
+          print ( f"\nCLASSI:         INFO:                                 cases_reserved_for_image_rna                 = {MIKADO}{cases_reserved_for_image_rna}{RESET}",                     flush=True )
+          print ( f"\nCLASSI:         INFO:                                 upper_bound_of_indices_to_plot_rna           = {MIKADO}{upper_bound_of_indices_to_plot_rna}{RESET}\n\n\n\n\n\n  ", flush=True )
         
 
 
@@ -2339,7 +2339,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
 
         if DEBUG>55:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nTRAINLENEJ:     INFO:       probabilities_matrix = \n{CAMEL}{probabilities_matrix}{RESET}", flush=True )
+          print ( f"\nCLASSI:         INFO:       probabilities_matrix = \n{CAMEL}{probabilities_matrix}{RESET}", flush=True )
 
         true_class_prob = probabilities_matrix[ range(0, true_classes.shape[0]), true_classes ]
         pred_class_idx  = np.argmax ( probabilities_matrix, axis=1   )
@@ -2362,7 +2362,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         if DEBUG>0: ##################DON'T DELETE
           print ( "\033[20B" )
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nTRAINLENEJ:     INFO:       (extended) pd_probabilities_matrix {CYAN}(rna){RESET} = \n{ARYLIDE}{pd_probabilities_matrix[0:upper_bound_of_indices_to_plot_rna]}{RESET}", flush=True ) 
+          print ( f"\nCLASSI:         INFO:       (extended) pd_probabilities_matrix {CYAN}(rna){RESET} = \n{ARYLIDE}{pd_probabilities_matrix[0:upper_bound_of_indices_to_plot_rna]}{RESET}", flush=True ) 
   
         if bar_chart_x_labels=='case_id':
           c_id = pd_probabilities_matrix[ 'case_id' ]
@@ -2388,18 +2388,18 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
           if not np.isnan(p.get_height()):                                                                   # if it's a number, then it will be a height (y value)
             for index, row in pd_probabilities_matrix.iterrows():
               if DEBUG>555:
-                print ( f"TRAINLENEJ:     INFO:      row['max_agg_prob']                       = {CAMEL}{row['max_agg_prob']}{RESET}", flush=True )            
-                print ( f"TRAINLENEJ:     INFO:      p.get_height()                            = {CAMEL}{p.get_height()}{RESET}", flush=True )
-                print ( f"TRAINLENEJ:     INFO:      true_classes[{MIKADO}{i}{RESET}]  = {AMETHYST}{true_classes[i]}{RESET}", flush=True ) 
+                print ( f"CLASSI:         INFO:      row['max_agg_prob']                       = {CAMEL}{row['max_agg_prob']}{RESET}", flush=True )            
+                print ( f"CLASSI:         INFO:      p.get_height()                            = {CAMEL}{p.get_height()}{RESET}", flush=True )
+                print ( f"CLASSI:         INFO:      true_classes[{MIKADO}{i}{RESET}]  = {AMETHYST}{true_classes[i]}{RESET}", flush=True ) 
               if row['max_agg_prob'] == p.get_height():                                                      # this logic is just used to map the bar back to the example (it's ugly, but couldn't come up with any other way)
                 true_class = row['true_class']
                 if DEBUG>555:
-                    print ( f"TRAINLENEJ:     INFO:      {GREEN}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< FOUND IT {RESET}",        flush=True ) 
-                    print ( f"TRAINLENEJ:     INFO:      {GREEN}index                                = {RESET}{MIKADO}{index}{RESET}",                               flush=True ) 
-                    print ( f"TRAINLENEJ:     INFO:      {GREEN}true class                           = {RESET}{MIKADO}{true_class}{RESET}",                          flush=True )
-                    print ( f"TRAINLENEJ:     INFO:      {GREEN}args.class_names[row['true_class']]  = {RESET}{MIKADO}{args.class_names[row['true_class']]}{RESET}", flush=True )
-                    print ( f"TRAINLENEJ:     INFO:      {GREEN}pred class                           = {RESET}{MIKADO}{row['pred_class'][0]}{RESET}",                flush=True )
-                    print ( f"TRAINLENEJ:     INFO:      {GREEN}correct_count                        = {RESET}{MIKADO}{correct_count}{RESET}",                       flush=True )                       
+                    print ( f"CLASSI:         INFO:      {GREEN}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< FOUND IT {RESET}",        flush=True ) 
+                    print ( f"CLASSI:         INFO:      {GREEN}index                                = {RESET}{MIKADO}{index}{RESET}",                               flush=True ) 
+                    print ( f"CLASSI:         INFO:      {GREEN}true class                           = {RESET}{MIKADO}{true_class}{RESET}",                          flush=True )
+                    print ( f"CLASSI:         INFO:      {GREEN}args.class_names[row['true_class']]  = {RESET}{MIKADO}{args.class_names[row['true_class']]}{RESET}", flush=True )
+                    print ( f"CLASSI:         INFO:      {GREEN}pred class                           = {RESET}{MIKADO}{row['pred_class'][0]}{RESET}",                flush=True )
+                    print ( f"CLASSI:         INFO:      {GREEN}correct_count                        = {RESET}{MIKADO}{correct_count}{RESET}",                       flush=True )                       
                 if not args.class_names[row['true_class']] == row['pred_class'][0]:                          # this logic determines whether the prediction was correct or not
                   ax.annotate( f"{true_class}", (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center', fontsize=8, color=pkmn_type_colors[true_class], xytext=(0, 5), textcoords='offset points')
                 else:
@@ -2408,7 +2408,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
   
   
         if DEBUG>8:
-          print ( f"\nTRAINLENEJ:     INFO:      number correct (rna_seq_probabs_matrix) = {CHARTREUSE}{correct_count}{RESET}", flush=True )
+          print ( f"\nCLASSI:         INFO:      number correct (rna_seq_probabs_matrix) = {CHARTREUSE}{correct_count}{RESET}", flush=True )
   
         pct_correct = correct_count/n_samples
         stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
@@ -2440,14 +2440,14 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
           c_id = [i for i in range(pd_probabilities_matrix.shape[0])]
 
         if DEBUG>88:
-          print ( f"TRAINLENEJ:     INFO:      probabilities_matrix {CYAN}(rna){RESET}  = \n{HOT_PINK}{probabilities_matrix}{RESET}", flush=True ) 
+          print ( f"CLASSI:         INFO:      probabilities_matrix {CYAN}(rna){RESET}  = \n{HOT_PINK}{probabilities_matrix}{RESET}", flush=True ) 
 
         for i in range ( 0, probabilities_matrix.shape[0] ):
           agg_prob = pd_probabilities_matrix[ 'agg_prob'][i]
           arg_max  = np.argmax( probabilities_matrix[i,:] )
           if DEBUG>88:
-            print ( f"TRAINLENEJ:     INFO:      arg_max                   = {COTTON_CANDY}{arg_max}{RESET}", flush=True ) 
-            print ( f"TRAINLENEJ:     INFO:      class_names[ arg_max ]    = {COTTON_CANDY}{class_names[ arg_max ]}{RESET}", flush=True ) 
+            print ( f"CLASSI:         INFO:      arg_max                   = {COTTON_CANDY}{arg_max}{RESET}", flush=True ) 
+            print ( f"CLASSI:         INFO:      class_names[ arg_max ]    = {COTTON_CANDY}{class_names[ arg_max ]}{RESET}", flush=True ) 
           plt.bar( x=[ str(c_id[i]) ],   height=[ probabilities_matrix[i,arg_max] / agg_prob ],  color=class_colors[ arg_max ], label=class_names[ arg_max ] )
 
 
@@ -2465,18 +2465,18 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
           if not np.isnan(p.get_height()):                                                                   # if it's a number, then it will be a height (y value)
             for index, row in pd_probabilities_matrix.iterrows():
               if DEBUG>555:
-                print ( f"TRAINLENEJ:     INFO:      row['max_agg_prob']                       = {COQUELICOT}{row['max_agg_prob']}{RESET}", flush=True )            
-                print ( f"TRAINLENEJ:     INFO:      p.get_height()                            = {COQUELICOT}{p.get_height()}{RESET}", flush=True )
-                print ( f"TRAINLENEJ:     INFO:      true_classes[{MIKADO}{i}{RESET}]  = {COQUELICOT}{true_classes[i]}{RESET}", flush=True ) 
+                print ( f"CLASSI:         INFO:      row['max_agg_prob']                       = {COQUELICOT}{row['max_agg_prob']}{RESET}", flush=True )            
+                print ( f"CLASSI:         INFO:      p.get_height()                            = {COQUELICOT}{p.get_height()}{RESET}", flush=True )
+                print ( f"CLASSI:         INFO:      true_classes[{MIKADO}{i}{RESET}]  = {COQUELICOT}{true_classes[i]}{RESET}", flush=True ) 
               if row['max_agg_prob'] == p.get_height():                                                      # this logic is just used to map the bar back to the example (it's ugly, but couldn't come up with any other way)
                 true_class = row['true_class']
                 if DEBUG>555:
-                    print ( f"TRAINLENEJ:     INFO:      {GREEN}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< FOUND IT {RESET}",        flush=True ) 
-                    print ( f"TRAINLENEJ:     INFO:      {GREEN}index                                = {RESET}{MIKADO}{index}{RESET}",                               flush=True ) 
-                    print ( f"TRAINLENEJ:     INFO:      {GREEN}true class                           = {RESET}{MIKADO}{true_class}{RESET}",                          flush=True )
-                    print ( f"TRAINLENEJ:     INFO:      {GREEN}args.class_names[row['true_class']]  = {RESET}{MIKADO}{args.class_names[row['true_class']]}{RESET}", flush=True )
-                    print ( f"TRAINLENEJ:     INFO:      {GREEN}pred class                           = {RESET}{MIKADO}{row['pred_class'][0]}{RESET}",                flush=True )
-                    print ( f"TRAINLENEJ:     INFO:      {GREEN}correct_count                        = {RESET}{MIKADO}{correct_count}{RESET}",                       flush=True )                       
+                    print ( f"CLASSI:         INFO:      {GREEN}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< FOUND IT {RESET}",        flush=True ) 
+                    print ( f"CLASSI:         INFO:      {GREEN}index                                = {RESET}{MIKADO}{index}{RESET}",                               flush=True ) 
+                    print ( f"CLASSI:         INFO:      {GREEN}true class                           = {RESET}{MIKADO}{true_class}{RESET}",                          flush=True )
+                    print ( f"CLASSI:         INFO:      {GREEN}args.class_names[row['true_class']]  = {RESET}{MIKADO}{args.class_names[row['true_class']]}{RESET}", flush=True )
+                    print ( f"CLASSI:         INFO:      {GREEN}pred class                           = {RESET}{MIKADO}{row['pred_class'][0]}{RESET}",                flush=True )
+                    print ( f"CLASSI:         INFO:      {GREEN}correct_count                        = {RESET}{MIKADO}{correct_count}{RESET}",                       flush=True )                       
                 if not args.class_names[row['true_class']] == row['pred_class'][0]:                          # this logic determines whether the prediction was correct or not
                   ax.annotate( f"{true_class}", (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center', fontsize=8, color=pkmn_type_colors[true_class], xytext=(0, 5), textcoords='offset points')
                 else:
@@ -2484,7 +2484,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
             i+=1 
   
         if DEBUG>8:
-          print ( f"\nTRAINLENEJ:     INFO:      number correct (rna_seq_probabs_matrix) = {COQUELICOT}{correct_count}{RESET}", flush=True )
+          print ( f"\nCLASSI:         INFO:      number correct (rna_seq_probabs_matrix) = {COQUELICOT}{correct_count}{RESET}", flush=True )
   
         pct_correct = correct_count/n_samples
         stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
@@ -2509,7 +2509,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
 
         if DEBUG>55:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nTRAINLENEJ:     INFO:       probabilities_matrix = \n{BLEU}{pd_probabilities_matrix}{RESET}", flush=True )
+          print ( f"\nCLASSI:         INFO:       probabilities_matrix = \n{BLEU}{pd_probabilities_matrix}{RESET}", flush=True )
   
         plt.xticks( rotation=90 )
         pd_probabilities_matrix[ 'pred_class_idx'  ]  = pred_class_idx  [0:n_samples]                      # possibly truncate rows  because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c MULTIMODE____TEST')
@@ -2541,7 +2541,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         plt.legend( args.class_names,loc=2, prop={'size': 14} )
 
         if DEBUG>0:
-          print ( f"\nTRAINLENEJ:     INFO:      number correct (pd_probabilities_matrix) = {COQUELICOT}{correct_count}{RESET}", flush=True )
+          print ( f"\nCLASSI:         INFO:      number correct (pd_probabilities_matrix) = {COQUELICOT}{correct_count}{RESET}", flush=True )
   
         pct_correct = correct_count/n_samples
         stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
@@ -2564,10 +2564,10 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         try:
           pd_probabilities_matrix.to_csv ( fqn, sep='\t' )
           if DEBUG>0:
-            print ( f"TRAINLENEJ:     INFO:     now saving  probabilities dataframe {COQUELICOT}(rna){RESET}   to   {MAGENTA}{fqn}{RESET}"  )
+            print ( f"CLASSI:         INFO:     now saving  probabilities dataframe {COQUELICOT}(rna){RESET}   to   {MAGENTA}{fqn}{RESET}"  )
         except Exception as e:
-          print ( f"{ORANGE}TRAINLENEJ:     WARNING:     could not save file   = {ORANGE}{fqn}{RESET}"  )
-          # ~ print ( f"{ORANGE}TRAINLENEJ:     WARNING:     error was: {e}{RESET}" )     
+          print ( f"{ORANGE}CLASSI:         WARNING:     could not save file   = {ORANGE}{fqn}{RESET}"  )
+          # ~ print ( f"{ORANGE}CLASSI:         WARNING:     error was: {e}{RESET}" )     
           
   
  
@@ -2578,7 +2578,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         # case multimode:
 
         if DEBUG>0:
-          print ( f"TRAINLENEJ:     INFO:     now loading probabilities dataframe {CYAN}(image){RESET} from {MAGENTA}{fqn}{RESET} if it exists from an earlier run"  ) 
+          print ( f"CLASSI:         INFO:     now loading probabilities dataframe {CYAN}(image){RESET} from {MAGENTA}{fqn}{RESET} if it exists from an earlier run"  ) 
           
         image_dataframe_file_exists=False
         fqn = f"{args.log_dir}/probabilities_dataframe_image.csv"
@@ -2586,46 +2586,46 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
           pd_aggregate_tile_probabilities_matrix = pd.read_csv( fqn, sep='\t'  )
           image_dataframe_file_exists=True
         except Exception as e:
-          print ( f"{ORANGE}TRAINLENEJ:     INFO:     could not open file  {MAGENTA}{fqn}{RESET}{ORANGE} - it probably doesn't exist"  )
-          print ( f"{ORANGE}TRAINLENEJ:     INFO:     explanation: if you want the bar chart which combines image and rna probabilities, you need to have performed both an image and an rna run. {RESET}" )                
-          print ( f"{ORANGE}TRAINLENEJ:     INFO:     e.g. perform the following sequence of runs:{RESET}" )                 
-          print ( f"{ORANGE}TRAINLENEJ:     INFO:          {CYAN}./do_all.sh     -d <cancer type code> -i image -c UNIMODE_CASE____MATCHED    -v true{RESET}" )                 
-          print ( f"{ORANGE}TRAINLENEJ:     INFO:          {CYAN}./just_test.sh  -d <cancer type code> -i image -c UNIMODE_CASE____MATCHED{RESET}" )                 
-          print ( f"{ORANGE}TRAINLENEJ:     INFO:          {CYAN}./do_all.sh     -d <cancer type code> -i rna   -c UNIMODE_CASE____MATCHED{RESET}" )                 
-          print ( f"{ORANGE}TRAINLENEJ:     INFO:          {CYAN}./just_test.sh  -d <cancer type code> -i rna   -c UNIMODE_CASE____MATCHED{RESET}" )   
-          print ( f"{ORANGE}TRAINLENEJ:     INFO:     continuing...{RESET}" ) 
+          print ( f"{ORANGE}CLASSI:         INFO:     could not open file  {MAGENTA}{fqn}{RESET}{ORANGE} - it probably doesn't exist"  )
+          print ( f"{ORANGE}CLASSI:         INFO:     explanation: if you want the bar chart which combines image and rna probabilities, you need to have performed both an image and an rna run. {RESET}" )                
+          print ( f"{ORANGE}CLASSI:         INFO:     e.g. perform the following sequence of runs:{RESET}" )                 
+          print ( f"{ORANGE}CLASSI:         INFO:          {CYAN}./do_all.sh     -d <cancer type code> -i image -c UNIMODE_CASE____MATCHED    -v true{RESET}" )                 
+          print ( f"{ORANGE}CLASSI:         INFO:          {CYAN}./just_test.sh  -d <cancer type code> -i image -c UNIMODE_CASE____MATCHED{RESET}" )                 
+          print ( f"{ORANGE}CLASSI:         INFO:          {CYAN}./do_all.sh     -d <cancer type code> -i rna   -c UNIMODE_CASE____MATCHED{RESET}" )                 
+          print ( f"{ORANGE}CLASSI:         INFO:          {CYAN}./just_test.sh  -d <cancer type code> -i rna   -c UNIMODE_CASE____MATCHED{RESET}" )   
+          print ( f"{ORANGE}CLASSI:         INFO:     continuing...{RESET}" ) 
 
         if image_dataframe_file_exists:
 
           upper_bound_of_indices_to_plot_image = len(pd_aggregate_tile_probabilities_matrix.index)
           
           if DEBUG>0:
-            print ( f"\nTRAINLENEJ:     INFO:      upper_bound_of_indices_to_plot_image = {COQUELICOT}{upper_bound_of_indices_to_plot_image}{RESET}", flush=True )
+            print ( f"\nCLASSI:         INFO:      upper_bound_of_indices_to_plot_image = {COQUELICOT}{upper_bound_of_indices_to_plot_image}{RESET}", flush=True )
                       
           if upper_bound_of_indices_to_plot_image  !=   upper_bound_of_indices_to_plot_rna:
-            print ( f"{ORANGE}TRAINLENEJ:     INFO:     for some reason the numbers of image examples and the number of rna examples to be plotted differ{RESET}"      ) 
-            print ( f"{ORANGE}TRAINLENEJ:     INFO:        upper_bound_of_indices_to_plot_image = {MIKADO}{upper_bound_of_indices_to_plot_image}{RESET}"  ) 
-            print ( f"{ORANGE}TRAINLENEJ:     INFO:        upper_bound_of_indices_to_plot_rna   = {MIKADO}{upper_bound_of_indices_to_plot_rna}{RESET}"  ) 
-            print ( f"{ORANGE}TRAINLENEJ:     INFO:     possible explanation: one or both of the {CYAN}N_SAMPLES{RESET}{ORANGE} config settings is too small to have captured sufficient of the {CYAN}{args.cases}{RESET}{ORANGE} cases"      ) 
-            print ( f"{ORANGE}TRAINLENEJ:     INFO:     skipping combined image+rna porbabilities plot that would otherwise have been generated{RESET}"      ) 
-            print ( f"{ORANGE}TRAINLENEJ:     INFO:     continuing ...{RESET}"      ) 
+            print ( f"{ORANGE}CLASSI:         INFO:     for some reason the numbers of image examples and the number of rna examples to be plotted differ{RESET}"      ) 
+            print ( f"{ORANGE}CLASSI:         INFO:        upper_bound_of_indices_to_plot_image = {MIKADO}{upper_bound_of_indices_to_plot_image}{RESET}"  ) 
+            print ( f"{ORANGE}CLASSI:         INFO:        upper_bound_of_indices_to_plot_rna   = {MIKADO}{upper_bound_of_indices_to_plot_rna}{RESET}"  ) 
+            print ( f"{ORANGE}CLASSI:         INFO:     possible explanation: one or both of the {CYAN}N_SAMPLES{RESET}{ORANGE} config settings is too small to have captured sufficient of the {CYAN}{args.cases}{RESET}{ORANGE} cases"      ) 
+            print ( f"{ORANGE}CLASSI:         INFO:     skipping combined image+rna porbabilities plot that would otherwise have been generated{RESET}"      ) 
+            print ( f"{ORANGE}CLASSI:         INFO:     continuing ...{RESET}"      ) 
             
 
           else:
             
             if DEBUG>0:
               np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-              print ( f"\nTRAINLENEJ:     INFO:     pd_aggregate_tile_probabilities_matrix {CYAN}(image){RESET} (from {MAGENTA}{fqn}{RESET}) = \n{COTTON_CANDY}{pd_aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot_rna]}{RESET}", flush=True )   
+              print ( f"\nCLASSI:         INFO:     pd_aggregate_tile_probabilities_matrix {CYAN}(image){RESET} (from {MAGENTA}{fqn}{RESET}) = \n{COTTON_CANDY}{pd_aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot_rna]}{RESET}", flush=True )   
               
             pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ] /= pd_aggregate_tile_probabilities_matrix[ 'agg_prob' ]   # image case only: normalize by dividing by number of tiles in the patch (which was saved as field 'agg_prob')
       
             if DEBUG>0:
               np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-              print ( f"\nTRAINLENEJ:     INFO:       pd_aggregate_tile_probabilities_matrix {CYAN}(image){RESET} normalized probabilities (from {MAGENTA}{fqn}{RESET}) = \n{COTTON_CANDY}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True )  
+              print ( f"\nCLASSI:         INFO:       pd_aggregate_tile_probabilities_matrix {CYAN}(image){RESET} normalized probabilities (from {MAGENTA}{fqn}{RESET}) = \n{COTTON_CANDY}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True )  
               
             
             if DEBUG>0:
-              print ( f"\nTRAINLENEJ:     INFO:     n me {CYAN}(rna){RESET} from {MAGENTA}{fqn}{RESET} if it exists from an earlier or the current run"  )  
+              print ( f"\nCLASSI:         INFO:     n me {CYAN}(rna){RESET} from {MAGENTA}{fqn}{RESET} if it exists from an earlier or the current run"  )  
          
             rna_dataframe_file_exists=False             
             fqn = f"{args.log_dir}/probabilities_dataframe_rna.csv"
@@ -2634,16 +2634,16 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
               rna_dataframe_file_exists=True
               if DEBUG>0:
                 np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-                print ( f"\nTRAINLENEJ:     INFO:     pd_probabilities_matrix {CYAN}(rna){RESET} (from {MAGENTA}{fqn}{RESET}) = \n{ARYLIDE}{pd_probabilities_matrix}{RESET}", flush=True )  
+                print ( f"\nCLASSI:         INFO:     pd_probabilities_matrix {CYAN}(rna){RESET} (from {MAGENTA}{fqn}{RESET}) = \n{ARYLIDE}{pd_probabilities_matrix}{RESET}", flush=True )  
             except Exception as e:
-              print ( f"{ORANGE}TRAINLENEJ:     INFO:     could not open file  = {ORANGE}{fqn}{RESET}{ORANGE} - it probably doesn't exist"  )
-              print ( f"{ORANGE}TRAINLENEJ:     INFO:     if you want the bar chart which combines image and rna probabilities, you need to have performed both an image and an rna run. {RESET}" )                
-              print ( f"{ORANGE}TRAINLENEJ:     INFO:     e.g. perform the following sequence of runs:{RESET}" )                 
-              print ( f"{ORANGE}TRAINLENEJ:     INFO:              {CYAN}./do_all.sh     -d <cancer type code> -i image -c UNIMODE_CASE____MATCHED -v true{RESET}{ORANGE}'{RESET}" )                 
-              print ( f"{ORANGE}TRAINLENEJ:     INFO:              {CYAN}./just_test.sh  -d <cancer type code> -i image -c UNIMODE_CASE____MATCHED{RESET}" )                 
-              print ( f"{ORANGE}TRAINLENEJ:     INFO:              {CYAN}./do_all.sh     -d <cancer type code> -i rna   -c UNIMODE_CASE____MATCHED{RESET}" )                 
-              print ( f"{ORANGE}TRAINLENEJ:     INFO:              {CYAN}./just_test.sh  -d <cancer type code> -i rna   -c UNIMODE_CASE____MATCHED{RESET}" )   
-              print ( f"{ORANGE}TRAINLENEJ:     INFO:     continuing...{RESET}" ) 
+              print ( f"{ORANGE}CLASSI:         INFO:     could not open file  = {ORANGE}{fqn}{RESET}{ORANGE} - it probably doesn't exist"  )
+              print ( f"{ORANGE}CLASSI:         INFO:     if you want the bar chart which combines image and rna probabilities, you need to have performed both an image and an rna run. {RESET}" )                
+              print ( f"{ORANGE}CLASSI:         INFO:     e.g. perform the following sequence of runs:{RESET}" )                 
+              print ( f"{ORANGE}CLASSI:         INFO:              {CYAN}./do_all.sh     -d <cancer type code> -i image -c UNIMODE_CASE____MATCHED -v true{RESET}{ORANGE}'{RESET}" )                 
+              print ( f"{ORANGE}CLASSI:         INFO:              {CYAN}./just_test.sh  -d <cancer type code> -i image -c UNIMODE_CASE____MATCHED{RESET}" )                 
+              print ( f"{ORANGE}CLASSI:         INFO:              {CYAN}./do_all.sh     -d <cancer type code> -i rna   -c UNIMODE_CASE____MATCHED{RESET}" )                 
+              print ( f"{ORANGE}CLASSI:         INFO:              {CYAN}./just_test.sh  -d <cancer type code> -i rna   -c UNIMODE_CASE____MATCHED{RESET}" )   
+              print ( f"{ORANGE}CLASSI:         INFO:     continuing...{RESET}" ) 
     
                         
       
@@ -2675,10 +2675,10 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
               col1     = plt.cm.Accent(7)   
     
               if DEBUG>0: 
-                print ( f"\nTRAINLENEJ:     INFO:      upper_bound_of_indices_to_plot_rna                                   = {ARYLIDE}{upper_bound_of_indices_to_plot_rna}{RESET}", flush=True )
-                print ( f"\nTRAINLENEJ:     INFO:      x_labels                                                             = \n{ARYLIDE}{x_labels}{RESET}", flush=True )
-                print ( f"\nTRAINLENEJ:     INFO:      {CYAN}(rna){RESET} pd_probabilities_matrix                [ 'true_class_prob' ]   = \n{ARYLIDE}{set1}{RESET}", flush=True )
-                print ( f"\nTRAINLENEJ:     INFO:      {CYAN}(img){RESET} pd_aggregate_tile_probabilities_matrix [ 'true_class_prob' ]   = \n{COTTON_CANDY}{set2}{RESET}", flush=True )
+                print ( f"\nCLASSI:         INFO:      upper_bound_of_indices_to_plot_rna                                   = {ARYLIDE}{upper_bound_of_indices_to_plot_rna}{RESET}", flush=True )
+                print ( f"\nCLASSI:         INFO:      x_labels                                                             = \n{ARYLIDE}{x_labels}{RESET}", flush=True )
+                print ( f"\nCLASSI:         INFO:      {CYAN}(rna){RESET} pd_probabilities_matrix                [ 'true_class_prob' ]   = \n{ARYLIDE}{set1}{RESET}", flush=True )
+                print ( f"\nCLASSI:         INFO:      {CYAN}(img){RESET} pd_aggregate_tile_probabilities_matrix [ 'true_class_prob' ]   = \n{COTTON_CANDY}{set2}{RESET}", flush=True )
     
               
               p1 = plt.bar( x=x_labels, height=set1,               color=col0 )
@@ -2694,7 +2694,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
       
         
               if DEBUG>0:
-                print ( f"\nTRAINLENEJ:     INFO:      number correct (image+rna) = {CHARTREUSE}{correct_count}{RESET}", flush=True )
+                print ( f"\nCLASSI:         INFO:      number correct (image+rna) = {CHARTREUSE}{correct_count}{RESET}", flush=True )
         
               pct_correct = correct_count/n_samples
               stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
@@ -2713,7 +2713,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
     if ( args.just_test!='True') | ( (args.just_test=='true')  &  (args.input_mode=='image_rna') & (args.multimode=='image_rna') ):
     
       #np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE if x==0 else WHITE if x<=5 else CARRIBEAN_GREEN} {x:>15d}"})  
-      #print ( f"TRAINLENEJ:     INFO:  {ORANGE}run_level{RESET}_classifications_matrix (all test samples, using the best model that was saved during this run =\n" )
+      #print ( f"CLASSI:         INFO:  {ORANGE}run_level{RESET}_classifications_matrix (all test samples, using the best model that was saved during this run =\n" )
       #print ( f"         ", end='' ) 
       #print ( [ f"{name:.50s}" for name in class_names ] )    
       #print ( f"\n{run_level_classifications_matrix}{RESET}" )
@@ -2730,15 +2730,15 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
   
       if DEBUG>4:    
         print(  '\033[13B' )
-        print( f"TRAINLENEJ:       INFO:    {BITTER_SWEET}Test predictions produced during training for this run{RESET}"         )
-        print( f"TRAINLENEJ:       INFO:    {BITTER_SWEET}======================================================{RESET}"  )
-        print( f"TRAINLENEJ:       INFO:                                                                                      "  )  
+        print( f"CLASSI:           INFO:    {BITTER_SWEET}Test predictions produced during training for this run{RESET}"         )
+        print( f"CLASSI:           INFO:    {BITTER_SWEET}======================================================{RESET}"  )
+        print( f"CLASSI:           INFO:                                                                                      "  )  
     
       total_correct, total_examples  = show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, run_level_classifications_matrix, level='run' )
   
 
       if DEBUG>4:  
-        print( f"TRAINLENEJ:       INFO:    correct / examples  =  {BITTER_SWEET}{np.sum(total_correct, axis=0)} / {np.sum(run_level_classifications_matrix, axis=None)}{WHITE}  ({BITTER_SWEET}{100 * np.sum(total_correct, axis=0) / np.sum(run_level_classifications_matrix):3.1f}%){RESET}")
+        print( f"CLASSI:           INFO:    correct / examples  =  {BITTER_SWEET}{np.sum(total_correct, axis=0)} / {np.sum(run_level_classifications_matrix, axis=None)}{WHITE}  ({BITTER_SWEET}{100 * np.sum(total_correct, axis=0) / np.sum(run_level_classifications_matrix):3.1f}%){RESET}")
   
       for i in range( 0, len( run_level_classifications_matrix) ):                                         # reset for the next run   
         run_level_classifications_matrix[i] = 0  
@@ -2749,7 +2749,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
       seconds = round( (time.time() - start_time),     0       )
       #pplog.log_section('run complete in {:} mins'.format( minutes ) )
   
-      print( f'TRAINLENEJ:     INFO:  elapsed time since job started: {MIKADO}{minutes}{RESET} mins ({MIKADO}{seconds:.1f}{RESET} secs)')
+      print( f'CLASSI:         INFO:  elapsed time since job started: {MIKADO}{minutes}{RESET} mins ({MIKADO}{seconds:.1f}{RESET} secs)')
   
       print ( "\033[6A" )
             
@@ -2764,29 +2764,29 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
     if (args.just_test!='True') & (total_runs_in_job>1) & (run==total_runs_in_job):
       
       print(  '\033[6B' )      
-      print( f'TRAINLENEJ:       INFO:'                                                                                    )
-      print( f"TRAINLENEJ:       INFO:    {CARRIBEAN_GREEN}Test predictions produced during training for this job{RESET}"     )
-      print( f"TRAINLENEJ:       INFO:    {CARRIBEAN_GREEN}======================================================{RESET}"  )  
-      print( f'TRAINLENEJ:       INFO:'                                                                                    )      
+      print( f'CLASSI:         INFO:'                                                                                    )
+      print( f"CLASSI:         INFO:    {CARRIBEAN_GREEN}Test predictions produced during training for this job{RESET}"     )
+      print( f"CLASSI:         INFO:    {CARRIBEAN_GREEN}======================================================{RESET}"  )  
+      print( f'CLASSI:         INFO:'                                                                                    )      
     
       total_correct, total_examples  = show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, job_level_classifications_matrix, level='job' )
     
       np.seterr( invalid='ignore', divide='ignore' )
       print( f"\n" )
-      print( f'TRAINLENEJ:       INFO:    number of runs in this job                = {MIKADO}{total_runs_in_job}{RESET}')
-      print( f"TRAINLENEJ:       INFO:    total for ALL test examples over ALL runs =  {CARRIBEAN_GREEN}{np.sum(total_correct, axis=0)} / {np.sum(job_level_classifications_matrix, axis=None)}  ({CARRIBEAN_GREEN}{100 * np.sum(total_correct, axis=0) / np.sum(job_level_classifications_matrix):3.1f}%){RESET}")
+      print( f'CLASSI:         INFO:    number of runs in this job                = {MIKADO}{total_runs_in_job}{RESET}')
+      print( f"CLASSI:         INFO:    total for ALL test examples over ALL runs =  {CARRIBEAN_GREEN}{np.sum(total_correct, axis=0)} / {np.sum(job_level_classifications_matrix, axis=None)}  ({CARRIBEAN_GREEN}{100 * np.sum(total_correct, axis=0) / np.sum(job_level_classifications_matrix):3.1f}%){RESET}")
     
       np.set_printoptions(formatter={'int': lambda x: f"{CARRIBEAN_GREEN}{x:>6d}"})
-      print( f'TRAINLENEJ:       INFO:    total correct per subtype over all runs:     {total_correct}{RESET}')
+      print( f'CLASSI:         INFO:    total correct per subtype over all runs:     {total_correct}{RESET}')
       np.set_printoptions(formatter={'float': lambda x: f"{CARRIBEAN_GREEN}{x:>6.1f}"})
-      print( f'TRAINLENEJ:       INFO:     %    correct per subtype over all runs:     { 100 * np.divide( total_correct, total_examples) }{RESET}')
+      print( f'CLASSI:         INFO:     %    correct per subtype over all runs:     { 100 * np.divide( total_correct, total_examples) }{RESET}')
       np.seterr(divide='warn', invalid='warn')  
       
       if DEBUG>9:
         np.set_printoptions(formatter={'int': lambda x: f"{CARRIBEAN_GREEN}{x:>6d}    "})    
-        print ( f"TRAINLENEJ:       INFO:    run_level_classifications_matrix_acc[0:total_runs_in_job,:,:]            = \n{run_level_classifications_matrix_acc[0:total_runs_in_job,:,:] }{RESET}" )
+        print ( f"CLASSI:           INFO:    run_level_classifications_matrix_acc[0:total_runs_in_job,:,:]            = \n{run_level_classifications_matrix_acc[0:total_runs_in_job,:,:] }{RESET}" )
       if DEBUG>9:
-        print ( f"TRAINLENEJ:       INFO:  run_level_classifications_matrix_acc                 = {MIKADO}{run_level_classifications_matrix_acc[ 0:total_runs_in_job, : ] }{RESET}"     )
+        print ( f"CLASSI:           INFO:  run_level_classifications_matrix_acc                 = {MIKADO}{run_level_classifications_matrix_acc[ 0:total_runs_in_job, : ] }{RESET}"     )
   
       if ( args.box_plot=='True' ) & ( total_runs_in_job>=args.minimum_job_size ):
           box_plot_by_subtype( args, n_genes, start_time, parameters, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc )
@@ -2805,7 +2805,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
   if ( args.just_test=='True') & ( args.input_mode=='rna' ):
     print( f'\033[12B')  
   
-  print( f'TRAINLENEJ:      INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
+  print( f'CLASSI:          INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
             
   #pplog.log_section('Model saved.')
   
@@ -2827,14 +2827,14 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
 
 
     if DEBUG>9:
-      print( "TRAINLENEJ:     INFO:     train(): about to enumerate over dataset" )
+      print( "CLASSI:         INFO:     train(): about to enumerate over dataset" )
     
     for i, ( batch_images, batch_genes, image_labels, rna_labels, batch_fnames ) in enumerate( train_loader ):
         
         if DEBUG>88:
-          print( f"TRAINLENEJ:     INFO:     train(): len(batch_images) = \033[33;1m{len(batch_images)}\033[m" )
-          print( f"TRAINLENEJ:     INFO:     train(): len(image_labels) = \033[33;1m{len(image_labels)}\033[m" )
-          print( f"TRAINLENEJ:     INFO:     train(): len(rna_labels)   = \033[33;1m{len(rna_labels)}\033[m" )
+          print( f"CLASSI:         INFO:     train(): len(batch_images) = \033[33;1m{len(batch_images)}\033[m" )
+          print( f"CLASSI:         INFO:     train(): len(image_labels) = \033[33;1m{len(image_labels)}\033[m" )
+          print( f"CLASSI:         INFO:     train(): len(rna_labels)   = \033[33;1m{len(rna_labels)}\033[m" )
         if DEBUG>888:
           print ( "\033[6B" )
           print( f"{ image_labels.cpu().detach().numpy()},  ", flush=True, end="" )
@@ -2842,7 +2842,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
           print ( "\033[6A" )
                             
         if DEBUG>888:
-          print( f"TRAINLENEJ:     INFO:     train(): about to call {CYAN}optimizer.zero_grad(){RESET}" )
+          print( f"CLASSI:         INFO:     train(): about to call {CYAN}optimizer.zero_grad(){RESET}" )
 
         # from: https://stackoverflow.com/questions/44732217/why-do-we-need-to-explicitly-call-zero-grad
         # We explicitly need to call zero_grad() because, after loss.backward() (when gradients are computed), we need to use optimizer.step() to proceed gradient descent. More specifically, the gradients are not automatically zeroed because these two operations, loss.backward() and optimizer.step(), are separated, and optimizer.step() requires the just computed gradients.
@@ -2854,15 +2854,15 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
         rna_labels   = rna_labels.to   ( device )                                                          # send to GPU
 
         if DEBUG>99:
-          print ( f"TRAINLENEJ:     INFO:     train(): batch_images[0]                    = {MIKADO}\n{batch_images[0] }{RESET}", flush=True   )
+          print ( f"CLASSI:         INFO:     train(): batch_images[0]                    = {MIKADO}\n{batch_images[0] }{RESET}", flush=True   )
 
         if DEBUG>99:
-          print ( f"TRAINLENEJ:     INFO:     train(): type(batch_images)                 = {MIKADO}{type(batch_images)}{RESET}",  flush=True  )
-          print ( f"TRAINLENEJ:     INFO:     train(): batch_images.size()                = {MIKADO}{batch_images.size()}{RESET}", flush=True  )
+          print ( f"CLASSI:         INFO:     train(): type(batch_images)                 = {MIKADO}{type(batch_images)}{RESET}",  flush=True  )
+          print ( f"CLASSI:         INFO:     train(): batch_images.size()                = {MIKADO}{batch_images.size()}{RESET}", flush=True  )
 
 
         if DEBUG>2:
-          print( f"TRAINLENEJ:     INFO:      train(): about to call {MAGENTA}model.forward(){RESET}" )
+          print( f"CLASSI:         INFO:      train(): about to call {MAGENTA}model.forward(){RESET}" )
 
         gpu                = 0                                                                             # to maintain compatability with NN_MODE=pre_compress
         encoder_activation = 0                                                                             # to maintain compatability with NN_MODE=pre_compress
@@ -2871,7 +2871,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
           y1_hat, y2_hat, embedding = model.forward( [ batch_images, 0          ,  batch_fnames] , gpu, encoder_activation  )          # perform a step. y1_hat = image outputs; y2_hat = rna outputs
         elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
           if DEBUG>9:
-            print ( f"TRAINLENEJ:     INFO:     train(): batch_genes.size()                = {batch_genes.size}" )
+            print ( f"CLASSI:         INFO:     train(): batch_genes.size()                = {batch_genes.size}" )
           y1_hat, y2_hat, embedding = model.forward( [0,             batch_genes,  batch_fnames],  gpu, encoder_activation )           # perform a step. y1_hat = image outputs; y2_hat = rna outputs
 
 
@@ -2883,28 +2883,28 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
             y1_hat_numpy       = (y1_hat       .cpu() .data) .numpy()
             batch_fnames_npy   = (batch_fnames .cpu() .data) .numpy()
             random_pick        = random.randint( 0, y1_hat_numpy.shape[0]-1 )
-            print ( f"TRAINLENEJ:     INFO:      test():        fq_link            [{random_pick:3d}]      (Truth)         = {MIKADO}{args.data_dir}/{batch_fnames_npy[random_pick]}.fqln{RESET}"     )            
-            print ( f"TRAINLENEJ:     INFO:      test():        image_labels_numpy [{random_pick:3d}]      {GREEN}(Truth){RESET}         = {MIKADO}{image_labels_numpy[random_pick]}{RESET}"     )            
-            print ( f"TRAINLENEJ:     INFO:      test():        y1_hat_numpy       [{random_pick:3d}]      {ORANGE}(Predictions){RESET}   = {MIKADO}{y1_hat_numpy[random_pick]}{RESET}"     )
-            print ( f"TRAINLENEJ:     INFO:      test():        predicted class    [{random_pick:3d}]                      = {RED if image_labels_numpy[random_pick]!=np.argmax(y1_hat_numpy[random_pick]) else GREEN}{np.argmax(y1_hat_numpy[random_pick])}{RESET}"     )
+            print ( f"CLASSI:         INFO:      test():        fq_link            [{random_pick:3d}]      (Truth)         = {MIKADO}{args.data_dir}/{batch_fnames_npy[random_pick]}.fqln{RESET}"     )            
+            print ( f"CLASSI:         INFO:      test():        image_labels_numpy [{random_pick:3d}]      {GREEN}(Truth){RESET}         = {MIKADO}{image_labels_numpy[random_pick]}{RESET}"     )            
+            print ( f"CLASSI:         INFO:      test():        y1_hat_numpy       [{random_pick:3d}]      {ORANGE}(Predictions){RESET}   = {MIKADO}{y1_hat_numpy[random_pick]}{RESET}"     )
+            print ( f"CLASSI:         INFO:      test():        predicted class    [{random_pick:3d}]                      = {RED if image_labels_numpy[random_pick]!=np.argmax(y1_hat_numpy[random_pick]) else GREEN}{np.argmax(y1_hat_numpy[random_pick])}{RESET}"     )
 
             
           loss_images       = loss_function( y1_hat, image_labels )
           loss_images_value = loss_images.item()                                                           # use .item() to extract value from tensor: don't create multiple new tensors each of which will have gradient histories
           
           if DEBUG>2:
-            print ( f"TRAINLENEJ:     INFO:      test(): {MAGENTA}loss_images{RESET} (for this mini-batch)  = {PURPLE}{loss_images_value:6.3f}{RESET}" )
+            print ( f"CLASSI:         INFO:      test(): {MAGENTA}loss_images{RESET} (for this mini-batch)  = {PURPLE}{loss_images_value:6.3f}{RESET}" )
             # ~ time.sleep(.25)
         
         if (args.input_mode=='rna') | (args.input_mode=='image_rna'):
           if DEBUG>9:
             np.set_printoptions(formatter={'int': lambda x:   "{:>4d}".format(x)})
             rna_labels_numpy = (rna_labels.cpu().data).numpy()
-            print ( "TRAINLENEJ:     INFO:      test():       rna_labels_numpy                = \n{:}".format( image_labels_numpy  ) )
+            print ( "CLASSI:         INFO:      test():       rna_labels_numpy                = \n{:}".format( image_labels_numpy  ) )
           if DEBUG>9:
             np.set_printoptions(formatter={'float': lambda x: "{:>10.2f}".format(x)})
             y2_hat_numpy = (y2_hat.cpu().data).numpy()
-            print ( "TRAINLENEJ:     INFO:      test():       y2_hat_numpy                      = \n{:}".format( y2_hat_numpy) )
+            print ( "CLASSI:         INFO:      test():       y2_hat_numpy                      = \n{:}".format( y2_hat_numpy) )
           loss_genes        = loss_function( y2_hat, rna_labels )
           loss_genes_value  = loss_genes.item()                                                            # use .item() to extract value from tensor: don't create multiple new tensors each of which will have gradient histories
 
@@ -2965,7 +2965,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
         torch.cuda.empty_cache()
 
         if DEBUG>99:
-          print ( "TRAINLENEJ:     INFO:      train():       type(loss_images_sum)                      = {:}".format( type(loss_images_sum)       ) )
+          print ( "CLASSI:         INFO:      train():       type(loss_images_sum)                      = {:}".format( type(loss_images_sum)       ) )
           
     loss_images_sum_ave = loss_images_sum / (i+1)                                                          # average batch loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
     loss_genes_sum_ave  = loss_genes_sum  / (i+1)                                                          # average genes loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
@@ -3014,7 +3014,7 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
     for i, ( batch_images, batch_genes, image_labels, rna_labels, batch_fnames ) in  enumerate( test_loader ):
   
         if DEBUG>88:
-          print( f"{MIKADO}TRAINLENEJ:     INFO:      test(): top of test, and i={i}{RESET}" ) 
+          print( f"{MIKADO}CLASSI:         INFO:      test(): top of test, and i={i}{RESET}" ) 
         
         batch_images = batch_images.to(device)
         batch_genes  = batch_genes .to(device)
@@ -3025,7 +3025,7 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
         encoder_activation = 0                                                                             # not used, but necessary to to maintain compatability with NN_MODE=pre_compress
 
         if DEBUG>2:
-          print( f"TRAINLENEJ:     INFO:      test(): about to call {COQUELICOT}model.forward(){RESET}" )
+          print( f"CLASSI:         INFO:      test(): about to call {COQUELICOT}model.forward(){RESET}" )
 
         if args.input_mode=='image':
           with torch.no_grad():                                                                            # don't need gradients for testing
@@ -3037,10 +3037,10 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
             y1_hat_numpy       = (y1_hat       .cpu() .data) .numpy()
             batch_fnames_npy   = (batch_fnames .cpu() .data) .numpy()
             random_pick        = random.randint( 0, y1_hat_numpy.shape[0]-1 )
-            print ( f"TRAINLENEJ:     INFO:      test():        fq_link            [{random_pick:3d}]      (Truth)         = {MIKADO}{args.data_dir}/{batch_fnames_npy[random_pick]}.fqln{RESET}"     )            
-            print ( f"TRAINLENEJ:     INFO:      test():        image_labels_numpy [{random_pick:3d}]      {GREEN}(Truth){RESET}         = {MIKADO}{image_labels_numpy[random_pick]}{RESET}"     )            
-            print ( f"TRAINLENEJ:     INFO:      test():        y1_hat_numpy       [{random_pick:3d}]      {ORANGE}(Predictions){RESET}   = {MIKADO}{y1_hat_numpy[random_pick]}{RESET}"     )
-            print ( f"TRAINLENEJ:     INFO:      test():        predicted class    [{random_pick:3d}]                      = {RED if image_labels_numpy[random_pick]!=np.argmax(y1_hat_numpy[random_pick]) else GREEN}{np.argmax(y1_hat_numpy[random_pick])}{RESET}"     )
+            print ( f"CLASSI:         INFO:      test():        fq_link            [{random_pick:3d}]      (Truth)         = {MIKADO}{args.data_dir}/{batch_fnames_npy[random_pick]}.fqln{RESET}"     )            
+            print ( f"CLASSI:         INFO:      test():        image_labels_numpy [{random_pick:3d}]      {GREEN}(Truth){RESET}         = {MIKADO}{image_labels_numpy[random_pick]}{RESET}"     )            
+            print ( f"CLASSI:         INFO:      test():        y1_hat_numpy       [{random_pick:3d}]      {ORANGE}(Predictions){RESET}   = {MIKADO}{y1_hat_numpy[random_pick]}{RESET}"     )
+            print ( f"CLASSI:         INFO:      test():        predicted class    [{random_pick:3d}]                      = {RED if image_labels_numpy[random_pick]!=np.argmax(y1_hat_numpy[random_pick]) else GREEN}{np.argmax(y1_hat_numpy[random_pick])}{RESET}"     )
 
 
         elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
@@ -3063,7 +3063,7 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
           
           if args.scattergram=='True':
             if DEBUG>2:
-                print ( f"TRAINLENEJ:     INFO:      test():         global_batch_count {DIM_WHITE}(super-patch number){RESET} = {global_batch_count+1:5d}  {DIM_WHITE}({((global_batch_count+1)/(args.supergrid_size**2)):04.2f}){RESET}" )
+                print ( f"CLASSI:         INFO:      test():         global_batch_count {DIM_WHITE}(super-patch number){RESET} = {global_batch_count+1:5d}  {DIM_WHITE}({((global_batch_count+1)/(args.supergrid_size**2)):04.2f}){RESET}" )
                       
           if global_batch_count%(args.supergrid_size**2)==0:                                               # establish grid arrays on the FIRST batch of each grid
             grid_images                = batch_images.cpu().numpy()
@@ -3075,18 +3075,18 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
             grid_p_full_softmax_matrix = p_full_softmax_matrix 
 
             if DEBUG>88:
-              print ( f"TRAINLENEJ:     INFO:      test():             batch_images.shape                      = {BLEU}{batch_images.shape}{RESET}"                  )
-              print ( f"TRAINLENEJ:     INFO:      test():             grid_images.shape                       = {BLEU}{grid_images.shape}{RESET}"                   )
-              print ( f"TRAINLENEJ:     INFO:      test():             image_labels.shape                      = {BLEU}{image_labels.shape}{RESET}"                  )            
-              print ( f"TRAINLENEJ:     INFO:      test():             grid_labels.shape                       = {BLEU}{grid_labels.shape}{RESET}"                   )
-              print ( f"TRAINLENEJ:     INFO:      test():             preds.shape                             = {BLEU}{preds.shape}{RESET}"                         )
-              print ( f"TRAINLENEJ:     INFO:      test():             grid_preds.shape                        = {BLEU}{grid_preds.shape}{RESET}"                    )
-              print ( f"TRAINLENEJ:     INFO:      test():             p_highest.shape                         = {BLEU}{p_highest.shape}{RESET}"                     )            
-              print ( f"TRAINLENEJ:     INFO:      test():             grid_p_highest.shape                    = {BLEU}{grid_p_highest.shape}{RESET}"                )            
-              print ( f"TRAINLENEJ:     INFO:      test():             p_2nd_highest.shape                     = {BLEU}{p_2nd_highest.shape}{RESET}"                 )
-              print ( f"TRAINLENEJ:     INFO:      test():             grid_p_2nd_highest.shape                = {BLEU}{grid_p_2nd_highest.shape}{RESET}"            )
-              print ( f"TRAINLENEJ:     INFO:      test():             p_full_softmax_matrix.shape             = {BLEU}{p_full_softmax_matrix.shape}{RESET}"         )                                    
-              print ( f"TRAINLENEJ:     INFO:      test():             grid_p_full_softmax_matrix.shape        = {BLEU}{grid_p_full_softmax_matrix.shape}{RESET}"    )
+              print ( f"CLASSI:         INFO:      test():             batch_images.shape                      = {BLEU}{batch_images.shape}{RESET}"                  )
+              print ( f"CLASSI:         INFO:      test():             grid_images.shape                       = {BLEU}{grid_images.shape}{RESET}"                   )
+              print ( f"CLASSI:         INFO:      test():             image_labels.shape                      = {BLEU}{image_labels.shape}{RESET}"                  )            
+              print ( f"CLASSI:         INFO:      test():             grid_labels.shape                       = {BLEU}{grid_labels.shape}{RESET}"                   )
+              print ( f"CLASSI:         INFO:      test():             preds.shape                             = {BLEU}{preds.shape}{RESET}"                         )
+              print ( f"CLASSI:         INFO:      test():             grid_preds.shape                        = {BLEU}{grid_preds.shape}{RESET}"                    )
+              print ( f"CLASSI:         INFO:      test():             p_highest.shape                         = {BLEU}{p_highest.shape}{RESET}"                     )            
+              print ( f"CLASSI:         INFO:      test():             grid_p_highest.shape                    = {BLEU}{grid_p_highest.shape}{RESET}"                )            
+              print ( f"CLASSI:         INFO:      test():             p_2nd_highest.shape                     = {BLEU}{p_2nd_highest.shape}{RESET}"                 )
+              print ( f"CLASSI:         INFO:      test():             grid_p_2nd_highest.shape                = {BLEU}{grid_p_2nd_highest.shape}{RESET}"            )
+              print ( f"CLASSI:         INFO:      test():             p_full_softmax_matrix.shape             = {BLEU}{p_full_softmax_matrix.shape}{RESET}"         )                                    
+              print ( f"CLASSI:         INFO:      test():             grid_p_full_softmax_matrix.shape        = {BLEU}{grid_p_full_softmax_matrix.shape}{RESET}"    )
                       
           else:                                                                                            # ... accumulate for subsequent batches in the same grid 
             grid_images                = np.append( grid_images,                batch_images.cpu().numpy(), axis=0 )
@@ -3098,17 +3098,17 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
             grid_p_full_softmax_matrix = np.append( grid_p_full_softmax_matrix, p_full_softmax_matrix,      axis=0 )
   
             if DEBUG>88:
-              print ( f"TRAINLENEJ:     INFO:      test():             grid_images.shape                       = {MIKADO}{grid_images.shape}{RESET}"                 )
-              print ( f"TRAINLENEJ:     INFO:      test():             grid_labels.shape                       = {MIKADO}{grid_labels.shape}{RESET}"                 )
-              print ( f"TRAINLENEJ:     INFO:      test():             grid_preds.shape                        = {MIKADO}{grid_preds.shape}{RESET}"                  )
-              print ( f"TRAINLENEJ:     INFO:      test():             grid_p_highest.shape                    = {MIKADO}{grid_p_highest.shape}{RESET}"              )            
-              print ( f"TRAINLENEJ:     INFO:      test():             grid_p_2nd_highest.shape                = {MIKADO}{grid_p_2nd_highest.shape}{RESET}"          )
-              print ( f"TRAINLENEJ:     INFO:      test():             grid_p_true_class.shape                 = {MIKADO}{grid_p_true_class.shape}{RESET}"           )
-              print ( f"TRAINLENEJ:     INFO:      test():             grid_p_full_softmax_matrix.shape        = {MIKADO}{grid_p_full_softmax_matrix.shape}{RESET}"  )
+              print ( f"CLASSI:         INFO:      test():             grid_images.shape                       = {MIKADO}{grid_images.shape}{RESET}"                 )
+              print ( f"CLASSI:         INFO:      test():             grid_labels.shape                       = {MIKADO}{grid_labels.shape}{RESET}"                 )
+              print ( f"CLASSI:         INFO:      test():             grid_preds.shape                        = {MIKADO}{grid_preds.shape}{RESET}"                  )
+              print ( f"CLASSI:         INFO:      test():             grid_p_highest.shape                    = {MIKADO}{grid_p_highest.shape}{RESET}"              )            
+              print ( f"CLASSI:         INFO:      test():             grid_p_2nd_highest.shape                = {MIKADO}{grid_p_2nd_highest.shape}{RESET}"          )
+              print ( f"CLASSI:         INFO:      test():             grid_p_true_class.shape                 = {MIKADO}{grid_p_true_class.shape}{RESET}"           )
+              print ( f"CLASSI:         INFO:      test():             grid_p_full_softmax_matrix.shape        = {MIKADO}{grid_p_full_softmax_matrix.shape}{RESET}"  )
 
             if DEBUG>88:
               np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
-              print ( f"TRAINLENEJ:     INFO:      test():             grid_p_full_softmax_matrix              = \n{CHARTREUSE}{grid_p_full_softmax_matrix}{RESET}"  ) 
+              print ( f"CLASSI:         INFO:      test():             grid_p_full_softmax_matrix              = \n{CHARTREUSE}{grid_p_full_softmax_matrix}{RESET}"  ) 
 
             if global_batch_count%(args.supergrid_size**2)==(args.supergrid_size**2)-1:                    # if it is the last batch in the grid (super-patch)
   
@@ -3116,46 +3116,46 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
 
               if DEBUG>5:
                 np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
-                print ( f"TRAINLENEJ:     INFO:      test():             index                           =  {MAGENTA}{index}{RESET}"  )
+                print ( f"CLASSI:         INFO:      test():             index                           =  {MAGENTA}{index}{RESET}"  )
 
               patches_true_classes[index] =  image_labels.cpu().detach().numpy()[0]                        # all tiles in a patch belong to the same case, so we can chose any of them
               patches_case_id     [index] =  batch_fnames_npy[0]                                           # all tiles in a patch belong to the same case, so we can chose any of them
 
               if DEBUG>88:
                 np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
-                print ( f"TRAINLENEJ:     INFO:      test():             patches_case_id                 =  {MAGENTA}{patches_case_id}{RESET}{CLEAR_LINE}"  )
-                print ( f"TRAINLENEJ:     INFO:      test():             patches_case_id[index]          =  {MAGENTA}{patches_case_id[index]}{RESET}{CLEAR_LINE}"  )
+                print ( f"CLASSI:         INFO:      test():             patches_case_id                 =  {MAGENTA}{patches_case_id}{RESET}{CLEAR_LINE}"  )
+                print ( f"CLASSI:         INFO:      test():             patches_case_id[index]          =  {MAGENTA}{patches_case_id[index]}{RESET}{CLEAR_LINE}"  )
   
               grid_tile_probabs_totals_by_class = np.transpose(np.expand_dims( grid_p_full_softmax_matrix.sum( axis=0 ), axis=1 ))         # this is where we sum the totals across all tiles
               binary_matrix = np.zeros_like(grid_p_full_softmax_matrix)                                                                    # new matrix same shape as grid_p_full_softmax_matrix, with all values set to zero
               binary_matrix[ np.arange( len(grid_p_full_softmax_matrix)), grid_p_full_softmax_matrix.argmax(1) ] = 1                       # set the max value in each row to 1, all others zero
   
               if DEBUG>8:
-                print ( f"TRAINLENEJ:     INFO:      test():         binary_matrix         = \n{CHARTREUSE}{binary_matrix}{RESET}"  )              
+                print ( f"CLASSI:         INFO:      test():         binary_matrix         = \n{CHARTREUSE}{binary_matrix}{RESET}"  )              
   
               grid_tile_winners_totals_by_class        = np.transpose(np.expand_dims( binary_matrix.sum( axis=0 ), axis=1 ))               # same, but 'winner take all' at the tile level
   
               if DEBUG>8:
                 np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
-                print ( f"TRAINLENEJ:     INFO:      test():         grid_tile_probabs_totals_by_class                     =    {CHARTREUSE}{grid_tile_probabs_totals_by_class}{RESET}"  )
-                print ( f"TRAINLENEJ:     INFO:      test():         grid_tile_winners_totals_by_class                     =    {CHARTREUSE}{grid_tile_winners_totals_by_class}{RESET}"  )
+                print ( f"CLASSI:         INFO:      test():         grid_tile_probabs_totals_by_class                     =    {CHARTREUSE}{grid_tile_probabs_totals_by_class}{RESET}"  )
+                print ( f"CLASSI:         INFO:      test():         grid_tile_winners_totals_by_class                     =    {CHARTREUSE}{grid_tile_winners_totals_by_class}{RESET}"  )
                            
               aggregate_tile_probabilities_matrix[index] = grid_tile_probabs_totals_by_class
               aggregate_tile_level_winners_matrix[index] = grid_tile_winners_totals_by_class + random.uniform( 0.001, 0.01)   # necessary to make all the tile totals unique when we go looking for them later. ugly but necessary
   
               if DEBUG>8:
                 np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
-                print ( f"TRAINLENEJ:     INFO:      test():         aggregate_tile_probabilities_matrix                = \n{CHARTREUSE}{aggregate_tile_probabilities_matrix}{RESET}"  ) 
+                print ( f"CLASSI:         INFO:      test():         aggregate_tile_probabilities_matrix                = \n{CHARTREUSE}{aggregate_tile_probabilities_matrix}{RESET}"  ) 
 
           if DEBUG>5:
             np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
-            print ( f"TRAINLENEJ:     INFO:      test():             global_batch_count              = {CHARTREUSE}{global_batch_count}{RESET}"  ) 
-            print ( f"TRAINLENEJ:     INFO:      test():             args.supergrid_size**2          =  {CHARTREUSE}{args.supergrid_size**2}{RESET}"  ) 
+            print ( f"CLASSI:         INFO:      test():             global_batch_count              = {CHARTREUSE}{global_batch_count}{RESET}"  ) 
+            print ( f"CLASSI:         INFO:      test():             args.supergrid_size**2          =  {CHARTREUSE}{args.supergrid_size**2}{RESET}"  ) 
 
           global_batch_count+=1
         
           if DEBUG>999:
-              print ( f"TRAINLENEJ:     INFO:      test():             global_batch_count%(args.supergrid_size**2)                       = {global_batch_count%(args.supergrid_size**2)}"  )
+              print ( f"CLASSI:         INFO:      test():             global_batch_count%(args.supergrid_size**2)                       = {global_batch_count%(args.supergrid_size**2)}"  )
           
           if global_batch_count%(args.supergrid_size**2)==0:
             if args.input_mode=='image':
@@ -3171,29 +3171,29 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
               
               if DEBUG>99:
                 np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-                print ( f"TRAINLENEJ:     INFO:      test():       batch_fnames_npy.shape      = {batch_fnames_npy.shape:}" )        
-                print ( f"TRAINLENEJ:     INFO:      test():       batch_fnames_npy            = {batch_fnames_npy:}"       )
+                print ( f"CLASSI:         INFO:      test():       batch_fnames_npy.shape      = {batch_fnames_npy.shape:}" )        
+                print ( f"CLASSI:         INFO:      test():       batch_fnames_npy            = {batch_fnames_npy:}"       )
     
               fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
               
               if DEBUG>28:
                 np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-                print ( f"TRAINLENEJ:     INFO:      test():       fq_link                     = {PINK}{fq_link:}{RESET}"                )
-                print ( f"TRAINLENEJ:     INFO:      test():       file fq_link points to      = {PINK}{os.readlink(fq_link)}{RESET}"    )
+                print ( f"CLASSI:         INFO:      test():       fq_link                     = {PINK}{fq_link:}{RESET}"                )
+                print ( f"CLASSI:         INFO:      test():       file fq_link points to      = {PINK}{os.readlink(fq_link)}{RESET}"    )
               
               try:
                 background_image = np.load(f"{fq_link}")
               except Exception as e:
-                print ( f"{RED}TRAINLENEJ:     FATAL:  '{e}'{RESET}" )
-                print ( f"{RED}TRAINLENEJ:     FATAL:     explanation: a required {MAGENTA}entire_patch.npy{RESET}{RED} file doesn't exist. (Probably none exist). These contain the background images used for the scattergram. {RESET}" )                
-                print ( f"{RED}TRAINLENEJ:     FATAL:     if you used {CYAN}./just_test_dont_tile.sh{RESET}{RED} without first running {CYAN}./just_test.sh{RESET}{RED}' then tiling and patch generation will have been skipped ({CYAN}--skip_tiling = {MIKADO}'True'{RESET}{RED} in that script{RESET}{RED}){RESET}" )
-                print ( f"{RED}TRAINLENEJ:     FATAL:     if so, run '{CYAN}./just_test.sh -d <cancer type code> -i <INPUT_MODE>{RESET}{RED}' at least one time so that these files will be generated{RESET}" )                 
-                print ( f"{RED}TRAINLENEJ:     FATAL:     halting now ...{RESET}" )                 
+                print ( f"{RED}CLASSI:         FATAL:  '{e}'{RESET}" )
+                print ( f"{RED}CLASSI:         FATAL:     explanation: a required {MAGENTA}entire_patch.npy{RESET}{RED} file doesn't exist. (Probably none exist). These contain the background images used for the scattergram. {RESET}" )                
+                print ( f"{RED}CLASSI:         FATAL:     if you used {CYAN}./just_test_dont_tile.sh{RESET}{RED} without first running {CYAN}./just_test.sh{RESET}{RED}' then tiling and patch generation will have been skipped ({CYAN}--skip_tiling = {MIKADO}'True'{RESET}{RED} in that script{RESET}{RED}){RESET}" )
+                print ( f"{RED}CLASSI:         FATAL:     if so, run '{CYAN}./just_test.sh -d <cancer type code> -i <INPUT_MODE>{RESET}{RED}' at least one time so that these files will be generated{RESET}" )                 
+                print ( f"{RED}CLASSI:         FATAL:     halting now ...{RESET}" )                 
                 sys.exit(0)              
 
               
               if DEBUG>0:
-                print ( f"TRAINLENEJ:     INFO:      test():        background_image.shape = {background_image.shape}" )
+                print ( f"CLASSI:         INFO:      test():        background_image.shape = {background_image.shape}" )
                 
               if args.scattergram=='True':
                 
@@ -3232,12 +3232,12 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
                                 
           if DEBUG>88:
             print ( f"\n\n" )
-            print ( f"TRAINLENEJ:     INFO:      test(): batch                            = {BLEU}{i+1}{RESET}"                           )
-            print ( f"TRAINLENEJ:     INFO:      test(): count                            = {BLEU}{(i+1)*batch_size}{RESET}"              ) 
-            print ( f"TRAINLENEJ:     INFO:      test(): probabilities_matrix.shape       = {BLEU}{probabilities_matrix.shape}{RESET}"    )                                    
-            print ( f"TRAINLENEJ:     INFO:      test(): p_full_softmax_matrix.shape      = {BLEU}{p_full_softmax_matrix.shape}{RESET}"   )                                    
-            print ( f"TRAINLENEJ:     INFO:      test(): batch_index_lo                   = {BLEU}{batch_index_lo}{RESET}"                )                                    
-            print ( f"TRAINLENEJ:     INFO:      test(): batch_index_hi                   = {BLEU}{batch_index_hi}{RESET}"                )                                    
+            print ( f"CLASSI:         INFO:      test(): batch                            = {BLEU}{i+1}{RESET}"                           )
+            print ( f"CLASSI:         INFO:      test(): count                            = {BLEU}{(i+1)*batch_size}{RESET}"              ) 
+            print ( f"CLASSI:         INFO:      test(): probabilities_matrix.shape       = {BLEU}{probabilities_matrix.shape}{RESET}"    )                                    
+            print ( f"CLASSI:         INFO:      test(): p_full_softmax_matrix.shape      = {BLEU}{p_full_softmax_matrix.shape}{RESET}"   )                                    
+            print ( f"CLASSI:         INFO:      test(): batch_index_lo                   = {BLEU}{batch_index_lo}{RESET}"                )                                    
+            print ( f"CLASSI:         INFO:      test(): batch_index_hi                   = {BLEU}{batch_index_hi}{RESET}"                )                                    
           
           probabilities_matrix [batch_index_lo:batch_index_hi] = p_full_softmax_matrix # + random.uniform( 0.001, 0.01)                      # 'p_full_softmax_matrix' contains probs for an entire mini-batch; 'probabilities_matrix' has enough room for all cases
           true_classes         [batch_index_lo:batch_index_hi] = rna_labels_values
@@ -3246,10 +3246,10 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
           if DEBUG>55:
             show_last=16
             np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})       
-            print ( f"TRAINLENEJ:     INFO:      test(): last {AMETHYST}{show_last}{RESET} entries in probabilities_matrix[{MIKADO}{batch_index_lo}{RESET}:{MIKADO}{batch_index_hi}{RESET}]     = \n{AMETHYST}{probabilities_matrix [args.n_samples[0]-show_last:args.n_samples[0]]}{RESET}"                       ) 
+            print ( f"CLASSI:         INFO:      test(): last {AMETHYST}{show_last}{RESET} entries in probabilities_matrix[{MIKADO}{batch_index_lo}{RESET}:{MIKADO}{batch_index_hi}{RESET}]     = \n{AMETHYST}{probabilities_matrix [args.n_samples[0]-show_last:args.n_samples[0]]}{RESET}"                       ) 
             np.set_printoptions(formatter={'int': lambda x: "{:^7d}".format(x)})   
-            print ( f"TRAINLENEJ:     INFO:      test(): true_classes                       [{MIKADO}{batch_index_lo}{RESET}:{MIKADO}{batch_index_hi}{RESET}] =   {AMETHYST}{true_classes         [batch_index_lo          :batch_index_hi]}{RESET}"        )           
-            print ( f"TRAINLENEJ:     INFO:      test(): rna_case_id                        [{MIKADO}{batch_index_lo}{RESET}:{MIKADO}{batch_index_hi}{RESET}] =   {AMETHYST}{rna_case_id          [batch_index_lo          :batch_index_hi]}{RESET}"        )   
+            print ( f"CLASSI:         INFO:      test(): true_classes                       [{MIKADO}{batch_index_lo}{RESET}:{MIKADO}{batch_index_hi}{RESET}] =   {AMETHYST}{true_classes         [batch_index_lo          :batch_index_hi]}{RESET}"        )           
+            print ( f"CLASSI:         INFO:      test(): rna_case_id                        [{MIKADO}{batch_index_lo}{RESET}:{MIKADO}{batch_index_hi}{RESET}] =   {AMETHYST}{rna_case_id          [batch_index_lo          :batch_index_hi]}{RESET}"        )   
 
          # move to a separate function ----------------------------------------------------------------------------------------------
 
@@ -3263,7 +3263,7 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
           loss_images_value = loss_images.item()                                                             # use .item() to extract value from tensor: don't create multiple new tensors each of which will have gradient histories
  
           if DEBUG>2:
-            print ( f"TRAINLENEJ:     INFO:      test(): {COQUELICOT}loss_images{RESET} (for this mini-batch)  = {PURPLE}{loss_images_value:6.3f}{RESET}" )
+            print ( f"CLASSI:         INFO:      test(): {COQUELICOT}loss_images{RESET} (for this mini-batch)  = {PURPLE}{loss_images_value:6.3f}{RESET}" )
             time.sleep(.25)
              
         elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
@@ -3339,10 +3339,10 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
       torch.cuda.empty_cache()
       
       if DEBUG>2:
-        print ( "TRAINLENEJ:     INFO:      test():        y1_hat.shape                      = {:}".format( y1_hat.shape                     ) )
-        print ( "TRAINLENEJ:     INFO:      test():        y1_hat_values_max_indices.shape   = {:}".format( y1_hat_values_max_indices.shape  ) )
-        print ( "TRAINLENEJ:     INFO:      test():        image_labels_values.shape         = {:}".format( image_labels_values.shape        ) )
-        print ( "TRAINLENEJ:     INFO:      test():        rna_labels_values.shape           = {:}".format(   rna_labels_values.shape        ) )
+        print ( "CLASSI:         INFO:      test():        y1_hat.shape                      = {:}".format( y1_hat.shape                     ) )
+        print ( "CLASSI:         INFO:      test():        y1_hat_values_max_indices.shape   = {:}".format( y1_hat_values_max_indices.shape  ) )
+        print ( "CLASSI:         INFO:      test():        image_labels_values.shape         = {:}".format( image_labels_values.shape        ) )
+        print ( "CLASSI:         INFO:      test():        rna_labels_values.shape           = {:}".format(   rna_labels_values.shape        ) )
       
       number_to_display= 9 if args.dataset=='tcl' else batch_size
       np.set_printoptions(linewidth=10000)   
@@ -3403,16 +3403,16 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
         #time.sleep(3)
 
       if DEBUG>9:
-        print ( "TRAINLENEJ:     INFO:      test():       y1_hat.shape                     = {:}".format( y1_hat_values.shape          ) )
+        print ( "CLASSI:         INFO:      test():       y1_hat.shape                     = {:}".format( y1_hat_values.shape          ) )
         np.set_printoptions(formatter={'float': lambda x: "{0:10.2e}".format(x)})
         print (  "{:}".format( (np.transpose(y1_hat_values))[:,:number_to_display] )  )
         np.set_printoptions(formatter={'float': lambda x: "{0:5.2f}".format(x)})
 
       if DEBUG>2:
         number_to_display=16  
-        print ( "TRAINLENEJ:     INFO:      test():       FIRST  GROUP BELOW: y1_hat"                                                                      ) 
-        print ( "TRAINLENEJ:     INFO:      test():       SECOND GROUP BELOW: y1_hat_values_max_indices (prediction)"                                      )
-        print ( "TRAINLENEJ:     INFO:      test():       THIRD  GROUP BELOW: image_labels_values (truth)"                                                 )
+        print ( "CLASSI:         INFO:      test():       FIRST  GROUP BELOW: y1_hat"                                                                      ) 
+        print ( "CLASSI:         INFO:      test():       SECOND GROUP BELOW: y1_hat_values_max_indices (prediction)"                                      )
+        print ( "CLASSI:         INFO:      test():       THIRD  GROUP BELOW: image_labels_values (truth)"                                                 )
         np.set_printoptions(formatter={'float': '{: >6.2f}'.format}        )
         print ( f"{(np.transpose(y1_hat_values)) [:,:number_to_display] }" )
         np.set_printoptions(formatter={'int': '{: >6d}'.format}            )
@@ -3470,8 +3470,8 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
     writer.add_scalar( '1f_max_percent_correct', max_percent_correct,     epoch ) 
   
     if DEBUG>9:
-      print ( "TRAINLENEJ:     INFO:      test():             batch_images.shape                       = {:}".format( batch_images.shape ) )
-      print ( "TRAINLENEJ:     INFO:      test():             image_labels.shape                       = {:}".format( image_labels.shape ) )
+      print ( "CLASSI:         INFO:      test():             batch_images.shape                       = {:}".format( batch_images.shape ) )
+      print ( "CLASSI:         INFO:      test():             image_labels.shape                       = {:}".format( image_labels.shape ) )
       
 #    if not args.just_test=='True':
 #      if args.input_mode=='image':
@@ -3557,14 +3557,14 @@ def segment_cases( pct_test ):
         
 
   if DEBUG>0:
-    print( f"{DULL_WHITE}TRAINLENEJ:     INFO:    segment_cases():  summary of data files:{RESET}",                                          flush=True  )
-    print( f"{DULL_WHITE}TRAINLENEJ:     INFO:    segment_cases():    directories count  =  {MIKADO}{dir_count:<6d}{RESET}",                   flush=True  )
-    print( f"{DULL_WHITE}TRAINLENEJ:     INFO:    segment_cases():    svs   file  count  =  {MIKADO}{cumulative_svs_file_count:<6d}{RESET}",   flush=True  )
-    print( f"{DULL_WHITE}TRAINLENEJ:     INFO:    segment_cases():    tif   file  count  =  {MIKADO}{cumulative_tif_file_count:<6d}{RESET}",   flush=True  )
-    print( f"{DULL_WHITE}TRAINLENEJ:     INFO:    segment_cases():    spcn  file  count  =  {MIKADO}{cumulative_spcn_file_count:<6d}{RESET}",  flush=True  )
-    print( f"{DULL_WHITE}TRAINLENEJ:     INFO:    segment_cases():    png   file  count  =  {MIKADO}{cumulative_png_file_count:<6d}{RESET}",   flush=True  )
-    print( f"{DULL_WHITE}TRAINLENEJ:     INFO:    segment_cases():    rna   file  count  =  {MIKADO}{cumulative_rna_file_count:<6d}{RESET}{DULL_WHITE}  <<< note: same cases (sub-directories) may have more than one {MAGENTA}FPKM-UQ.txt{RESET}{DULL_WHITE} file. Nonetheless, only one per case will be used{RESET}",   flush=True  )
-    print( f"{DULL_WHITE}TRAINLENEJ:     INFO:    segment_cases():    other file  count  =  {MIKADO}{cumulative_other_file_count:<6d}{RESET}", flush=True  )
+    print( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():  summary of data files:{RESET}",                                          flush=True  )
+    print( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():    directories count  =  {MIKADO}{dir_count:<6d}{RESET}",                   flush=True  )
+    print( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():    svs   file  count  =  {MIKADO}{cumulative_svs_file_count:<6d}{RESET}",   flush=True  )
+    print( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():    tif   file  count  =  {MIKADO}{cumulative_tif_file_count:<6d}{RESET}",   flush=True  )
+    print( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():    spcn  file  count  =  {MIKADO}{cumulative_spcn_file_count:<6d}{RESET}",  flush=True  )
+    print( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():    png   file  count  =  {MIKADO}{cumulative_png_file_count:<6d}{RESET}",   flush=True  )
+    print( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():    rna   file  count  =  {MIKADO}{cumulative_rna_file_count:<6d}{RESET}{DULL_WHITE}  <<< note: same cases (sub-directories) may have more than one {MAGENTA}FPKM-UQ.txt{RESET}{DULL_WHITE} file. Nonetheless, only one per case will be used{RESET}",   flush=True  )
+    print( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():    other file  count  =  {MIKADO}{cumulative_other_file_count:<6d}{RESET}", flush=True  )
   
 
   # (1B) Locate and flag directories that contain BOTH an image and and rna-seq files
@@ -3572,7 +3572,7 @@ def segment_cases( pct_test ):
   if args.divide_cases=='True':
 
     if DEBUG>0:
-      print ( f"{ORANGE}TRAINLENEJ:     INFO:    segment_cases():  option '{CYAN}DIVIDE_CASES  ( '-v'){RESET}{ORANGE}'  = {MIKADO}{args.divide_cases}{RESET}{ORANGE}, so will divide cases and set applicable flag files in the dataset directory ({MAGENTA}{args.data_dir}{RESET}{ORANGE}){RESET}",    flush=True )
+      print ( f"{ORANGE}CLASSI:         INFO:    segment_cases():  option '{CYAN}DIVIDE_CASES  ( '-v'){RESET}{ORANGE}'  = {MIKADO}{args.divide_cases}{RESET}{ORANGE}, so will divide cases and set applicable flag files in the dataset directory ({MAGENTA}{args.data_dir}{RESET}{ORANGE}){RESET}",    flush=True )
 
     has_image_count            = 0
     has_rna_count              = 0
@@ -3581,7 +3581,7 @@ def segment_cases( pct_test ):
     for dir_path, dirs, files in os.walk( args.data_dir ):                                                      # each iteration takes us to a new directory under the dataset directory
   
       if DEBUG>888:  
-        print( f"{DULL_WHITE}TRAINLENEJ:     INFO:   now processing case (directory) {CYAN}{os.path.basename(dir_path)}{RESET}" )
+        print( f"{DULL_WHITE}CLASSI:         INFO:   now processing case (directory) {CYAN}{os.path.basename(dir_path)}{RESET}" )
   
       if not (dir_path==args.data_dir):                                                                         # the top level directory (dataset) is skipped because it only contains sub-directories, not data
                 
@@ -3608,7 +3608,7 @@ def segment_cases( pct_test ):
         if dir_has_rna_data & dir_also_has_image:
           
           if DEBUG>555:
-            print ( f"{WHITE}TRAINLENEJ:     INFO:   case {PINK}{args.data_dir}/{os.path.basename(dir_path)}{RESET} \r\033[100C has both matched and rna files (listed above) (count= {MIKADO}{matched_image_rna_count+1}{RESET})",  flush=True )
+            print ( f"{WHITE}CLASSI:         INFO:   case {PINK}{args.data_dir}/{os.path.basename(dir_path)}{RESET} \r\033[100C has both matched and rna files (listed above) (count= {MIKADO}{matched_image_rna_count+1}{RESET})",  flush=True )
           fqn = f"{dir_path}/HAS_BOTH"
           with open(fqn, 'w') as g:
             g.write( f"this directory contains matched image and rna-seq data" )
@@ -3616,7 +3616,7 @@ def segment_cases( pct_test ):
           matched_image_rna_count+=1
   
     if DEBUG>0:
-      print ( f"{DULL_WHITE}TRAINLENEJ:     INFO:    segment_cases():    number of cases (directories) which contain BOTH matched and rna files = {MIKADO}{matched_image_rna_count}{RESET}",  flush=True )
+      print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():    number of cases (directories) which contain BOTH matched and rna files = {MIKADO}{matched_image_rna_count}{RESET}",  flush=True )
 
 
   
@@ -3642,29 +3642,29 @@ def segment_cases( pct_test ):
     multimode_case_test_count    = 0
     
     if DEBUG>0:
-      print ( f"{DULL_WHITE}TRAINLENEJ:     INFO:    segment_cases():    about to randomly designate {CYAN}CASES_RESERVED_FOR_IMAGE_RNA{RESET} = {ARYLIDE}{args.cases_reserved_for_image_rna}{RESET}{DULL_WHITE} cases flagged as '{ARYLIDE}HAS_BOTH{RESET}{DULL_WHITE}' to be exclusively reserved as {ARYLIDE}MULTIMODE____TEST{RESET}{DULL_WHITE} cases",  flush=True )
+      print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():    about to randomly designate {CYAN}CASES_RESERVED_FOR_IMAGE_RNA{RESET} = {ARYLIDE}{args.cases_reserved_for_image_rna}{RESET}{DULL_WHITE} cases flagged as '{ARYLIDE}HAS_BOTH{RESET}{DULL_WHITE}' to be exclusively reserved as {ARYLIDE}MULTIMODE____TEST{RESET}{DULL_WHITE} cases",  flush=True )
    
     while True:
       
       for dir_path, dirs, files in os.walk( args.data_dir, topdown=True ):                                 # select the multimode cases ...
     
         if DEBUG>55:  
-          print( f"{DIM_WHITE}TRAINLENEJ:     INFO:     now considering case {ARYLIDE}{os.path.basename(dir_path)}{RESET}{DIM_WHITE} as a multimode case  " ) 
+          print( f"{DIM_WHITE}CLASSI:         INFO:     now considering case {ARYLIDE}{os.path.basename(dir_path)}{RESET}{DIM_WHITE} as a multimode case  " ) 
     
         
         if not (dir_path==args.data_dir):                                                                  # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
   
           if DEBUG>55:
-            print ( f"{PALE_GREEN}TRAINLENEJ:     INFO:   case   \r\033[60C{RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[120C has both image and rna files\r\033[140C (count= {matched_image_rna_count}{RESET}{PALE_GREEN})",  flush=True )
+            print ( f"{PALE_GREEN}CLASSI:         INFO:   case   \r\033[60C{RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[120C has both image and rna files\r\033[140C (count= {matched_image_rna_count}{RESET}{PALE_GREEN})",  flush=True )
             
           try:
             fqn = f"{dir_path}/HAS_BOTH"        
             f = open( fqn, 'r' )
             if DEBUG>55:
-              print ( f"{PALE_GREEN}TRAINLENEJ:     INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files (listed above)  \r\033[160C (count= {matched_image_rna_count}{RESET}{PALE_GREEN})",  flush=True )
-              print ( f"{PALE_GREEN}TRAINLENEJ:     INFO:   multimode_case_test_count          = {AMETHYST}{multimode_case_test_count}{RESET}",          flush=True )
-              print ( f"{PALE_GREEN}TRAINLENEJ:     INFO:   matched_image_rna_count            = {AMETHYST}{matched_image_rna_count}{RESET}",  flush=True )
-              print ( f"{PALE_GREEN}TRAINLENEJ:     INFO:   cases_reserved_for_image_rna       = {AMETHYST}{args.cases_reserved_for_image_rna}{RESET}",        flush=True )
+              print ( f"{PALE_GREEN}CLASSI:         INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files (listed above)  \r\033[160C (count= {matched_image_rna_count}{RESET}{PALE_GREEN})",  flush=True )
+              print ( f"{PALE_GREEN}CLASSI:         INFO:   multimode_case_test_count          = {AMETHYST}{multimode_case_test_count}{RESET}",          flush=True )
+              print ( f"{PALE_GREEN}CLASSI:         INFO:   matched_image_rna_count            = {AMETHYST}{matched_image_rna_count}{RESET}",  flush=True )
+              print ( f"{PALE_GREEN}CLASSI:         INFO:   cases_reserved_for_image_rna       = {AMETHYST}{args.cases_reserved_for_image_rna}{RESET}",        flush=True )
             selector = random.randint(0,500)                                                               # the high number has to be larger than the total number of matched cases to give every case a chance of being included 
             if ( selector==22 ) & ( multimode_case_test_count<args.cases_reserved_for_image_rna ):   # used 22 but it could be any number
 
@@ -3680,15 +3680,15 @@ def segment_cases( pct_test ):
                     multimode_case_test_count+=1
                     f.close
                   if DEBUG>2:
-                    print ( f"{PALE_GREEN}TRAINLENEJ:     INFO:    segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[122C has been randomly flagged as '{ASPARAGUS}MULTIMODE____TEST{RESET}{PALE_GREEN}'  \r\033[204C (count= {MIKADO}{multimode_case_test_count}{RESET}{PALE_GREEN})",  flush=True )
+                    print ( f"{PALE_GREEN}CLASSI:         INFO:    segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[122C has been randomly flagged as '{ASPARAGUS}MULTIMODE____TEST{RESET}{PALE_GREEN}'  \r\033[204C (count= {MIKADO}{multimode_case_test_count}{RESET}{PALE_GREEN})",  flush=True )
                 except Exception:
-                  print( f"{RED}TRAINLENEJ:   FATAL:  could not create '{CYAN}MULTIMODE____TEST{RESET}' file" )
+                  print( f"{RED}CLASSI:       FATAL:  could not create '{CYAN}MULTIMODE____TEST{RESET}' file" )
                   time.sleep(10)
                   sys.exit(0)
   
           except Exception:
             if DEBUG>55:
-              print ( f"{RED}TRAINLENEJ:   not a matched case" )
+              print ( f"{RED}CLASSI:       not a matched case" )
     
       directories_considered_count+=1
       if DEBUG>555:
@@ -3696,8 +3696,8 @@ def segment_cases( pct_test ):
 
       if multimode_case_test_count== args.cases_reserved_for_image_rna:
         if DEBUG>55:
-          print ( f"{PALE_GREEN}TRAINLENEJ:     INFO:   multimode_case_test_count              = {AMETHYST}{multimode_case_test_count}{RESET}",          flush=True )
-          print ( f"{PALE_GREEN}TRAINLENEJ:     INFO:   cases_reserved_for_image_rna           = {AMETHYST}{args.cases_reserved_for_image_rna}{RESET}",             flush=True )
+          print ( f"{PALE_GREEN}CLASSI:         INFO:   multimode_case_test_count              = {AMETHYST}{multimode_case_test_count}{RESET}",          flush=True )
+          print ( f"{PALE_GREEN}CLASSI:         INFO:   cases_reserved_for_image_rna           = {AMETHYST}{args.cases_reserved_for_image_rna}{RESET}",             flush=True )
         break
 
 
@@ -3708,12 +3708,12 @@ def segment_cases( pct_test ):
     for dir_path, dirs, files in os.walk( args.data_dir, topdown=True ):                                   # ... designate every matched case (HAS_BOTH) other than those flagged as MULTIMODE____TEST above to be a unimode case
   
       if DEBUG>1:  
-        print( f"{DIM_WHITE}TRAINLENEJ:     INFO:   now considering case (directory) as a unimode case {ARYLIDE}{os.path.basename(dir_path)}{RESET}" )
+        print( f"{DIM_WHITE}CLASSI:         INFO:   now considering case (directory) as a unimode case {ARYLIDE}{os.path.basename(dir_path)}{RESET}" )
   
       if not (dir_path==args.data_dir):                                                                    # the top level directory (dataset) is skipped because it only contains sub-directories, not data
 
         if DEBUG>55:
-          print ( f"{PALE_GREEN}TRAINLENEJ:     INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files (listed above)  \r\033[160C (count= {matched_image_rna_count}{RESET}{PALE_GREEN})",  flush=True )
+          print ( f"{PALE_GREEN}CLASSI:         INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files (listed above)  \r\033[160C (count= {matched_image_rna_count}{RESET}{PALE_GREEN})",  flush=True )
   
           
         try:
@@ -3725,8 +3725,8 @@ def segment_cases( pct_test ):
             f = open( fqn, 'r' )
           except Exception:                                                                                # these are the ones we want
             if DEBUG>555:
-              print ( f"{PALE_GREEN}TRAINLENEJ:     INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files and has not already been designated as a mutimode case  \r\033[200C (count= {matched_image_rna_count}{RESET}{PALE_GREEN})",  flush=True )
-              print ( f"{PALE_GREEN}TRAINLENEJ:     INFO:   unimode_case_matched_count            = {AMETHYST}{unimode_case_matched_count}{RESET}",            flush=True )
+              print ( f"{PALE_GREEN}CLASSI:         INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files and has not already been designated as a mutimode case  \r\033[200C (count= {matched_image_rna_count}{RESET}{PALE_GREEN})",  flush=True )
+              print ( f"{PALE_GREEN}CLASSI:         INFO:   unimode_case_matched_count            = {AMETHYST}{unimode_case_matched_count}{RESET}",            flush=True )
             if ( ( unimode_case_matched_count + multimode_case_test_count ) <= matched_image_rna_count ):  # if we don't yet have enough designated multimode cases (and hence designations in total)
               fqn = f"{dir_path}/UNIMODE_CASE____MATCHED"            
               with open(fqn, 'w') as f:
@@ -3734,7 +3734,7 @@ def segment_cases( pct_test ):
               f.close
               unimode_case_matched_count+=1
               if DEBUG>44:
-                print ( f"{DULL_WHITE}TRAINLENEJ:     INFO:    segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{DULL_YELLOW} \r\033[122C has been randomly designated as a   unimode case  \r\033[204C (count= {MIKADO}{unimode_case_matched_count}{RESET}{DULL_WHITE})",  flush=True )
+                print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{DULL_YELLOW} \r\033[122C has been randomly designated as a   unimode case  \r\033[204C (count= {MIKADO}{unimode_case_matched_count}{RESET}{DULL_WHITE})",  flush=True )
 
 
         except Exception:
@@ -3748,7 +3748,7 @@ def segment_cases( pct_test ):
     for dir_path, dirs, files in os.walk( args.data_dir ):                                                 # each iteration takes us to a new directory under the dataset directory
   
       if DEBUG>55:  
-        print( f"{DIM_WHITE}TRAINLENEJ:       INFO:   now processing case (directory) {ARYLIDE}{os.path.basename(dir_path)}{RESET}" )
+        print( f"{DIM_WHITE}CLASSI:           INFO:   now processing case (directory) {ARYLIDE}{os.path.basename(dir_path)}{RESET}" )
   
       if not (dir_path==args.data_dir):                                                                    # the top level directory (dataset) has be skipped because it only contains sub-directories, not data  
 
@@ -3758,18 +3758,18 @@ def segment_cases( pct_test ):
             fqn = f"{dir_path}/MULTIMODE____TEST"        
             f = open( fqn, 'r' )
             if DEBUG>555:
-              print ( f"{RED}TRAINLENEJ:       INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{RED} \r\033[100C is a multimode case. Skipping",  flush=True )
+              print ( f"{RED}CLASSI:           INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{RED} \r\033[100C is a multimode case. Skipping",  flush=True )
             break
           except Exception:
             try:
               fqn = f"{dir_path}/UNIMODE_CASE"        
               f = open( fqn, 'r' )
               if DEBUG>555:
-                print ( f"{RED}TRAINLENEJ:       INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{RED} \r\033[100C is in a directory containing the UNIMODE_CASE flag. Skipping",  flush=True )
+                print ( f"{RED}CLASSI:           INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{RED} \r\033[100C is in a directory containing the UNIMODE_CASE flag. Skipping",  flush=True )
               break
             except Exception:
               if DEBUG>44:
-                print ( f"{DULL_WHITE}TRAINLENEJ:     INFO:    segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[122C has been flagged with the  {ASPARAGUS}UNIMODE_CASE{RESET}  \r\033[204C (count= {MIKADO}{unimode_case_unmatched_count+1}{RESET})",  flush=True )
+                print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[122C has been flagged with the  {ASPARAGUS}UNIMODE_CASE{RESET}  \r\033[204C (count= {MIKADO}{unimode_case_unmatched_count+1}{RESET})",  flush=True )
               fqn = f"{dir_path}/UNIMODE_CASE"            
               with open(fqn, 'w') as f:
                 f.write( f"this case is not a designated multimode case" )
@@ -3780,7 +3780,7 @@ def segment_cases( pct_test ):
     # (1Cd) Designate those IMAGE cases which are not also MULTIMODE cases. Go through directories one time. Flag UNIMODE_CASE which are also image cases as UNIMODE_CASE____IMAGE
     
     if DEBUG>3:
-      print ( f"{DULL_WHITE}TRAINLENEJ:     INFO:    segment_cases():  about to designate '{ARYLIDE}UNIMODE_CASE____IMAGE{RESET}{DULL_WHITE}' cases{RESET}",  flush=True )  
+      print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():  about to designate '{ARYLIDE}UNIMODE_CASE____IMAGE{RESET}{DULL_WHITE}' cases{RESET}",  flush=True )  
     
     directories_considered_count    = 0
     unimode_case_image_count        = 0
@@ -3788,7 +3788,7 @@ def segment_cases( pct_test ):
     for dir_path, dirs, files in os.walk( args.data_dir ):
   
       if DEBUG>55:  
-        print( f"{DIM_WHITE}TRAINLENEJ:       INFO:   now processing case (directory) {ARYLIDE}{os.path.basename(dir_path)}{RESET}" )
+        print( f"{DIM_WHITE}CLASSI:           INFO:   now processing case (directory) {ARYLIDE}{os.path.basename(dir_path)}{RESET}" )
   
       if not (dir_path==args.data_dir): 
                     
@@ -3796,31 +3796,31 @@ def segment_cases( pct_test ):
           fqn = f"{dir_path}/HAS_IMAGE"        
           f = open( fqn, 'r' )
           if DEBUG>44:
-            print ( f"{GREEN}TRAINLENEJ:       INFO:   case                                       case \r\033[55C'{MAGENTA}{dir_path}{RESET}{GREEN}' \r\033[122C is an image case",  flush=True )
+            print ( f"{GREEN}CLASSI:           INFO:   case                                       case \r\033[55C'{MAGENTA}{dir_path}{RESET}{GREEN}' \r\033[122C is an image case",  flush=True )
           try:
             fqn = f"{dir_path}/UNIMODE_CASE"        
             f = open( fqn, 'r' )
             if DEBUG>2:
-              print ( f"{GREEN}TRAINLENEJ:       INFO:   case                                       case \r\033[55C'{MAGENTA}{dir_path}{RESET}{GREEN} \r\033[122C is in a directory containing the UNIMODE_CASE",  flush=True )
+              print ( f"{GREEN}CLASSI:           INFO:   case                                       case \r\033[55C'{MAGENTA}{dir_path}{RESET}{GREEN} \r\033[122C is in a directory containing the UNIMODE_CASE",  flush=True )
             fqn = f"{dir_path}/UNIMODE_CASE____IMAGE"            
             with open(fqn, 'w') as f:
               f.write( f"this case is a UNIMODE_CASE____IMAGE case" )
             f.close
             if DEBUG>22:
-              print ( f"{PALE_GREEN}TRAINLENEJ:       INFO:       segment_cases():  case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_GREEN}' \r\033[122C has been flagged with the UNIMODE_CASE____IMAGE  \r\033[204C (count= {MIKADO}{unimode_case_image_count+1}{RESET})",  flush=True )
+              print ( f"{PALE_GREEN}CLASSI:           INFO:       segment_cases():  case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_GREEN}' \r\033[122C has been flagged with the UNIMODE_CASE____IMAGE  \r\033[204C (count= {MIKADO}{unimode_case_image_count+1}{RESET})",  flush=True )
             unimode_case_image_count+=1                                                                    # only segment_cases knows the value of unimode_case_image_count, and we need in generate(), so we return it
           except Exception:
             if DEBUG>44:
-              print ( f"{RED}TRAINLENEJ:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{RED}' \r\033[122C  is not a UNIMODE_CASE case - - skipping{RESET}",  flush=True )
+              print ( f"{RED}CLASSI:           INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{RED}' \r\033[122C  is not a UNIMODE_CASE case - - skipping{RESET}",  flush=True )
         except Exception:
           if DEBUG>44:
-            print ( f"{PALE_RED}TRAINLENEJ:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[122C is not an image case - - skipping{RESET}",  flush=True )                                                                    
+            print ( f"{PALE_RED}CLASSI:           INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[122C is not an image case - - skipping{RESET}",  flush=True )                                                                    
         
 
     # (1Ce) Designate those RNA cases which are not also MULTIMODE cases. Go through directories one time. Flag UNIMODE_CASE which are also rna cases as UNIMODE_CASE____RNA
     
     if DEBUG>3:
-      print ( f"{DULL_WHITE}TRAINLENEJ:     INFO:    segment_cases():  about to designate '{ARYLIDE}UNIMODE_CASE____RNA{RESET}{DULL_WHITE}' cases{RESET}",  flush=True )  
+      print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():  about to designate '{ARYLIDE}UNIMODE_CASE____RNA{RESET}{DULL_WHITE}' cases{RESET}",  flush=True )  
     
     directories_considered_count    = 0
     unimode_case_rna_count          = 0
@@ -3828,7 +3828,7 @@ def segment_cases( pct_test ):
     for dir_path, dirs, files in os.walk( args.data_dir ):
   
       if DEBUG>55:  
-        print( f"{DIM_WHITE}TRAINLENEJ:       INFO:   now processing case (directory) {ARYLIDE}{os.path.basename(dir_path)}{RESET}" )
+        print( f"{DIM_WHITE}CLASSI:           INFO:   now processing case (directory) {ARYLIDE}{os.path.basename(dir_path)}{RESET}" )
   
       if not (dir_path==args.data_dir): 
                     
@@ -3836,25 +3836,25 @@ def segment_cases( pct_test ):
           fqn = f"{dir_path}/HAS_RNA"        
           f = open( fqn, 'r' )
           if DEBUG>44:
-            print ( f"{GREEN}TRAINLENEJ:       INFO:   case                                       case \r\033[55C'{MAGENTA}{dir_path}{RESET}{GREEN}' \r\033[122C is an rna case",  flush=True )
+            print ( f"{GREEN}CLASSI:           INFO:   case                                       case \r\033[55C'{MAGENTA}{dir_path}{RESET}{GREEN}' \r\033[122C is an rna case",  flush=True )
           try:
             fqn = f"{dir_path}/UNIMODE_CASE"        
             f = open( fqn, 'r' )
             if DEBUG>2:
-              print ( f"{GREEN}TRAINLENEJ:       INFO:   case                                       case \r\033[55C'{MAGENTA}{dir_path}{RESET}{GREEN} \r\033[122C is in a directory containing the UNIMODE_CASE",  flush=True )
+              print ( f"{GREEN}CLASSI:           INFO:   case                                       case \r\033[55C'{MAGENTA}{dir_path}{RESET}{GREEN} \r\033[122C is in a directory containing the UNIMODE_CASE",  flush=True )
             fqn = f"{dir_path}/UNIMODE_CASE____RNA"            
             with open(fqn, 'w') as f:
               f.write( f"this case is a UNIMODE_CASE____RNA case" )
             f.close
             if DEBUG>22:
-              print ( f"{PALE_GREEN}TRAINLENEJ:       INFO:       segment_cases():  case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_GREEN}' \r\033[122C has been flagged with the UNIMODE_CASE____RNA  \r\033[204C (count= {MIKADO}{unimode_case_rna_count+1}{RESET})",  flush=True )
+              print ( f"{PALE_GREEN}CLASSI:           INFO:       segment_cases():  case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_GREEN}' \r\033[122C has been flagged with the UNIMODE_CASE____RNA  \r\033[204C (count= {MIKADO}{unimode_case_rna_count+1}{RESET})",  flush=True )
             unimode_case_rna_count+=1                                                                      # only segment_cases knows the value of unimode_case_rna_count, and we need in generate(), so we return it
           except Exception:
             if DEBUG>44:
-              print ( f"{RED}TRAINLENEJ:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{RED}' \r\033[122C  is not a UNIMODE_CASE case - - skipping{RESET}",  flush=True )
+              print ( f"{RED}CLASSI:           INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{RED}' \r\033[122C  is not a UNIMODE_CASE case - - skipping{RESET}",  flush=True )
         except Exception:
           if DEBUG>44:
-            print ( f"{PALE_RED}TRAINLENEJ:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[122C is not an rna case - - skipping{RESET}",  flush=True )                                                                    
+            print ( f"{PALE_RED}CLASSI:           INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[122C is not an rna case - - skipping{RESET}",  flush=True )                                                                    
         
 
     # (1Cf) Designate 'UNIMODE_CASE____IMAGE_TEST' cases. Go through directories one time. Flag 'PCT_TEST' % of the UNIMODE_CASE IMAGE cases as UNIMODE_CASE____IMAGE_TESTxxx
@@ -3868,7 +3868,7 @@ def segment_cases( pct_test ):
     cases_to_designate = int(pct_test * unimode_case_image_count)
         
     if DEBUG>0:
-      print ( f"{DULL_WHITE}TRAINLENEJ:     INFO:    segment_cases():    about to randomly re-designate int({CYAN}PCT_TEST{RESET}{DULL_WHITE} {MIKADO}{pct_test*100:4.2f}%{RESET}{DULL_WHITE} * {CYAN}unimode_case_image_count{RESET}{DULL_WHITE} {MIKADO}{unimode_case_image_count}{RESET}{DULL_WHITE}) = {MIKADO}{cases_to_designate} {ARYLIDE}UNIMODE_CASE____IMAGE{RESET}{DULL_WHITE} cases as reserved image test cases by placing the flag {ARYLIDE}UNIMODE_CASE____IMAGE_TEST{RESET}{DULL_WHITE} in their case directories",  flush=True )
+      print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():    about to randomly re-designate int({CYAN}PCT_TEST{RESET}{DULL_WHITE} {MIKADO}{pct_test*100:4.2f}%{RESET}{DULL_WHITE} * {CYAN}unimode_case_image_count{RESET}{DULL_WHITE} {MIKADO}{unimode_case_image_count}{RESET}{DULL_WHITE}) = {MIKADO}{cases_to_designate} {ARYLIDE}UNIMODE_CASE____IMAGE{RESET}{DULL_WHITE} cases as reserved image test cases by placing the flag {ARYLIDE}UNIMODE_CASE____IMAGE_TEST{RESET}{DULL_WHITE} in their case directories",  flush=True )
     
     directories_considered_count   = 0
     unimode_case_image_test_count  = 0
@@ -3878,14 +3878,14 @@ def segment_cases( pct_test ):
       for dir_path, dirs, files in os.walk( args.data_dir, topdown=True ):
     
         if DEBUG>55:  
-          print( f"{DIM_WHITE}TRAINLENEJ:     INFO:   now considering case {ARYLIDE}{os.path.basename(dir_path)}{RESET}{DIM_WHITE} \r\033[130C as a candidate UNIMODE_CASE____IMAGE_TEST case  " ) 
+          print( f"{DIM_WHITE}CLASSI:         INFO:   now considering case {ARYLIDE}{os.path.basename(dir_path)}{RESET}{DIM_WHITE} \r\033[130C as a candidate UNIMODE_CASE____IMAGE_TEST case  " ) 
             
         if not (dir_path==args.data_dir):                                                                  # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
           try:
             fqn = f"{dir_path}/UNIMODE_CASE____IMAGE"    
             f = open( fqn, 'r' )                
             if DEBUG>66:
-              print ( f"{PALE_GREEN}TRAINLENEJ:       INFO:   case   \r\033[55C'{RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[130C is a     {CYAN}UNIMODE_CASE____IMAGE{RESET}{PALE_GREEN} case{RESET}",  flush=True )
+              print ( f"{PALE_GREEN}CLASSI:           INFO:   case   \r\033[55C'{RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[130C is a     {CYAN}UNIMODE_CASE____IMAGE{RESET}{PALE_GREEN} case{RESET}",  flush=True )
             selector = random.randint(0,500)                                                               # the high number has to be larger than the total number of not a multimode cases to give every case a chance of being included 
             if ( selector==22 ) & ( unimode_case_image_test_count<cases_to_designate ):                    # used 22 but it could be any number
               fqn = f"{dir_path}/UNIMODE_CASE____IMAGE_TEST"         
@@ -3896,20 +3896,20 @@ def segment_cases( pct_test ):
                   f.close
                   os.remove ( f"{dir_path}/UNIMODE_CASE____IMAGE" )
                 if DEBUG>66:
-                  print ( f"{BLEU}TRAINLENEJ:       INFO:    segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{BLEU} \r\033[130C has been randomly designated as a UNIMODE_CASE____IMAGE_TEST case  \r\033[204C (count= {MIKADO}{unimode_case_image_test_count}{BLEU}{RESET})",  flush=True )
+                  print ( f"{BLEU}CLASSI:           INFO:    segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{BLEU} \r\033[130C has been randomly designated as a UNIMODE_CASE____IMAGE_TEST case  \r\033[204C (count= {MIKADO}{unimode_case_image_test_count}{BLEU}{RESET})",  flush=True )
               except Exception:
-                print( f"{RED}TRAINLENEJ:   FATAL:  either could not create '{CYAN}UNIMODE_CASE____IMAGE_TEST{RESET}' file or delete the '{CYAN}UNIMODE_CASE____IMAGE{RESET}' " )  
+                print( f"{RED}CLASSI:       FATAL:  either could not create '{CYAN}UNIMODE_CASE____IMAGE_TEST{RESET}' file or delete the '{CYAN}UNIMODE_CASE____IMAGE{RESET}' " )  
                 time.sleep(10)
                 sys.exit(0)              
           except Exception:
             if DEBUG>66:
-              print ( f"{RED}TRAINLENEJ:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[130C is not a {CYAN}UNIMODE_CASE____IMAGE{RESET}{RED} case - - skipping{RESET}",  flush=True )
+              print ( f"{RED}CLASSI:           INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[130C is not a {CYAN}UNIMODE_CASE____IMAGE{RESET}{RED} case - - skipping{RESET}",  flush=True )
     
       directories_considered_count+=1
      
       if unimode_case_image_test_count == cases_to_designate:
         if DEBUG>55:
-          print ( f"{PALE_GREEN}TRAINLENEJ:     INFO:   unimode_case_image_test_count  = {AMETHYST}{unimode_case_image_test_count}{RESET}",          flush=True )
+          print ( f"{PALE_GREEN}CLASSI:         INFO:   unimode_case_image_test_count  = {AMETHYST}{unimode_case_image_test_count}{RESET}",          flush=True )
         break
 
     unimode_case_image_count = unimode_case_image_count - unimode_case_image_test_count
@@ -3925,7 +3925,7 @@ def segment_cases( pct_test ):
     cases_to_designate = int(pct_test * unimode_case_rna_count)
         
     if DEBUG>0:
-      print ( f"{DULL_WHITE}TRAINLENEJ:     INFO:    segment_cases():    about to randomly re-designate int({CYAN}PCT_TEST{RESET}{DULL_WHITE} {MIKADO}{pct_test*100:4.2f}%{RESET}{DULL_WHITE} * {CYAN}unimode_case_rna_count{RESET}{DULL_WHITE}   {MIKADO}{unimode_case_rna_count}{RESET}{DULL_WHITE}) = {MIKADO}{cases_to_designate} {ARYLIDE}UNIMODE_CASE____RNA{RESET}{DULL_WHITE}   cases as reserved rna   test cases by placing the flag {ARYLIDE}UNIMODE_CASE____RNA_TEST{RESET}{DULL_WHITE}   in their case directories",  flush=True )
+      print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():    about to randomly re-designate int({CYAN}PCT_TEST{RESET}{DULL_WHITE} {MIKADO}{pct_test*100:4.2f}%{RESET}{DULL_WHITE} * {CYAN}unimode_case_rna_count{RESET}{DULL_WHITE}   {MIKADO}{unimode_case_rna_count}{RESET}{DULL_WHITE}) = {MIKADO}{cases_to_designate} {ARYLIDE}UNIMODE_CASE____RNA{RESET}{DULL_WHITE}   cases as reserved rna   test cases by placing the flag {ARYLIDE}UNIMODE_CASE____RNA_TEST{RESET}{DULL_WHITE}   in their case directories",  flush=True )
     
     directories_considered_count   = 0
     unimode_case_rna_test_count    = 0
@@ -3935,14 +3935,14 @@ def segment_cases( pct_test ):
       for dir_path, dirs, files in os.walk( args.data_dir, topdown=True ):
     
         if DEBUG>55:  
-          print( f"{DIM_WHITE}TRAINLENEJ:     INFO:   now considering case {ARYLIDE}{os.path.basename(dir_path)}{RESET}{DIM_WHITE} \r\033[130C as a candidate UNIMODE_CASE____RNA_TEST case  " ) 
+          print( f"{DIM_WHITE}CLASSI:         INFO:   now considering case {ARYLIDE}{os.path.basename(dir_path)}{RESET}{DIM_WHITE} \r\033[130C as a candidate UNIMODE_CASE____RNA_TEST case  " ) 
             
         if not (dir_path==args.data_dir):                                                                  # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
           try:
             fqn = f"{dir_path}/UNIMODE_CASE____RNA"    
             f = open( fqn, 'r' )                
             if DEBUG>66:
-              print ( f"{PALE_GREEN}TRAINLENEJ:       INFO:   case   \r\033[55C'{RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[130C is a     {CYAN}UNIMODE_CASE____RNA{RESET}{PALE_GREEN} case{RESET}",  flush=True )
+              print ( f"{PALE_GREEN}CLASSI:           INFO:   case   \r\033[55C'{RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[130C is a     {CYAN}UNIMODE_CASE____RNA{RESET}{PALE_GREEN} case{RESET}",  flush=True )
             selector = random.randint(0,500)                                                               # the high number has to be larger than the total number of not a multimode cases to give every case a chance of being included 
             if ( selector==22 ) & ( unimode_case_rna_test_count<cases_to_designate ):                      # used 22 but it could be any number
               fqn = f"{dir_path}/UNIMODE_CASE____RNA_TEST"         
@@ -3953,20 +3953,20 @@ def segment_cases( pct_test ):
                   f.close
                   os.remove ( f"{dir_path}/UNIMODE_CASE____RNA" )
                 if DEBUG>66:
-                  print ( f"{BLEU}TRAINLENEJ:       INFO:    segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{BLEU} \r\033[130C has been randomly designated as a UNIMODE_CASE____RNA_TEST case  \r\033[204C (count= {MIKADO}{unimode_case_rna_test_count}{BLEU}{RESET})",  flush=True )
+                  print ( f"{BLEU}CLASSI:           INFO:    segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{BLEU} \r\033[130C has been randomly designated as a UNIMODE_CASE____RNA_TEST case  \r\033[204C (count= {MIKADO}{unimode_case_rna_test_count}{BLEU}{RESET})",  flush=True )
               except Exception:
-                print( f"{RED}TRAINLENEJ:   FATAL:  either could not create '{CYAN}UNIMODE_CASE____RNA_TEST{RESET}' file or delete the '{CYAN}UNIMODE_CASE____RNA{RESET}' " )  
+                print( f"{RED}CLASSI:       FATAL:  either could not create '{CYAN}UNIMODE_CASE____RNA_TEST{RESET}' file or delete the '{CYAN}UNIMODE_CASE____RNA{RESET}' " )  
                 time.sleep(10)
                 sys.exit(0)              
           except Exception:
             if DEBUG>66:
-              print ( f"{RED}TRAINLENEJ:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[130C is not a {CYAN}UNIMODE_CASE____RNA{RESET}{RED} case - - skipping{RESET}",  flush=True )
+              print ( f"{RED}CLASSI:           INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[130C is not a {CYAN}UNIMODE_CASE____RNA{RESET}{RED} case - - skipping{RESET}",  flush=True )
     
       directories_considered_count+=1
      
       if unimode_case_rna_test_count == cases_to_designate:
         if DEBUG>55:
-          print ( f"{PALE_GREEN}TRAINLENEJ:     INFO:   unimode_case_rna_test_count  = {AMETHYST}{unimode_case_rna_test_count}{RESET}",          flush=True )
+          print ( f"{PALE_GREEN}CLASSI:         INFO:   unimode_case_rna_test_count  = {AMETHYST}{unimode_case_rna_test_count}{RESET}",          flush=True )
         break
 
     unimode_case_rna_count = unimode_case_rna_count - unimode_case_rna_test_count    
@@ -3975,17 +3975,17 @@ def segment_cases( pct_test ):
     
 
     if DEBUG>0:
-        print ( f"{DULL_WHITE}TRAINLENEJ:     INFO:    segment_cases():    flags placed:{RESET}",                                                                            flush=True )
-        print ( f"{DULL_WHITE}TRAINLENEJ:     INFO:    segment_cases():      HAS_IMAGE ................................. = {MIKADO}{has_image_count}{RESET}",                  flush=True )
-        print ( f"{DULL_WHITE}TRAINLENEJ:     INFO:    segment_cases():      HAS_RNA ................................... = {MIKADO}{has_rna_count}{RESET}",                  flush=True )
-        print ( f"{DULL_WHITE}TRAINLENEJ:     INFO:    segment_cases():      HAS_BOTH .................................. = {MIKADO}{matched_image_rna_count}{RESET}",        flush=True )
-        print ( f"{DULL_WHITE}TRAINLENEJ:     INFO:    segment_cases():      MULTIMODE____TEST . . . . . . . . . . . . . = {MIKADO}{multimode_case_test_count}{RESET}",      flush=True )
-        print ( f"{DULL_WHITE}TRAINLENEJ:     INFO:    segment_cases():      UNIMODE_CASE____MATCHED . . . . . . . . . . = {MIKADO}{unimode_case_matched_count}{RESET}",     flush=True )
-        print ( f"{DULL_WHITE}TRAINLENEJ:      INFO:    segment_cases():      UNIMODE_CASE  . . . . . . . . . . . . . . . = {MIKADO}{unimode_case_unmatched_count}{RESET}",   flush=True )
-        print ( f"{DULL_WHITE}TRAINLENEJ:      INFO:    segment_cases():      UNIMODE_CASE____IMAGE . . . . . . . . . . . = {MIKADO}{unimode_case_image_count}{RESET}",       flush=True )
-        print ( f"{DULL_WHITE}TRAINLENEJ:     INFO:    segment_cases():      UNIMODE_CASE____IMAGE_TEST  . . . . . . . . = {MIKADO}{unimode_case_image_test_count}{RESET}",  flush=True )
-        print ( f"{DULL_WHITE}TRAINLENEJ:      INFO:    segment_cases():      UNIMODE_CASE____RNA . . . . . . . . . . . . = {MIKADO}{unimode_case_rna_count}{RESET}",         flush=True )
-        print ( f"{DULL_WHITE}TRAINLENEJ:     INFO:    segment_cases():      UNIMODE_CASE____RNA_TEST  . . . . . . . . . = {MIKADO}{unimode_case_rna_test_count}{RESET}",    flush=True )
+        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():    flags placed:{RESET}",                                                                            flush=True )
+        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():      HAS_IMAGE ................................. = {MIKADO}{has_image_count}{RESET}",                  flush=True )
+        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():      HAS_RNA ................................... = {MIKADO}{has_rna_count}{RESET}",                  flush=True )
+        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():      HAS_BOTH .................................. = {MIKADO}{matched_image_rna_count}{RESET}",        flush=True )
+        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():      MULTIMODE____TEST . . . . . . . . . . . . . = {MIKADO}{multimode_case_test_count}{RESET}",      flush=True )
+        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():      UNIMODE_CASE____MATCHED . . . . . . . . . . = {MIKADO}{unimode_case_matched_count}{RESET}",     flush=True )
+        print ( f"{DULL_WHITE}CLASSI:          INFO:    segment_cases():      UNIMODE_CASE  . . . . . . . . . . . . . . . = {MIKADO}{unimode_case_unmatched_count}{RESET}",   flush=True )
+        print ( f"{DULL_WHITE}CLASSI:          INFO:    segment_cases():      UNIMODE_CASE____IMAGE . . . . . . . . . . . = {MIKADO}{unimode_case_image_count}{RESET}",       flush=True )
+        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():      UNIMODE_CASE____IMAGE_TEST  . . . . . . . . = {MIKADO}{unimode_case_image_test_count}{RESET}",  flush=True )
+        print ( f"{DULL_WHITE}CLASSI:          INFO:    segment_cases():      UNIMODE_CASE____RNA . . . . . . . . . . . . = {MIKADO}{unimode_case_rna_count}{RESET}",         flush=True )
+        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():      UNIMODE_CASE____RNA_TEST  . . . . . . . . . = {MIKADO}{unimode_case_rna_test_count}{RESET}",    flush=True )
 
     
     return multimode_case_test_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case_image_count, unimode_case_image_test_count, unimode_case_rna_count, unimode_case_rna_test_count
@@ -4007,10 +4007,10 @@ def newline(ax, p1, p2):
 
 
     if DEBUG>0:
-      print ( f"TRAINLENEJ:     INFO:      newline():             xmin                                    = {xmin}"                            )
-      print ( f"TRAINLENEJ:     INFO:      newline():             xmax                                    = {xmax}"                            )
-      print ( f"TRAINLENEJ:     INFO:      newline():             ymin                                    = {ymin}"                            )
-      print ( f"TRAINLENEJ:     INFO:      newline():             ymax                                    = {ymax}"                            )
+      print ( f"CLASSI:         INFO:      newline():             xmin                                    = {xmin}"                            )
+      print ( f"CLASSI:         INFO:      newline():             xmax                                    = {xmax}"                            )
+      print ( f"CLASSI:         INFO:      newline():             ymin                                    = {ymin}"                            )
+      print ( f"CLASSI:         INFO:      newline():             ymax                                    = {ymax}"                            )
 
     l = mlines.Line2D([xmin,xmax], [ymin,ymax])
     ax.add_line(l)
@@ -4024,17 +4024,17 @@ def analyse_probs( y1_hat, image_labels_values ):
 
     if DEBUG>99:
       y1_hat_numpy = (y1_hat.cpu().data).numpy()
-      print ( "TRAINLENEJ:     INFO:      analyse_probs():               preds_tensor.shape           = {:}".format( preds_tensor.shape    ) ) 
-      print ( "TRAINLENEJ:     INFO:      analyse_probs():               preds_tensor                 = \n{:}".format( preds_tensor      ) ) 
+      print ( "CLASSI:         INFO:      analyse_probs():               preds_tensor.shape           = {:}".format( preds_tensor.shape    ) ) 
+      print ( "CLASSI:         INFO:      analyse_probs():               preds_tensor                 = \n{:}".format( preds_tensor      ) ) 
     
 #    preds = np.squeeze( preds_tensor.cpu().numpy() )
     preds = preds_tensor.cpu().numpy()
 
     if DEBUG>9:
-      print ( "TRAINLENEJ:     INFO:      analyse_probs():               type(preds)                  = {:}".format( type(preds)           ) )
-      print ( "TRAINLENEJ:     INFO:      analyse_probs():               preds.shape                  = {:}".format( preds.shape           ) ) 
-      print ( "TRAINLENEJ:     INFO:      analyse_probs():         FIRST  GROUP BELOW: preds"            ) 
-      print ( "TRAINLENEJ:     INFO:      analyse_probs():         SECOND GROUP BELOW: y1_hat_numpy.T"   )
+      print ( "CLASSI:         INFO:      analyse_probs():               type(preds)                  = {:}".format( type(preds)           ) )
+      print ( "CLASSI:         INFO:      analyse_probs():               preds.shape                  = {:}".format( preds.shape           ) ) 
+      print ( "CLASSI:         INFO:      analyse_probs():         FIRST  GROUP BELOW: preds"            ) 
+      print ( "CLASSI:         INFO:      analyse_probs():         SECOND GROUP BELOW: y1_hat_numpy.T"   )
       np.set_printoptions(formatter={'int':   lambda x: "\033[1m{:^10d}\033[m".format(x)    }    )
       print ( preds[0:22] )
       #np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
@@ -4044,8 +4044,8 @@ def analyse_probs( y1_hat, image_labels_values ):
 
     if DEBUG>9:
       np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
-      print ( "TRAINLENEJ:     INFO:      analyse_probs():              type(p_full_softmax_matrix)     = {:}".format( type(p_full_softmax_matrix) )  )
-      print ( "TRAINLENEJ:     INFO:      analyse_probs():               p_full_softmax_matrix          = \n{:}".format( np.transpose(p_full_softmax_matrix[0:22,:])   )  )
+      print ( "CLASSI:         INFO:      analyse_probs():              type(p_full_softmax_matrix)     = {:}".format( type(p_full_softmax_matrix) )  )
+      print ( "CLASSI:         INFO:      analyse_probs():               p_full_softmax_matrix          = \n{:}".format( np.transpose(p_full_softmax_matrix[0:22,:])   )  )
 
     # make a vector of the HIGHEST probability (for each example in the batch)    
     p_highest  = np.array(  [ functional.softmax( el, dim=0)[i].item() for i, el in zip(preds, y1_hat) ]   )
@@ -4053,8 +4053,8 @@ def analyse_probs( y1_hat, image_labels_values ):
 
     if DEBUG>9:
       np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
-      print ( "TRAINLENEJ:     INFO:      analyse_probs():               p_highest.shape                = {:}".format( (np.array(p_highest)).shape )  )
-      print ( "TRAINLENEJ:     INFO:      analyse_probs():               p_highest                      = \n{:}".format( np.array(p_highest) )  )
+      print ( "CLASSI:         INFO:      analyse_probs():               p_highest.shape                = {:}".format( (np.array(p_highest)).shape )  )
+      print ( "CLASSI:         INFO:      analyse_probs():               p_highest                      = \n{:}".format( np.array(p_highest) )  )
       
     # make a vector of the SECOND HIGHEST probability (for each example in the batch) (which is a bit trickier)
     p_2nd_highest = np.zeros((len(preds)))
@@ -4063,7 +4063,7 @@ def analyse_probs( y1_hat, image_labels_values ):
 
     if DEBUG>99:
       np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
-      print ( "TRAINLENEJ:     INFO:      analyse_probs():               p_2nd_highest              = \n{:}".format( p_2nd_highest   )  )  
+      print ( "CLASSI:         INFO:      analyse_probs():               p_2nd_highest              = \n{:}".format( p_2nd_highest   )  )  
 
     # make a vector of the probability the network gave for the true class (for each example in the batch)
     for i in range (0, len(image_labels_values)):
@@ -4071,7 +4071,7 @@ def analyse_probs( y1_hat, image_labels_values ):
     
     if DEBUG>9:
       np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
-      print ( f"TRAINLENEJ:     INFO:      analyse_probs():               p_true_class              = \n{p_true_class}"  )  
+      print ( f"CLASSI:         INFO:      analyse_probs():               p_true_class              = \n{p_true_class}"  )  
       
    
     return preds, p_full_softmax_matrix, p_highest, p_2nd_highest, p_true_class
@@ -4220,7 +4220,7 @@ def plot_scatter( args, writer, i, background_image, tile_size, image_labels, cl
     second_ticks = np.arange(2, nrows, 1)
 
     if DEBUG>999:
-      print ( f"TRAINLENEJ:     INFO:      major_ticks = {major_ticks}" )
+      print ( f"CLASSI:         INFO:      major_ticks = {major_ticks}" )
     
     if not image_labels[idx]==n:                                                                           # if the prediction was WRONG
       
@@ -4243,8 +4243,8 @@ def plot_scatter( args, writer, i, background_image, tile_size, image_labels, cl
           marker_size = 1
         
         if DEBUG>8:
-          print ( f"TRAINLENEJ:     INFO:      plot_scatter()  nrows       = {MIKADO}{nrows}{RESET}" )
-          print ( f"TRAINLENEJ:     INFO:      plot_scatter()  marker_size = {MIKADO}{marker_size}{RESET}" )
+          print ( f"CLASSI:         INFO:      plot_scatter()  nrows       = {MIKADO}{nrows}{RESET}" )
+          print ( f"CLASSI:         INFO:      plot_scatter()  marker_size = {MIKADO}{marker_size}{RESET}" )
           
         plt.scatter( x_npy, y_npy, c=class_colours[n], marker='x', s=marker_size, zorder=100 )             # 80000 is a good value for sqrt(14*14*64)=112x112
         
@@ -4344,9 +4344,9 @@ def plot_matrix( matrix_type, args, writer, epoch, background_image, tile_size, 
   elif matrix_type=='confidence_RIGHTS':                                                                     # probability of the prediction, where the prectiction was correct only
      
     if DEBUG>2:
-      print ( f"TRAINLENEJ:     INFO:        p_true_class.tolist() = {p_true_class.tolist()}" )
-      print ( f"TRAINLENEJ:     INFO:        preds.tolist()        = {preds.tolist()}"        )
-      print ( f"TRAINLENEJ:     INFO:        image_labels.tolist() = {image_labels.tolist()}"        )     
+      print ( f"CLASSI:         INFO:        p_true_class.tolist() = {p_true_class.tolist()}" )
+      print ( f"CLASSI:         INFO:        preds.tolist()        = {preds.tolist()}"        )
+      print ( f"CLASSI:         INFO:        image_labels.tolist() = {image_labels.tolist()}"        )     
      
     only_corrects  = np.array ( [ p_true_class.tolist()[i] if preds.tolist()[i]==image_labels.tolist()[i] else 0 for i in range(len(p_true_class.tolist()) ) ] )
     only_corrects  = only_corrects[np.newaxis,:] 
@@ -4378,7 +4378,7 @@ def plot_matrix( matrix_type, args, writer, epoch, background_image, tile_size, 
   elif matrix_type=='p_std_dev':                                                                            # standard deviation of probailities of each class
 
     if DEBUG>99:
-      print ( f"TRAINLENEJ:     INFO:        plot_matrix():  (type: {MIKADO}{matrix_type}{RESET}) grid_p_full_softmax_matrix.shape  = {grid_p_full_softmax_matrix.shape}" ) 
+      print ( f"CLASSI:         INFO:        plot_matrix():  (type: {MIKADO}{matrix_type}{RESET}) grid_p_full_softmax_matrix.shape  = {grid_p_full_softmax_matrix.shape}" ) 
       
     sd             = np.std( grid_p_full_softmax_matrix, axis=1 )    
     sd             = sd[np.newaxis,:]
@@ -4386,14 +4386,14 @@ def plot_matrix( matrix_type, args, writer, epoch, background_image, tile_size, 
     reshaped_to_2D = np.reshape(sd, (nrows,ncols))
     
     if DEBUG>9:
-      print ( f"TRAINLENEJ:     INFO:        plot_matrix():  (type: {MIKADO}{matrix_type}{RESET}) reshaped_to_2D.shape  = {reshaped_to_2D.shape}" ) 
-      print ( f"TRAINLENEJ:     INFO:        plot_matrix():  (type: {MIKADO}{matrix_type}{RESET}) reshaped_to_2D values = \n{reshaped_to_2D.T}" ) 
+      print ( f"CLASSI:         INFO:        plot_matrix():  (type: {MIKADO}{matrix_type}{RESET}) reshaped_to_2D.shape  = {reshaped_to_2D.shape}" ) 
+      print ( f"CLASSI:         INFO:        plot_matrix():  (type: {MIKADO}{matrix_type}{RESET}) reshaped_to_2D values = \n{reshaped_to_2D.T}" ) 
           
     cmap=cm.Greens
     tensorboard_label = "7 sd of class probs"
 
   else:
-    print( f"\n{ORANGE}TRAINLENEJ:     WARNING: no such matrix_type {RESET}{MIKADO}{matrix_type}{RESET}{ORANGE}. Skipping.{RESET}", flush=True)
+    print( f"\n{ORANGE}CLASSI:         WARNING: no such matrix_type {RESET}{MIKADO}{matrix_type}{RESET}{ORANGE}. Skipping.{RESET}", flush=True)
 
   #gwr = ListedColormap(['r', 'w', 'g'])  
   #plt.matshow( reshaped_to_2D, fignum=1, interpolation='spline16', cmap=cm.binary, vmin=0, vmax=1 )
@@ -4436,9 +4436,9 @@ def plot_classes_preds(args, model, tile_size, batch_images, image_labels, batch
       fig = plt.figure( figsize=( figure_width, figure_height ) )                                          # overall size ( width, height ) in inches
   
       if DEBUG>99:
-        print ( "\nTRAINLENEJ:     INFO:      plot_classes_preds():             number_to_plot                          = {:}".format( number_to_plot    ) )
-        print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             figure width  (inches)                  = {:}".format( figure_width    ) )
-        print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             figure height (inches)                  = {:}".format( figure_height   ) )
+        print ( "\nCLASSI:         INFO:      plot_classes_preds():             number_to_plot                          = {:}".format( number_to_plot    ) )
+        print ( "CLASSI:         INFO:      plot_classes_preds():             figure width  (inches)                  = {:}".format( figure_width    ) )
+        print ( "CLASSI:         INFO:      plot_classes_preds():             figure height (inches)                  = {:}".format( figure_height   ) )
   
       #plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=None)
       #plt.grid( False )
@@ -4447,9 +4447,9 @@ def plot_classes_preds(args, model, tile_size, batch_images, image_labels, batch
       nrows = int(( ( number_to_plot // ncols ) + 1 ) // 1 )
   
       if DEBUG>99:
-        print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             number_to_plot                          = {:}".format( number_to_plot  ) )
-        print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             nrows                                   = {:}".format( nrows           ) )
-        print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             ncols                                   = {:}".format( ncols           ) ) 
+        print ( "CLASSI:         INFO:      plot_classes_preds():             number_to_plot                          = {:}".format( number_to_plot  ) )
+        print ( "CLASSI:         INFO:      plot_classes_preds():             nrows                                   = {:}".format( nrows           ) )
+        print ( "CLASSI:         INFO:      plot_classes_preds():             ncols                                   = {:}".format( ncols           ) ) 
   
       for idx in np.arange( number_to_plot ):
   
@@ -4458,9 +4458,9 @@ def plot_classes_preds(args, model, tile_size, batch_images, image_labels, batch
           dir_name = os.path.dirname ( fq_name )
           
           if DEBUG>2:
-            print ( f"TRAINLENEJ:     INFO:      test():       file fq_link points to      = {MAGENTA}{fq_link}{RESET}"    )
-            print ( f"TRAINLENEJ:     INFO:      test():       fq_link                     = {MAGENTA}{fq_name}{RESET}"                 )
-            print ( f"TRAINLENEJ:     INFO:      test():       dir_name                    = {MAGENTA}{dir_name}{RESET}"                )
+            print ( f"CLASSI:         INFO:      test():       file fq_link points to      = {MAGENTA}{fq_link}{RESET}"    )
+            print ( f"CLASSI:         INFO:      test():       fq_link                     = {MAGENTA}{fq_name}{RESET}"                 )
+            print ( f"CLASSI:         INFO:      test():       dir_name                    = {MAGENTA}{dir_name}{RESET}"                )
             
                   
           ax = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[])            # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
@@ -4471,8 +4471,8 @@ def plot_classes_preds(args, model, tile_size, batch_images, image_labels, batch
           plt.imshow(npimg_t)
   
           if DEBUG>99:
-            print ( "TRAINLENEJ:     INFO:      plot_classes_preds():  idx={:}".format( idx ) )
-            print ( "TRAINLENEJ:     INFO:      plot_classes_preds():  idx={:} probs[idx] = {:4.2e}, classes[preds[idx]] = {:<20s}, classes[labels[idx]] = {:<20s}".format( idx, probs[idx], classes[preds[idx]], classes[labels[idx]]  ) )
+            print ( "CLASSI:         INFO:      plot_classes_preds():  idx={:}".format( idx ) )
+            print ( "CLASSI:         INFO:      plot_classes_preds():  idx={:} probs[idx] = {:4.2e}, classes[preds[idx]] = {:<20s}, classes[labels[idx]] = {:<20s}".format( idx, probs[idx], classes[preds[idx]], classes[labels[idx]]  ) )
   
           ax.set_title( "p_1={:<.4f}\n p_2nd_highest={:<.4f}\n pred: {:}\ntruth: {:}".format( p_highest[idx], p_2nd_highest[idx], class_names[preds[idx]], class_names[image_labels[idx]] ),
                       loc        = 'center',
@@ -4511,7 +4511,7 @@ def plot_classes_preds(args, model, tile_size, batch_images, image_labels, batch
       # (2a) set up all axes
          
       if DEBUG>0:
-        print ( f"TRAINLENEJ:     INFO:        plot_classes_preds():  {ORANGE if args.just_test=='True' else MIKADO} about to set up {MIKADO}{figure_width}x{figure_height} inch{RESET} figure and axes for {MIKADO}{nrows}x{ncols}={number_to_plot}{RESET} subplots. (Note: This takes a long time for larger values of nrows/ncols)", end="", flush=True )
+        print ( f"CLASSI:         INFO:        plot_classes_preds():  {ORANGE if args.just_test=='True' else MIKADO} about to set up {MIKADO}{figure_width}x{figure_height} inch{RESET} figure and axes for {MIKADO}{nrows}x{ncols}={number_to_plot}{RESET} subplots. (Note: This takes a long time for larger values of nrows/ncols)", end="", flush=True )
             
       fig, axes = plt.subplots( nrows=nrows, ncols=ncols, sharex=True, sharey=True, squeeze=True, figsize=( figure_width, figure_height ) )        # This takes a long time to execute for larger values of nrows and ncols
     
@@ -4581,7 +4581,7 @@ def plot_classes_preds(args, model, tile_size, batch_images, image_labels, batch
             
             if DEBUG>0:
               if flag==0:
-                  print ( f"TRAINLENEJ:     INFO:        plot_classes_preds():  {ORANGE if args.just_test=='True' else MIKADO} now processing sub-plot {RESET}", end="", flush=True )
+                  print ( f"CLASSI:         INFO:        plot_classes_preds():  {ORANGE if args.just_test=='True' else MIKADO} now processing sub-plot {RESET}", end="", flush=True )
                   flag=1
               if ( idx==0 ):
                   print ( f"..1", end="", flush=True )                  
@@ -4663,7 +4663,7 @@ def plot_classes_preds(args, model, tile_size, batch_images, image_labels, batch
               
               if DEBUG>99:
                 predicted_class=np.argmax(np.sum(p_full_softmax_matrix, axis=0))
-                print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             predicted_class                                   = {predicted_class}" )
+                print ( f"CLASSI:         INFO:      plot_classes_preds():             predicted_class                                   = {predicted_class}" )
             
             #  check 'badness' status. such tiles were never looked at during training, so we don't want to mark them up             
             tile_rgb_npy=batch_images[idx]
@@ -4791,20 +4791,20 @@ def plot_classes_preds(args, model, tile_size, batch_images, image_labels, batch
           
       
       if DEBUG>99:
-        print ( "TRAINLENEJ:     INFO:      plot_classes_preds():  idx={:}".format( idx ) )
+        print ( "CLASSI:         INFO:      plot_classes_preds():  idx={:}".format( idx ) )
       if DEBUG>99:
-        print ( "TRAINLENEJ:     INFO:      plot_classes_preds():  idx={:} p_highest[idx] = {:4.2f}, class_names[preds[idx]] = {:<20s}, class_names[image_labels[idx]] = {:<20s}".format( idx, p_highest[idx], class_names[preds[idx]], class_names[image_labels[idx]]  ) )
+        print ( "CLASSI:         INFO:      plot_classes_preds():  idx={:} p_highest[idx] = {:4.2f}, class_names[preds[idx]] = {:<20s}, class_names[image_labels[idx]] = {:<20s}".format( idx, p_highest[idx], class_names[preds[idx]], class_names[image_labels[idx]]  ) )
   
       if DEBUG>99:
-        print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             idx                                     = {idx}"                            )
-        print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             p_highest[idx]                          = {p_highest[idx]:4.2f}"            )
-        print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             p_2nd_highest[idx]]                     = {p_2nd_highest[idx]:4.2f}"        )
-        print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             preds[idx]                              = {preds[idx]}"                     )
-        print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             class_names                             = {class_names}"                    )
-        print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             class_names                             = {class_names[1]}"                 )
-        print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             class_names                             = {class_names[2]}"                 )
-        print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             class_names[preds[idx]]                 = {class_names[preds[idx]]}"        )
-        print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             class_names[image_labels[idx]]          = {class_names[image_labels[idx]]}" )
+        print ( f"CLASSI:         INFO:      plot_classes_preds():             idx                                     = {idx}"                            )
+        print ( f"CLASSI:         INFO:      plot_classes_preds():             p_highest[idx]                          = {p_highest[idx]:4.2f}"            )
+        print ( f"CLASSI:         INFO:      plot_classes_preds():             p_2nd_highest[idx]]                     = {p_2nd_highest[idx]:4.2f}"        )
+        print ( f"CLASSI:         INFO:      plot_classes_preds():             preds[idx]                              = {preds[idx]}"                     )
+        print ( f"CLASSI:         INFO:      plot_classes_preds():             class_names                             = {class_names}"                    )
+        print ( f"CLASSI:         INFO:      plot_classes_preds():             class_names                             = {class_names[1]}"                 )
+        print ( f"CLASSI:         INFO:      plot_classes_preds():             class_names                             = {class_names[2]}"                 )
+        print ( f"CLASSI:         INFO:      plot_classes_preds():             class_names[preds[idx]]                 = {class_names[preds[idx]]}"        )
+        print ( f"CLASSI:         INFO:      plot_classes_preds():             class_names[image_labels[idx]]          = {class_names[image_labels[idx]]}" )
       
       return fig
 
@@ -4860,7 +4860,7 @@ def save_model( log_dir, model ):
           # ~ fqn = f"{log_dir}/model_pretrained.pt"   # try and open it
           # ~ f = open( fqn, 'r' )
           # ~ if DEBUG>2:
-            # ~ print( f"\r{COTTON_CANDY}TRAINLENEJ:     INFO:  pre-train option has been selected but a pre-trained model already exists. Saving state model dictionary as {fqn}{RESET}", end='', flush=True )
+            # ~ print( f"\r{COTTON_CANDY}CLASSI:         INFO:  pre-train option has been selected but a pre-trained model already exists. Saving state model dictionary as {fqn}{RESET}", end='', flush=True )
           # ~ f.close()
         # ~ except Exception as e:
           # ~ fqn = f"{log_dir}/model_pretrained.pt"
@@ -4891,11 +4891,11 @@ def delete_selected( root, extension ):
     for f in files:
       fqf = root + '/' + f
       if DEBUG>99:
-        print( f"TRAINLENEJ:     INFO:   examining file:   '\r\033[43C\033[36;1m{fqf}\033[m' \r\033[180C with extension '\033[36;1m{extension}\033[m'" )
+        print( f"CLASSI:         INFO:   examining file:   '\r\033[43C\033[36;1m{fqf}\033[m' \r\033[180C with extension '\033[36;1m{extension}\033[m'" )
       if ( f.endswith( extension ) ): 
         try:
           if DEBUG>99:
-            print( f"TRAINLENEJ:     INFO:   will delete file  '\r\033[43C{MIKADO}{fqf}{RESET}'" )
+            print( f"CLASSI:         INFO:   will delete file  '\r\033[43C{MIKADO}{fqf}{RESET}'" )
           os.remove( fqf )
         except:
           pass
@@ -4932,24 +4932,24 @@ def box_plot_by_subtype( args, n_genes, start_time, parameters, writer, total_ru
   # (1) Check and maybe print some values. Not otherwise used.
   
   confusion_matrix                =  np.sum  ( run_level_classifications_matrix_acc, axis=0 )                                                          # sum across all examples to produce job level confusion matrix (2D array)
-  if DEBUG>0:
-    print( f'TRAINLENEJ:       INFO:    confusion_matrix (confusion matrix)       = \n{CARRIBEAN_GREEN}{confusion_matrix}{RESET}')
-    print( f'TRAINLENEJ:       INFO:    total predictions (check sum)             =  {MIKADO}{np.sum(confusion_matrix)}{RESET}')
+  if DEBUG>8:
+    print( f'CLASSI:           INFO:    confusion_matrix (confusion matrix)       = \n{CARRIBEAN_GREEN}{confusion_matrix}{RESET}')
+    print( f'CLASSI:           INFO:    total predictions (check sum)             =  {MIKADO}{np.sum(confusion_matrix)}{RESET}')
 
   total_predictions_by_subtype    = np.squeeze( ( np.expand_dims(np.sum  (  confusion_matrix, axis=0 ), axis=0 )  )  )                                 # sum down the columns to produces a row vector representing total subtypes
-  if DEBUG>0:    
-    print( f'TRAINLENEJ:       INFO:    total_predictions_by_subtype              = {CARRIBEAN_GREEN}{total_predictions_by_subtype}{RESET}') 
-    print( f'TRAINLENEJ:       INFO:    total predictions (check sum)             =  {MIKADO}{np.sum(total_predictions_by_subtype)}{RESET}')   
+  if DEBUG>8:    
+    print( f'CLASSI:           INFO:    total_predictions_by_subtype              = {CARRIBEAN_GREEN}{total_predictions_by_subtype}{RESET}') 
+    print( f'CLASSI:           INFO:    total predictions (check sum)             =  {MIKADO}{np.sum(total_predictions_by_subtype)}{RESET}')   
 
   correct_predictions_by_subtype  =  np.squeeze( np.array( [ confusion_matrix[i,i] for i in  range( 0 , len( confusion_matrix ))  ] )   )              # pick out diagonal elements (= number correct) to produce a row vector
-  if DEBUG>0:
-    print( f'TRAINLENEJ:       INFO:    correct_predictions_by_subtype            = {CARRIBEAN_GREEN}{correct_predictions_by_subtype}{RESET}')                                
-    print( f'TRAINLENEJ:       INFO:    total corects (check sum)                 =  {MIKADO}{np.sum(correct_predictions_by_subtype)}{RESET}')
+  if DEBUG>8:
+    print( f'CLASSI:           INFO:    correct_predictions_by_subtype            = {CARRIBEAN_GREEN}{correct_predictions_by_subtype}{RESET}')                                
+    print( f'CLASSI:           INFO:    total corects (check sum)                 =  {MIKADO}{np.sum(correct_predictions_by_subtype)}{RESET}')
 
   pct_correct_predictions_by_subtype  =  correct_predictions_by_subtype / total_predictions_by_subtype
-  if DEBUG>0:
+  if DEBUG>8:
     np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:.1f}   "} )          
-    print( f'TRAINLENEJ:       INFO:    pct_correct_predictions_by_subtype        = {CARRIBEAN_GREEN}{100*pct_correct_predictions_by_subtype}{RESET}')
+    print( f'CLASSI:           INFO:    pct_correct_predictions_by_subtype        = {CARRIBEAN_GREEN}{100*pct_correct_predictions_by_subtype}{RESET}')
 
     
 
@@ -4957,23 +4957,23 @@ def box_plot_by_subtype( args, n_genes, start_time, parameters, writer, total_ru
   
   all_predictions_plane           =   np.sum(  run_level_classifications_matrix_acc, axis=1 )[ 0:total_runs_in_job, : ]                                # sum elements (= numbers correct) from 3D volume down columns (axis 1) to produce a matrix
   total_predictions_made          =   np.sum(all_predictions_plane) 
-  if DEBUG>0:
+  if DEBUG>8:
     np.set_printoptions(formatter={ 'int' : lambda x: f"   {CARRIBEAN_GREEN}{x:>6d}   "} )    
-    print( f'TRAINLENEJ:       INFO:    total predictions (one row per run)       = \n{CARRIBEAN_GREEN}{all_predictions_plane}{RESET}')
-    print( f'TRAINLENEJ:       INFO:    total predictions (check sum)             =  {MIKADO}{total_predictions_made}{RESET}')
+    print( f'CLASSI:           INFO:    total predictions (one row per run)       = \n{CARRIBEAN_GREEN}{all_predictions_plane}{RESET}')
+    print( f'CLASSI:           INFO:    total predictions (check sum)             =  {MIKADO}{total_predictions_made}{RESET}')
 
   
   expected_IFF_random_preds      =   100* total_predictions_by_subtype / total_predictions_made                 # what we'd expect if the classifications were entirely random
-  if DEBUG>0:
+  if DEBUG>8:
     np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:.1f}   "} )    
-    print( f"TRAINLENEJ:       INFO:    expected correct if random class'n        = {CARRIBEAN_GREEN}{expected_IFF_random_preds}{RESET}")
+    print( f"CLASSI:           INFO:    expected correct if random class'n        = {CARRIBEAN_GREEN}{expected_IFF_random_preds}{RESET}")
 
 
   correct_predictions_plane       =   np.transpose( np.array( [ run_level_classifications_matrix_acc[:,i,i] for i in  range( 0 , run_level_classifications_matrix_acc.shape[1] ) ]  )  ) [ 0:total_runs_in_job, : ]      # pick out diagonal elements (= numbers correct) from 3D volume  to produce a matrix
-  if DEBUG>0 :
+  if DEBUG>8 :
     np.set_printoptions(formatter={ 'int' : lambda x: f"   {CARRIBEAN_GREEN}{x:>6d}   "} )          
-    print( f'TRAINLENEJ:       INFO:    correct predictions (one row per run)     = \n{CARRIBEAN_GREEN}{correct_predictions_plane}{RESET}')
-    print( f'TRAINLENEJ:       INFO:    total corects (check sum)                 = {MIKADO}{np.sum(correct_predictions_plane)}{RESET}')
+    print( f'CLASSI:           INFO:    correct predictions (one row per run)     = \n{CARRIBEAN_GREEN}{correct_predictions_plane}{RESET}')
+    print( f'CLASSI:           INFO:    total corects (check sum)                 = {MIKADO}{np.sum(correct_predictions_plane)}{RESET}')
 
   
   np.seterr( invalid='ignore', divide='ignore' )          
@@ -4982,25 +4982,26 @@ def box_plot_by_subtype( args, n_genes, start_time, parameters, writer, total_ru
   pct_correct_predictions_plane   =   pct_correct_predictions_plane[~np.isnan(pct_correct_predictions_plane).any(axis=1), :]           # delete any rows which contain a NaN because they will spoil the box plot
   num_rows_with_nan               =   pct_correct_predictions_plane.shape[0] - pct_correct_predictions_plane.shape[0]
   
-  if DEBUG>0 :
+  if DEBUG>8 :
     np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:.1f}   "} )          
-    print( f'TRAINLENEJ:       INFO:    pct correct predictions (one row per run) = \n{CARRIBEAN_GREEN}{pct_correct_predictions_plane}{RESET}')
-    print( f'TRAINLENEJ:       INFO:    number of rows with NaN = {CARRIBEAN_GREEN}{num_rows_with_nan}{RESET}')
+    print( f'CLASSI:           INFO:    pct correct predictions (one row per run) = \n{CARRIBEAN_GREEN}{pct_correct_predictions_plane}{RESET}')
+    print( f'CLASSI:           INFO:    number of rows with NaN = {CARRIBEAN_GREEN}{num_rows_with_nan}{RESET}')
   
   median_pct_correct_predictions_by_subtype  =  np.median ( pct_correct_predictions_plane, axis=0 )
-  if DEBUG>0:
+  if DEBUG>8:
     np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:.1f}   "} )          
-    print( f'TRAINLENEJ:       INFO:    median_pct_correct_predictions_by_subtype  = {CARRIBEAN_GREEN}{median_pct_correct_predictions_by_subtype}{RESET}')
+    print( f'CLASSI:           INFO:    median_pct_correct_predictions_by_subtype  = {CARRIBEAN_GREEN}{median_pct_correct_predictions_by_subtype}{RESET}')
     
   
   best_subtype_median      =  0 if np.around( np.max ( median_pct_correct_predictions_by_subtype ) ).astype(int) < 1 else np.around( np.max ( median_pct_correct_predictions_by_subtype ) ).astype(int)
-  print( f'TRAINLENEJ:       INFO:    best subtype median                        = {CARRIBEAN_GREEN}{best_subtype_median}{RESET}') 
+  if DEBUG>8:
+    print( f'CLASSI:           INFO:    best subtype median                        = {CARRIBEAN_GREEN}{best_subtype_median}{RESET}') 
 
 
   npy_class_names = np.transpose(np.expand_dims( np.array(args.class_names), axis=0 ) )
   if DEBUG>8:
-    print( f'TRAINLENEJ:       INFO:    npy_class_names.shape                     = {CARRIBEAN_GREEN}{npy_class_names.shape}{RESET}')
-    print( f'TRAINLENEJ:       INFO:    npy_class_names                           = \n{MIKADO}{npy_class_names}{RESET}')
+    print( f'CLASSI:           INFO:    npy_class_names.shape                     = {CARRIBEAN_GREEN}{npy_class_names.shape}{RESET}')
+    print( f'CLASSI:           INFO:    npy_class_names                           = \n{MIKADO}{npy_class_names}{RESET}')
   
 
 
@@ -5014,7 +5015,7 @@ def box_plot_by_subtype( args, n_genes, start_time, parameters, writer, total_ru
   now     =  time.time()
   seconds = now - start_time 
   
-  if DEBUG>0:
+  if DEBUG>99:
     print ( f"now     =  {now}"      )
     print ( f"seconds =  {seconds}"  )
 
@@ -5074,12 +5075,12 @@ lr:{parameters['lr'][0]:<9.6f}  hidden:{parameters['hidden_layer_neurons'][0]}  
   headline_correct  = np.around( np.sum(corrects)/np.sum(totals)*100,  0 )
   best_correct      = 0 if ( np.around( np.max(corrects/totals)*100 ).astype(int) ) < 1 else ( np.around( np.max(corrects/totals)*100 ).astype(int) )
   
-  if (DEBUG>0):
+  if (DEBUG>9):
     np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:6.3f}   "} ) 
-    print ( f"TRAINLENEJ:       INFO:  headline_correct                           = {MIKADO}{headline_correct}{RESET}",  flush=True )
-    print ( f"TRAINLENEJ:       INFO:  totals                                     = {MIKADO}{totals}{RESET}",            flush=True )
-    print ( f"TRAINLENEJ:       INFO:  corrects                                   = {MIKADO}{corrects}{RESET}",          flush=True )
-    print ( f"TRAINLENEJ:       INFO:  best_correct                               = {MIKADO}{best_correct:02d}{RESET}",  flush=True )
+    print ( f"CLASSI:           INFO:  headline_correct                           = {MIKADO}{headline_correct}{RESET}",  flush=True )
+    print ( f"CLASSI:           INFO:  totals                                     = {MIKADO}{totals}{RESET}",            flush=True )
+    print ( f"CLASSI:           INFO:  corrects                                   = {MIKADO}{corrects}{RESET}",          flush=True )
+    print ( f"CLASSI:           INFO:  best_correct                               = {MIKADO}{best_correct:02d}{RESET}",  flush=True )
     
     
   for patch, color in zip( bp['boxes'], subtype_colors):
@@ -5102,8 +5103,8 @@ lr:{parameters['lr'][0]:<9.6f}  hidden:{parameters['hidden_layer_neurons'][0]}  
 
 
     if (DEBUG>99):
-      print ( f"TRAINLENEJ:       INFO:  xtick                                    = {MIKADO}{xtick}{RESET}",  flush=True )
-      print ( f"TRAINLENEJ:       INFO:  total                                    = {MIKADO}{total}{RESET}",  flush=True )
+      print ( f"CLASSI:           INFO:  xtick                                    = {MIKADO}{xtick}{RESET}",  flush=True )
+      print ( f"CLASSI:           INFO:  total                                    = {MIKADO}{total}{RESET}",  flush=True )
 
  
   plt.show()
@@ -5165,8 +5166,8 @@ lr:{parameters['lr'][0]:<9.6f}  hidden:{parameters['hidden_layer_neurons'][0]}  
 
    
     if (DEBUG>99):
-      print ( f"TRAINLENEJ:       INFO:  ytick        = {MIKADO}{ytick}{RESET}",  flush=True )
-      print ( f"TRAINLENEJ:       INFO:  total        = {MIKADO}{total}{RESET}",  flush=True )
+      print ( f"CLASSI:           INFO:  ytick        = {MIKADO}{ytick}{RESET}",  flush=True )
+      print ( f"CLASSI:           INFO:  total        = {MIKADO}{total}{RESET}",  flush=True )
 
  
   plt.show()
@@ -5231,25 +5232,25 @@ def show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, pan
   if level=='job':
 
     now              = datetime.datetime.now()
-    fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__job_level_class_matrix.csv"
+    fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__conf_matrix.csv"
 
     try:
       pandas_version.to_csv( fqn, sep='\t' )
       if DEBUG>0:
-        print ( f"TRAINLENEJ:     INFO:     saving          job level classification file to {MAGENTA}{fqn}{RESET}"  )
+        print ( f"CLASSI:         INFO:     saving          job level confusion matrix to {MAGENTA}{fqn}{RESET}"  )
     except Exception as e:
-      print ( f"{RED}TRAINLENEJ:     FATAL:     could not save file {MAGENTA}{fqn}{RESET}"  )
-      print ( f"{RED}TRAINLENEJ:     FATAL:     error was: {e}{RESET}" )
+      print ( f"{RED}CLASSI:         FATAL:     could not save file {MAGENTA}{fqn}{RESET}"  )
+      print ( f"{RED}CLASSI:         FATAL:     error was: {e}{RESET}" )
       sys.exit(0)    
     
-    fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__job_level_class_matrix_with_totals.csv"
+    fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__conf_matrix_ext.csv"
     try:
       pandas_version_ext.to_csv( fqn, sep='\t' )
       if DEBUG>0:
-        print ( f"TRAINLENEJ:     INFO:     saving extended job level classification file to {MAGENTA}{fqn}{RESET}"  )
+        print ( f"CLASSI:         INFO:     saving extended job level confusion matrix to {MAGENTA}{fqn}{RESET}"  )
     except Exception as e:
-      print ( f"{RED}TRAINLENEJ:     FATAL:     could not save file         = {MAGENTA}{fqn}{RESET}"  )
-      print ( f"{RED}TRAINLENEJ:     FATAL:     error was: {e}{RESET}" )      
+      print ( f"{RED}CLASSI:         FATAL:     could not save file         = {MAGENTA}{fqn}{RESET}"  )
+      print ( f"{RED}CLASSI:         FATAL:     error was: {e}{RESET}" )      
       sys.exit(0)
   
   return ( total_correct_by_subtype, total_examples_by_subtype )
@@ -5258,7 +5259,7 @@ def show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, pan
 # --------------------------------------------------------------------------------------------
 def triang( df ):
 
-  print( f"{BRIGHT_GREEN}TRAINLENEJ:     INFO: at top of triang(){RESET} ")  
+  print( f"{BRIGHT_GREEN}CLASSI:         INFO: at top of triang(){RESET} ")  
   temp=df.copy()
   ut=np.triu(np.ones(df.shape),1).astype(np.bool)
   lt=np.tril(np.ones(df.shape),-1).astype(np.bool)
@@ -5273,7 +5274,7 @@ def color_vals(val):
 
   # pandas_version_ext.style.apply( color_vals )
 
-  print( f"{MIKADO}TRAINLENEJ:     INFO: at top of color_vals(){RESET} ")   
+  print( f"{MIKADO}CLASSI:         INFO: at top of color_vals(){RESET} ")   
   """
   Color dataframe using values
   """

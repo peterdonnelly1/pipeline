@@ -128,18 +128,18 @@ def main( args ):
 
 
   if DEBUG>0:
-    print ( f"\nTRAINLENEJ:     INFO:     torch         version =  {ASPARAGUS}{torch.__version__}{RESET}"      )
-    print ( f"TRAINLENEJ:     INFO:     torchvision   version =  {ASPARAGUS}{torchvision.__version__}{RESET}"  )
-    print ( f"TRAINLENEJ:     INFO:     scipy         version =  {ASPARAGUS}{scipy.version.version}{RESET}"    )
-    print ( f"TRAINLENEJ:     INFO:     sklearn       version =  {ASPARAGUS}{sklearn.__version__}{RESET}"      )
-    print ( f"TRAINLENEJ:     INFO:     matplotlib    version =  {ASPARAGUS}{matplotlib.__version__}{RESET}"   ) 
-    print ( f"TRAINLENEJ:     INFO:     seaborn       version =  {ASPARAGUS}{sns.__version__}{RESET}"          )
-    print ( f"TRAINLENEJ:     INFO:     pandas        version =  {ASPARAGUS}{pd.__version__}{RESET}"           )  
-    print ( f"TRAINLENEJ:     INFO:     numpy         version =  {ASPARAGUS}{np.version.version}{RESET}"       )  
-    print ( f"TRAINLENEJ:     INFO:     cuda toolkit  version =  {ASPARAGUS}{torch.version.cuda}{RESET}\n"     )  
-    print ( f"TRAINLENEJ:     INFO:     cuda          version via os command = \n{ASPARAGUS}",    flush=True   )  
+    print ( f"\nCLASSI:         INFO:     torch         version =  {ASPARAGUS}{torch.__version__}{RESET}"      )
+    print ( f"CLASSI:         INFO:     torchvision   version =  {ASPARAGUS}{torchvision.__version__}{RESET}"  )
+    print ( f"CLASSI:         INFO:     scipy         version =  {ASPARAGUS}{scipy.version.version}{RESET}"    )
+    print ( f"CLASSI:         INFO:     sklearn       version =  {ASPARAGUS}{sklearn.__version__}{RESET}"      )
+    print ( f"CLASSI:         INFO:     matplotlib    version =  {ASPARAGUS}{matplotlib.__version__}{RESET}"   ) 
+    print ( f"CLASSI:         INFO:     seaborn       version =  {ASPARAGUS}{sns.__version__}{RESET}"          )
+    print ( f"CLASSI:         INFO:     pandas        version =  {ASPARAGUS}{pd.__version__}{RESET}"           )  
+    print ( f"CLASSI:         INFO:     numpy         version =  {ASPARAGUS}{np.version.version}{RESET}"       )  
+    print ( f"CLASSI:         INFO:     cuda toolkit  version =  {ASPARAGUS}{torch.version.cuda}{RESET}\n"     )  
+    print ( f"CLASSI:         INFO:     cuda          version via os command = \n{ASPARAGUS}",    flush=True   )  
     print ( f"{os.system('/usr/local/cuda/bin/nvcc --version')}{RESET}\n",                    flush=True    )
-    print ( f"TRAINLENEJ:     INFO:     cuda driver  version via os command = \n{ASPARAGUS}",    flush=True    )  
+    print ( f"CLASSI:         INFO:     cuda driver  version via os command = \n{ASPARAGUS}",    flush=True    )  
     print ( f"{os.system('cat /proc/driver/nvidia/version')}{RESET}\n",                       flush=True    )
 
     
@@ -407,25 +407,25 @@ g_xform={WHITE}{ORANGE        if not args.gene_data_transform[0]=='NONE' else MA
 
   if just_test!='True':
     if  not (  ( args.cases=='ALL_ELIGIBLE_CASES' ) | ( args.cases=='UNIMODE_CASE' ) | ( args.cases=='MULTIMODE____TEST' )  ):
-      print( f"{RED}TRAINLENEJ:     FATAL: in training mode ('{CYAN}just_test=='False'{RESET}{RED})', user option  {CYAN}-c ('cases')  {RESET}{RED} = '{CYAN}{args.cases}{RESET}{RED}' is not supported{RESET}" )
-      print( f"{RED}TRAINLENEJ:     FATAL: explanation:  in training mode the following options are supported: '{CYAN}ALL_ELGIBLE_CASES{RESET}{RED}', '{CYAN}MULTIMODE____TEST{RESET}{RED}', '{CYAN}UNIMODE_CASE{RESET}{RED}'" )
-      print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
+      print( f"{RED}CLASSI:         FATAL: in training mode ('{CYAN}just_test=='False'{RESET}{RED})', user option  {CYAN}-c ('cases')  {RESET}{RED} = '{CYAN}{args.cases}{RESET}{RED}' is not supported{RESET}" )
+      print( f"{RED}CLASSI:         FATAL: explanation:  in training mode the following options are supported: '{CYAN}ALL_ELGIBLE_CASES{RESET}{RED}', '{CYAN}MULTIMODE____TEST{RESET}{RED}', '{CYAN}UNIMODE_CASE{RESET}{RED}'" )
+      print( f"{RED}CLASSI:         FATAL: ... halting now{RESET}" )
       sys.exit(0)
   else:
     if pretrain=='True':
-      print( f"{RED}TRAINLENEJ:     FATAL: the {CYAN}PRETRAIN{RESET}{RED} option ({CYAN}-p True{RESET}{RED}) corresponding to python argument {CYAN}--pretrain True{RESET}{RED} is not supported in test mode (because it makes no sense){RESET}", flush=True)
-      print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
+      print( f"{RED}CLASSI:         FATAL: the {CYAN}PRETRAIN{RESET}{RED} option ({CYAN}-p True{RESET}{RED}) corresponding to python argument {CYAN}--pretrain True{RESET}{RED} is not supported in test mode (because it makes no sense){RESET}", flush=True)
+      print( f"{RED}CLASSI:         FATAL: ... halting now{RESET}" )
       sys.exit(0)
     if args.cases=='ALL_ELIGIBLE_CASES':
       pass
-      # ~ print( f"{RED}TRAINLENEJ:     FATAL: in test mode '{RESET}{CYAN}-c ALL_ELIGIBLE_CASES{RESET}{RED}' is not supported{RESET}" )
-      # ~ print( f"{RED}TRAINLENEJ:     FATAL:   explanation:  The '{CYAN}CASES{RESET}{RED}' subset '{CYAN}ALL_ELIGIBLE_CASES{RESET}{RED}' includes examples used to train the model that is about to be deployed. Therefore, the results would be meaningless{RESET}" )
-      # ~ print( f"{RED}TRAINLENEJ:     FATAL:   explanation:  in test mode the following case subsets are supported: ''{CYAN}UNIMODE_CASE{RESET}{RED}', '{CYAN}MULTIMODE____TEST{RESET}{RED}'" )
-      # ~ print( f"{RED}TRAINLENEJ:     FATAL:   ... halting now{RESET}" )
+      # ~ print( f"{RED}CLASSI:         FATAL: in test mode '{RESET}{CYAN}-c ALL_ELIGIBLE_CASES{RESET}{RED}' is not supported{RESET}" )
+      # ~ print( f"{RED}CLASSI:         FATAL:   explanation:  The '{CYAN}CASES{RESET}{RED}' subset '{CYAN}ALL_ELIGIBLE_CASES{RESET}{RED}' includes examples used to train the model that is about to be deployed. Therefore, the results would be meaningless{RESET}" )
+      # ~ print( f"{RED}CLASSI:         FATAL:   explanation:  in test mode the following case subsets are supported: ''{CYAN}UNIMODE_CASE{RESET}{RED}', '{CYAN}MULTIMODE____TEST{RESET}{RED}'" )
+      # ~ print( f"{RED}CLASSI:         FATAL:   ... halting now{RESET}" )
       # ~ sys.exit(0)
     elif  not ( ( args.cases=='UNIMODE_CASE' ) | ( args.cases=='MULTIMODE____TEST' )  ):
-      print( f"{RED}TRAINLENEJ:     FATAL: unknown case subset: {CYAN}-c ('cases')  {RESET}{RED} = '{CYAN}{args.cases}{RESET}{RED}'{RESET}" )
-      print( f"{RED}TRAINLENEJ:     FATAL:   ... halting now{RESET}" )
+      print( f"{RED}CLASSI:         FATAL: unknown case subset: {CYAN}-c ('cases')  {RESET}{RED} = '{CYAN}{args.cases}{RESET}{RED}'{RESET}" )
+      print( f"{RED}CLASSI:         FATAL:   ... halting now{RESET}" )
       sys.exit(0)
 
   if just_test=='True':
@@ -569,7 +569,7 @@ f"\
 
   if (just_test=='True') & (input_mode=='image') & (multimode!= 'image_rna') & (use_autoencoder_output!="True"):   
     if not ( batch_size == int( math.sqrt(batch_size) + 0.5) ** 2 ):
-      print( f"\033[31;1mTRAINLENEJ:     FATAL:  in test mode 'batch_size' (currently {batch_size}) must be a perfect square (4, 9, 16, 25 ...) to permit selection of a a 2D contiguous patch. Halting [2989].\033[m" )
+      print( f"\033[31;1mCLASSI:         FATAL:  in test mode 'batch_size' (currently {batch_size}) must be a perfect square (4, 9, 16, 25 ...) to permit selection of a a 2D contiguous patch. Halting [2989].\033[m" )
       sys.exit(0)      
 
   
@@ -815,7 +815,7 @@ f"\
       n_genes = generate( args, n_samples, highest_class_number, multimode_case_count, unimode_case_count, not_a_multimode_case_count, not_a_multimode_case____image_count, not_a_multimode_case____image_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform  ) 
 
       if DEBUG>0:
-        print( f"TRAINLENEJ:     INFO:     n_genes (calculated)           = {MIKADO}{n_genes}{RESET}"     )
+        print( f"CLASSI:         INFO:     n_genes (calculated)           = {MIKADO}{n_genes}{RESET}"     )
             
       if DEBUG>5:
         print( f"PRE_COMPRESS:     INFO:n_samples               = {BLEU}{n_samples}{RESET}"       )
@@ -869,12 +869,12 @@ f"\
     #(5) Load network
 
     if DEBUG>1:                                                                                                       
-      print( f"TRAINLENEJ:     INFO: {BOLD}5 about to load network {MIKADO}{nn_type_img}{RESET}{BOLD} and {MIKADO}{nn_type_rna}{RESET}" )  
+      print( f"CLASSI:         INFO: {BOLD}5 about to load network {MIKADO}{nn_type_img}{RESET}{BOLD} and {MIKADO}{nn_type_rna}{RESET}" )  
                                      
     model = PRECOMPRESS( args, gpu, rank, cfg, input_mode, nn_type_img, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters  )   
 
     if DEBUG>1: 
-      print( f"TRAINLENEJ:     INFO:    {ITALICS}network loaded{RESET}" )
+      print( f"CLASSI:         INFO:    {ITALICS}network loaded{RESET}" )
 
 
     # (6) maybe load existing models (two cases where this happens: (i) test mode and (ii) pretrain option selected )
@@ -888,14 +888,14 @@ f"\
 
       try:
         model.load_state_dict(torch.load(fqn_pretrained))
-        print( f"{ORANGE}TRAINLENEJ:     INFO:  pre-trained model named {CYAN}{fqn_pretrained}{RESET}{ORANGE} exists.  Will load and use pre-trained model{RESET}", flush=True)
+        print( f"{ORANGE}CLASSI:         INFO:  pre-trained model named {CYAN}{fqn_pretrained}{RESET}{ORANGE} exists.  Will load and use pre-trained model{RESET}", flush=True)
       except Exception as e:
-        print( f"{ORANGE}TRAINLENEJ:     INFO:  no pre-trained model named {CYAN}{fqn_pretrained}{RESET}{ORANGE} exists.  Will attempt to used model {CYAN}{fqn_image}{RESET}{ORANGE}, if it exists{RESET}", flush=True)
+        print( f"{ORANGE}CLASSI:         INFO:  no pre-trained model named {CYAN}{fqn_pretrained}{RESET}{ORANGE} exists.  Will attempt to used model {CYAN}{fqn_image}{RESET}{ORANGE}, if it exists{RESET}", flush=True)
         try:
           model.load_state_dict(torch.load(fqn_image))
-          print( f"{ORANGE}TRAINLENEJ:     INFO:  model named {CYAN}{fqn_image}{RESET}{ORANGE} exists.  Will load and use this network model as the starting point for training{RESET}", flush=True)
+          print( f"{ORANGE}CLASSI:         INFO:  model named {CYAN}{fqn_image}{RESET}{ORANGE} exists.  Will load and use this network model as the starting point for training{RESET}", flush=True)
         except Exception as e:
-          print( f"{RED}TRAINLENEJ:     INFO:  mo model named {CYAN}{fqn_image}{RESET}{RED} exists.  Cannot continue{RESET}", flush=True)
+          print( f"{RED}CLASSI:         INFO:  mo model named {CYAN}{fqn_image}{RESET}{RED} exists.  Cannot continue{RESET}", flush=True)
           time.sleep(4)
           sys.exit(0)
 

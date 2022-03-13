@@ -546,12 +546,12 @@ def generate( args, n_samples, batch_size, highest_class_number, multimode_case_
                 if DEBUG>0:
                   print ( f"{label[0]},", end=', ', flush=True )
               except Exception as e:
-                print ( f"{RED}TRAINLENEJ:       FATAL: '{e}'{RESET}" )
-                print ( f"{PALE_RED}TRAINLENEJ:       FATAL:  explanation: expected a numpy file named {MAGENTA}{args.class_numpy_file_name}{RESET}{PALE_RED} containing the current sample's class number in this location: {MAGENTA}{label_file}{RESET}{PALE_RED}{RESET}" )
-                print ( f"{PALE_RED}TRAINLENEJ:       FATAL:  remedy 1: probably no {MAGENTA}{args.class_numpy_file_name}{RESET}{PALE_RED} files exist. Use '{CYAN}./do_all.sh rna <cancer code> {RESET}{PALE_RED}' to regenerate them{RESET}" ) 
-                print ( f"{PALE_RED}TRAINLENEJ:       FATAL:  remedy 2: if that doesn't work, use '{CYAN}./do_all.sh rna <cancer code> regen{RESET}{PALE_RED}'. This will regenerate every file in the working dataset from respective sources (note: it can take a long time so try remedy one first){RESET}" )                                    
-                print ( f"{PALE_RED}TRAINLENEJ:       FATAL:  remedy 3: this error can also occur if the user specified mapping file (currently filename: '{CYAN}{args.mapping_file_name}{RESET}{PALE_RED}') doesn't exist in '{CYAN}{args.global_data}{RESET}{PALE_RED}', because without it, no class files can be generated'{RESET}" )                                    
-                print ( f"{PALE_RED}TRAINLENEJ:       FATAL:  cannot continue - halting now{RESET}" )                 
+                print ( f"{RED}CLASSI:           FATAL: '{e}'{RESET}" )
+                print ( f"{PALE_RED}CLASSI:           FATAL:  explanation: expected a numpy file named {MAGENTA}{args.class_numpy_file_name}{RESET}{PALE_RED} containing the current sample's class number in this location: {MAGENTA}{label_file}{RESET}{PALE_RED}{RESET}" )
+                print ( f"{PALE_RED}CLASSI:           FATAL:  remedy 1: probably no {MAGENTA}{args.class_numpy_file_name}{RESET}{PALE_RED} files exist. Use '{CYAN}./do_all.sh rna <cancer code> {RESET}{PALE_RED}' to regenerate them{RESET}" ) 
+                print ( f"{PALE_RED}CLASSI:           FATAL:  remedy 2: if that doesn't work, use '{CYAN}./do_all.sh rna <cancer code> regen{RESET}{PALE_RED}'. This will regenerate every file in the working dataset from respective sources (note: it can take a long time so try remedy one first){RESET}" )                                    
+                print ( f"{PALE_RED}CLASSI:           FATAL:  remedy 3: this error can also occur if the user specified mapping file (currently filename: '{CYAN}{args.mapping_file_name}{RESET}{PALE_RED}') doesn't exist in '{CYAN}{args.global_data}{RESET}{PALE_RED}', because without it, no class files can be generated'{RESET}" )                                    
+                print ( f"{PALE_RED}CLASSI:           FATAL:  cannot continue - halting now{RESET}" )                 
                 sys.exit(0)     
                 
               rna_labels_new[global_image_rna_files_processed] =  label[0]
@@ -1035,12 +1035,12 @@ def generate_rna_dataset ( args, target, cases_required, highest_class_number, c
                   print ( f"{PALE_ORANGE}GENERATE:       INFO:    {MAGENTA}{os.path.basename(os.path.normpath(dir_path))}{RESET}{PALE_ORANGE} \r\033[66C <<< this case's class label (subtype) ({MIKADO}{label[0]}{RESET}{PALE_ORANGE}) is greater than {CYAN}HIGHEST_CLASS_NUMBER{RESET}{PALE_ORANGE} ({MIKADO}{highest_class_number}{RESET}{PALE_ORANGE}) so it won't be used {RESET}")
                 break
             except Exception as e:
-              print ( f"{RED}TRAINLENEJ:     FATAL: '{e}'{RESET}" )
-              print ( f"{RED}TRAINLENEJ:     FATAL:  explanation: expected a numpy file named {MAGENTA}{args.class_numpy_file_name}{RESET}{RED} containing the current sample's class number in this location: {MAGENTA}{label_file}{RESET}{RED}{RESET}" )
-              print ( f"{RED}TRAINLENEJ:     FATAL:  remedy 1: probably no {MAGENTA}{args.class_numpy_file_name}{RESET}{RED} files exist. Use '{CYAN}./do_all.sh rna <cancer code> {RESET}{RED}' to regenerate them{RESET}" ) 
-              print ( f"{RED}TRAINLENEJ:     FATAL:  remedy 2: if that doesn't work, use '{CYAN}./do_all.sh rna <cancer code> regen{RESET}{RED}'. This will regenerate every file in the working dataset from respective sources (note: it can take a long time so try remedy one first){RESET}" )                                    
-              print ( f"{RED}TRAINLENEJ:     FATAL:  remedy 3: this error can also occur if the user specified mapping file (currently filename: '{CYAN}{args.mapping_file_name}{RESET}{RED}') doesn't exist in '{CYAN}{args.global_data}{RESET}{RED}', because without it, no class files can be generated'{RESET}" )                                    
-              print ( f"{RED}TRAINLENEJ:     FATAL:  cannot continue - halting now{RESET}" )                 
+              print ( f"{RED}CLASSI:         FATAL: '{e}'{RESET}" )
+              print ( f"{RED}CLASSI:         FATAL:  explanation: expected a numpy file named {MAGENTA}{args.class_numpy_file_name}{RESET}{RED} containing the current sample's class number in this location: {MAGENTA}{label_file}{RESET}{RED}{RESET}" )
+              print ( f"{RED}CLASSI:         FATAL:  remedy 1: probably no {MAGENTA}{args.class_numpy_file_name}{RESET}{RED} files exist. Use '{CYAN}./do_all.sh rna <cancer code> {RESET}{RED}' to regenerate them{RESET}" ) 
+              print ( f"{RED}CLASSI:         FATAL:  remedy 2: if that doesn't work, use '{CYAN}./do_all.sh rna <cancer code> regen{RESET}{RED}'. This will regenerate every file in the working dataset from respective sources (note: it can take a long time so try remedy one first){RESET}" )                                    
+              print ( f"{RED}CLASSI:         FATAL:  remedy 3: this error can also occur if the user specified mapping file (currently filename: '{CYAN}{args.mapping_file_name}{RESET}{RED}') doesn't exist in '{CYAN}{args.global_data}{RESET}{RED}', because without it, no class files can be generated'{RESET}" )                                    
+              print ( f"{RED}CLASSI:         FATAL:  cannot continue - halting now{RESET}" )                 
               sys.exit(0)     
 
 

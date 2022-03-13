@@ -39,25 +39,25 @@ ENCODER_ACTIVATION="none"                                                       
 
 if [[ ${NN_MODE} == "dlbcl_image" ]]; then
   cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_dlbcl_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py 
-  MAIN_APPLICATION_NAM=trainlenet5.py                                                                    # use trainlenet5.py   for any "images + classes" dataset
-  DATASET_HELPER_APPLICATION_NAME=data.dlbcl_image.generate_image                                        # use generate_images  for any "images + classes" dataset OTHER THAN MNIST
+  MAIN_APPLICATION_NAME=trainlenet5.py                                                                      # use trainlenet5.py   for any "images + classes" dataset
+  DATASET_HELPER_APPLICATION_NAME=data.dlbcl_image.generate_image                                          # use generate_images  for any "images + classes" dataset OTHER THAN MNIST
 elif [[ ${NN_MODE} == "pre_compress" ]]; then
   cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_pre_compress_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py
-  MAIN_APPLICATION_NAM=pre_compress.py                                                                   # use pre_compress.py   for pre-compressing a dataset
-  DATASET_HELPER_APPLICATION_NAME=data.pre_compress.generate                                             # use pre_compress      for pre-compressing a dataset
+  MAIN_APPLICATION_NAME=pre_compress.py                                                                     # use pre_compress.py   for pre-compressing a dataset
+  DATASET_HELPER_APPLICATION_NAME=data.pre_compress.generate                                               # use pre_compress      for pre-compressing a dataset
 elif [[ ${NN_MODE} == "analyse_data" ]]; then
   cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_analyse_data_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py
-  A_D_USE_CUPY='True'                                                                                    # whether or not to use cupy (instead of numpy). cupy is roughly the equivalent of numpy, but supports NVIDIA GPUs
-  MAIN_APPLICATION_NAM=analyse_data.py                               
+  A_D_USE_CUPY='True'                                                                                      # whether or not to use cupy (instead of numpy). cupy is roughly the equivalent of numpy, but supports NVIDIA GPUs
+  MAIN_APPLICATION_NAME=analyse_data.py                               
   DATASET_HELPER_APPLICATION_NAME=data.pre_compress.generate           
 elif [[ ${NN_MODE} == "gtexv6" ]]; then  
   cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_gtexv6_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py
 elif [[ ${NN_MODE} == "mnist" ]]; then  
   SKIP_GENERATION="True"
   cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_mnist_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py
-  MAIN_APPLICATION_NAM=traindpcca.py                                                                     # use traindpcca.py    for the  MNIST "digit images + synthetic classes" dataset  
+  MAIN_APPLICATION_NAME=traindpcca.py                                                                       # use traindpcca.py    for the  MNIST "digit images + synthetic classes" dataset  
   #~ DATASET_HELPER_APPLICATION_NAME=data.mnist.generate                                                   # use generate_mnist   for the  MNIST "digit images + synthetic classes" dataset
-  DATASET_HELPER_APPLICATION_NAME=data.dlbcl_image.generate_image                                        # use generate_images  for any "images + classes" dataset OTHER THAN MNIST    
+  DATASET_HELPER_APPLICATION_NAME=data.dlbcl_image.generate_image                                          # use generate_images  for any "images + classes" dataset OTHER THAN MNIST    
 else
   echo "VARIABLES.SH: INFO: no such NN_MODE as '${NN_MODE}'"
   exit

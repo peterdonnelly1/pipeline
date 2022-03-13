@@ -470,14 +470,14 @@ def save_samples(directory, model, test_loader, cfg, epoch):
         labels   = []
 
         if DEBUG>8:
-          print( f"TRAINLENEJ:     INFO:   number if test indices (tiles) to sample and save = {CYAN}{n}{RESET}" )          
-          print( f"TRAINLENEJ:     INFO:   directory to save them to                         = {CYAN}{directory}{RESET}" )                     
-          print( f"TRAINLENEJ:     INFO:   cfg.N_CHANNELS                                    = {CYAN}{cfg.N_CHANNELS}{RESET}" )
-          print( f"TRAINLENEJ:     INFO:   cfg.IMG_SIZE                                      = {CYAN}{cfg.IMG_SIZE}{RESET}" )
-          print( f"TRAINLENEJ:     INFO:   cfg.N_GENES                                       = {CYAN}{cfg.N_GENES}{RESET}" )
+          print( f"CLASSI:         INFO:   number if test indices (tiles) to sample and save = {CYAN}{n}{RESET}" )          
+          print( f"CLASSI:         INFO:   directory to save them to                         = {CYAN}{directory}{RESET}" )                     
+          print( f"CLASSI:         INFO:   cfg.N_CHANNELS                                    = {CYAN}{cfg.N_CHANNELS}{RESET}" )
+          print( f"CLASSI:         INFO:   cfg.IMG_SIZE                                      = {CYAN}{cfg.IMG_SIZE}{RESET}" )
+          print( f"CLASSI:         INFO:   cfg.N_GENES                                       = {CYAN}{cfg.N_GENES}{RESET}" )
 
         if DEBUG>8:
-          print( f"TRAINLENEJ:     INFO:   indices of {MAGENTA}{n}{RESET} random test tiles = {MAGENTA}MAGENTA below {RESET}", flush=True )     
+          print( f"CLASSI:         INFO:   indices of {MAGENTA}{n}{RESET} random test tiles = {MAGENTA}MAGENTA below {RESET}", flush=True )     
 
         for i in range(n):
 
@@ -490,14 +490,14 @@ def save_samples(directory, model, test_loader, cfg, epoch):
                 np.set_printoptions(edgeitems=200)
                 np.set_printoptions(linewidth=260)
                 np.set_printoptions(formatter={'int': lambda x: "{:>10.2f}".format(x)})
-                print( f"TRAINLENEJ:     INFO:   type(x1)  = {YELLOW}{type(x1)}{RESET}", flush=True )
-                print( f"TRAINLENEJ:     INFO:   np.shape (x1) = {YELLOW}{np.shape(x1.cpu().numpy())}{RESET}", flush=True )                
-                #print( f"TRAINLENEJ:     INFO:   tile (x1) = {YELLOW}{x1.cpu().numpy()}{RESET}", flush=True )
+                print( f"CLASSI:         INFO:   type(x1)  = {YELLOW}{type(x1)}{RESET}", flush=True )
+                print( f"CLASSI:         INFO:   np.shape (x1) = {YELLOW}{np.shape(x1.cpu().numpy())}{RESET}", flush=True )                
+                #print( f"CLASSI:         INFO:   tile (x1) = {YELLOW}{x1.cpu().numpy()}{RESET}", flush=True )
                 
                 
             if DEBUG>9:
               if i==0:
-                print( f"TRAINLENEJ:     INFO:   gene (x2) = {YELLOW}{x2.cpu().numpy()}{RESET}", flush=True)   
+                print( f"CLASSI:         INFO:   gene (x2) = {YELLOW}{x2.cpu().numpy()}{RESET}", flush=True)   
 
 
             label    = test_loader.dataset.labels[j]
@@ -507,7 +507,7 @@ def save_samples(directory, model, test_loader, cfg, epoch):
             
             if DEBUG>8:
               if i==0:
-                print( f"TRAINLENEJ:     INFO:   tile (x1) = {BLUE}{images_batch[i].cpu().numpy()}{RESET}", flush=True )            
+                print( f"CLASSI:         INFO:   tile (x1) = {BLUE}{images_batch[i].cpu().numpy()}{RESET}", flush=True )            
 
             if DEBUG>8:
               print( f"{MAGENTA}{j}, {RESET}", end="", flush=True)                                                      # 
@@ -516,7 +516,7 @@ def save_samples(directory, model, test_loader, cfg, epoch):
         print("")
         
         if DEBUG>9:
-          print( f"TRAINLENEJ:     INFO:   labels = {CYAN}{labels}{RESET}", flush=True )          
+          print( f"CLASSI:         INFO:   labels = {CYAN}{labels}{RESET}", flush=True )          
         
         images_batch = images_batch.to(device)
         genes_batch  = genes_batch .to(device)
