@@ -1195,7 +1195,7 @@ def generate_rna_dataset ( args, target, cases_required, highest_class_number, c
   if cov_threshold>0:
     
     if DEBUG>0:          
-      print ( f"GENERATE:       INFO:{BOLD}{ORANGE}  positive values of {CYAN}COV_THRESHOLD{RESET}{BOLD}{ORANGE} and {BOLD}{CYAN}CUTOFF_PERCENTILE{RESET}{BOLD}{ORANGE} have been set. Removing genes where {BOLD}{MIKADO}{cutoff_percentile}{RESET}{BOLD}{ORANGE}% of cases have FPKM-UQ values less than < {BOLD}{MIKADO}{cov_threshold}{RESET}{BOLD}{ORANGE} for all samples{RESET}") 
+      print ( f"GENERATE:       INFO:{BOLD}{ORANGE}  positive values of {CYAN}COV_THRESHOLD{RESET}{BOLD}{ORANGE} and {BOLD}{CYAN}CUTOFF_PERCENTILE{RESET}{BOLD}{ORANGE} have been set. Removing genes where {BOLD}{MIKADO}{cutoff_percentile}{RESET}{BOLD}{ORANGE}% of cases have FPKM-UQ values less than <{BOLD}{MIKADO}{cov_threshold}{RESET}{BOLD}{ORANGE} for all samples{RESET}") 
     if DEBUG>0:
       print( f"GENERATE:       INFO:    {BLEU}genes_new.shape (before)      = {MIKADO}{genes_new.shape}{RESET}",    flush=True )
     if DEBUG>99:        
