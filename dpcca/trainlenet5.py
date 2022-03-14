@@ -2908,8 +2908,8 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
           loss_genes        = loss_function( y2_hat, rna_labels )
           loss_genes_value  = loss_genes.item()                                                            # use .item() to extract value from tensor: don't create multiple new tensors each of which will have gradient histories
 
-        l1_loss          = l1_penalty(model, args.l1_coef)
-        # ~ l1_loss           = 0
+        # ~ l1_loss          = l1_penalty(model, args.l1_coef)
+        l1_loss           = 0
 
         if (args.input_mode=='image'):
           total_loss        = loss_images_value + l1_loss
