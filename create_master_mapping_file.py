@@ -148,7 +148,7 @@ RESTORE_CURSOR='\033[u'
 FAIL    = 0
 SUCCESS = 1
 
-DEBUG   = 10
+DEBUG   = 1
 
 
 # ------------------------------------------------------------------------------
@@ -294,7 +294,7 @@ def main(args):
         if os.path.isdir(matches[j]):
           
           if DEBUG>0:
-            print ( f"CREATE_MASTER:     DEBUG:     {GREEN}directory {CYAN}{matches[j]}{RESET}{GREEN} exist{RESET}" )
+            print ( f"CREATE_MASTER:     DEBUG:     {GREEN}directory {CYAN}{matches[j]}{RESET}{GREEN} exists{RESET}" )
 
           if DEBUG>9:        
             print ( f"CREATE_MASTER:     DEBUG:     directory {CYAN}{matches[j]}{RESET}" )                      
@@ -309,7 +309,7 @@ def main(args):
               clone_found_file_of_interest     +=1
               global_found_file_of_interest    +=1
     
-              if DEBUG>0:
+              if DEBUG>9:
                 print( f"CREATE_MASTER:     DEBUG:       this dir:                  slide file  {CARRIBEAN_GREEN}{f}{RESET}" )
                 print( f"CREATE_MASTER:     DEBUG:       this dir:                  slide files {CARRIBEAN_GREEN}{found_slide_file}{RESET}" )
               if DEBUG>11:
@@ -325,7 +325,7 @@ def main(args):
               clone_found_file_of_interest     +=1
               global_found_file_of_interest    +=1
 
-              if DEBUG>0:
+              if DEBUG>9:
                 print( f"CREATE_MASTER:     DEBUG:       this dir:          found rna-seq file  {BITTER_SWEET}{f}{RESET}" )
                 print( f"CREATE_MASTER:     DEBUG:       this dir:          found rna-seq files {BITTER_SWEET}{found_rna_seq_file}{RESET}" )
               if DEBUG>11:
@@ -352,7 +352,7 @@ def main(args):
                 print( f"CREATE_MASTER:     DEBUG:       {MAGENTA}no files of interest in directory {CYAN}{matches[j]}{RESET}" )  
               
     
-          if DEBUG>0:
+          if DEBUG>9:
             print( f"CREATE_MASTER:     DEBUG:       clone dirs:        found   slide files {CARRIBEAN_GREEN}{clone_found_slide_file}{RESET}" )
             print( f"CREATE_MASTER:     DEBUG:       clone dirs:        found rna-seq files {BITTER_SWEET}{clone_found_rna_seq_file}{RESET}" )
           if DEBUG>11:
@@ -360,6 +360,8 @@ def main(args):
           
         else:
           print ( f"CREATE_MASTER:     DEBUG:     {RED}directory {CYAN}{matches[j]}{RESET}{RED} does not exist{RESET}" )
+
+
 
 
   # (2) Cross check files in dataset against the applicable master spreadsheet
@@ -371,12 +373,12 @@ def main(args):
   for _, d, f in os.walk( class_specific_dataset_files_location ):
     actual_dirs+=1
     for el in enumerate ( d ):
-      if DEBUG>99:
+      if DEBUG>9:
         print ( f"{PINK}length is {MIKADO}{len(case)}{RESET} {BLEU} and directory is {CYAN}{el[1]}{RESET}" )
       case_found_in_spreadsheet=False
       
-      if re.search( "_[0-9]", el[1]):
-        if DEBUG>1:
+      if re.search( "_[0-9]", el[1]):                                                                      # cases which have more than one RNA-seq example.  These have the extension _1 _2 etc.  Only cater for up to _9 coz never seen one with more than two
+        if DEBUG>9:
           print ( (el[1])[:-2] )
       else:
         pass
@@ -397,7 +399,7 @@ def main(args):
         else:
           pass
       else:
-        print ( f"{RED}directory (case) '{CYAN}{el[1]}{RESET}'{RED} (or its root if applicable) is not listed the master spreadsheet\r\033[225C <<<<< anomoly{RESET}" )
+        print ( f"{RED}directory (case) '{CYAN}{el[1]}{RESET}'{RED}\r\033[62C(or its root directory if applicable) is not listed the master spreadsheet\r\033[225C <<<<< anomoly{RESET}" )
     
     
   # (3) show some useful stats

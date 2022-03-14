@@ -58,8 +58,8 @@ MAX_CONSECUTIVE_LOSSES=5                                                 # train
 ZOOM_OUT_MAGS="1"                                                        # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_PROB
 ZOOM_OUT_PROB="1"                                                        # image only. Chosen for magnification according to these probabilities, which must add up to 1
 
-COLOUR_MAP="tab10"                                                       # see 'https://matplotlib.org/3.3.3/tutorials/colors/colormaps.html' for allowed COLOUR_MAPs (Pastel1', 'Pastel2', 'Accent', 'Dark2' etc.)
-CLASS_COLOURS="darkorange       lime      olive      firebrick     dodgerblue    tomato     limegreen         darkcyan"
+COLOUR_MAP="tab20"                                                       # see 'https://matplotlib.org/3.3.3/tutorials/colors/colormaps.html' for allowed COLOUR_MAPs (Pastel1', 'Pastel2', 'Accent', 'Dark2' etc.)
+CLASS_COLOURS="darkorange       lime      olive      firebrick     dodgerblue    tomato     limegreen   darkcyan  royalblue  lightseagreen    blueviolet  orangered  turquoise darkorchid"
 
 
 AE_ADD_NOISE="False"
@@ -127,8 +127,8 @@ LOW_EXPRESSION_THRESHOLD=0.5                                                    
 RANDOM_GENES_COUNT=0
 
                                                                                                            # It's better to filter with the combination of CUTOFF_PERCENTILE/COV_THRESHOLD than wth COV_UQ_THRESHOLD because the former is computationally much faster
-COV_THRESHOLD="0"                                                                                            # (standard deviations) only genes with at least CUTOFF_PERCENTILE % across samples having rna-exp values above COV_THRESHOLD will go into the analysis. Set to zero if you want to include every gene
-CUTOFF_PERCENTILE=90                                                                                       # Lower CUTOFF_PERCENTILE -> more genes will be filtered out and higher COV_THRESHOLD ->  more genes will be filtered out. Set low if you only want genes with very high correlation values
+COV_THRESHOLD="0"                                                                                          # Only genes with at least CUTOFF_PERCENTILE % across samples having rna-exp values above COV_THRESHOLD will go into the analysis. Set to zero if you want to include every gene
+CUTOFF_PERCENTILE=100                                                                                      # Lower CUTOFF_PERCENTILE -> more genes will be filtered out and higher COV_THRESHOLD ->  more genes will be filtered out. Set low if you only want genes with very high correlation values
 
 DO_COVARIANCE="False"                                                                                      # used by "analyse_data". Should covariance  calculation be performed ? (analyse_data mode only)
 DO_CORRELATION="False"                                                                                     # used by "analyse_data". Should correlation calculation be performed ? (analyse_data mode only)    

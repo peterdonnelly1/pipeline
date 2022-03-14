@@ -1256,15 +1256,15 @@ def generate_rna_dataset ( args, target, cases_required, highest_class_number, c
   # (i) convert the genes component to torch format
   
   # If we are in autoencoder mode, ignore the 'genes_new' we just created; and instead substitute the saved feature file (result of a previous autoencoder run)
-  if use_autoencoder_output=='True':                                                                     # then we already have them in Torch format, in the ae feature file, which we now load
+  if use_autoencoder_output=='True':                                                                       # then we already have them in Torch format, in the ae feature file, which we now load
 
     fpath = '%s/ae_output_features.pt' % args.log_dir
     if DEBUG>0:
       print( f"{BRIGHT_GREEN}GENERATE:       INFO:  about to load autoencoder generated feature file from {MAGENTA}{fpath}{RESET}", flush=True )
     try:
       genes_new    = torch.load( fpath )
-      genes_new    = genes_new.unsqueeze(1)                                                              # add a dimension to make it compatible with existing (non-autoencoder) code
-      n_genes      = genes_new.shape[2]                                                                  # i.e. number of gene-like-features from the dimensionality reduced output of the autoencoder
+      genes_new    = genes_new.unsqueeze(1)                                                                # add a dimension to make it compatible with existing (non-autoencoder) code
+      n_genes      = genes_new.shape[2]                                                                    # i.e. number of gene-like-features from the dimensionality reduced output of the autoencoder
       args.n_genes = n_genes
       if DEBUG>0:
         print ( f"GENERATE:       INFO:    genes_new.size         = {MIKADO}{genes_new.size()}{RESET}"      ) 
@@ -1288,10 +1288,10 @@ def generate_rna_dataset ( args, target, cases_required, highest_class_number, c
   
   # (ii) convert the other component to torch format
   
-  gnames_new   = torch.Tensor( gnames_new  ) 
+  gnames_new      = torch.Tensor( gnames_new  ) 
   gnames_new.requires_grad_( False )        
-  rna_labels_new  = torch.Tensor(rna_labels_new).long()                                                  # have to explicity cast as long as torch. Tensor does not automatically pick up type from the numpy array. 
-  rna_labels_new.requires_grad_( False )                                                                 # labels aren't allowed gradients
+  rna_labels_new  = torch.Tensor(rna_labels_new).long()                                                    # have to explicity cast as long as torch. Tensor does not automatically pick up type from the numpy array. 
+  rna_labels_new.requires_grad_( False )                                                                   # labels aren't allowed gradients
 
 
   # (iii) sanity check.  This situation can arise, and it will crash torch
@@ -1299,8 +1299,8 @@ def generate_rna_dataset ( args, target, cases_required, highest_class_number, c
   if  ( args.just_test!='True' ):
     
     if DEBUG>0:  
-      print ( f"GENERATE:       INFO:  SANITY CHECK: number of unique classes represented in the cases              = {MIKADO}{len(np.unique(rna_labels_new))}{RESET}"                                                            ) 
-      print ( f"GENERATE:       INFO:  SANITY CHECK: classes in {CYAN}CLASS_NAMES{RESET}                                         = {CYAN}{args.long_class_names}{RESET}"          ) 
+      print ( f"GENERATE:       INFO:  SANITY CHECK: number of unique classes represented in the cases                       = {MIKADO}{len(np.unique(rna_labels_new))}{RESET}"                                                            ) 
+      print ( f"GENERATE:       INFO:  SANITY CHECK: classes in {CYAN}CLASS_NAMES{RESET}                                                  = \n{CYAN}{args.long_class_names}{RESET}"          ) 
     
     if len(np.unique(rna_labels_new)) != len(args.class_names):
       print ( f"{RED}GENERATE:       FATAL: Different number of cancer types represented in the cases to be trained than in the configuration parameter {CYAN}CLASS_NAMES{RESET}{RESET}"                                          ) 

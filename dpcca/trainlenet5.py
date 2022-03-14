@@ -4932,22 +4932,22 @@ def box_plot_by_subtype( args, n_genes, start_time, parameters, writer, total_ru
   # (1) Check and maybe print some values. Not otherwise used.
   
   confusion_matrix                =  np.sum  ( run_level_classifications_matrix_acc, axis=0 )                                                          # sum across all examples to produce job level confusion matrix (2D array)
-  if DEBUG>8:
+  if DEBUG>0:
     print( f'CLASSI:           INFO:    confusion_matrix (confusion matrix)       = \n{CARRIBEAN_GREEN}{confusion_matrix}{RESET}')
     print( f'CLASSI:           INFO:    total predictions (check sum)             =  {MIKADO}{np.sum(confusion_matrix)}{RESET}')
 
   total_predictions_by_subtype    = np.squeeze( ( np.expand_dims(np.sum  (  confusion_matrix, axis=0 ), axis=0 )  )  )                                 # sum down the columns to produces a row vector representing total subtypes
-  if DEBUG>8:    
+  if DEBUG>0:    
     print( f'CLASSI:           INFO:    total_predictions_by_subtype              = {CARRIBEAN_GREEN}{total_predictions_by_subtype}{RESET}') 
     print( f'CLASSI:           INFO:    total predictions (check sum)             =  {MIKADO}{np.sum(total_predictions_by_subtype)}{RESET}')   
 
   correct_predictions_by_subtype  =  np.squeeze( np.array( [ confusion_matrix[i,i] for i in  range( 0 , len( confusion_matrix ))  ] )   )              # pick out diagonal elements (= number correct) to produce a row vector
-  if DEBUG>8:
+  if DEBUG>0:
     print( f'CLASSI:           INFO:    correct_predictions_by_subtype            = {CARRIBEAN_GREEN}{correct_predictions_by_subtype}{RESET}')                                
     print( f'CLASSI:           INFO:    total corects (check sum)                 =  {MIKADO}{np.sum(correct_predictions_by_subtype)}{RESET}')
 
   pct_correct_predictions_by_subtype  =  correct_predictions_by_subtype / total_predictions_by_subtype
-  if DEBUG>8:
+  if DEBUG>0:
     np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:.1f}   "} )          
     print( f'CLASSI:           INFO:    pct_correct_predictions_by_subtype        = {CARRIBEAN_GREEN}{100*pct_correct_predictions_by_subtype}{RESET}')
 
@@ -4957,20 +4957,20 @@ def box_plot_by_subtype( args, n_genes, start_time, parameters, writer, total_ru
   
   all_predictions_plane           =   np.sum(  run_level_classifications_matrix_acc, axis=1 )[ 0:total_runs_in_job, : ]                                # sum elements (= numbers correct) from 3D volume down columns (axis 1) to produce a matrix
   total_predictions_made          =   np.sum(all_predictions_plane) 
-  if DEBUG>8:
+  if DEBUG>0:
     np.set_printoptions(formatter={ 'int' : lambda x: f"   {CARRIBEAN_GREEN}{x:>6d}   "} )    
     print( f'CLASSI:           INFO:    total predictions (one row per run)       = \n{CARRIBEAN_GREEN}{all_predictions_plane}{RESET}')
     print( f'CLASSI:           INFO:    total predictions (check sum)             =  {MIKADO}{total_predictions_made}{RESET}')
 
   
   expected_IFF_random_preds      =   100* total_predictions_by_subtype / total_predictions_made                 # what we'd expect if the classifications were entirely random
-  if DEBUG>8:
+  if DEBUG>0:
     np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:.1f}   "} )    
     print( f"CLASSI:           INFO:    expected correct if random class'n        = {CARRIBEAN_GREEN}{expected_IFF_random_preds}{RESET}")
 
 
   correct_predictions_plane       =   np.transpose( np.array( [ run_level_classifications_matrix_acc[:,i,i] for i in  range( 0 , run_level_classifications_matrix_acc.shape[1] ) ]  )  ) [ 0:total_runs_in_job, : ]      # pick out diagonal elements (= numbers correct) from 3D volume  to produce a matrix
-  if DEBUG>8 :
+  if DEBUG>0 :
     np.set_printoptions(formatter={ 'int' : lambda x: f"   {CARRIBEAN_GREEN}{x:>6d}   "} )          
     print( f'CLASSI:           INFO:    correct predictions (one row per run)     = \n{CARRIBEAN_GREEN}{correct_predictions_plane}{RESET}')
     print( f'CLASSI:           INFO:    total corects (check sum)                 = {MIKADO}{np.sum(correct_predictions_plane)}{RESET}')
@@ -4982,24 +4982,24 @@ def box_plot_by_subtype( args, n_genes, start_time, parameters, writer, total_ru
   pct_correct_predictions_plane   =   pct_correct_predictions_plane[~np.isnan(pct_correct_predictions_plane).any(axis=1), :]           # delete any rows which contain a NaN because they will spoil the box plot
   num_rows_with_nan               =   pct_correct_predictions_plane.shape[0] - pct_correct_predictions_plane.shape[0]
   
-  if DEBUG>8 :
+  if DEBUG>0 :
     np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:.1f}   "} )          
     print( f'CLASSI:           INFO:    pct correct predictions (one row per run) = \n{CARRIBEAN_GREEN}{pct_correct_predictions_plane}{RESET}')
     print( f'CLASSI:           INFO:    number of rows with NaN = {CARRIBEAN_GREEN}{num_rows_with_nan}{RESET}')
   
   median_pct_correct_predictions_by_subtype  =  np.median ( pct_correct_predictions_plane, axis=0 )
-  if DEBUG>8:
+  if DEBUG>0:
     np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:.1f}   "} )          
     print( f'CLASSI:           INFO:    median_pct_correct_predictions_by_subtype  = {CARRIBEAN_GREEN}{median_pct_correct_predictions_by_subtype}{RESET}')
     
   
   best_subtype_median      =  0 if np.around( np.max ( median_pct_correct_predictions_by_subtype ) ).astype(int) < 1 else np.around( np.max ( median_pct_correct_predictions_by_subtype ) ).astype(int)
-  if DEBUG>8:
+  if DEBUG>0:
     print( f'CLASSI:           INFO:    best subtype median                        = {CARRIBEAN_GREEN}{best_subtype_median}{RESET}') 
 
 
   npy_class_names = np.transpose(np.expand_dims( np.array(args.class_names), axis=0 ) )
-  if DEBUG>8:
+  if DEBUG>0:
     print( f'CLASSI:           INFO:    npy_class_names.shape                     = {CARRIBEAN_GREEN}{npy_class_names.shape}{RESET}')
     print( f'CLASSI:           INFO:    npy_class_names                           = \n{MIKADO}{npy_class_names}{RESET}')
   
@@ -5029,11 +5029,11 @@ def box_plot_by_subtype( args, n_genes, start_time, parameters, writer, total_ru
   now        = datetime.datetime.now()
   supertitle = f"{now:%d-%m-%y %H:%M}  Classification of {args.cancer_type_long} Subtypes   ({total_runs_in_job} experiment runs in this box plot.  Total run time: {round(minutes):02d}:{round(seconds):02d})"
   if args.input_mode=='image':
-    title = f"{args.cases[0:25]} ({parameters['n_samples'][0]})  highest class:{args.highest_class_number[0]}  ---  neural network:{parameters['nn_type_image'][0]}  optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}  batch size:{parameters['batch_size'][0]}   \
+    title = f"{args.cases[0:25]} ({parameters['n_samples'][0]})  highest class:{args.highest_class_number[0]} NN:{parameters['nn_type_image'][0]}  optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}  batch size:{parameters['batch_size'][0]}   \
 held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]:<9.6f}  tiles:{parameters['n_tiles'][0]}  tile_size:{parameters['tile_size'][0]}  batch_size:{parameters['batch_size'][0]}  (mags:{mags} probs:{prob})"
   else:
     title = f"{args.cases[0:25]} ({parameters['n_samples'][0]})  {args.rna_genes_tranche} n_genes:{n_genes})   (highest class:{args.highest_class_number[0]})  FPKM-UQ threshold cutoff: >{parameters['cutoff_percentile'][0]}%/<{parameters['cov_threshold'][0]} \
--- neural network:{parameters['nn_type_rna'][0]} optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}  batch size:{parameters['batch_size'][0]}   held-out:{int(100*parameters['pct_test'][0])}%  \
+NN:{parameters['nn_type_rna'][0]} optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}  batch size:{parameters['batch_size'][0]}   held-out:{int(100*parameters['pct_test'][0])}%  \
 lr:{parameters['lr'][0]:<9.6f}  hidden:{parameters['hidden_layer_neurons'][0]}  xform:{parameters['gene_data_transform'][0]}  dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topology}"
 
 
@@ -5045,13 +5045,35 @@ lr:{parameters['lr'][0]:<9.6f}  hidden:{parameters['hidden_layer_neurons'][0]}  
 
   c_m = f"plt.cm.{eval('args.colour_map')}"                                                                # the 'eval' is so that the user input string will be treated as a variable
   subtype_colors = [ eval(c_m)(i) for i in range(len(args.class_names))]                                   # makes an array of colours by calling the user defined colour map (which is a function, not a variable)  
+
+  labels  = args.class_names
+
+  if len(labels) < 5:
+    font_big = 20
+    font_med = 18
+    font_sml = 16
+    text_1="total predictions="
+    text_2="total correct="
+    text_3="median correct all runs="    
+    text_4="expected for random"
+  else:
+    font_big = 18
+    font_med = 7
+    font_sml = 7
+    text_1="preds="
+    text_2="correct="    
+    text_3="median="    
+    text_4="random"
+
+  
+
   
   fig, ax       = plt.subplots( figsize=( figure_width, figure_height ), constrained_layout=True )
 
   # ~ plt.xticks( rotation=90 )
-  plt.ylabel('subtypes correctly predicted (%)', weight='bold', fontsize=20   )
+  plt.ylabel('subtypes correctly predicted (%)', weight='bold', fontsize=font_big   )
   plt.yticks(range(0, 100, 10))
-  fig.suptitle  ( supertitle, color='dimgray', weight='bold',  fontsize=18     ) 
+  fig.suptitle  ( supertitle, color='dimgray', weight='bold',  fontsize=16     ) 
   ax.set_title  ( title,      color='dimgray',                 fontsize=10     )  
   ax.set        ( ylim =(0, 100) )
   ax.xaxis.grid ( True, linestyle='dashed', color='lightgrey'  )
@@ -5063,11 +5085,12 @@ lr:{parameters['lr'][0]:<9.6f}  hidden:{parameters['hidden_layer_neurons'][0]}  
   # ~ flier_props = dict(marker="o", markersize=17)
   # ~ box_plot = plt.boxplot(pct_correct_predictions_plane, notch=True, whiskerprops=line_props, boxprops=bbox_props, flierprops=flier_props)
   
-  labels  = args.class_names
+    
+    
   bp      = plt.boxplot( pct_correct_predictions_plane, labels=labels, vert=True, patch_artist=True, showfliers=True,  medianprops=dict(color="black", alpha=0.7) )
 
   ax.text( x=.55, y=97,  s=f"Total predictions made {np.sum(all_predictions_plane):,}, of which correct: {np.sum(correct_predictions_plane):,} ({100*np.sum(correct_predictions_plane)/np.sum(all_predictions_plane):.1f}%)",  horizontalalignment='left', color='dimgray', fontsize=16) 
-  plt.xticks( fontsize=20 )
+  plt.xticks( fontsize=font_med )
   plt.yticks( fontsize=20 )
 
   totals            = total_predictions_by_subtype
@@ -5094,13 +5117,12 @@ lr:{parameters['lr'][0]:<9.6f}  hidden:{parameters['hidden_layer_neurons'][0]}  
     median   = median_pct_correct_predictions_by_subtype[xtick-1]
     random   = expected_IFF_random_preds[xtick-1]
     
-    ax.text( x=xtick, y=0.75,       s=f"total predictions={total:,}",                     horizontalalignment='center',  color='dimgray',    fontsize=15  ) 
-    ax.text( x=xtick, y=3.5,        s=f"total correct ={correct:,} ({percent:2.1f}%)",    horizontalalignment='center',  color='dimgray',    fontsize=15  )     
-    ax.text( x=xtick, y=6,          s=f"median correct all runs={median:2.1f}%",         horizontalalignment='center',  color='dimgray',    fontsize=15  )    
-    ax.text( x=xtick, y=random+0.5, s=f"expected for random",                             horizontalalignment='center',  color='lightcoral', fontsize=14  )    
-    plt.plot( [xtick-0.27, xtick+0.27], [random, random],                              linewidth=1,     linestyle="--",   color='lightcoral'               )
-
-
+    ax.text( x=xtick, y=0.75,       s=f"{text_1}{total:,}",                        horizontalalignment='center',  color='dimgray',    fontsize=font_sml  ) 
+    ax.text( x=xtick, y=3.5,        s=f"{text_2}{correct:,} ({percent:2.1f}%)",    horizontalalignment='center',  color='dimgray',    fontsize=font_sml  )     
+    ax.text( x=xtick, y=6,          s=f"{text_3}{median:2.1f}%",                   horizontalalignment='center',  color='dimgray',    fontsize=font_sml  )    
+    ax.text( x=xtick, y=random+0.5, s=f"{text_4}",                                 horizontalalignment='center',  color='lightcoral', fontsize=font_sml  )    
+    plt.plot( [xtick-0.27, xtick+0.27], [random, random],                      linewidth=1,     linestyle="--",   color='lightcoral'                     )
+ 
 
     if (DEBUG>99):
       print ( f"CLASSI:           INFO:  xtick                                    = {MIKADO}{xtick}{RESET}",  flush=True )
@@ -5117,6 +5139,11 @@ lr:{parameters['lr'][0]:<9.6f}  hidden:{parameters['hidden_layer_neurons'][0]}  
   plt.close()
 
 
+
+
+
+
+
   # Render landscape version of box plot
 
   figure_width  = 30
@@ -5124,12 +5151,12 @@ lr:{parameters['lr'][0]:<9.6f}  hidden:{parameters['hidden_layer_neurons'][0]}  
 
   c_m = f"plt.cm.{eval('args.colour_map')}"                                                                # the 'eval' is so that the user input string will be treated as a variable
   subtype_colors = [ eval(c_m)(i) for i in range(len(args.class_names))]                                   # makes an array of colours by calling the user defined colour map (which is a function, not a variable)  
-  
+        
   fig, ax       = plt.subplots( figsize=( figure_width, figure_height ), constrained_layout=False )
 
   plt.xlabel('percentage correctly predicted', fontsize=12)
   plt.yticks( rotation=90 )
-  plt.xticks(range(0, 100, 10))
+  plt.xticks(  range( 0, 100, 10)  )
   ax.set_title  ( title,      color='dimgray',                fontsize=9   )
   fig.suptitle  ( supertitle, color='dimgray', weight='bold', fontsize=12  )    
   ax.set        ( xlim =(0, 100) )
@@ -5138,7 +5165,7 @@ lr:{parameters['lr'][0]:<9.6f}  hidden:{parameters['hidden_layer_neurons'][0]}  
 
   
   labels  = args.class_names
-  bp      = plt.boxplot( pct_correct_predictions_plane, labels=labels, vert=False, patch_artist=True, showfliers=True, medianprops=dict(color="black", alpha=0.7) )
+  bp      = plt.boxplot( pct_correct_predictions_plane, labels=labels, vert=False,  patch_artist=True,  showfliers=True,  medianprops=dict(color="black", alpha=0.7) )
 
   ax.text( x=0, y=.1,  s=f"Total predictions made {np.sum(all_predictions_plane):,}; of which correct: {np.sum(correct_predictions_plane):,} ({100*np.sum(correct_predictions_plane)/np.sum(all_predictions_plane):.1f}%)",  horizontalalignment='left', color='dimgray', fontsize=14) 
 
@@ -5398,7 +5425,7 @@ if __name__ == '__main__':
   p.add_argument('--class_names',                                       nargs="*",  type=str,   default='NONE'                             )                 
   p.add_argument('--long_class_names',                                  nargs="+",  type=str,   default='NONE'                             ) 
   p.add_argument('--class_colours',                                     nargs="*"                                                          )                 
-  p.add_argument('--colour_map',                                                    type=str,   default='tab10'                            )    
+  p.add_argument('--colour_map',                                                    type=str,   default='tab20'                            )    
   p.add_argument('--target_tile_coords',                                nargs=2,    type=int,   default=[2000,2000]                        )                 
   p.add_argument('--zoom_out_prob',                                     nargs="*",  type=float,                                            )                 
   p.add_argument('--zoom_out_mags',                                     nargs="*",  type=int,                                              )                 
