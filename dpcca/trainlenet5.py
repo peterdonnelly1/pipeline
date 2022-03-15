@@ -1605,7 +1605,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
   \r\033[49Closs_images={train_loss_images_sum_ave:5.2f}\
   \r\033[96Cl1_loss={train_l1_loss_sum_ave:5.2f}\
   \r\033[120CBATCH AVE OVER EPOCH={PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{train_total_loss_sum_ave:9.4f}{DULL_WHITE}\
-  \r\033[246Cminimum loss: {train_lowest_total_loss_observed:>6.2f} at epoch {train_lowest_total_loss_observed_epoch:<2d}"
+  \r\033[250Cmin loss: {train_lowest_total_loss_observed:>6.2f} at epoch {train_lowest_total_loss_observed_epoch:<2d}"
   , end=''  )
             elif ( input_mode=='rna' ):
               print ( f"\
@@ -1614,7 +1614,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
   \r\033[73Closs_rna={train_loss_genes_sum_ave:5.2f}\
   \r\033[96Cl1_loss={train_l1_loss_sum_ave:5.2f}\
   \r\033[120CBATCH AVE OVER EPOCH={PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{train_total_loss_sum_ave:9.4f}{DULL_WHITE}\
-  \r\033[246Cminimum loss: {train_lowest_total_loss_observed:>6.2f} at epoch {train_lowest_total_loss_observed_epoch:<2d}"
+  \r\033[250Cmin loss: {train_lowest_total_loss_observed:>6.2f} at epoch {train_lowest_total_loss_observed_epoch:<2d}"
   , end=''  )
   
   
