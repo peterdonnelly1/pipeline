@@ -3374,7 +3374,7 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
   = {MAGENTA if global_pct>=90 else PALE_GREEN if global_pct>=80 else ORANGE if global_pct>=70 else GOLD if global_pct>=60 else WHITE if global_pct>=50 else MAGENTA}{global_pct:>3.0f}%{RESET} )" )
 
 
-      if n_classes<10
+      if args.class_names<10:
         np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>1d}{RESET}"})
       else:
         np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>02d}{RESET}"})
