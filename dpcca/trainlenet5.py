@@ -3387,9 +3387,9 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
         print (  f"truth = {CLEAR_LINE}{labs}",  flush=True   )
         print (  f"preds = {CLEAR_LINE}{preds}", flush=True   )
         if len(args.class_names)<10:
-          np.set_printoptions({'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>1d}{RESET}"}) 
+          np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>1d}{RESET}"}) 
         else:
-           np.set_printoptions({'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>02d}{RESET}"}) 
+           np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>2d}{RESET}"}) 
         print (  f"delta = {CLEAR}{delta}", flush=True  )
       elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):   
         labs   = rna_labels_values         [0:number_to_display]
@@ -3402,9 +3402,9 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
         print (  f"truth = {CLEAR_LINE}{labs}",  flush=True   )
         print (  f"preds = {CLEAR_LINE}{preds}", flush=True   )
         if len(args.class_names)<10:
-          np.set_printoptions({'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>1d}{RESET}"}) 
+          np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>1d}{RESET}"}) 
         else:
-           np.set_printoptions({'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>02d}{RESET}"}) 
+           np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>2d}{RESET}"}) 
         print (  f"delta = {CLEAR_LINE}{delta}", flush=True  )
 
 
