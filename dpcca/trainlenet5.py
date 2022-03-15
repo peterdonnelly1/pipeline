@@ -2771,6 +2771,9 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
     
       total_correct, total_examples  = show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, job_level_classifications_matrix, level='job' )
     
+      np.set_printoptions(edgeitems=1000)
+      np.set_printoptions(linewidth=1000)
+      
       np.seterr( invalid='ignore', divide='ignore' )
       print( f"\n" )
       print( f'CLASSI:         INFO:    number of runs in this job                = {MIKADO}{total_runs_in_job}{RESET}')
@@ -2790,7 +2793,6 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
   
       if ( args.box_plot=='True' ) & ( total_runs_in_job>=args.minimum_job_size ):
           box_plot_by_subtype( args, n_genes, start_time, parameters, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc )
-
 
 
   # (H)  CLOSE UP AND END
@@ -4927,6 +4929,9 @@ def excludes( number_to_plot, plot_box_side_length ):
 # ------------------------------------------------------------------------------
 def box_plot_by_subtype( args, n_genes, start_time, parameters, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc ):
   
+  np.set_printoptions(edgeitems=1000)
+  np.set_printoptions(linewidth=1000)
+  
   # recall that the we are going to plot statistics FOR EACH run in the the box plots, so we have to use the run_level_classifications_matrix accumulator rather than the already summarised job_level_classifications_matrix
   
   # (1) Check and maybe print some values. Not otherwise used.
@@ -4936,20 +4941,28 @@ def box_plot_by_subtype( args, n_genes, start_time, parameters, writer, total_ru
     print( f'CLASSI:           INFO:    confusion_matrix (confusion matrix)       = \n{CARRIBEAN_GREEN}{confusion_matrix}{RESET}')
     print( f'CLASSI:           INFO:    total predictions (check sum)             =  {MIKADO}{np.sum(confusion_matrix)}{RESET}')
 
-  total_predictions_by_subtype    = np.squeeze( ( np.expand_dims(np.sum  (  confusion_matrix, axis=0 ), axis=0 )  )  )                                 # sum down the columns to produces a row vector representing total subtypes
+  total_predictions_by_subtype    = np.squeeze( ( np.expand_dims(np.sum  (  confusion_matrix, axis=0 ), axis=0 )  )  )                                 # sum down the columns to produces a row vector representing total subtypes  
+  
   if DEBUG>0:    
-    print( f'CLASSI:           INFO:    total_predictions_by_subtype              = {CARRIBEAN_GREEN}{total_predictions_by_subtype}{RESET}') 
+    print( f'CLASSI:           INFO:    total_predictions_by_subtype              = \n{CARRIBEAN_GREEN}{total_predictions_by_subtype}{RESET}') 
     print( f'CLASSI:           INFO:    total predictions (check sum)             =  {MIKADO}{np.sum(total_predictions_by_subtype)}{RESET}')   
+
+
+  total_predictions_by_subtype[total_predictions_by_subtype == 0] = 1                                                                                  # to avoid divide by zero for any subtype which has so few examples that no predictions at all were made
+
+  if DEBUG>0:    
+    print( f'CLASSI:           INFO:    total_predictions_by_subtype mod to change subtypes with zero predictions overall so that they will have exactly one prediction = \n{CARRIBEAN_GREEN}{total_predictions_by_subtype}{RESET}') 
+
 
   correct_predictions_by_subtype  =  np.squeeze( np.array( [ confusion_matrix[i,i] for i in  range( 0 , len( confusion_matrix ))  ] )   )              # pick out diagonal elements (= number correct) to produce a row vector
   if DEBUG>0:
-    print( f'CLASSI:           INFO:    correct_predictions_by_subtype            = {CARRIBEAN_GREEN}{correct_predictions_by_subtype}{RESET}')                                
+    print( f'CLASSI:           INFO:    correct_predictions_by_subtype            = \n{CARRIBEAN_GREEN}{correct_predictions_by_subtype}{RESET}')                                
     print( f'CLASSI:           INFO:    total corects (check sum)                 =  {MIKADO}{np.sum(correct_predictions_by_subtype)}{RESET}')
 
   pct_correct_predictions_by_subtype  =  correct_predictions_by_subtype / total_predictions_by_subtype
   if DEBUG>0:
     np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:.1f}   "} )          
-    print( f'CLASSI:           INFO:    pct_correct_predictions_by_subtype        = {CARRIBEAN_GREEN}{100*pct_correct_predictions_by_subtype}{RESET}')
+    print( f'CLASSI:           INFO:    pct_correct_predictions_by_subtype        = \n{CARRIBEAN_GREEN}{100*pct_correct_predictions_by_subtype}{RESET}')
 
     
 
@@ -4959,14 +4972,21 @@ def box_plot_by_subtype( args, n_genes, start_time, parameters, writer, total_ru
   total_predictions_made          =   np.sum(all_predictions_plane) 
   if DEBUG>0:
     np.set_printoptions(formatter={ 'int' : lambda x: f"   {CARRIBEAN_GREEN}{x:>6d}   "} )    
-    print( f'CLASSI:           INFO:    total predictions (one row per run)       = \n{CARRIBEAN_GREEN}{all_predictions_plane}{RESET}')
-    print( f'CLASSI:           INFO:    total predictions (check sum)             =  {MIKADO}{total_predictions_made}{RESET}')
+    print( f'CLASSI:           INFO:    all_predictions_plane (one row per run)       = \n{CARRIBEAN_GREEN}{all_predictions_plane}{RESET}')
+    print( f'CLASSI:           INFO:    all_predictions_plane (check sum)             =  {MIKADO}{total_predictions_made}{RESET}')
 
-  
+
+  all_predictions_plane[all_predictions_plane == 0] = 1                                                                                  # to avoid divide by zero for any subtype which has so few examples that no predictions at all were made
+
+  if DEBUG>0:    
+    print( f'CLASSI:           INFO:    all_predictions_plane mod to change subtypes with zero predictions overall so that they will have exactly one prediction = \n{CARRIBEAN_GREEN}{all_predictions_plane}{RESET}') 
+
+
+
   expected_IFF_random_preds      =   100* total_predictions_by_subtype / total_predictions_made                 # what we'd expect if the classifications were entirely random
   if DEBUG>0:
     np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:.1f}   "} )    
-    print( f"CLASSI:           INFO:    expected correct if random class'n        = {CARRIBEAN_GREEN}{expected_IFF_random_preds}{RESET}")
+    print( f"CLASSI:           INFO:    expected correct if random class'n        = \n{CARRIBEAN_GREEN}{expected_IFF_random_preds}{RESET}")
 
 
   correct_predictions_plane       =   np.transpose( np.array( [ run_level_classifications_matrix_acc[:,i,i] for i in  range( 0 , run_level_classifications_matrix_acc.shape[1] ) ]  )  ) [ 0:total_runs_in_job, : ]      # pick out diagonal elements (= numbers correct) from 3D volume  to produce a matrix
@@ -4984,18 +5004,18 @@ def box_plot_by_subtype( args, n_genes, start_time, parameters, writer, total_ru
   
   if DEBUG>0 :
     np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:.1f}   "} )          
-    print( f'CLASSI:           INFO:    pct correct predictions (one row per run) = \n{CARRIBEAN_GREEN}{pct_correct_predictions_plane}{RESET}')
+    print( f'CLASSI:           INFO:    pct_correct_predictions_plane (one row per run) = \n{CARRIBEAN_GREEN}{pct_correct_predictions_plane}{RESET}')
     print( f'CLASSI:           INFO:    number of rows with NaN = {CARRIBEAN_GREEN}{num_rows_with_nan}{RESET}')
   
   median_pct_correct_predictions_by_subtype  =  np.median ( pct_correct_predictions_plane, axis=0 )
   if DEBUG>0:
     np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:.1f}   "} )          
-    print( f'CLASSI:           INFO:    median_pct_correct_predictions_by_subtype  = {CARRIBEAN_GREEN}{median_pct_correct_predictions_by_subtype}{RESET}')
+    print( f'CLASSI:           INFO:    median_pct_correct_predictions_by_subtype  = \n{CARRIBEAN_GREEN}{median_pct_correct_predictions_by_subtype}{RESET}')
     
   
   best_subtype_median      =  0 if np.around( np.max ( median_pct_correct_predictions_by_subtype ) ).astype(int) < 1 else np.around( np.max ( median_pct_correct_predictions_by_subtype ) ).astype(int)
   if DEBUG>0:
-    print( f'CLASSI:           INFO:    best subtype median                        = {CARRIBEAN_GREEN}{best_subtype_median}{RESET}') 
+    print( f'CLASSI:           INFO:    best subtype median                       = {CARRIBEAN_GREEN}{best_subtype_median}{RESET}') 
 
 
   npy_class_names = np.transpose(np.expand_dims( np.array(args.class_names), axis=0 ) )
@@ -5059,7 +5079,7 @@ lr:{parameters['lr'][0]:<9.6f}  hidden:{parameters['hidden_layer_neurons'][0]}  
   else:
     font_big = 18
     font_med = 7
-    font_sml = 7
+    font_sml = 6
     text_1="preds="
     text_2="correct="    
     text_3="median="    
@@ -5084,12 +5104,11 @@ lr:{parameters['lr'][0]:<9.6f}  hidden:{parameters['hidden_layer_neurons'][0]}  
   # ~ bbox_props  = dict(color="g", alpha=0.9, linestyle="dashdot")
   # ~ flier_props = dict(marker="o", markersize=17)
   # ~ box_plot = plt.boxplot(pct_correct_predictions_plane, notch=True, whiskerprops=line_props, boxprops=bbox_props, flierprops=flier_props)
-  
     
-    
+
   bp      = plt.boxplot( pct_correct_predictions_plane, labels=labels, vert=True, patch_artist=True, showfliers=True,  medianprops=dict(color="black", alpha=0.7) )
 
-  ax.text( x=.55, y=97,  s=f"Total predictions made {np.sum(all_predictions_plane):,}, of which correct: {np.sum(correct_predictions_plane):,} ({100*np.sum(correct_predictions_plane)/np.sum(all_predictions_plane):.1f}%)",  horizontalalignment='left', color='dimgray', fontsize=16) 
+  ax.text( x=.55, y=10,  s=f"Total predictions made {np.sum(all_predictions_plane):,}, of which correct: {np.sum(correct_predictions_plane):,} ({100*np.sum(correct_predictions_plane)/np.sum(all_predictions_plane):.1f}%)",  horizontalalignment='left', color='dimgray', fontsize=16) 
   plt.xticks( fontsize=font_med )
   plt.yticks( fontsize=20 )
 

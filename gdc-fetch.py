@@ -87,7 +87,7 @@ def main(args):
   output_dir       = args.output_dir
   base_dir         = args.base_dir
   uberlay          = args.uberlay
-  overlay          = args.overlay
+  infill           = args.infill
   case_filter      = args.case_filter 
   file_filter      = args.file_filter
   portal           = args.gdc_portal
@@ -101,7 +101,7 @@ def main(args):
 \n\033[31;1;4mc\033[m\033[1mlean up unwanted files or \
 \n\033[31;1;4mi\033[m\033[1mnfill.  Download new examples for existing cases only. Ignore cases which don't already exist locally\033[m or \
 \n\033[31;1;4mu\033[m\033[1mberlay Download new cases / examples\033[m or \
-\n\033[31;1;4md\033[m\033[1melete directory and start afresh?  \
+\n\033[31;1;4md\033[m\033[1melete directory if it exists and start afresh?  \
 \033[m".format(output_dir) )
   
     while True:
@@ -118,7 +118,7 @@ def main(args):
         uberlay="yes"
         break
       elif user_input=='i':
-        overlay="yes"
+        infill="yes"
         break
       elif user_input=='p':
         cleanup="yes"
@@ -144,11 +144,12 @@ def main(args):
 # STEP 1: RETRIEVE CASE UUIDs OF CASES WHICH MEET SEARCH CRITERIA PROVIDED TO THE GDC API
 ###########################################################################################################################################
 
-  xlay = "no"
-  if ( uberlay=="yes" ) | ( overlay=="yes" ):
-    xlay="yes"
+  xxxxlay = "no"
+  if ( uberlay=="yes" ) | ( infill=="yes" ):
+    xxxxlay="yes"
 
   if cleanup=="yes":
+    
     if DEBUG>0:
       print( f"GDC-FETCH:    about to promote all leaf files to their correct positions and delete all empty directories for output_dir = {MAGENTA}{output_dir}{RESET}" )
     
@@ -169,7 +170,7 @@ def main(args):
 
   cases_uuid_list = []
 
-  if overlay=="no":
+  if infill=="no":                                                                                         # so don't skip cases we already have
 
     if DEBUG>0:
       print( f"\nGDC-FETCH:  {BOLD} STEP 1:{RESET} about to retrieve case UUIDs of cases that meet the search criteria provided{RESET}" )
@@ -193,11 +194,8 @@ def main(args):
     try:
       response = requests.get( cases_endpt, params=params1 )
     except Exception as e:
-      print ( f"{RED}GDC-FETCH:   FATAL:  no Internet connection?{RED}{RESET}" )
-      print ( f"{RED}GDC-FETCH:   FATAL:  cannot continue - halting now{RESET}" )                 
+      print ( f"{RED}GDC-FETCH:   FATAL:  no internet connection? - cannot continue - halting now{RESET}" )                 
       sys.exit(0)
-      
-    
     
     for case_entry in json.loads( response.content.decode("utf-8")) ["data"]["hits"]:
         cases_uuid_list.append(case_entry["case_id"])
@@ -205,13 +203,13 @@ def main(args):
     if DEBUG>1:
       print( "GDC-FETCH:  response (should be a json struct of the fields we requested. We are only interested in 'case_id') = {:}\033[m".format( response.text ) )
 
-  else: # user selected 'overlay' mode. I.e. download additional files according to the filters, but only for cases we already have.
+  else:                                                                                                    # 'infill' mode. I.e. download additional files; but ONLY for cases we already have. Build our own cases_uuid_list
     walker = os.walk( output_dir, topdown=True )
     for root, dirs, files in walker:
       for d in dirs:
         fqd = root + '/' + d
         if DEBUG>0:
-          print( "GDC-FETCH:        overlay mode: now examining: \033[1m{:}\033[m".format( fqd ) )
+          print( "GDC-FETCH:        infill mode: now examining: \033[1m{:}\033[m".format( fqd ) )
         if( os.path.isdir( fqd )):
           if fqd.endswith( already_have_suffix ):
             regex = r'.*\/(.*).*_all_downloaded_ok'
@@ -221,7 +219,7 @@ def main(args):
               print( "GDC-FETCH:        case from already_have_flag:      \033[1m{:}\033[m".format( case_uuid ) )          
             try:
               if DEBUG>0:
-                print( "GDC-FETCH:        overlay mode and found case:      \033[1m{:}\033[m".format( case_uuid ) )
+                print( "GDC-FETCH:        infill mode and found case:      \033[1m{:}\033[m".format( case_uuid ) )
               cases_uuid_list.append(  case_uuid   )
             except:
               pass
@@ -261,7 +259,8 @@ def main(args):
 ###########################################################################################################################################
   
   n=0
-  global_download_counter=0
+  global_download_counter = 0
+  already_have_counter    = 0
   
   for case in cases_uuid_list:
 
@@ -277,6 +276,7 @@ def main(args):
   
     if ( ( uberlay=="yes" ) & ( os.path.isdir( case_path )==True  )  ) :
         print( f"GDC-FETCH:      {RAND}skipping {MAGENTA}{case_path}{RAND} and moving to next case{RESET}" )
+        already_have_counter +=1
 
     else:
       if DEBUG>0:
@@ -290,7 +290,10 @@ def main(args):
       n+=1
   
       if DEBUG>0:
-        print( f"GDC-FETCH:    INFO:   case {MIKADO}{n}{RESET} of {MIKADO}{len( cases_uuid_list)}{RESET}"  )
+        if uberlay=="yes":
+          print( f"GDC-FETCH:    INFO:   case {MIKADO}{n}{RESET} of (at most) {MIKADO}{len( cases_uuid_list)-already_have_counter}{RESET} cases to be downloaded{RESET}"  )
+        else:
+          print( f"GDC-FETCH:    INFO:   case {MIKADO}{n}{RESET} of {MIKADO}{len( cases_uuid_list)}{RESET}"  )
   
       if DEBUG>0:
         print( f"GDC-FETCH:    INFO:   case id {MIKADO}{case}{RESET}" )
@@ -302,13 +305,13 @@ def main(args):
       if DEBUG>99:
         print( f"GDC-FETCH:    INFO:   'already_have_flag'  (would) =  {MAGENTA}{already_have_flag}{RESET}", flush=True )
   
-      if ( xlay=="no" ) & ( Path( already_have_flag ).is_dir()):
-       # xlay=="yes" & already_have_flag     set  - files for this case were already successfully downloaded, and user is not asking us to fetch further files for the case, so skip and move to the next case
+      if ( xxxxlay=="no" ) & ( Path( already_have_flag ).is_dir()):
+       # xxxxlay=="yes" & already_have_flag     set  - files for this case were already successfully downloaded, and user is not asking us to fetch further files for the case, so skip and move to the next case
           print( f"GDC-FETCH:    INFO:   files already exist for case {RAND}{case}{RESET}" )
   
-       # xlay=="no"  & already_have_flag not set  - download dir may or may not exist. Either: first ever download of this case, else user selected 'continue' or 'delete'
-       # xlay=="yes" & already_have_flag not set  - download dir MUST exist (else xlay option wouldn't have been offered). User explicitly specificed xlay, but might also be first download of this case, or broken download or or else user selected 'xlay'
-       # xlay=="yes" & already_have_flag     set  - download dir MUST exist (else xlay option wouldn't have been offered). User explicitly specificed xlay, so there should be NEW files to get. Normal scenario for 'xlay' option.
+       # xxxxlay=="no"  & already_have_flag not set  - download dir may or may not exist. Either: first ever download of this case, else user selected 'continue' or 'delete'
+       # xxxxlay=="yes" & already_have_flag not set  - download dir MUST exist (else xxxxlay option wouldn't have been offered). User explicitly specificed xxxxlay, but might also be first download of this case, or broken download or or else user selected 'xxxxlay'
+       # xxxxlay=="yes" & already_have_flag     set  - download dir MUST exist (else xxxxlay option wouldn't have been offered). User explicitly specificed xxxxlay, so there should be NEW files to get. Normal scenario for 'xxxxlay' option.
   
       if uberlay=="yes":
   
@@ -325,9 +328,9 @@ def main(args):
   
       if already_have_svs_file == False:
   
-        if overlay=="yes":
+        if infill=="yes":
           if DEBUG>0:
-            print ("GDC-FETCH:                                                       \033[1m{:}!!! overlay mode\033[m".format ( RAND ) )
+            print ("GDC-FETCH:                                                       \033[1m{:}!!! infill mode\033[m".format ( RAND ) )
             
         if DEBUG>1:
           print( f"GDC-FETCH:    INFO:   {BOLD}2a: requesting file UUIDs for case                 {MAGENTA}{case}{RESET}", flush=True  )
@@ -338,7 +341,7 @@ def main(args):
           RESULT = FOUND
         
         if RESULT==FOUND:
-          RESULT, case_files = fetch_case_file_ids   ( RAND, DEBUG,                        case,                portal,  file_filter,  uberlay,  overlay, already_have_flag  )
+          RESULT, case_files = fetch_case_file_ids   ( RAND, DEBUG,                        case,                portal,  file_filter,  uberlay,  infill, already_have_flag  )
           if RESULT == SUCCESS:
             tarfile = download                       ( RAND, DEBUG, output_dir, case_path, case,  case_files,   portal                                                       )
             if tarfile != FAIL:
@@ -444,7 +447,7 @@ def validate_case_file ( DEBUG, case ):
 #====================================================================================================================================================
 # 2a FETCH CASE FILE IDs
 
-def fetch_case_file_ids( RAND, DEBUG, case, portal, file_filter, uberlay, overlay, already_have_flag ):
+def fetch_case_file_ids( RAND, DEBUG, case, portal, file_filter, uberlay, infill, already_have_flag ):
 
   if portal == "main":
     files_endpt = "https://api.gdc.cancer.gov/files"
@@ -486,8 +489,8 @@ def fetch_case_file_ids( RAND, DEBUG, case, portal, file_filter, uberlay, overla
     if DEBUG>9:
       print ( 'GDC-FETCH:          already_have_flag:                           \033[32;1m{:}\033[m'.format( already_have_flag )   )
 
-    if ( overlay=="yes" ) | ( uberlay=="yes" ) :
-      if Path( already_have_flag ).is_dir():	                                                           # uberlay or overlay mode and there are new files, so delete the already have flag to ensure integrity checking for this download	      
+    if ( infill=="yes" ) | ( uberlay=="yes" ) :
+      if Path( already_have_flag ).is_dir():	                                                           # uberlay or infill mode and there are new files, so delete the already have flag to ensure integrity checking for this download	      
         os.rmdir ( already_have_flag )
 
       if DEBUG>2:
@@ -919,7 +922,7 @@ if __name__ == '__main__':
   p.add_argument('--max_files',            type=int, default=10                                               )
   p.add_argument('--global_max_downloads', type=int, default=200                                              )
   p.add_argument('--uberlay',              type=str, default="no"                                             )
-  p.add_argument('--overlay',              type=str, default="no"                                             )
+  p.add_argument('--infill',              type=str, default="no"                                             )
   p.add_argument('--delete_compressed',    type=str, default="yes"                                            )
   p.add_argument('--cleanup',              type=str, default="no"                                             )
   p.add_argument('--validate',             type=str2bool, nargs='?', const=True, default=False, help="If true, only download cases that appear in the applicable xxx_mappping_file_MASTER file")

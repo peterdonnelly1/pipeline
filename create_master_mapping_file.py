@@ -294,10 +294,10 @@ def main(args):
         if os.path.isdir(matches[j]):
           
           if DEBUG>0:
-            print ( f"CREATE_MASTER:     DEBUG:     {GREEN}directory {CYAN}{matches[j]}{RESET}{GREEN} exists{RESET}" )
+            print ( f"CREATE_MASTER:     INFO:      {GREEN}directory {CYAN}{matches[j]}{RESET}{GREEN} exists{RESET}" )
 
           if DEBUG>9:        
-            print ( f"CREATE_MASTER:     DEBUG:     directory {CYAN}{matches[j]}{RESET}" )                      
+            print ( f"CREATE_MASTER:     INFO:      directory {CYAN}{matches[j]}{RESET}" )                      
           found_clone_directories+=1
           
           for f in os.listdir(matches[j]):                                                                 # for each clone directory
@@ -309,11 +309,10 @@ def main(args):
               clone_found_file_of_interest     +=1
               global_found_file_of_interest    +=1
     
-              if DEBUG>9:
-                print( f"CREATE_MASTER:     DEBUG:       this dir:                  slide file  {CARRIBEAN_GREEN}{f}{RESET}" )
-                print( f"CREATE_MASTER:     DEBUG:       this dir:                  slide files {CARRIBEAN_GREEN}{found_slide_file}{RESET}" )
+              if DEBUG>0:
+                print( f"CREATE_MASTER:     INFO:      in this dir:                  found slide file  {CARRIBEAN_GREEN}{f}{RESET}   number found = {CARRIBEAN_GREEN}{found_slide_file}{RESET}" )
               if DEBUG>11:
-                print( f"CREATE_MASTER:     DEBUG:       {CARRIBEAN_GREEN}{df.iloc[i, clone_found_slide_file]}{RESET}" )
+                print( f"CREATE_MASTER:     INFO:      {CARRIBEAN_GREEN}{df.iloc[i, clone_found_slide_file]}{RESET}" )
               
               df.iloc[i, image_column] = clone_found_slide_file
               
@@ -325,11 +324,10 @@ def main(args):
               clone_found_file_of_interest     +=1
               global_found_file_of_interest    +=1
 
-              if DEBUG>9:
-                print( f"CREATE_MASTER:     DEBUG:       this dir:          found rna-seq file  {BITTER_SWEET}{f}{RESET}" )
-                print( f"CREATE_MASTER:     DEBUG:       this dir:          found rna-seq files {BITTER_SWEET}{found_rna_seq_file}{RESET}" )
+              if DEBUG>0:
+                print( f"CREATE_MASTER:     INFO:      in this dir:          found rna-seq file  {BITTER_SWEET}{f}{RESET}   number found = {BITTER_SWEET}{found_rna_seq_file}{RESET}" )
               if DEBUG>11:
-                print( f"CREATE_MASTER:     DEBUG:       this dir: {BITTER_SWEET}{df.iloc[i, found_rna_seq_file]}{RESET}" )
+                print( f"CREATE_MASTER:     INFO:      in this dir: {BITTER_SWEET}{df.iloc[i, found_rna_seq_file]}{RESET}" )
               
               df.iloc[i, rna_seq_column] = clone_found_rna_seq_file          
               
@@ -340,26 +338,26 @@ def main(args):
             if found_slide_file>0 and found_rna_seq_file>0:
                matched_cases_count    +=1  
                if DEBUG>0:              
-                 print( f"CREATE_MASTER:     DEBUG:       {MAGENTA}matched files{RESET}" ) 
+                 print( f"CREATE_MASTER:     INFO:        {MAGENTA}matched files{RESET}" ) 
             if DEBUG>0:
               if found_slide_file>1:
-                print( f"CREATE_MASTER:     DEBUG:       {BLEU}multiple ({MIKADO}{found_slide_file}{RESET}) slide files exist in directory {CYAN}{matches[j]}{RESET}" ) 
+                print( f"CREATE_MASTER:     INFO:        {BLEU}multiple ({MIKADO}{found_slide_file}{RESET}) slide files exist in directory {CYAN}{matches[j]}{RESET}" ) 
             if DEBUG>0:
               if  found_rna_seq_file>1:
-                print( f"CREATE_MASTER:     DEBUG:       {ORANGE}multiple ({MIKADO}{found_rna_seq_file}{RESET}{ORANGE}) rna-seq files exist in directory {CYAN}{matches[j]}{RESET}" ) 
+                print( f"CREATE_MASTER:     INFO:        {ORANGE}multiple ({MIKADO}{found_rna_seq_file}{RESET}{ORANGE}) rna-seq files exist in directory {CYAN}{matches[j]}{RESET}" ) 
             if DEBUG>0:                       
               if found_file_of_interest==0:
-                print( f"CREATE_MASTER:     DEBUG:       {MAGENTA}no files of interest in directory {CYAN}{matches[j]}{RESET}" )  
+                print( f"CREATE_MASTER:     INFO:        {MAGENTA}no files of interest in directory {CYAN}{matches[j]}{RESET}" )  
               
     
           if DEBUG>9:
-            print( f"CREATE_MASTER:     DEBUG:       clone dirs:        found   slide files {CARRIBEAN_GREEN}{clone_found_slide_file}{RESET}" )
-            print( f"CREATE_MASTER:     DEBUG:       clone dirs:        found rna-seq files {BITTER_SWEET}{clone_found_rna_seq_file}{RESET}" )
+            print( f"CREATE_MASTER:     INFO:        clone dirs:        found   slide files {CARRIBEAN_GREEN}{clone_found_slide_file}{RESET}" )
+            print( f"CREATE_MASTER:     INFO:        clone dirs:        found rna-seq files {BITTER_SWEET}{clone_found_rna_seq_file}{RESET}" )
           if DEBUG>11:
-            print( f"CREATE_MASTER:     DEBUG:       clone dirs:        totals: {BITTER_SWEET}{df.iloc[i, clone_found_rna_seq_file]}{RESET}" )
+            print( f"CREATE_MASTER:     INFO:        clone dirs:        totals: {BITTER_SWEET}{df.iloc[i, clone_found_rna_seq_file]}{RESET}" )
           
         else:
-          print ( f"CREATE_MASTER:     DEBUG:     {RED}directory {CYAN}{matches[j]}{RESET}{RED} does not exist{RESET}" )
+          print ( f"CREATE_MASTER:     INFO:      {RED}directory {CYAN}{matches[j]}{RESET}{RED} does not exist{RESET}" )
 
 
 
@@ -368,7 +366,7 @@ def main(args):
   
   actual_dirs=-1
   if DEBUG>0:                                                                                       # so that we don't count the root directory, only subdirectories
-    print ( f"\nCREATE_MASTER:     INFO:    about to scan {CYAN}{class_specific_dataset_files_location}{RESET} to ensure all cases are listed in the '{MAGENTA}{cancer_class}{RESET}' master spreadsheet ('{CYAN}{master_spreadsheet}{RESET}'){RESET}" )
+    print ( f"\nCREATE_MASTER:     INFO:    about to scan {CYAN}{class_specific_dataset_files_location}{RESET} to ensure all cases stored locally are also listed in the '{MAGENTA}{cancer_class}{RESET}' clinical master spreadsheet ('{CYAN}{master_spreadsheet}{RESET}'){RESET}" )
 
   for _, d, f in os.walk( class_specific_dataset_files_location ):
     actual_dirs+=1
@@ -395,11 +393,11 @@ def main(args):
           
       if case_found_in_spreadsheet==True:
         if DEBUG>1:
-          print ( f"{GREEN}directory (case) '{CYAN}{el[1]}{RESET}'{GREEN} \r\033[55C (or its root if applicable) is listed the spreadsheet{RESET}" )
+          print ( f"{GREEN}directory (case) '{CYAN}{el[1]}{RESET}'{GREEN} \r\033[55C (or its root if applicable) is listed the applicable master clinical spreadsheet{RESET}" )
         else:
           pass
       else:
-        print ( f"{RED}directory (case) '{CYAN}{el[1]}{RESET}'{RED}\r\033[62C(or its root directory if applicable) is not listed the master spreadsheet\r\033[225C <<<<< anomoly{RESET}" )
+        print ( f"{RED}directory (case) '{CYAN}{el[1]}{RESET}'{RED}\r\033[62C(or its root if applicable) is not listed in master clinical spreadsheet\r\033[200C <<<<< anomoly, but no action will be taken{RESET}" )
     
     
   # (3) show some useful stats
