@@ -3374,27 +3374,37 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
   = {MAGENTA if global_pct>=90 else PALE_GREEN if global_pct>=80 else ORANGE if global_pct>=70 else GOLD if global_pct>=60 else WHITE if global_pct>=50 else MAGENTA}{global_pct:>3.0f}%{RESET} )" )
 
 
-      if args.class_names<10:
-        np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>1d}{RESET}"})
-      else:
-        np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>02d}{RESET}"})
+
         
       if args.input_mode=='image':   
         labs   = image_labels_values       [0:number_to_display] 
         preds  = y1_hat_values_max_indices [0:number_to_display]
         delta  = np.abs(preds - labs)
+        if len(args.class_names)<10:
+          np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>1d}{RESET}"})
+        else:
+          np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>02d}{RESET}"})
         print (  f"truth = {CLEAR_LINE}{labs}",  flush=True   )
-        print (  f"preds = {CLEAR_LINE}{preds}", flush=True  )
-        np.set_printoptions(CLEAR_LINE={'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>1d}{RESET}"})     
+        print (  f"preds = {CLEAR_LINE}{preds}", flush=True   )
+        if len(args.class_names)<10:
+          np.set_printoptions({'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>1d}{RESET}"}) 
+        else:
+           np.set_printoptions({'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>02d}{RESET}"}) 
         print (  f"delta = {CLEAR}{delta}", flush=True  )
       elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):   
         labs   = rna_labels_values         [0:number_to_display]
         preds  = y2_hat_values_max_indices [0:number_to_display]
         delta  = np.abs(preds - labs)
-        np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>1d}{RESET}"})
+        if len(args.class_names)<10:
+          np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>1d}{RESET}"})
+        else:
+          np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>02d}{RESET}"})
         print (  f"truth = {CLEAR_LINE}{labs}",  flush=True   )
-        print (  f"preds = {CLEAR_LINE}{preds}", flush=True  )
-        np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>1d}{RESET}"})     
+        print (  f"preds = {CLEAR_LINE}{preds}", flush=True   )
+        if len(args.class_names)<10:
+          np.set_printoptions({'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>1d}{RESET}"}) 
+        else:
+           np.set_printoptions({'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>02d}{RESET}"}) 
         print (  f"delta = {CLEAR_LINE}{delta}", flush=True  )
 
 
