@@ -3374,24 +3374,28 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
   = {MAGENTA if global_pct>=90 else PALE_GREEN if global_pct>=80 else ORANGE if global_pct>=70 else GOLD if global_pct>=60 else WHITE if global_pct>=50 else MAGENTA}{global_pct:>3.0f}%{RESET} )" )
 
 
+      if n_classes<10
+        np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>1d}{RESET}"})
+      else:
+        np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>02d}{RESET}"})
+        
       if args.input_mode=='image':   
         labs   = image_labels_values       [0:number_to_display] 
         preds  = y1_hat_values_max_indices [0:number_to_display]
         delta  = np.abs(preds - labs)
-        np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>1d}{RESET}"})
-        print (  f"truth = {labs}", flush=True   )
-        print (  f"preds = {preds}", flush=True  )
-        np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>1d}{RESET}"})     
-        print (  f"delta = {delta}", flush=True  )
+        print (  f"truth = {CLEAR_LINE}{labs}",  flush=True   )
+        print (  f"preds = {CLEAR_LINE}{preds}", flush=True  )
+        np.set_printoptions(CLEAR_LINE={'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>1d}{RESET}"})     
+        print (  f"delta = {CLEAR}{delta}", flush=True  )
       elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):   
         labs   = rna_labels_values         [0:number_to_display]
         preds  = y2_hat_values_max_indices [0:number_to_display]
         delta  = np.abs(preds - labs)
         np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>1d}{RESET}"})
-        print (  f"truth = {labs}", flush=True   )
-        print (  f"preds = {preds}", flush=True  )
+        print (  f"truth = {CLEAR_LINE}{labs}",  flush=True   )
+        print (  f"preds = {CLEAR_LINE}{preds}", flush=True  )
         np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>1d}{RESET}"})     
-        print (  f"delta = {delta}", flush=True  )
+        print (  f"delta = {CLEAR_LINE}{delta}", flush=True  )
 
 
 
@@ -3424,9 +3428,9 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
 
       pplog.log(f"epoch = {epoch}" )
       pplog.log(f"test(): truth/prediction for first {number_to_display} examples from the most recent test batch ( number correct this batch: {correct}/{batch_size} = {pct:>3.0f}%  )  ( number correct overall: {global_correct_prediction_count+correct}/{global_number_tested+batch_size} = {global_pct:>3.0f}% (number tested this run = epochs x test batches x batch size)" )
-      pplog.log(f"        truth = {labs}" )
-      pplog.log(f"        preds = {preds}")
-      pplog.log(f"        delta = {delta}") 
+      pplog.log(f"{CLEAR_LINE}        truth = {labs}" )
+      pplog.log(f"{CLEAR_LINE}        preds = {preds}")
+      pplog.log(f"{CLEAR_LINE}        delta = {delta}") 
  
 
     if args.input_mode=='image':   
@@ -5003,13 +5007,13 @@ def box_plot_by_subtype( args, n_genes, start_time, parameters, writer, total_ru
   num_rows_with_nan               =   pct_correct_predictions_plane.shape[0] - pct_correct_predictions_plane.shape[0]
   
   if DEBUG>0 :
-    np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:.1f}   "} )          
+    np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:6.1f}   "} )          
     print( f'CLASSI:           INFO:    pct_correct_predictions_plane (one row per run) = \n{CARRIBEAN_GREEN}{pct_correct_predictions_plane}{RESET}')
     print( f'CLASSI:           INFO:    number of rows with NaN = {CARRIBEAN_GREEN}{num_rows_with_nan}{RESET}')
   
   median_pct_correct_predictions_by_subtype  =  np.median ( pct_correct_predictions_plane, axis=0 )
   if DEBUG>0:
-    np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:.1f}   "} )          
+    np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:8.2f}   "} )          
     print( f'CLASSI:           INFO:    median_pct_correct_predictions_by_subtype  = \n{CARRIBEAN_GREEN}{median_pct_correct_predictions_by_subtype}{RESET}')
     
   
@@ -5072,6 +5076,9 @@ lr:{parameters['lr'][0]:<9.6f}  hidden:{parameters['hidden_layer_neurons'][0]}  
     font_big = 20
     font_med = 18
     font_sml = 16
+    base     = 0.75
+    gap_1    = 2.75
+    gap_2    = 2.5
     text_1="total predictions="
     text_2="total correct="
     text_3="median correct all runs="    
@@ -5080,35 +5087,34 @@ lr:{parameters['lr'][0]:<9.6f}  hidden:{parameters['hidden_layer_neurons'][0]}  
     font_big = 18
     font_med = 7
     font_sml = 6
+    base     = 0.75
+    gap_1    = 1.1
+    gap_2    = 1.1
     text_1="preds="
-    text_2="correct="    
-    text_3="median="    
+    text_2="right="
+    text_3="med="    
     text_4="random"
 
-  
 
-  
   fig, ax       = plt.subplots( figsize=( figure_width, figure_height ), constrained_layout=True )
 
-  # ~ plt.xticks( rotation=90 )
-  plt.ylabel('subtypes correctly predicted (%)', weight='bold', fontsize=font_big   )
-  plt.yticks(range(0, 100, 10))
-  fig.suptitle  ( supertitle, color='dimgray', weight='bold',  fontsize=16     ) 
-  ax.set_title  ( title,      color='dimgray',                 fontsize=10     )  
-  ax.set        ( ylim =(0, 100) )
-  ax.xaxis.grid ( True, linestyle='dashed', color='lightgrey'  )
-  ax.yaxis.grid ( True, linestyle='dotted'                     )
+  plt.ylabel    (  'subtypes correctly predicted (%)', weight='bold', fontsize=font_big   )
+  plt.yticks    (  range(0, 100, 10) )
+  fig.suptitle  (  supertitle,  color='dimgray',  weight='bold',  fontsize=16             )
+  ax.set_title  (  title,       color='dimgray',                  fontsize=10             )  
+  ax.set        (  ylim =(0, 100)                                                         )
+  ax.xaxis.grid (  True, linestyle='dashed', color='lightgrey'                            )
+  ax.yaxis.grid (  True, linestyle='dotted'                                               )
 
-
-  # ~ line_props  = dict(color="r", alpha=0.3)
-  # ~ bbox_props  = dict(color="g", alpha=0.9, linestyle="dashdot")
-  # ~ flier_props = dict(marker="o", markersize=17)
+  # ~ line_props  = dict( color="r", alpha=0.3 )
+  # ~ bbox_props  = dict( color="g", alpha=0.9, linestyle="dashdot")
+  # ~ flier_props = dict( marker="o", markersize=17)
   # ~ box_plot = plt.boxplot(pct_correct_predictions_plane, notch=True, whiskerprops=line_props, boxprops=bbox_props, flierprops=flier_props)
     
 
   bp      = plt.boxplot( pct_correct_predictions_plane, labels=labels, vert=True, patch_artist=True, showfliers=True,  medianprops=dict(color="black", alpha=0.7) )
 
-  ax.text( x=.55, y=10,  s=f"Total predictions made {np.sum(all_predictions_plane):,}, of which correct: {np.sum(correct_predictions_plane):,} ({100*np.sum(correct_predictions_plane)/np.sum(all_predictions_plane):.1f}%)",  horizontalalignment='left', color='dimgray', fontsize=16) 
+  ax.text( x=.75, y=15,  s=f"Total predictions made {np.sum(all_predictions_plane):,}, of which correct: {np.sum(correct_predictions_plane):,} ({100*np.sum(correct_predictions_plane)/np.sum(all_predictions_plane):.1f}%)",  horizontalalignment='left', color='dimgray', fontsize=14) 
   plt.xticks( fontsize=font_med )
   plt.yticks( fontsize=20 )
 
@@ -5136,11 +5142,11 @@ lr:{parameters['lr'][0]:<9.6f}  hidden:{parameters['hidden_layer_neurons'][0]}  
     median   = median_pct_correct_predictions_by_subtype[xtick-1]
     random   = expected_IFF_random_preds[xtick-1]
     
-    ax.text( x=xtick, y=0.75,       s=f"{text_1}{total:,}",                        horizontalalignment='center',  color='dimgray',    fontsize=font_sml  ) 
-    ax.text( x=xtick, y=3.5,        s=f"{text_2}{correct:,} ({percent:2.1f}%)",    horizontalalignment='center',  color='dimgray',    fontsize=font_sml  )     
-    ax.text( x=xtick, y=6,          s=f"{text_3}{median:2.1f}%",                   horizontalalignment='center',  color='dimgray',    fontsize=font_sml  )    
-    ax.text( x=xtick, y=random+0.5, s=f"{text_4}",                                 horizontalalignment='center',  color='lightcoral', fontsize=font_sml  )    
-    plt.plot( [xtick-0.27, xtick+0.27], [random, random],                      linewidth=1,     linestyle="--",   color='lightcoral'                     )
+    ax.text( x=xtick, y=base,                         s=f"{text_1}{total:,}",                        horizontalalignment='center',  color='dimgray',    fontsize=font_sml  ) 
+    ax.text( x=xtick, y=base+gap_1,                   s=f"{text_2}{correct:,}",                      horizontalalignment='center',  color='dimgray',    fontsize=font_sml  )     
+    ax.text( x=xtick, y=base+gap_1+gap_2,             s=f"{text_3}{median:2.1f}%",                   horizontalalignment='center',  color='dimgray',    fontsize=font_sml  )    
+    ax.text( x=xtick, y=random-0.9, s=f"{text_4}",                                                   horizontalalignment='center',  color='lightcoral', fontsize=font_sml  )    
+    plt.plot( [xtick-0.27, xtick+0.27], [random, random],                                        linewidth=1,     linestyle="--",   color='lightcoral'                     )
  
 
     if (DEBUG>99):

@@ -1,6 +1,11 @@
 #!/bin/bash
 #set -e
 
+MAGENTA='\e[38;2;255;0;255m'
+RED='\e[38;2;255;0;0m'
+RESET='\e[m'
+
+
 alias cls='printf "\033c"'
 SLEEP_TIME=0
 
@@ -35,6 +40,16 @@ FIGURE_HEIGHT=8
 # only used for rna
 ENCODER_ACTIVATION="none"                                                                                  # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
 
+
+if [[ ${INPUT_MODE} == "image" ]]; then
+  FINAL_TEST_BATCH_SIZE=2                                                                                  # number of batches of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated). Don't make it too large because it's passed through as a single super-batch.
+elif [[ ${INPUT_MODE} == "rna" ]]; then
+  FINAL_TEST_BATCH_SIZE=141                                                                                # (rna mode doesn't need this because the entire batch can easily be accommodated)
+else
+  echo -e "${RED}DO_ALL.SH: FATAL: VARIABLES.SH: INFO: no such input mode as ${INPUT_MODE}${RESET}"
+  exit
+fi
+
 # 'pre-sets' for the five processing modes
 
 if [[ ${NN_MODE} == "dlbcl_image" ]]; then
@@ -55,7 +70,7 @@ elif [[ ${NN_MODE} == "gtexv6" ]]; then
 elif [[ ${NN_MODE} == "mnist" ]]; then  
   SKIP_GENERATION="True"
   cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_mnist_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py
-  MAIN_APPLICATION_NAME=traindpcca.py                                                                       # use traindpcca.py    for the  MNIST "digit images + synthetic classes" dataset  
+  MAIN_APPLICATION_NAME=traindpcca.py                                                                      # use traindpcca.py    for the  MNIST "digit images + synthetic classes" dataset  
   #~ DATASET_HELPER_APPLICATION_NAME=data.mnist.generate                                                   # use generate_mnist   for the  MNIST "digit images + synthetic classes" dataset
   DATASET_HELPER_APPLICATION_NAME=data.dlbcl_image.generate_image                                          # use generate_images  for any "images + classes" dataset OTHER THAN MNIST    
 else
@@ -64,11 +79,6 @@ else
 fi
 
 
-if [[ ${INPUT_MODE} == "image" ]]; then
-  FINAL_TEST_BATCH_SIZE=2                                                                                  # number of batches of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated). Don't make it too large because it's passed through as a single super-batch.
-else
-  FINAL_TEST_BATCH_SIZE=141                                                                                # (rna mode doesn't need this because the entire batch can easily be accommodated)
-fi
 
 
 # other variabes used by shell scripts
@@ -107,13 +117,10 @@ if [[ ${DATASET} == "stad" ]]; then
     HIGHEST_CLASS_NUMBER=8                                                                               # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
     CLASS_NAMES="diffuse   tubular   mucinous    signet_ring    papillary   tubular  stomach_NOS    intestinal_NOS       none"
     LONG_CLASS_NAMES="diffuse   tubular   mucinous    signet_ring    papillary   tubular  stomach_NOS    intestinal_NOS       none"
-  elif [[ ${INPUT_MODE} == "rna" ]] || [[ ${INPUT_MODE} == "image_rna" ]]; then
+  else
     HIGHEST_CLASS_NUMBER=4                                                                               # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
     CLASS_NAMES="diffuse tubular mucinous intest_nos adeno_nos"
     LONG_CLASS_NAMES="diffuse tubular mucinous intestinal_nos adenocarcinoma_nos"
-  else
-    echo "VARIABLES.SH: INFO: no such input mode as ${INPUT_MODE}"
-    exit
   fi  
 
 
@@ -128,11 +135,8 @@ elif [[ ${DATASET} == "coad" ]]; then
 
   if [[ ${INPUT_MODE} == "image" ]]; then
     HIGHEST_CLASS_NUMBER=1                                                                               # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
-  elif [[ ${INPUT_MODE} == "rna" ]] || [[ ${INPUT_MODE} == "image_rna" ]]; then
-    HIGHEST_CLASS_NUMBER=1                                                                               # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
   else
-    echo "VARIABLES.SH: INFO: no such input mode as ${INPUT_MODE}"
-    exit
+    HIGHEST_CLASS_NUMBER=1                                                                               # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
   fi  
 
 
@@ -147,10 +151,8 @@ elif [[ ${DATASET} == "thym" ]]; then
 
   if [[ ${INPUT_MODE} == "image" ]]; then
     HIGHEST_CLASS_NUMBER=5                                                                               # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
-  elif [[ ${INPUT_MODE} == "rna" ]] || [[ ${INPUT_MODE} == "image_rna" ]]; then
-    HIGHEST_CLASS_NUMBER=5                                                                               # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
   else
-    echo "VARIABLES.SH: INFO: no such input mode as ${INPUT_MODE}"
+    HIGHEST_CLASS_NUMBER=5                                                                               # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
   fi
   
   
@@ -165,11 +167,8 @@ elif [[ ${DATASET} == "dlbc" ]]; then
 
   if [[ ${INPUT_MODE} == "image" ]]; then
     HIGHEST_CLASS_NUMBER=2                                                                               # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
-  elif [[ ${INPUT_MODE} == "rna" ]] || [[ ${INPUT_MODE} == "image_rna" ]]; then
-    HIGHEST_CLASS_NUMBER=2                                                                               # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
   else
-    echo "VARIABLES.SH: INFO: no such input mode as ${INPUT_MODE}"
-    exit
+    HIGHEST_CLASS_NUMBER=2                                                                               # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
   fi  
 
 
@@ -185,11 +184,8 @@ elif [[ ${DATASET} == "sarc" ]]; then
 
   if [[ ${INPUT_MODE} == "image" ]]; then
     HIGHEST_CLASS_NUMBER=4                                                                                 # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
-  elif [[ ${INPUT_MODE} == "rna" ]] || [[ ${INPUT_MODE} == "image_rna" ]]; then
-    HIGHEST_CLASS_NUMBER=4                                                                                 # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
   else
-    echo "VARIABLES.SH: INFO: no such input mode as ${INPUT_MODE}"
-    exit
+    HIGHEST_CLASS_NUMBER=4                                                                                 # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
   fi
   
 elif [[ ${DATASET} == "kidn" ]]; then
@@ -204,32 +200,30 @@ elif [[ ${DATASET} == "kidn" ]]; then
 
   if [[ ${INPUT_MODE} == "image" ]]; then
     HIGHEST_CLASS_NUMBER=2                                                                                 # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
-  elif [[ ${INPUT_MODE} == "rna" ]] || [[ ${INPUT_MODE} == "image_rna" ]]; then
-    HIGHEST_CLASS_NUMBER=2                                                                                 # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
   else
-    echo "VARIABLES.SH: INFO: no such input mode as ${INPUT_MODE}"
-    exit
+    HIGHEST_CLASS_NUMBER=2                                                                                 # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
   fi  
+
+
+
   
 elif [[ ${DATASET} == "0008" ]]; then
   
   CANCER_TYPE="Pan_Cancer"
-  CANCER_TYPE_LONG="Pan_Cancer"   
-  CLASS_NAMES="KIDN_clear KIDN_chromo KIDN_papill STAD_tubular STAD_diffuse STAD_mucin STAD_stomach_NOS STAD_intest_NOS COAD_adeno COAD_mucin SARC_dediff_lipo SARC_leio SARC_myxo SARC_pleo_mfh LUNG_adeno"
-  LONG_CLASS_NAMES="KIDN_clear_cell KIDN_chromophobe KIDN_papillary STAD_tubular STAD_diffuse STAD_mucin STAD_stomach_NOS STAD_intest_NOS COAD_adeno COAD_mucin SARC_dediff_lipo SARC_leio SARC_myxo SARC_pleo_mfh  LUNG_adeno"
+  CANCER_TYPE_LONG="Pan_Cancer"
+  CLASS_NAMES="KIDN_clear KIDN_chrom KIDN_papi STAD_tubu STAD_diff STAD_muci STAD_stNOS STAD_inNOS COAD_aden COAD_muci SARC_ddif_lipo SARC_leio SARC_myxo SARC_pleo LUNG_aden LUNG_sqam BRAIN_astr BRAIN_olig PCPG_para PCPG_pheo ESCA_a_NOS ESCA_squam"
+  LONG_CLASS_NAMES="KIDN_clear_cell KIDN_chromophobe KIDN_papillary STAD_tubular STAD_diffuse STAD_mucin STAD_stomach_NOS STAD_intest_NOS COAD_adeno COAD_mucin SARC_dediff_lipo SARC_leio SARC_myxo SARC_pleo_mfh LUNG_adeno LUNG_sqam BRAIN_astro BRAIN_oligo PCPG_para PCPG_pheo ESCA_adeno_NOS ESCA_squam"
   ENCODER_ACTIVATION="none"                                                                                # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
   STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL STAD SET & THE TARGET_TILE_COORDS COORDINATES BELOW ARE FOR IT
   TARGET_TILE_COORDS="5000 5500"
 
   if [[ ${INPUT_MODE} == "image" ]]; then
-    HIGHEST_CLASS_NUMBER=15                                                                                # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
-  elif [[ ${INPUT_MODE} == "rna" ]] || [[ ${INPUT_MODE} == "image_rna" ]]; then
-    HIGHEST_CLASS_NUMBER=15                                                                                 # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
-    FINAL_TEST_BATCH_SIZE=141                                                                              # number of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)
+    HIGHEST_CLASS_NUMBER=22                                                                                # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
   else
-    echo "VARIABLES.SH: INFO: no such input mode as ${INPUT_MODE}"
-    exit
+    HIGHEST_CLASS_NUMBER=22                                                                                # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
   fi  
+
+
 
 
 
@@ -237,8 +231,3 @@ else
     echo "VARIABLES.SH: INFO: no such dataset as '${DATASET}'"
     exit
 fi
-
-MAGENTA='\e[38;2;255;0;255m'
-RED='\e[38;2;255;0;0m'
-
-RESET='\e[m'

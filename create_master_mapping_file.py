@@ -397,7 +397,7 @@ def main(args):
         else:
           pass
       else:
-        print ( f"{RED}directory (case) '{CYAN}{el[1]}{RESET}'{RED}\r\033[62C(or its root if applicable) is not listed in master clinical spreadsheet\r\033[200C <<<<< anomoly, but no action will be taken{RESET}" )
+        print ( f"{RED}directory (case) '{CYAN}{el[1]}{RESET}{RED}'\r\033[62C(or its root if applicable) is not listed in master clinical spreadsheet\r\033[200C <<<<< anomoly, but no action will be taken{RESET}" )
     
     
   # (3) show some useful stats
@@ -411,8 +411,8 @@ def main(args):
     print ( f"\r\033[235C{RED}  <<<<< this many cases don't exist in the class specific dataset files location{RESET}")
   else:
     print ("")
-  print ( f"CREATE_MASTER:     INFO:    total examples  (clone directories) found in class specific dataset files location '{CYAN}{class_specific_dataset_files_location}{RESET}':                            \r\033[{offset}Cfound_clone_directories                        =  {MIKADO}{found_clone_directories}{RESET}" )
-  print ( f"CREATE_MASTER:     INFO:    total            clone directories        in class specific dataset files location '{CYAN}{class_specific_dataset_files_location}{RESET}'':                           \r\033[{offset}Cactual_dirs                                    =  {MIKADO}{actual_dirs}{RESET}" )
+  print ( f"CREATE_MASTER:     INFO:    total examples  (clone directories) found in class specific dataset files location '{CYAN}{class_specific_dataset_files_location}{RESET}':                            \r\033[{offset}Cfound_clone_directories                          =  {MIKADO}{found_clone_directories}{RESET}" )
+  print ( f"CREATE_MASTER:     INFO:    total            clone directories        in class specific dataset files location '{CYAN}{class_specific_dataset_files_location}{RESET}'':                           \r\033[{offset}Cactual_dirs                                      =  {MIKADO}{actual_dirs}{RESET}" )
   print ( f"CREATE_MASTER:     INFO:    {ITALICS}hence{RESET}                  directories        in class specific dataset files location that don't correspond to a case in the master spreadsheet{RESET}': \r\033[{offset}Cactual_dirs {BLEU}minus{RESET} found_non_clone_directories  =  {GREEN if actual_dirs - found_clone_directories==0 else RED}{actual_dirs - found_clone_directories:2d}{RESET}", end="" )
   if not actual_dirs - found_clone_directories == 0:
     print ( f"\r\033[225C{RED}  <<<<< anomoly - not listed in spreadsheet{RESET}")
