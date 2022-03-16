@@ -128,11 +128,11 @@ def main(args):
         exit(0)
 
   if DEBUG>0:
-    print( f"\n{MIKADO}GDC-FETCH:     INFO:    technique for downloading a new TCGA cancer class ('project') where you want only cases that contain BOTH an image file and an rna_seq file:" )
+    print( f"\n{MIKADO}GDC-FETCH:     INFO:    Here is the technique for downloading a new TCGA cancer class ('project') where you want {BOLD}only cases that contain BOTH an image file and an rna_seq file:{RESET}{MIKADO}" )
     print( f"GDC-FETCH:     INFO:        1) define a case filter which requests all cases from the project which contain rna-seq files (see for example {CYAN}filters/TCGA-THYM_case_filter{RESET}{MIKADO})" )
     print( f"GDC-FETCH:     INFO:        2) define a file filter which requests all files which contain svs files                      (see for example {CYAN}filters/GLOBAL_file_filter_UQ{RESET}{MIKADO})" )
     print( f"GDC-FETCH:     INFO:     then run {CYAN}gdc-fetch{RESET}{MIKADO} two times, to get the rna_seq files and then the image files (order doesn't really matter but it's usually better to get the rna_seq files first because they're much smaller)" )
-    print( f"GDC-FETCH:     INFO:     important: use {UNDER}{RED}f{RESET}{BOLD}inish{RESET}{MIKADO} option on the second run (this option downloads additional files for cases that have already been downloaded)" )
+    print( f"GDC-FETCH:     INFO:     important: use {UNDER}{RED}f{RESET}{BOLD}{MIKADO}inish{RESET}{MIKADO} option on the second run (this option downloads additional files for cases that have already been downloaded)" )
     print( f'GDC-FETCH:     INFO:        3) {CYAN}./gdc-fetch.sh thym "filters/TCGA-THYM_case_filter" "filters/GLOBAL_file_filter_UQ"{RESET}{MIKADO}' )
     print( f'GDC-FETCH:     INFO:        4) {CYAN}./gdc-fetch.sh thym "filters/TCGA-THYM_case_filter" "filters/GLOBAL_file_filter_SVS"{RESET}{MIKADO}' )
     print( f"GDC-FETCH:     INFO:     explanation: because the file filter is applied to the already filtered cases, only cases which contain both svs and rna_seq files will be downloaded{RESET}\n" )
@@ -280,7 +280,7 @@ def main(args):
 
     else:
       if DEBUG>0:
-        print( f"GDC-FETCH:    INFO:   files downloaded so far {MIKADO}{global_download_counter}{RESET} (user defined max = {MIKADO}{args.global_max_downloads}{RESET})" )
+        print( f"GDC-FETCH:    INFO:   files downloaded so far {MIKADO}{global_download_counter}{RESET} (user defined max = {MIKADO}{args.global_max_downloads:,}{RESET})" )
   
       if  global_download_counter >=  args.global_max_downloads:
         if DEBUG>0:

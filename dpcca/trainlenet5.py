@@ -87,6 +87,7 @@ DIM_WHITE       ='\033[37;2m'
 CYAN            ='\033[36;1m'
 PALE_RED        ='\033[31m'
 PALE_GREEN      ='\033[32m'
+BLACK           ='\033[38;2;0;0;0m' 
 AUREOLIN        ='\033[38;2;253;238;0m' 
 DULL_WHITE      ='\033[38;2;140;140;140m'
 MIKADO          ='\033[38;2;255;196;12m'
@@ -2926,7 +2927,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
 \r\033[40Cn={i+1:>3d}{CLEAR_LINE}\
 \r\033[49Closs_images={ loss_images_value:5.2f}\
 \r\033[96Cl1_loss={l1_loss:5.2f}\
-\r\033[120CBATCH AVE LOSS      =\r\033[{156+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}{RESET}" )
+\r\033[120CBATCH AVE LOSS      =\r\033[{156+5*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}{RESET}" )
             print ( "\033[2A" )
           elif (args.input_mode=='rna') | (args.input_mode=='image_rna'):
             print ( f"\
@@ -2934,7 +2935,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
 \r\033[40Cn={i+1:>3d}{CLEAR_LINE}\
 \r\033[73Closs_rna={loss_genes_value:5.2f}\
 \r\033[96Cl1_loss={l1_loss:5.2f}\
-\r\033[120CBATCH AVE LOSS      =\r\033[{156+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}{RESET}" )
+\r\033[120CBATCH AVE LOSS      =\r\033[{156+5*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}{RESET}" )
             print ( "\033[2A" )          
 
 
@@ -3291,7 +3292,7 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
 \r\033[40C{DULL_WHITE}n={i+1:>3d}{CLEAR_LINE}\
 \r\033[49Closs_images={loss_images_value:5.2f}\
 \r\033[96Cl1_ loss={l1_loss:5.2f}\
-\r\033[120CBATCH AVE LOSS      =\r\033[{150+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}{RESET}" )
+\r\033[120CBATCH AVE LOSS      =\r\033[{150+5*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}{RESET}" )
             print ( "\033[2A" )
           elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
             print ( f"\
@@ -3299,7 +3300,7 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
 \r\033[40C{DULL_WHITE}n={i+1:>3d}{CLEAR_LINE}\
 \r\033[73Closs_rna={loss_genes_value:5.2f}\
 \r\033[96Cl1_loss={l1_loss:5.2f}\
-\r\033[120CBATCH AVE LOSS      =\r\033[{150+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}{RESET}" )
+\r\033[120CBATCH AVE LOSS      =\r\033[{150+5*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}{RESET}" )
             print ( "\033[2A" )
 
 
@@ -3387,9 +3388,9 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
         print (  f"truth = {CLEAR_LINE}{labs}",  flush=True   )
         print (  f"preds = {CLEAR_LINE}{preds}", flush=True   )
         if len(args.class_names)<10:
-          np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>1d}{RESET}"}) 
+          np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else BLACK}{x:>1d}{RESET}"}) 
         else:
-           np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>2d}{RESET}"}) 
+           np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else BLACK}{x:>2d}{RESET}"}) 
         print (  f"delta = {CLEAR}{delta}", flush=True  )
       elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):   
         labs   = rna_labels_values         [0:number_to_display]
@@ -3402,9 +3403,9 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
         print (  f"truth = {CLEAR_LINE}{labs}",  flush=True   )
         print (  f"preds = {CLEAR_LINE}{preds}", flush=True   )
         if len(args.class_names)<10:
-          np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>1d}{RESET}"}) 
+          np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else BLACK}{x:>1d}{RESET}"}) 
         else:
-           np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>2d}{RESET}"}) 
+           np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else BLACK}{x:>2d}{RESET}"}) 
         print (  f"delta = {CLEAR_LINE}{delta}", flush=True  )
 
 
@@ -4957,7 +4958,8 @@ def box_plot_by_subtype( args, n_genes, start_time, parameters, writer, total_ru
 
   total_predictions_by_subtype    = np.squeeze( ( np.expand_dims(np.sum  (  confusion_matrix, axis=0 ), axis=0 )  )  )                                 # sum down the columns to produces a row vector representing total subtypes  
   
-  if DEBUG>0:    
+  if DEBUG>0:
+    np.set_printoptions(formatter={'int': lambda x: "{:>7d}".format(x)})    
     print( f'CLASSI:           INFO:    total_predictions_by_subtype              = \n{CARRIBEAN_GREEN}{total_predictions_by_subtype}{RESET}') 
     print( f'CLASSI:           INFO:    total predictions (check sum)             =  {MIKADO}{np.sum(total_predictions_by_subtype)}{RESET}')   
 
@@ -4978,26 +4980,28 @@ def box_plot_by_subtype( args, n_genes, start_time, parameters, writer, total_ru
     np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:.1f}   "} )          
     print( f'CLASSI:           INFO:    pct_correct_predictions_by_subtype        = \n{CARRIBEAN_GREEN}{100*pct_correct_predictions_by_subtype}{RESET}')
 
-    
+  
 
   # (2) Extract two planes from 'run_level_classifications_matrix_acc' to derive 'pct_correct_predictions_plane' for the box plots (recalling that 'run_level_classifications_matrix_acc' is a 3D matrix with one plane for every run)
   
   all_predictions_plane           =   np.sum(  run_level_classifications_matrix_acc, axis=1 )[ 0:total_runs_in_job, : ]                                # sum elements (= numbers correct) from 3D volume down columns (axis 1) to produce a matrix
-  total_predictions_made          =   np.sum(all_predictions_plane) 
+  total_predictions_made          =   np.sum(  all_predictions_plane )
+  
   if DEBUG>0:
-    np.set_printoptions(formatter={ 'int' : lambda x: f"   {CARRIBEAN_GREEN}{x:>6d}   "} )    
+    np.set_printoptions(formatter={ 'int' : lambda x: f"{x:>5d}   "} )      
+    
     print( f'CLASSI:           INFO:    all_predictions_plane (one row per run)       = \n{CARRIBEAN_GREEN}{all_predictions_plane}{RESET}')
-    print( f'CLASSI:           INFO:    all_predictions_plane (check sum)             =  {MIKADO}{total_predictions_made}{RESET}')
+    print( f'CLASSI:           INFO:    all_predictions_plane (check sum)          =  {MIKADO}{total_predictions_made}{RESET}')
 
 
-  all_predictions_plane[all_predictions_plane == 0] = 1                                                                                  # to avoid divide by zero for any subtype which has so few examples that no predictions at all were made
+  all_predictions_plane[all_predictions_plane == 0] = 1                                                                                                # to avoid divide by zero for any subtype which has so few examples that no predictions at all were made
 
   if DEBUG>0:    
     print( f'CLASSI:           INFO:    all_predictions_plane mod to change subtypes with zero predictions overall so that they will have exactly one prediction = \n{CARRIBEAN_GREEN}{all_predictions_plane}{RESET}') 
 
 
+  expected_IFF_random_preds      =   100* total_predictions_by_subtype / total_predictions_made                                                        # what we'd expect if the classifications were entirely random
 
-  expected_IFF_random_preds      =   100* total_predictions_by_subtype / total_predictions_made                 # what we'd expect if the classifications were entirely random
   if DEBUG>0:
     np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:.1f}   "} )    
     print( f"CLASSI:           INFO:    expected correct if random class'n        = \n{CARRIBEAN_GREEN}{expected_IFF_random_preds}{RESET}")
@@ -5005,25 +5009,30 @@ def box_plot_by_subtype( args, n_genes, start_time, parameters, writer, total_ru
 
   correct_predictions_plane       =   np.transpose( np.array( [ run_level_classifications_matrix_acc[:,i,i] for i in  range( 0 , run_level_classifications_matrix_acc.shape[1] ) ]  )  ) [ 0:total_runs_in_job, : ]      # pick out diagonal elements (= numbers correct) from 3D volume  to produce a matrix
   if DEBUG>0 :
-    np.set_printoptions(formatter={ 'int' : lambda x: f"   {CARRIBEAN_GREEN}{x:>6d}   "} )          
+    np.set_printoptions(formatter={ 'int' : lambda x: f"   {CARRIBEAN_GREEN}{x:>5d}   "} )          
     print( f'CLASSI:           INFO:    correct predictions (one row per run)     = \n{CARRIBEAN_GREEN}{correct_predictions_plane}{RESET}')
     print( f'CLASSI:           INFO:    total corects (check sum)                 = {MIKADO}{np.sum(correct_predictions_plane)}{RESET}')
 
   
   np.seterr( invalid='ignore', divide='ignore' )          
   pct_correct_predictions_plane   =   100 * np.divide( correct_predictions_plane, all_predictions_plane )
+  if DEBUG>0 :
+    np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:5.1f}   "} )          
+    print( f'CLASSI:           INFO:    pct_correct_predictions_plane (pre-NaN handling) = \n{CARRIBEAN_GREEN}{pct_correct_predictions_plane}{RESET}')
+
+
   num_rows                        =   pct_correct_predictions_plane.shape[0]
-  pct_correct_predictions_plane   =   pct_correct_predictions_plane[~np.isnan(pct_correct_predictions_plane).any(axis=1), :]           # delete any rows which contain a NaN because they will spoil the box plot
+  pct_correct_predictions_plane   =   pct_correct_predictions_plane[~np.isnan(pct_correct_predictions_plane).any(axis=1), :]                           # delete any rows (runs) which contain a NaN because they will spoil the box plot
   num_rows_with_nan               =   pct_correct_predictions_plane.shape[0] - pct_correct_predictions_plane.shape[0]
   
   if DEBUG>0 :
-    np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:6.1f}   "} )          
-    print( f'CLASSI:           INFO:    pct_correct_predictions_plane (one row per run) = \n{CARRIBEAN_GREEN}{pct_correct_predictions_plane}{RESET}')
-    print( f'CLASSI:           INFO:    number of rows with NaN = {CARRIBEAN_GREEN}{num_rows_with_nan}{RESET}')
+    np.set_printoptions(formatter={ 'float' : lambda x: f"   {MIKADO}{x:5.1f}   "} )          
+    print( f'CLASSI:           INFO:    pct_correct_predictions_plane (one row per run) = \n{pct_correct_predictions_plane}{RESET}')
+    print( f'CLASSI:           INFO:    {MAGENTA}number of rows with NaN = {MIKADO}{num_rows_with_nan}{RESET}')
   
   median_pct_correct_predictions_by_subtype  =  np.median ( pct_correct_predictions_plane, axis=0 )
   if DEBUG>0:
-    np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:8.2f}   "} )          
+    np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:5.1f}   "} )          
     print( f'CLASSI:           INFO:    median_pct_correct_predictions_by_subtype  = \n{CARRIBEAN_GREEN}{median_pct_correct_predictions_by_subtype}{RESET}')
     
   
@@ -5080,6 +5089,7 @@ lr:{parameters['lr'][0]:<9.6f}  hidden:{parameters['hidden_layer_neurons'][0]}  
   c_m = f"plt.cm.{eval('args.colour_map')}"                                                                # the 'eval' is so that the user input string will be treated as a variable
   subtype_colors = [ eval(c_m)(i) for i in range(len(args.class_names))]                                   # makes an array of colours by calling the user defined colour map (which is a function, not a variable)  
 
+
   labels  = args.class_names
 
   if len(labels) < 5:
@@ -5095,11 +5105,11 @@ lr:{parameters['lr'][0]:<9.6f}  hidden:{parameters['hidden_layer_neurons'][0]}  
     text_4="expected for random"
   else:
     font_big = 18
-    font_med = 7
+    font_med = 6
     font_sml = 6
     base     = 0.75
-    gap_1    = 1.1
-    gap_2    = 1.1
+    gap_1    = 1.3
+    gap_2    = 1.3
     text_1="preds="
     text_2="right="
     text_3="med="    
