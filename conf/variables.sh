@@ -206,21 +206,20 @@ elif [[ ${DATASET} == "kidn" ]]; then
 
 
 
-  
 elif [[ ${DATASET} == "0008" ]]; then
   
   CANCER_TYPE="Pan_Cancer"
   CANCER_TYPE_LONG="Pan_Cancer"
-  CLASS_NAMES="KIDN_clear KIDN_chrom KIDN_papi STAD_tubu STAD_diff STAD_muci STAD_sNOS STAD_iNOS COAD_aden COAD_muci SARC_ddif_lipo SARC_leio SARC_myxo SARC_pleo LUNG_aden LUNG_sqam BRAIN_ast BRAIN_oli PCPG_para PCPG_pheo ESCA_a_NOS ESCA_squam THCA_class THCA_foll THCA_tall UCEC_aden UCEC_mixd UCEC_sero TGCT_aden TGCT_embr TGCT_tera TGCT_yolk TGCT_NOS"
-  LONG_CLASS_NAMES="KIDN_clear KIDN_chrom KIDN_papi STAD_tubu STAD_diff STAD_muci STAD_sNOS STAD_iNOS COAD_aden COAD_muci SARC_ddif_lipo SARC_leio SARC_myxo SARC_pleo LUNG_aden LUNG_sqam BRAIN_ast BRAIN_oli PCPG_para PCPG_pheo ESCA_a_NOS ESCA_squam THCA_class THCA_foll THCA_tall UCEC_aden UCEC_mixd UCEC_sero TGCT_aden TGCT_embr TGCT_tera TGCT_yolk TGCT_NOS"
+  CLASS_NAMES="KIDN_clear KIDN_chrom KIDN_papi STAD_tubu STAD_diff STAD_muci STAD_sNOS STAD_iNOS COAD_aden COAD_muci SARC_ddif SARC_leio SARC_myxo SARC_pleo LUNG_aden LUNG_sqam BRAIN_ast BRAIN_oli PCPG_para PCPG_pheo ESCA_a_NOS ESCA_squam THCA_class THCA_foll THCA_tall UCEC_aden UCEC_mixd UCEC_sero"
+  LONG_CLASS_NAMES="KIDN_clear KIDN_chrom KIDN_papi STAD_tubu STAD_diff STAD_muci STAD_sNOS STAD_iNOS COAD_aden COAD_muci SARC_ddif SARC_leio SARC_myxo SARC_pleo LUNG_aden LUNG_sqam BRAIN_ast BRAIN_oli PCPG_para PCPG_pheo ESCA_a_NOS ESCA_squam THCA_class THCA_foll THCA_tall UCEC_aden UCEC_mixd UCEC_sero"
   ENCODER_ACTIVATION="none"                                                                                # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
   STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL STAD SET & THE TARGET_TILE_COORDS COORDINATES BELOW ARE FOR IT
   TARGET_TILE_COORDS="5000 5500"
 
   if [[ ${INPUT_MODE} == "image" ]]; then
-    HIGHEST_CLASS_NUMBER=31                                                                                # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
+    HIGHEST_CLASS_NUMBER=27                                                                                # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
   else
-    HIGHEST_CLASS_NUMBER=31                                                                                # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
+    HIGHEST_CLASS_NUMBER=27                                                                                # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
   fi
 
 
