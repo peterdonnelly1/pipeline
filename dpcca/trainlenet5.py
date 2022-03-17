@@ -3388,26 +3388,43 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
         print (  f"truth = {CLEAR_LINE}{labs}",  flush=True   )
         print (  f"preds = {CLEAR_LINE}{preds}", flush=True   )
         if len(args.class_names)<10:
+          GAP=' '
           np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else BLACK}{x:>1d}{RESET}"}) 
         else:
-           np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else BLACK}{x:>2d}{RESET}"}) 
-        print (  f"delta = {CLEAR}{delta}", flush=True  )
+           np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else BLACK}{x:>2d}{RESET}"})
+           GAP='  '
+        print (  f"{CLEAR_LINE}         ",  end='', flush=True  )        
+        for i in range( 0, len(delta) ):                                                                   # should have been able to do this with a fancy list comprehension but I couldn't get it to work
+          if delta[i]==0:                                                                                   
+            print (  f"{GREEN}\u2713{GAP}", end='', flush=True  )
+          else:
+            print (  f"{RED}\u2717{GAP}",   end='', flush=True  )          
+        print ( f"{RESET}" )
+
       elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):   
         labs   = rna_labels_values         [0:number_to_display]
         preds  = y2_hat_values_max_indices [0:number_to_display]
         delta  = np.abs(preds - labs)
         if len(args.class_names)<10:
           np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>1d}{RESET}"})
+          GAP=' '
         else:
           np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>02d}{RESET}"})
+          GAP=' '
         print (  f"truth = {CLEAR_LINE}{labs}",  flush=True   )
         print (  f"preds = {CLEAR_LINE}{preds}", flush=True   )
         if len(args.class_names)<10:
           np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else BLACK}{x:>1d}{RESET}"}) 
         else:
            np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else BLACK}{x:>2d}{RESET}"}) 
-        print (  f"delta = {CLEAR_LINE}{delta}", flush=True  )
-
+        
+        print (  f"{CLEAR_LINE}         ",  end='', flush=True  )        
+        for i in range( 0, len(delta) ):                                                                   # should have been able to do this with a fancy list comprehension but I couldn't get it to work
+          if delta[i]==0:                                                                                   
+            print (  f"{GREEN}\u2713{GAP}", end='', flush=True  )
+          else:
+            print (  f"{RED}\u2717{GAP}",   end='', flush=True  )          
+        print ( f"{RESET}" )
 
 
       # ~ if ( args.just_test!='True') | ( (args.just_test=='true')  &  (args.input_mode=='image_rna') & (args.multimode=='image_rna') ):
@@ -5092,7 +5109,7 @@ lr:{parameters['lr'][0]:<9.6f}  hidden:{parameters['hidden_layer_neurons'][0]}  
 
   labels  = args.class_names
 
-  if len(labels) < 5:
+  if len(labels) < 8:
     font_big = 20
     font_med = 18
     font_sml = 16
