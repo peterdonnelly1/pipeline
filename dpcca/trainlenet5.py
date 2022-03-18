@@ -3421,7 +3421,7 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
         print (  f"{CLEAR_LINE}         ",  end='', flush=True  )        
         for i in range( 0, len(delta) ):                                                                   # should have been able to do this with a fancy list comprehension but I couldn't get it to work
           if delta[i]==0:                                                                                   
-            print (  f"{GREEN}\u2713{GAP}", end='', flush=True  )
+            print (  f"{BRIGHT_GREEN}\u2713{GAP}", end='', flush=True  )
           else:
             print (  f"{RED}\u2717{GAP}",   end='', flush=True  )          
         print ( f"{RESET}" )
