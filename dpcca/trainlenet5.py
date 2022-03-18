@@ -5269,7 +5269,7 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
   
   bp      = plt.boxplot( pct_correct_predictions_plane, labels=labels, vert=False,  patch_artist=True,  showfliers=True,  medianprops=dict(color="black", alpha=0.7) )
 
-  ax.text( x=-12, y=-2,  s=f"Total predictions made {np.sum(all_predictions_plane):,}; of which correct: {np.sum(correct_predictions_plane):,} ({100*np.sum(correct_predictions_plane)/np.sum(all_predictions_plane):.1f}%)",  horizontalalignment='left', color='dimgray', fontsize=14) 
+  ax.text( x=-12, y=-2,  s=f"Total predictions made {np.sum(all_predictions_plane):,}; of which correct: {np.sum(correct_predictions_plane):,} ({100*np.sum(correct_predictions_plane)/np.sum(all_predictions_plane):.1f}%)",  horizontalalignment='left', color='black', fontsize=15 ) 
   plt.xlabel    (  'subtypes correctly predicted (%)', weight='bold', fontsize=font_big   )
 
   totals          = total_predictions_by_subtype
@@ -5291,8 +5291,8 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
     ax.text( x=8,            y=ytick,       s=f"{text_2}{correct:,}",                                      horizontalalignment='left',     color='#202020',     fontsize=10  )    
     ax.text( x=16,           y=ytick,       s=f"({percent:2.1f}%)",                                        horizontalalignment='left',     color='#202020',     fontsize=10  )    
     ax.text( x=21,           y=ytick,       s=f"{text_3}{median:2.1f}%",                                   horizontalalignment='left',     color='#202020',     fontsize=10  )  
-    ax.text( x=random-0.7,   y=ytick,       s=f"{text_4}",                    rotation=rotation,           verticalalignment  ='center',   color='hotpink',     fontsize=8   )    
-    plt.plot( [random, random],  [ytick-0.5, ytick+0.5],                    linewidth=1,  linestyle="-",                                   color='hotpink'                 )
+    ax.text( x=random-0.7,   y=ytick,       s=f"{text_4}",                    rotation=rotation,           verticalalignment  ='center',   color='hotpink',     fontsize=7   )    
+    plt.plot( [random, random],  [ytick-0.5, ytick+0.5],                    linewidth=1,  linestyle="-",                                   color='hotpink'                   )
 
    
     if (DEBUG>99):
