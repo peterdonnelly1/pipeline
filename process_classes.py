@@ -208,7 +208,7 @@ def main(args):
       
       if has_class_file==False:
         if (DEBUG>0):
-          print ( "PROCESS_CLASSES:        INFO: this case did not obtain a class file; deleting: \033[31m{:}\033[m".format(   current_dir     ),  flush=True )    
+          print ( "PROCESS_CLASSES:        INFO: this case did not obtain a class file; deleting from working dataset: \033[31m{:}\033[m".format(   current_dir     ),  flush=True )    
         shutil.rmtree ( current_dir )
 
 #====================================================================================================================================================

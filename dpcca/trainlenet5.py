@@ -3410,7 +3410,7 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
           GAP=' '
         else:
           np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>02d}{RESET}"})
-          GAP=' '
+          GAP='  '
         print (  f"truth = {CLEAR_LINE}{labs}",  flush=True   )
         print (  f"preds = {CLEAR_LINE}{preds}", flush=True   )
         if len(args.class_names)<10:
@@ -5087,29 +5087,37 @@ def box_plot_by_subtype( args, n_genes, start_time, parameters, writer, total_ru
   # Titling
 
   now        = datetime.datetime.now()
-  supertitle = f"{now:%d-%m-%y %H:%M}  Classification of {args.cancer_type_long} Subtypes   ({total_runs_in_job} experiment runs in this box plot.  Total run time: {round(minutes):02d}:{round(seconds):02d})"
+  supertitle = f"{now:%d-%m-%y %H:%M}  Classification of {args.cancer_type_long} Subtypes\n{total_runs_in_job} experiment runs in this box plot.  Total run time: {round(minutes):02d}:{round(seconds):02d}"
   if args.input_mode=='image':
-    title = f"{args.cases[0:25]} ({parameters['n_samples'][0]})  highest class:{args.highest_class_number[0]} NN:{parameters['nn_type_image'][0]}  optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}  batch size:{parameters['batch_size'][0]}   \
-held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]:<9.6f}  tiles:{parameters['n_tiles'][0]}  tile_size:{parameters['tile_size'][0]}  batch_size:{parameters['batch_size'][0]}  (mags:{mags} probs:{prob})"
+    title = f"{args.cases[0:25]} ({parameters['n_samples'][0]})  highest class:{args.highest_class_number[0]} NN:{parameters['nn_type_image'][0]}  optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}\n  \
+batch size:{parameters['batch_size'][0]}  held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]:<9.6f}  tiles:{parameters['n_tiles'][0]}  tile_size:{parameters['tile_size'][0]}  batch_size:{parameters['batch_size'][0]}  (mags:{mags} probs:{prob})"
   else:
-    title = f"{args.cases[0:25]} ({parameters['n_samples'][0]})  {args.rna_genes_tranche} n_genes:{n_genes})   (highest class:{args.highest_class_number[0]})  FPKM-UQ threshold cutoff: >{parameters['cutoff_percentile'][0]}%/<{parameters['cov_threshold'][0]} \
-NN:{parameters['nn_type_rna'][0]} optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}  batch size:{parameters['batch_size'][0]}   held-out:{int(100*parameters['pct_test'][0])}%  \
-lr:{parameters['lr'][0]:<9.6f}  hidden:{parameters['hidden_layer_neurons'][0]}  xform:{parameters['gene_data_transform'][0]}  dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topology}"
+    title = f"{args.cases[0:25]} ({parameters['n_samples'][0]}) / {args.rna_genes_tranche} (n_genes:{n_genes})   highest class:{args.highest_class_number[0]})  \
+FPKM-UQ threshold cutoff: >{parameters['cutoff_percentile'][0]}%/<{parameters['cov_threshold'][0]} \nNeural Network:{parameters['nn_type_rna'][0]}  optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}  \
+batch size:{parameters['batch_size'][0]}   held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]:<9.6f}  hidden layer:{parameters['hidden_layer_neurons'][0]}  xform:{parameters['gene_data_transform'][0]}  \
+dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topology}"
 
-
+  pan_cancer_subtype_colors = [ "lightcoral",      "lightcoral",      "lightcoral", 
+                                "lightsteelblue",  "lightsteelblue",  "lightsteelblue",  "lightsteelblue", "lightsteelblue",
+                                "thistle",         "thistle", 
+                                "paleturquoise",   "paleturquoise",   "paleturquoise",   "paleturquoise",                                 
+                                "lightsalmon",     "lightsalmon", 
+                                "powderblue",      "powderblue", 
+                                "khaki",           "khaki", 
+                                "plum",            "plum", 
+                                "skyblue",         "skyblue",         "skyblue"
+                              ] 
 
   # Render portrait version of box plot
 
   figure_width  = 23
   figure_height = 16
 
-  c_m = f"plt.cm.{eval('args.colour_map')}"                                                                # the 'eval' is so that the user input string will be treated as a variable
-  subtype_colors = [ eval(c_m)(i) for i in range(len(args.class_names))]                                   # makes an array of colours by calling the user defined colour map (which is a function, not a variable)  
 
 
   labels  = args.class_names
 
-  if len(labels) < 8:
+  if len(labels) < 20:
     font_big = 20
     font_med = 18
     font_sml = 16
@@ -5120,6 +5128,8 @@ lr:{parameters['lr'][0]:<9.6f}  hidden:{parameters['hidden_layer_neurons'][0]}  
     text_2="total correct="
     text_3="median correct all runs="    
     text_4="expected for random"
+    c_m = f"plt.cm.{eval('args.colour_map')}"                                                                # the 'eval' is so that the user input string will be treated as a variable
+    subtype_colors = [ eval(c_m)(i) for i in range(len(args.class_names))]                                   # makes an array of colours by calling the user defined colour map (which is a function, not a variable)  
   else:
     font_big = 18
     font_med = 6
@@ -5131,14 +5141,15 @@ lr:{parameters['lr'][0]:<9.6f}  hidden:{parameters['hidden_layer_neurons'][0]}  
     text_2="right="
     text_3="med="    
     text_4="random"
+    subtype_colors = pan_cancer_subtype_colors  
 
 
   fig, ax       = plt.subplots( figsize=( figure_width, figure_height ), constrained_layout=True )
 
   plt.ylabel    (  'subtypes correctly predicted (%)', weight='bold', fontsize=font_big   )
   plt.yticks    (  range(0, 100, 10) )
-  fig.suptitle  (  supertitle,  color='dimgray',  weight='bold',  fontsize=16             )
-  ax.set_title  (  title,       color='dimgray',                  fontsize=10             )  
+  fig.suptitle  (  supertitle,  color='black',  weight='bold',    fontsize=16             )
+  ax.set_title  (  title,       color='black',                    fontsize=14             )  
   ax.set        (  ylim =(0, 100)                                                         )
   ax.xaxis.grid (  True, linestyle='dashed', color='lightgrey'                            )
   ax.yaxis.grid (  True, linestyle='dotted'                                               )
@@ -5211,25 +5222,55 @@ lr:{parameters['lr'][0]:<9.6f}  hidden:{parameters['hidden_layer_neurons'][0]}  
   figure_width  = 30
   figure_height = 40
 
-  c_m = f"plt.cm.{eval('args.colour_map')}"                                                                # the 'eval' is so that the user input string will be treated as a variable
-  subtype_colors = [ eval(c_m)(i) for i in range(len(args.class_names))]                                   # makes an array of colours by calling the user defined colour map (which is a function, not a variable)  
+
+
+  labels  = args.long_class_names
+
+  if len(labels) < 8:
+    rotation = 0
+    font_big = 20
+    font_med = 18
+    font_sml = 16
+    base     = 0.75
+    gap_1    = 2.75
+    gap_2    = 2.5
+    text_1="total predictions="
+    text_2="total correct="
+    text_3="median correct all runs="    
+    text_4="expected for random"
+    c_m = f"plt.cm.{eval('args.colour_map')}"                                                                # the 'eval' is so that the user input string will be treated as a variable
+    subtype_colors = [ eval(c_m)(i) for i in range(len(args.class_names))]                                   # makes an array of colours by calling the user defined colour map (which is a function, not a variable)  
+  else:
+    rotation = 90
+    font_big = 18
+    font_med = 12
+    font_sml = 6
+    base     = 0.75
+    gap_1    = 1.3
+    gap_2    = 1.3
+    text_1="preds="
+    text_2="correct="
+    text_3="median="    
+    text_4="random"
+    subtype_colors = pan_cancer_subtype_colors
+     
+
         
   fig, ax       = plt.subplots( figsize=( figure_width, figure_height ), constrained_layout=False )
 
-  plt.xlabel('percentage correctly predicted', fontsize=12)
-  plt.yticks( rotation=90 )
+  plt.yticks( fontsize=font_med )
   plt.xticks(  range( 0, 100, 10)  )
-  ax.set_title  ( title,      color='dimgray',                fontsize=9   )
-  fig.suptitle  ( supertitle, color='dimgray', weight='bold', fontsize=12  )    
+  fig.suptitle  (  supertitle,  color='black',  weight='bold',    fontsize=16             )
+  ax.set_title  (  title,       color='black',                    fontsize=14             ) 
   ax.set        ( xlim =(0, 100) )
   ax.xaxis.grid ( True, linestyle='dotted' )  
   ax.yaxis.grid ( True, linestyle='dashed', color='lightgrey')  
 
   
-  labels  = args.class_names
   bp      = plt.boxplot( pct_correct_predictions_plane, labels=labels, vert=False,  patch_artist=True,  showfliers=True,  medianprops=dict(color="black", alpha=0.7) )
 
-  ax.text( x=0, y=.1,  s=f"Total predictions made {np.sum(all_predictions_plane):,}; of which correct: {np.sum(correct_predictions_plane):,} ({100*np.sum(correct_predictions_plane)/np.sum(all_predictions_plane):.1f}%)",  horizontalalignment='left', color='dimgray', fontsize=14) 
+  ax.text( x=-12, y=-2,  s=f"Total predictions made {np.sum(all_predictions_plane):,}; of which correct: {np.sum(correct_predictions_plane):,} ({100*np.sum(correct_predictions_plane)/np.sum(all_predictions_plane):.1f}%)",  horizontalalignment='left', color='dimgray', fontsize=14) 
+  plt.xlabel    (  'subtypes correctly predicted (%)', weight='bold', fontsize=font_big   )
 
   totals          = total_predictions_by_subtype
   corrects        = correct_predictions_by_subtype
@@ -5246,12 +5287,12 @@ lr:{parameters['lr'][0]:<9.6f}  hidden:{parameters['hidden_layer_neurons'][0]}  
     median   = median_pct_correct_predictions_by_subtype[ytick-1]
     random   = expected_IFF_random_preds[ytick-1]
     
-    ax.text( x=1,            y=ytick+.02,       s=f"predictions made={total:,};",                                        horizontalalignment='left',     color='#202020',     fontsize=8  ) 
-    ax.text( x=9,            y=ytick+.02,       s=f"correct={correct:,} ({percent:2.1f}%);",                             horizontalalignment='left',     color='dimgray',     fontsize=8  )    
-    ax.text( x=19,           y=ytick+.02,       s=f"median={median:2.1f}%",                                              horizontalalignment='left',     color='dimgray',     fontsize=8  )  
-    ax.text( x=random+0.58 , y=ytick-0.24,      s=f"expected for",                        rotation=90,                   horizontalalignment='center',   color='lightpink',   fontsize=8  )    
-    ax.text( x=random+1.39,  y=ytick-0.35,      s=f"random classification",               rotation=90,                   horizontalalignment='center',   color='lightpink',   fontsize=8  )    
-    plt.plot( [random, random],  [ytick-0.27, ytick+0.27],                        linewidth=1,  linestyle="--",                                          color='lightpink'               )
+    ax.text( x=1,            y=ytick,       s=f"{text_1}{total:,}",                                        horizontalalignment='left',     color='#202020',     fontsize=10  ) 
+    ax.text( x=8,            y=ytick,       s=f"{text_2}{correct:,}",                                      horizontalalignment='left',     color='#202020',     fontsize=10  )    
+    ax.text( x=16,           y=ytick,       s=f"({percent:2.1f}%)",                                        horizontalalignment='left',     color='#202020',     fontsize=10  )    
+    ax.text( x=21,           y=ytick,       s=f"{text_3}{median:2.1f}%",                                   horizontalalignment='left',     color='#202020',     fontsize=10  )  
+    ax.text( x=random-0.7,   y=ytick,       s=f"{text_4}",                    rotation=rotation,           verticalalignment  ='center',   color='hotpink',     fontsize=8   )    
+    plt.plot( [random, random],  [ytick-0.5, ytick+0.5],                    linewidth=1,  linestyle="-",                                   color='hotpink'                 )
 
    
     if (DEBUG>99):
