@@ -33,7 +33,7 @@ mv  0008/thca/* 0008
 mv  0008/ucec/* 0008
 mv  0008/tgct/* 0008
 mv  0008/paad/* 0008
-mv  0008/blca/* 0008
+#~ mv  0008/blca/* 0008
 
 rmdir -v 0008/stad
 rmdir -v 0008/coad
@@ -48,6 +48,6 @@ rmdir -v 0008/thca
 rmdir -v 0008/ucec
 rmdir -v 0008/tgct
 rmdir -v 0008/paad
-rmdir -v 0008/blca
+#~ rmdir -v 0008/blca
 
 ./create_master.sh 0008
