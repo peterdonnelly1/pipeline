@@ -398,7 +398,7 @@ def main(args):
         else:
           pass
       else:
-        print ( f"{RED}directory (case) '{CYAN}{el[1]}{RESET}{RED}'\r\033[62C(or its root if applicable) is not listed in master clinical spreadsheet\r\033[200C <<<<< anomoly, but no action will be taken{RESET}" )
+        print ( f"{ORANGE}directory (case) '{CYAN}{el[1]}{RESET}{ORANGE}'\r\033[62C(or its root if applicable) is not listed in master clinical spreadsheet\r\033[200C <<<<< anomoly, but no action will be taken{RESET}" )
     
     
   # (3) show some useful stats
