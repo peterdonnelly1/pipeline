@@ -80,7 +80,7 @@ rows=26
 cols=26
 
 
-def generate( args, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, 
+def generate( args, class_names, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, 
               unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, tile_size, cov_threshold, cutoff_percentile, gene_data_norm, gene_data_transform ):
 
   # DON'T USE args.n_samples or args.n_tiles or args.gene_data_norm or args.tile_size or args.highest_class_number or args.cov_threshold or args.cutoff_percentile since these are job-level lists. Here we are just using one value of each, passed in as the parameters above
@@ -93,7 +93,6 @@ def generate( args, n_samples, batch_size, highest_class_number, multimode_case_
   rna_file_name                = args.rna_file_name
   rna_file_suffix              = args.rna_file_suffix  
   rna_file_reduced_suffix      = args.rna_file_reduced_suffix
-  class_names                  = args.class_names
   class_numpy_file_name        = args.class_numpy_file_name
   use_autoencoder_output       = args.use_autoencoder_output
   use_unfiltered_data          = args.use_unfiltered_data
@@ -669,7 +668,7 @@ def generate( args, n_samples, batch_size, highest_class_number, multimode_case_
           print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",  flush=True )
           print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) cases_required .................................................................... = {MIKADO}{cases_required}{RESET}",         flush=True )
 
-        global_rna_files_processed, n_genes = generate_rna_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_genes, cov_threshold, cutoff_percentile, gene_data_norm, gene_data_transform, use_autoencoder_output, class_counts )
+        global_rna_files_processed, n_genes = generate_rna_dataset ( args, class_names, target, cases_required, highest_class_number, case_designation_flag, n_genes, cov_threshold, cutoff_percentile, gene_data_norm, gene_data_transform, use_autoencoder_output, class_counts )
   
         if DEBUG>0:
           print ( f"{DULL_WHITE}GENERATE:       INFO:    global_rna_files_processed  (this run)................................................. = {MIKADO}{global_rna_files_processed}{RESET}{CLEAR_LINE}", flush=True )
@@ -685,7 +684,7 @@ def generate( args, n_samples, batch_size, highest_class_number, multimode_case_
           print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",  flush=True )
           print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) cases_required .................................................................... = {MIKADO}{cases_required}{RESET}",         flush=True )
 
-        global_rna_files_processed, n_genes = generate_rna_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_genes, cov_threshold, cutoff_percentile, gene_data_norm, gene_data_transform, use_autoencoder_output, class_counts )
+        global_rna_files_processed, n_genes = generate_rna_dataset ( args, class_names, target, cases_required, highest_class_number, case_designation_flag, n_genes, cov_threshold, cutoff_percentile, gene_data_norm, gene_data_transform, use_autoencoder_output, class_counts )
   
         if DEBUG>0:
           print ( f"{DULL_WHITE}GENERATE:       INFO:    global_rna_files_processed  (this run)................................................. = {MIKADO}{global_rna_files_processed}{RESET}{CLEAR_LINE}", flush=True )
@@ -727,7 +726,7 @@ def generate( args, n_samples, batch_size, highest_class_number, multimode_case_
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO:    (rna_test)    therefore cases_required (test cases = n_samples - training_cases) .............. = {MIKADO}{cases_required}{RESET}",                           flush=True )
   
   
-          global_rna_files_processed, n_genes = generate_rna_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_genes, cov_threshold, cutoff_percentile, gene_data_norm, gene_data_transform, use_autoencoder_output, class_counts )
+          global_rna_files_processed, n_genes = generate_rna_dataset ( args, class_names, target, cases_required, highest_class_number, case_designation_flag, n_genes, cov_threshold, cutoff_percentile, gene_data_norm, gene_data_transform, use_autoencoder_output, class_counts )
     
           if DEBUG>0:
             print ( f"{DULL_WHITE}GENERATE:       INFO:    global_rna_files_processed  (this run)................................................. = {MIKADO}{global_rna_files_processed}{RESET}{CLEAR_LINE}", flush=True )
@@ -750,7 +749,7 @@ def generate( args, n_samples, batch_size, highest_class_number, multimode_case_
           print ( f"{DULL_WHITE}GENERATE:       INFO:    pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}{CLEAR_LINE}",               flush=True )
 
 
-        global_rna_files_processed, n_genes = generate_rna_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_genes, cov_threshold, cutoff_percentile, gene_data_norm, gene_data_transform, use_autoencoder_output, class_counts )
+        global_rna_files_processed, n_genes = generate_rna_dataset ( args, class_names, target, cases_required, highest_class_number, case_designation_flag, n_genes, cov_threshold, cutoff_percentile, gene_data_norm, gene_data_transform, use_autoencoder_output, class_counts )
 
         if DEBUG>0:
           print ( f"{DULL_WHITE}GENERATE:       INFO:    global_rna_files_processed  (this run)............................................. = {MIKADO}{global_rna_files_processed}{RESET}{CLEAR_LINE}", flush=True )
@@ -834,7 +833,7 @@ def generate( args, n_samples, batch_size, highest_class_number, multimode_case_
 
 
 #----------------------------------------------------------------------------------------------------------
-def generate_rna_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_genes, cov_threshold, cutoff_percentile, gene_data_norm, gene_data_transform, use_autoencoder_output, class_counts  ):
+def generate_rna_dataset ( args, class_names, target, cases_required, highest_class_number, case_designation_flag, n_genes, cov_threshold, cutoff_percentile, gene_data_norm, gene_data_transform, use_autoencoder_output, class_counts  ):
   
   if use_autoencoder_output=='False':
     genes_new      = np.zeros( ( cases_required, 1, n_genes                ), dtype=np.float64 )
@@ -1300,12 +1299,12 @@ def generate_rna_dataset ( args, target, cases_required, highest_class_number, c
     
     if DEBUG>0:  
       print ( f"GENERATE:       INFO:  SANITY CHECK: number of unique classes represented in the cases                       = {MIKADO}{len(np.unique(rna_labels_new))}{RESET}"                                                            ) 
-      print ( f"GENERATE:       INFO:  SANITY CHECK: classes in {CYAN}CLASS_NAMES{RESET}                                                  = \n{CYAN}{args.long_class_names}{RESET}"          ) 
+      print ( f"GENERATE:       INFO:  SANITY CHECK: classes in {CYAN}CLASS_NAMES{RESET}                                                  = \n{CYAN}{class_names}{RESET}"          ) 
     
-    if len(np.unique(rna_labels_new)) != len(args.class_names):
+    if len(np.unique(rna_labels_new)) != len(class_names):
       print ( f"{RED}GENERATE:       FATAL: Different number of cancer types represented in the cases to be trained than in the configuration parameter {CYAN}CLASS_NAMES{RESET}{RESET}"                                          ) 
       print ( f"{RED}GENERATE:       FATAL:    number of unique classes represented in the cases    = {MIKADO}{len(np.unique(rna_labels_new))}{RESET}"                                                                            ) 
-      print ( f"{RED}GENERATE:       FATAL:    classes in {CYAN}CLASS_NAMES{RESET}{RED}                               = {MIKADO}{len(args.class_names)}{RESET}{RED}, namely: {CYAN}{args.long_class_names}{RESET}"                ) 
+      print ( f"{RED}GENERATE:       FATAL:    classes in {CYAN}CLASS_NAMES{RESET}{RED}                               = {MIKADO}{len(class_names)}{RESET}{RED}, namely: {CYAN}{class_names}{RESET}"                ) 
       print ( f"{RED}GENERATE:       FATAL:    possible remedy (1) include more cases to make it  more likely that examples of the missing class(es) will be represented{RESET}"      )
       print ( f"{RED}GENERATE:       FATAL:    possible remedy (2) edit {CYAN}CLASS_NAMES{RESET}{RED} to only include the names of classes actually represented (but be careful: the order of {CYAN}CLASS_NAMES{RESET}{RED} has to be the same as the order of the class labels as represented in the master spreadsheet {CYAN}{args.cancer_type}_mapping_file_MASTER{RESET}{RED}, and 'gaps' are not permitted" )
       print ( f"{RED}GENERATE:       FATAL: halting now ...{RESET}", flush=True)

@@ -270,10 +270,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   mapping_file_name             = args.mapping_file_name
   target_genes_reference_file   = args.target_genes_reference_file
   use_unfiltered_data           = args.use_unfiltered_data
-  class_names                   = args.class_names
   cancer_type                   = args.cancer_type
   cancer_type_long              = args.cancer_type_long    
-  long_class_names              = args.long_class_names  
   class_colours                 = args.class_colours
   colour_map                    = args.colour_map
   input_mode                    = args.input_mode
@@ -406,11 +404,26 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   subtype_names           = pd.read_csv( fqn, usecols=[names_column], sep=',').dropna()                    # use pandas to extract data, dropping all empty cells
   subtype_names_as_list   = list( subtype_names[names_column][2:] )                                        # convert everything from row 2 onward into a python list. row 2 is where the subtype names are supposed to start
 
-  class_names      =  subtype_names_as_list
-  args.class_names =  subtype_names_as_list
+
+  if DEBUG>99:
+    print ( f"CLASSI:         INFO:  highest_class_number                          = {MIKADO}{highest_class_number}{RESET}" )
+    print ( f"CLASSI:         INFO:  len(subtype_names_as_list)                    = {MIKADO}{len(subtype_names_as_list)}{RESET}" )
+    print ( f"CLASSI:         INFO:  subtype_names_as_list                         = {CYAN}{subtype_names_as_list}{RESET}" )
+    print ( f"CLASSI:         INFO:  subtype_names_as_list[0:highest_class_number] = {CYAN}{subtype_names_as_list[0:highest_class_number+1]}{RESET}" )
+
+  if highest_class_number > len(subtype_names_as_list)-1:
+    print( f"{RED}CLASSI:         WARNG: config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{RED}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{RED}') = {MIKADO}{highest_class_number}{RESET}{RED}, but this is greater than the highest class (subtype) number in the dataset ({MIKADO}{len(subtype_names_as_list)-1}{RESET}{RED}){RESET}", flush=True)
+    print( f"{RED}CLASSI:         WARNG: note that class (subtype) numbers start at zero{RESET}", flush=True)
+    print( f"{RED}CLASSI:         WARNG: it will be ignored. Continuing{RESET}", flush=True)
+    time.sleep(4)
+
+    
+  class_names  =  subtype_names_as_list if highest_class_number>=len(subtype_names_as_list) else subtype_names_as_list[0:highest_class_number+1]
+
+  # ~ class_names = subtype_names_as_list
   
   if DEBUG>0:
-    print ( f"CLASSI:         INFO:  subtype names = {CYAN}{subtype_names_as_list}{RESET}" )
+    print ( f"CLASSI:         INFO:  subtype names  = {CYAN}{class_names}{RESET}" )
 
 
   if ( input_mode=='image' ):
@@ -562,7 +575,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     print( f"{ORANGE}CLASSI:         CAUTION:   ... NOT halting, but if the program crashes, you'll at least know the likely cause{RESET}" )
       
   c_m = f"plt.cm.{eval('colour_map')}"                                                                    # the 'eval' is so that the user input string will be treated as a variable
-  class_colors = [ eval(c_m)(i) for i in range(len(args.class_names))]                                    # makes an array of colours by calling the user defined colour map (which is a function, not a variable)
+  class_colors = [ eval(c_m)(i) for i in range(len(class_names))]                                    # makes an array of colours by calling the user defined colour map (which is a function, not a variable)
   if DEBUG>555:
     print (f"CLASSI:         INFO:  class_colors = \n{MIKADO}{class_colors}{RESET}" )
             
@@ -717,7 +730,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                           n_samples  =   n_samples,
                          batch_size  =   batch_size,
                             n_tiles  =   n_tiles,
-               highest_class_number  =   highest_class_number,
                           tile_size  =   tile_size,
                          rand_tiles  =  [ rand_tiles ],
                         nn_type_img  =   nn_type_img,
@@ -753,7 +765,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   total_runs_in_job = len(list(product(*param_values)))
     
   # establish and initialise some variables
-  n_classes = len(args.class_names)
+  n_classes = len(class_names)
   run_level_classifications_matrix     =  np.zeros( (n_classes, n_classes), dtype=int )
   job_level_classifications_matrix     =  np.zeros( (n_classes, n_classes), dtype=int )
   run_level_classifications_matrix_acc =  np.zeros( ( total_runs_in_job, n_classes, n_classes ), dtype=int )     
@@ -769,15 +781,14 @@ f"\
 \r\033[{start_column+2*offset}Csamples\
 \r\033[{start_column+3*offset}Cbatch_size\
 \r\033[{start_column+4*offset}Ctiles/image\
-\r\033[{start_column+5*offset}Chi_class_num\
-\r\033[{start_column+6*offset}Ctile_size\
-\r\033[{start_column+7*offset}Crand_tiles\
-\r\033[{start_column+8*offset}Cnet_img\
-\r\033[{start_column+9*offset}Coptimizer\
-\r\033[{start_column+10*offset}Cstain_norm\
-\r\033[{start_column+11*offset}Clabel_swap\
-\r\033[{start_column+12*offset}Cgreyscale\
-\r\033[{start_column+13*offset}Cjitter vector\
+\r\033[{start_column+5*offset}Ctile_size\
+\r\033[{start_column+6*offset}Crand_tiles\
+\r\033[{start_column+7*offset}Cnet_img\
+\r\033[{start_column+8*offset}Coptimizer\
+\r\033[{start_column+9*offset}Cstain_norm\
+\r\033[{start_column+10*offset}Clabel_swap\
+\r\033[{start_column+11*offset}Cgreyscale\
+\r\033[{start_column+12*offset}Cjitter vector\
 "
 
   rna_headings =\
@@ -803,7 +814,7 @@ f"\
     if input_mode=='image':
       print(f"\n{UNDER}JOB:{RESET}")
       print(f"\033[2C{image_headings}{RESET}")      
-      for repeater, lr, pct_test, n_samples, batch_size, n_tiles, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, cov_threshold, cutoff_percentile, gene_embed_dim, dropout_1, dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values):    
+      for repeater, lr, pct_test, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, cov_threshold, cutoff_percentile, gene_embed_dim, dropout_1, dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values):    
 
         print( f"{CARRIBEAN_GREEN}\
 \r\033[2C\
@@ -812,22 +823,21 @@ f"\
 \r\033[{start_column+2*offset}C{n_samples:<5d}\
 \r\033[{start_column+3*offset}C{batch_size:<5d}\
 \r\033[{start_column+4*offset}C{n_tiles:<5d}\
-\r\033[{start_column+5*offset}C{highest_class_number:<2d}\
 \r\033[{start_column+6*offset}C{tile_size:<3d}\
-\r\033[{start_column+7*offset}C{rand_tiles:<5s}\
-\r\033[{start_column+8*offset}C{nn_type_img:<10s}\
-\r\033[{start_column+9*offset}C{nn_optimizer:<8s}\
-\r\033[{start_column+10*offset}C{stain_norm:<10s}\
-\r\033[{start_column+11*offset}C{label_swap_pct:<6.1f}\
-\r\033[{start_column+12*offset}C{make_grey_pct:<5.1f}\
-\r\033[{start_column+13*offset}C{jitter:}\
+\r\033[{start_column+6*offset}C{rand_tiles:<5s}\
+\r\033[{start_column+7*offset}C{nn_type_img:<10s}\
+\r\033[{start_column+8*offset}C{nn_optimizer:<8s}\
+\r\033[{start_column+9*offset}C{stain_norm:<10s}\
+\r\033[{start_column+10*offset}C{label_swap_pct:<6.1f}\
+\r\033[{start_column+11*offset}C{make_grey_pct:<5.1f}\
+\r\033[{start_column+12*offset}C{jitter:}\
 {RESET}" )  
 
     elif input_mode=='rna':
       print(f"\n{UNDER}JOB:{RESET}")
       print(f"\033[2C\{rna_headings}{RESET}")
       
-      for repeater, lr, pct_test, n_samples, batch_size, n_tiles, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, cov_threshold, cutoff_percentile, gene_embed_dim, dropout_1, dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values):    
+      for repeater, lr, pct_test, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, cov_threshold, cutoff_percentile, gene_embed_dim, dropout_1, dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values):    
 
         print( f"{CARRIBEAN_GREEN}\
 \r\033[{start_column+0*offset}C{lr:<9.6f}\
@@ -858,7 +868,7 @@ f"\
 
   run=0
   
-  for repeater, lr, pct_test, n_samples, batch_size, n_tiles, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, cov_threshold, cutoff_percentile, gene_embed_dim, dropout_1, dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values): 
+  for repeater, lr, pct_test, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, cov_threshold, cutoff_percentile, gene_embed_dim, dropout_1, dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values): 
  
     if ( divide_cases == 'True' ):
       
@@ -883,7 +893,7 @@ f"\
 
     
     if input_mode=='image':
-      descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<4s}_{args.cases:_<12s}_{args.dataset}_{nn_type_img:_<15}_{nn_optimizer:_<13}_e_{args.n_epochs:03d}_samps_{n_samples:03d}_tiles_{n_tiles:04d}_hi_clss_{highest_class_number:02d}\
+      descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<4s}_{args.cases:_<12s}_{args.dataset}_{nn_type_img:_<15}_{nn_optimizer:_<13}_e_{args.n_epochs:03d}_samps_{n_samples:03d}_tiles_{n_tiles:04d}_hi_clss_{n_classes:02d}\
 _tlsz_{tile_size:03d}__mags_{mags}__probs_{prob}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:09.6f}"
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}  Tiles/Slide={n_tiles:d}   Tile size={tile_size:d}x{tile_size:d}\n\
@@ -894,24 +904,24 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_pct}_Grey_Pct_{make_g
 
 
     elif input_mode=='rna':
-      descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<4s}_{args.cases[0:10]:_<10s}_{rna_genes_tranche:_<15s}_{nn_type_rna:_<15s}_{nn_optimizer:_<9s}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hiclss_{highest_class_number:02d}\
+      descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<4s}_{args.cases[0:10]:_<10s}_{rna_genes_tranche:_<15s}_{nn_type_rna:_<15s}_{nn_optimizer:_<9s}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hiclss_{n_classes:02d}\
 _bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:<9.6f}_hid_{hidden_layer_neurons:04d}_low_{cov_threshold:<02.2e}_low_{cutoff_percentile:<4.0f}_DR_{100*dropout_1:4.1f}_xfrm_{gene_data_transform:_<10}_shape_{hidden_layer_encoder_topology}"
 
-      descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}\n\
+      descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={n_classes:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}\n\
 Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:<9.6f}   Cases from subset: {args.cases[0:50]} Genes subset: {rna_genes_tranche}"
 
-      desc_2_short = f'{args.dataset.upper()}_HighClass_{highest_class_number:d}_Encoder_{nn_type_rna:_<15}_e_{args.n_epochs:d}_\
+      desc_2_short = f'{args.dataset.upper()}_HighClass_{n_classes:d}_Encoder_{nn_type_rna:_<15}_e_{args.n_epochs:d}_\
 Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_samples:d}_Cases_{args.cases[0:50]} Genes Subset: {rna_genes_tranche}'
 
 
     else:
-      descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<4s}_{args.cases:_<10s}_{rna_genes_tranche:_<15}_{nn_type_rna:_<15}_{nn_optimizer:_<9s}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}\
+      descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<4s}_{args.cases:_<10s}_{rna_genes_tranche:_<15}_{nn_type_rna:_<15}_{nn_optimizer:_<9s}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{n_classes:02d}\
 _bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:<9.6f}_hid_{hidden_layer_neurons:04d}_low_{cov_threshold:<02.2e}_low_{cutoff_percentile:<4.0f}_DR_{100*dropout_1:4.1f}_xfrm_{gene_data_transform:_<10}_shape_{hidden_layer_encoder_topology}"          
 
-      descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}\n\
+      descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={n_classes:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}\n\
 Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:<9.6f}   Cases from subset: {args.cases[0:50]} Genes subset: {rna_genes_tranche}"
 
-      desc_2_short = f'{args.dataset.upper()}_HighClass_{highest_class_number:d}_Encoder_{nn_type_rna}_e_{args.n_epochs:d}_\
+      desc_2_short = f'{args.dataset.upper()}_HighClass_{n_classes:d}_Encoder_{nn_type_rna}_e_{args.n_epochs:d}_\
 Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_samples:d}_Cases_{args.cases[0:50]}_{rna_genes_tranche}'
 
 
@@ -968,7 +978,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
 \r\033[{start_column+2*offset}C{n_samples:<5d}\
 \r\033[{start_column+3*offset}C{batch_size:<5d}\
 \r\033[{start_column+4*offset}C{n_tiles:<5d}\
-\r\033[{start_column+5*offset}C{highest_class_number:<2d}\
+\r\033[{start_column+5*offset}C{n_classes:<2d}\
 \r\033[{start_column+6*offset}C{tile_size:<3d}\
 \r\033[{start_column+7*offset}C{rand_tiles:<5s}\
 \r\033[{start_column+8*offset}C{nn_type_img:<10s}\
@@ -1185,17 +1195,20 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
               print( f"                                    -- value of tile_size {MIKADO}({tile_size})      \r\033[60Chas changed   since last run{RESET}")
          
         if DEBUG>0:
-          print( f"CLASSI:         INFO: n_samples               = {MAGENTA}{n_samples}{RESET}"       )
-          print( f"CLASSI:         INFO: args.n_samples          = {MAGENTA}{args.n_samples}{RESET}"  )
-          print( f"CLASSI:         INFO: n_tiles                 = {MAGENTA}{n_tiles}{RESET}"         )
-          print( f"CLASSI:         INFO: args.n_tiles            = {MAGENTA}{args.n_tiles}{RESET}"    )
-          print( f"CLASSI:         INFO: batch_size              = {MAGENTA}{batch_size}{RESET}"      )
-          print( f"CLASSI:         INFO: args.batch_size         = {MAGENTA}{args.batch_size}{RESET}" )
-          print( f"CLASSI:         INFO: n_genes                 = {MAGENTA}{n_genes}{RESET}"         )
-          print( f"CLASSI:         INFO: args.n_genes            = {MAGENTA}{args.n_genes}{RESET}"    )
-          print( f"CLASSI:         INFO: gene_data_norm          = {MAGENTA}{gene_data_norm}{RESET}"  )            
-                        
-        _, _,  _ = generate( args, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, tile_size, cov_threshold, cutoff_percentile, gene_data_norm, gene_data_transform  ) 
+          print( f"CLASSI:         INFO: n_samples               = {MAGENTA}{n_samples}{RESET}",        flush=True  )
+          print( f"CLASSI:         INFO: args.n_samples          = {MAGENTA}{args.n_samples}{RESET}",   flush=True  )
+          print( f"CLASSI:         INFO: n_classes               = {MAGENTA}{n_classes}{RESET}",        flush=True  )
+          print( f"CLASSI:         INFO: args.n_classes          = {MAGENTA}{args.n_classes}{RESET}",   flush=True  )
+          print( f"CLASSI:         INFO: n_tiles                 = {MAGENTA}{n_tiles}{RESET}",          flush=True  )
+          print( f"CLASSI:         INFO: args.n_tiles            = {MAGENTA}{args.n_tiles}{RESET}",     flush=True  )
+          print( f"CLASSI:         INFO: batch_size              = {MAGENTA}{batch_size}{RESET}",       flush=True  )
+          print( f"CLASSI:         INFO: args.batch_size         = {MAGENTA}{args.batch_size}{RESET}",  flush=True  )
+          print( f"CLASSI:         INFO: n_genes                 = {MAGENTA}{n_genes}{RESET}",          flush=True  )
+          print( f"CLASSI:         INFO: args.n_genes            = {MAGENTA}{args.n_genes}{RESET}",     flush=True  )
+          print( f"CLASSI:         INFO: gene_data_norm          = {MAGENTA}{gene_data_norm}{RESET}",   flush=True  )            
+
+        highest_class_number = n_classes-1
+        _, _,  _ = generate( args, class_names, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, tile_size, cov_threshold, cutoff_percentile, gene_data_norm, gene_data_transform  ) 
 
         if DEBUG>0:
           print( f"CLASSI:         INFO: n_samples               = {BLEU}{n_samples}{RESET}"       )
@@ -1223,8 +1236,14 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
           must_generate=True
           
         if must_generate==True:
-         
-          n_genes, n_samples, batch_size = generate( args, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, 
+          
+          if DEBUG>0:
+            print( f"CLASSI:         INFO: type(n_classes)         = {MAGENTA}{type(n_classes)}{RESET}",        flush=True  )
+            print( f"CLASSI:         INFO: n_classes               = {MAGENTA}{n_classes}{RESET}",              flush=True  )
+            
+
+          highest_class_number = n_classes-1
+          n_genes, n_samples, batch_size = generate( args, class_names, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, 
                                                       unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, tile_size, 
                                                       cov_threshold, cutoff_percentile, gene_data_norm, gene_data_transform  
                                                    )
@@ -1368,9 +1387,9 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
 
     #(5) Load network
 
-    if DEBUG>1:                                                                                                       
-      print( f"CLASSI:         INFO: {BOLD}5 about to load network {MIKADO}{nn_type_img}{RESET}{BOLD} and {MIKADO}{nn_type_rna}{RESET}" )  
-
+    if DEBUG>1:                                                                                                        
+      print( f"CLASSI:         INFO: {BOLD}5 about to load network {MIKADO}{nn_type_img}{RESET}{BOLD} and {MIKADO}{nn_type_rna}{RESET}" )
+      
     model = LENETIMAGE( args, cfg, input_mode, nn_type_img, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, dropout_1, dropout_2, tile_size, args.latent_dim, args.em_iters  )
 
     if DEBUG>1: 
@@ -1967,7 +1986,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
 
         if DEBUG>88:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nCLASSI:         INFO:      args.class_names                 = \n{CHARTREUSE}{class_names}{RESET}", flush=True )
+          print ( f"\nCLASSI:         INFO:      class_names                 = \n{CHARTREUSE}{class_names}{RESET}", flush=True )
           
   
         figure_width  = 20
@@ -1978,7 +1997,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         plt.ylim  ( 0, n_tiles  )     
         #sns.set_theme(style="whitegrid")
         pd_aggregate_tile_probabilities_matrix                    = pd.DataFrame( aggregate_tile_probabilities_matrix )   [0:upper_bound_of_indices_to_plot_image]
-        pd_aggregate_tile_probabilities_matrix.columns            = args.class_names
+        pd_aggregate_tile_probabilities_matrix.columns            = class_names
         pd_aggregate_tile_probabilities_matrix[ 'agg_prob' ]      = np.sum(aggregate_tile_probabilities_matrix,   axis=1 )[0:upper_bound_of_indices_to_plot_image]
         pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]  = pd_aggregate_tile_probabilities_matrix.max   (axis=1) [0:upper_bound_of_indices_to_plot_image]
         pd_aggregate_tile_probabilities_matrix[ 'pred_class'   ]  = pd_aggregate_tile_probabilities_matrix.idxmax(axis=1) [0:upper_bound_of_indices_to_plot_image]  # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
@@ -2034,14 +2053,14 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         ax.set_ylabel  ("Aggregate Probabilities",                                       fontsize=14 )
         ax.tick_params (axis='x', labelsize=12,  labelcolor='black')
         # ~ ax.tick_params (axis='y', labelsize=14,  labelcolor='black')
-        # ~ plt.legend( args.class_names, loc=2, prop={'size': 14} )
+        # ~ plt.legend( class_names, loc=2, prop={'size': 14} )
         
-        # ~ patch0 = mpatches.Patch(color=cols[1], label=args.class_names[0])
-        # ~ patch1 = mpatches.Patch(color=cols[2], label=args.class_names[1])
-        # ~ patch2 = mpatches.Patch(color=cols[3], label=args.class_names[2])
-        # ~ patch3 = mpatches.Patch(color=cols[4], label=args.class_names[3])
-        # ~ patch4 = mpatches.Patch(color=cols[5], label=args.class_names[4])
-        # ~ patch5 = mpatches.Patch(color=cols[0], label=args.class_names[5])
+        # ~ patch0 = mpatches.Patch(color=cols[1], label=class_names[0])
+        # ~ patch1 = mpatches.Patch(color=cols[2], label=class_names[1])
+        # ~ patch2 = mpatches.Patch(color=cols[3], label=class_names[2])
+        # ~ patch3 = mpatches.Patch(color=cols[4], label=class_names[3])
+        # ~ patch4 = mpatches.Patch(color=cols[5], label=class_names[4])
+        # ~ patch5 = mpatches.Patch(color=cols[0], label=class_names[5])
         
         # ~ plt.legend( handles=[patch0, patch1, patch2, patch3, patch4, patch5 ], loc=2, prop={'size': 14} )
                 
@@ -2061,10 +2080,10 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
                     print ( f"CLASSI:         INFO:      {GREEN}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< FOUND IT {RESET}",        flush=True ) 
                     print ( f"CLASSI:         INFO:      {GREEN}index                                = {RESET}{MIKADO}{index}{RESET}",                               flush=True ) 
                     print ( f"CLASSI:         INFO:      {GREEN}true class                           = {RESET}{MIKADO}{true_class}{RESET}",                          flush=True )
-                    print ( f"CLASSI:         INFO:      {GREEN}args.class_names[row['true_class']]  = {RESET}{MIKADO}{args.class_names[row['true_class']]}{RESET}", flush=True )
+                    print ( f"CLASSI:         INFO:      {GREEN}class_names[row['true_class']]  = {RESET}{MIKADO}{class_names[row['true_class']]}{RESET}", flush=True )
                     print ( f"CLASSI:         INFO:      {GREEN}pred class                           = {RESET}{MIKADO}{row['pred_class'][0]}{RESET}",                flush=True )
                     print ( f"CLASSI:         INFO:      {GREEN}correct_count                        = {RESET}{MIKADO}{correct_count}{RESET}",                       flush=True )                       
-                if not args.class_names[row['true_class']] == row['pred_class'][0]:                          # this logic determines whether the prediction was correct or not
+                if not class_names[row['true_class']] == row['pred_class'][0]:                          # this logic determines whether the prediction was correct or not
                   ax.annotate( f"{true_class}", (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center', fontsize=14, color=pkmn_type_colors[true_class], xytext=(0, 5), textcoords='offset points')
                 else:
                   correct_count+=1
@@ -2106,7 +2125,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         plt.ylim  ( 0, n_tiles  )     
         #sns.set_theme(style="whitegrid")
         pd_aggregate_tile_level_winners_matrix                      = pd.DataFrame( aggregate_tile_level_winners_matrix )    [0:upper_bound_of_indices_to_plot_image]
-        pd_aggregate_tile_level_winners_matrix.columns              = args.class_names
+        pd_aggregate_tile_level_winners_matrix.columns              = class_names
         pd_aggregate_tile_level_winners_matrix[ 'max_tile_count' ]  = pd_aggregate_tile_level_winners_matrix.max   (axis=1)  [0:upper_bound_of_indices_to_plot_image]
         pd_aggregate_tile_level_winners_matrix[ 'pred_class']       = pd_aggregate_tile_level_winners_matrix.idxmax(axis=1)  [0:upper_bound_of_indices_to_plot_image]  # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
         pd_aggregate_tile_level_winners_matrix[ 'true_class' ]      = patches_true_classes                                   [0:upper_bound_of_indices_to_plot_image]
@@ -2143,7 +2162,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         ax.set_ylabel ("Number of Winning Tiles",                                       fontsize=14 )
         ax.tick_params(axis='x', labelsize=12,  labelcolor='black')
         ax.tick_params(axis='y', labelsize=14,  labelcolor='black') 
-        # ~ plt.legend( args.class_names,loc=2, prop={'size': 14} )
+        # ~ plt.legend( class_names,loc=2, prop={'size': 14} )
                 
         correct_count=0
         i=0
@@ -2161,10 +2180,10 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
                     print ( f"CLASSI:         INFO:      {GREEN}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< FOUND IT {RESET}",        flush=True ) 
                     print ( f"CLASSI:         INFO:      {GREEN}index                                = {RESET}{MIKADO}{index}{RESET}",                               flush=True ) 
                     print ( f"CLASSI:         INFO:      {GREEN}true class                           = {RESET}{MIKADO}{true_class}{RESET}",                          flush=True )
-                    print ( f"CLASSI:         INFO:      {GREEN}args.class_names[row['true_class']]  = {RESET}{MIKADO}{args.class_names[row['true_class']]}{RESET}", flush=True )
+                    print ( f"CLASSI:         INFO:      {GREEN}class_names[row['true_class']]  = {RESET}{MIKADO}{class_names[row['true_class']]}{RESET}", flush=True )
                     print ( f"CLASSI:         INFO:      {GREEN}pred class                           = {RESET}{MIKADO}{row['pred_class'][0]}{RESET}",                flush=True )
                     print ( f"CLASSI:         INFO:      {GREEN}correct_count   max_tilmax                     = {RESET}{MIKADO}{correct_count}{RESET}",                       flush=True )                       
-                if not args.class_names[row['true_class']] == row['pred_class'][0]:                          # this logic determines whether the prediction was correct or not
+                if not class_names[row['true_class']] == row['pred_class'][0]:                          # this logic determines whether the prediction was correct or not
                   ax.annotate( f"{true_class}", (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center', fontsize=14, color=pkmn_type_colors[true_class], xytext=(0, 5), textcoords='offset points')
                 else:
                   correct_count+=1
@@ -2233,7 +2252,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         plt.tick_params (axis='y', labelsize=14,  labelcolor='black')
         plt.xticks  ( rotation=90 )
 
-        plt.legend( args.class_names, loc=2, prop={'size': 14} )
+        plt.legend( class_names, loc=2, prop={'size': 14} )
             
         pct_correct = correct_count/ n_samples
         stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
@@ -2302,7 +2321,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         ax.set_ylabel  ("Probability Assigned by Network",                             fontsize=14 )
         ax.tick_params (axis='x', labelsize=12,   labelcolor='black')
         ax.tick_params (axis='y', labelsize=14,  labelcolor='black')
-        plt.legend( args.class_names,loc=2, prop={'size': 14} )
+        plt.legend( class_names,loc=2, prop={'size': 14} )
 
   
         pct_correct = correct_count/n_samples
@@ -2388,7 +2407,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         plt.xticks( rotation=90 )
         probabilities_matrix=probabilities_matrix[0:n_samples,:]                                  # possibly truncate rows because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c MULTIMODE____TEST')
         pd_probabilities_matrix                       = pd.DataFrame( probabilities_matrix )
-        pd_probabilities_matrix.columns               = args.class_names
+        pd_probabilities_matrix.columns               = class_names
         pd_probabilities_matrix[ 'agg_prob'        ]  = np.sum(probabilities_matrix,   axis=1 )  [0:upper_bound_of_indices_to_plot_rna]
         pd_probabilities_matrix[ 'max_agg_prob'    ]  = pd_probabilities_matrix.max   (axis=1)   [0:upper_bound_of_indices_to_plot_rna]
         pd_probabilities_matrix[ 'pred_class'      ]  = pd_probabilities_matrix.idxmax(axis=1)   [0:upper_bound_of_indices_to_plot_rna]    # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
@@ -2421,7 +2440,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         ax.set_ylabel  ("Probability Assigned by Network",                             fontsize=14 )
         ax.tick_params (axis='x', labelsize=12,   labelcolor='black')
         ax.tick_params (axis='y', labelsize=14,  labelcolor='black')
-        # ~ plt.legend( args.class_names,loc=2, prop={'size': 14} )        
+        # ~ plt.legend( class_names,loc=2, prop={'size': 14} )        
         
         i=0
         for p in ax.patches:
@@ -2437,10 +2456,10 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
                     print ( f"CLASSI:         INFO:      {GREEN}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< FOUND IT {RESET}",        flush=True ) 
                     print ( f"CLASSI:         INFO:      {GREEN}index                                = {RESET}{MIKADO}{index}{RESET}",                               flush=True ) 
                     print ( f"CLASSI:         INFO:      {GREEN}true class                           = {RESET}{MIKADO}{true_class}{RESET}",                          flush=True )
-                    print ( f"CLASSI:         INFO:      {GREEN}args.class_names[row['true_class']]  = {RESET}{MIKADO}{args.class_names[row['true_class']]}{RESET}", flush=True )
+                    print ( f"CLASSI:         INFO:      {GREEN}class_names[row['true_class']]  = {RESET}{MIKADO}{class_names[row['true_class']]}{RESET}", flush=True )
                     print ( f"CLASSI:         INFO:      {GREEN}pred class                           = {RESET}{MIKADO}{row['pred_class'][0]}{RESET}",                flush=True )
                     print ( f"CLASSI:         INFO:      {GREEN}correct_count                        = {RESET}{MIKADO}{correct_count}{RESET}",                       flush=True )                       
-                if not args.class_names[row['true_class']] == row['pred_class'][0]:                          # this logic determines whether the prediction was correct or not
+                if not class_names[row['true_class']] == row['pred_class'][0]:                          # this logic determines whether the prediction was correct or not
                   ax.annotate( f"{true_class}", (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center', fontsize=8, color=pkmn_type_colors[true_class], xytext=(0, 5), textcoords='offset points')
                 else:
                   pass
@@ -2498,7 +2517,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         ax.tick_params (axis='x', labelsize=8,   labelcolor='black')
         ax.tick_params (axis='y', labelsize=14,  labelcolor='black')
         plt.ylim        (0.0, 1.0)
-        # ~ plt.legend( args.class_names,loc=2, prop={'size': 14} )
+        # ~ plt.legend( class_names,loc=2, prop={'size': 14} )
         
         i=0
         for p in ax.patches:
@@ -2514,10 +2533,10 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
                     print ( f"CLASSI:         INFO:      {GREEN}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< FOUND IT {RESET}",        flush=True ) 
                     print ( f"CLASSI:         INFO:      {GREEN}index                                = {RESET}{MIKADO}{index}{RESET}",                               flush=True ) 
                     print ( f"CLASSI:         INFO:      {GREEN}true class                           = {RESET}{MIKADO}{true_class}{RESET}",                          flush=True )
-                    print ( f"CLASSI:         INFO:      {GREEN}args.class_names[row['true_class']]  = {RESET}{MIKADO}{args.class_names[row['true_class']]}{RESET}", flush=True )
+                    print ( f"CLASSI:         INFO:      {GREEN}class_names[row['true_class']]  = {RESET}{MIKADO}{class_names[row['true_class']]}{RESET}", flush=True )
                     print ( f"CLASSI:         INFO:      {GREEN}pred class                           = {RESET}{MIKADO}{row['pred_class'][0]}{RESET}",                flush=True )
                     print ( f"CLASSI:         INFO:      {GREEN}correct_count                        = {RESET}{MIKADO}{correct_count}{RESET}",                       flush=True )                       
-                if not args.class_names[row['true_class']] == row['pred_class'][0]:                          # this logic determines whether the prediction was correct or not
+                if not class_names[row['true_class']] == row['pred_class'][0]:                          # this logic determines whether the prediction was correct or not
                   ax.annotate( f"{true_class}", (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center', fontsize=8, color=pkmn_type_colors[true_class], xytext=(0, 5), textcoords='offset points')
                 else:
                   pass
@@ -2578,7 +2597,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         ax.set_ylabel  ("Probability Assigned by Network",                             fontsize=14 )
         ax.tick_params (axis='x', labelsize=12,   labelcolor='black')
         ax.tick_params (axis='y', labelsize=14,  labelcolor='black')
-        plt.legend( args.class_names,loc=2, prop={'size': 14} )
+        plt.legend( class_names,loc=2, prop={'size': 14} )
 
         if DEBUG>0:
           print ( f"\nCLASSI:         INFO:      number correct (pd_probabilities_matrix) = {COQUELICOT}{correct_count}{RESET}", flush=True )
@@ -2729,7 +2748,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
               ax.set_ylabel  ("Probability Assigned by Network",                             fontsize=14 )
               ax.tick_params (axis='x', labelsize=8,   labelcolor='black')
               ax.tick_params (axis='y', labelsize=14,  labelcolor='black')
-              # ~ plt.legend( args.class_names,loc=2, prop={'size': 14} )
+              # ~ plt.legend( class_names,loc=2, prop={'size': 14} )
               plt.xticks( rotation=90 )     
       
         
@@ -2774,7 +2793,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         print( f"CLASSI:           INFO:    {BITTER_SWEET}======================================================{RESET}"  )
         print( f"CLASSI:           INFO:                                                                                      "  )  
     
-      total_correct, total_examples  = show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, run_level_classifications_matrix, level='run' )
+      total_correct, total_examples  = show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, run_level_classifications_matrix, class_names, level='run' )
   
 
       if DEBUG>4:  
@@ -2809,7 +2828,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
       print( f"CLASSI:         INFO:    {CARRIBEAN_GREEN}======================================================{RESET}"  )  
       print( f'CLASSI:         INFO:'                                                                                    )      
     
-      total_correct, total_examples  = show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, job_level_classifications_matrix, level='job' )
+      total_correct, total_examples  = show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, job_level_classifications_matrix, class_names, level='job' )
     
       np.set_printoptions(edgeitems=1000)
       np.set_printoptions(linewidth=1000)
@@ -2832,7 +2851,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         print ( f"CLASSI:           INFO:  run_level_classifications_matrix_acc                 = {MIKADO}{run_level_classifications_matrix_acc[ 0:total_runs_in_job, : ] }{RESET}"     )
   
       if ( args.box_plot=='True' ) & ( total_runs_in_job>=args.minimum_job_size ):
-          box_plot_by_subtype( args, n_genes, start_time, parameters, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc )
+          box_plot_by_subtype( args, class_names, n_genes, start_time, parameters, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc )
 
 
   # (H)  CLOSE UP AND END
@@ -3420,13 +3439,13 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
         labs   = image_labels_values       [0:number_to_display] 
         preds  = y1_hat_values_max_indices [0:number_to_display]
         delta  = np.abs(preds - labs)
-        if len(args.class_names)<10:
+        if len(class_names)<10:
           np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>1d}{RESET}"})
         else:
           np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>02d}{RESET}"})
         print (  f"truth = {CLEAR_LINE}{labs}",  flush=True   )
         print (  f"preds = {CLEAR_LINE}{preds}", flush=True   )
-        if len(args.class_names)<10:
+        if len(class_names)<10:
           GAP=' '
           np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else BLACK}{x:>1d}{RESET}"}) 
         else:
@@ -3444,7 +3463,7 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
         labs   = rna_labels_values         [0:number_to_display]
         preds  = y2_hat_values_max_indices [0:number_to_display]
         delta  = np.abs(preds - labs)
-        if len(args.class_names)<10:
+        if len(class_names)<10:
           np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>1d}{RESET}"})
           GAP=' '
         else:
@@ -3452,7 +3471,7 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
           GAP='  '
         print (  f"truth = {CLEAR_LINE}{labs}",  flush=True   )
         print (  f"preds = {CLEAR_LINE}{preds}", flush=True   )
-        if len(args.class_names)<10:
+        if len(class_names)<10:
           np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else BLACK}{x:>1d}{RESET}"}) 
         else:
            np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else BLACK}{x:>2d}{RESET}"}) 
@@ -4221,7 +4240,7 @@ def plot_scatter( args, writer, i, background_image, tile_size, image_labels, cl
   l=[]
   for n in range (0, len(class_colours)):
     l.append(mpatches.Patch(color=class_colours[n], linewidth=0))
-    fig.legend(l, args.class_names, loc='upper right', fontsize=10, facecolor='white') 
+    fig.legend(l, class_names, loc='upper right', fontsize=10, facecolor='white') 
   
   # (5) add patch level truth value and prediction 
 
@@ -4233,9 +4252,9 @@ def plot_scatter( args, writer, i, background_image, tile_size, image_labels, cl
             
   t2=f"Cancer type:  {args.cancer_type_long}"
   t3=f"True subtype for the slide:"
-  t4=f"{args.class_names[image_labels[idx]]}"
+  t4=f"{class_names[image_labels[idx]]}"
   t5=f"Predicted subtype for this patch:"
-  t6=f"{args.class_names[np.argmax(np.sum(p_full_softmax_matrix, axis=0))]}"
+  t6=f"{class_names[np.argmax(np.sum(p_full_softmax_matrix, axis=0))]}"
   
   if total_tiles >=threshold_4:                    ## NOT OPTIMISED!  Need some more thresholds for values closer to theshold_3
     #          x     y
@@ -4597,7 +4616,7 @@ def plot_classes_preds(args, model, tile_size, batch_images, image_labels, batch
       l=[]
       for n in range (0, len(class_colours)):
         l.append(mpatches.Patch(color=class_colours[n], linewidth=0))
-        fig.legend(l, args.class_names, loc='upper right', fontsize=14, facecolor='lightgrey')      
+        fig.legend(l, class_names, loc='upper right', fontsize=14, facecolor='lightgrey')      
       #fig.tight_layout( pad=0 )     
       
       # (2c) remove axes from the region we want to reserve for the bar chart 
@@ -4636,7 +4655,7 @@ def plot_classes_preds(args, model, tile_size, batch_images, image_labels, batch
       ax0.tick_params(labelsize=10) 
       ax0.set_ylim(0,number_to_plot) 
       ax0.set_facecolor("xkcd:mint" if image_labels[0]==np.argmax(np.sum(p_full_softmax_matrix,axis=0)) else "xkcd:faded pink" )      
-      ax0.bar( x=[range(str(range(len(args.class_names))))], height=np.sum(p_full_softmax_matrix,axis=0),  width=int(number_to_plot/len(image_labels)), color=class_colours )
+      ax0.bar( x=[range(str(range(len(class_names))))], height=np.sum(p_full_softmax_matrix,axis=0),  width=int(number_to_plot/len(image_labels)), color=class_colours )
       # [c[0] for c in class_names]
 
 
@@ -4700,9 +4719,9 @@ def plot_classes_preds(args, model, tile_size, batch_images, image_labels, batch
               axes[r,c].text( -120,  20, t1, size=12, ha="left", color="goldenrod", style="normal" )
               t2=f"Cancer type: {args.cancer_type_long}"
               t3=f"Truth label for this WSI:"
-              t4=f"{args.class_names[image_labels[idx]]}"
+              t4=f"{class_names[image_labels[idx]]}"
               t5=f"NN prediction from patch:"
-              t6=f"{args.class_names[np.argmax(np.sum( p_full_softmax_matrix, axis=0)) ]}"
+              t6=f"{class_names[np.argmax(np.sum( p_full_softmax_matrix, axis=0)) ]}"
               if len(image_labels)>=threshold_3:
                 axes[r,c].text( -550, -400, t2, size=16, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
                 axes[r,c].text( -550, -300, t3, size=14, ha="left",   color="black", style="normal" )
@@ -4998,7 +5017,7 @@ def excludes( number_to_plot, plot_box_side_length ):
   return concat_excludes
 
 # ------------------------------------------------------------------------------
-def box_plot_by_subtype( args, n_genes, start_time, parameters, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc ):
+def box_plot_by_subtype( args, class_names, n_genes, start_time, parameters, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc ):
   
   np.set_printoptions(edgeitems=1000)
   np.set_printoptions(linewidth=1000)
@@ -5097,12 +5116,6 @@ def box_plot_by_subtype( args, n_genes, start_time, parameters, writer, total_ru
     print( f'CLASSI:           INFO:    best subtype median                       = {CARRIBEAN_GREEN}{best_subtype_median}{RESET}') 
 
 
-  npy_class_names = np.transpose(np.expand_dims( np.array(args.class_names), axis=0 ) )
-  if DEBUG>0:
-    print( f'CLASSI:           INFO:    npy_class_names.shape                     = {CARRIBEAN_GREEN}{npy_class_names.shape}{RESET}')
-    print( f'CLASSI:           INFO:    npy_class_names                           = \n{MIKADO}{npy_class_names}{RESET}')
-  
-
 
   # (3) process and present box plots
   
@@ -5128,10 +5141,10 @@ def box_plot_by_subtype( args, n_genes, start_time, parameters, writer, total_ru
   now        = datetime.datetime.now()
   supertitle = f"{now:%d-%m-%y %H:%M}  Classification of {args.cancer_type_long} Subtypes\n{total_runs_in_job} experiment runs in this box plot.  Total run time: {round(minutes):02d}:{round(seconds):02d}"
   if args.input_mode=='image':
-    title = f"{args.cases[0:25]} ({parameters['n_samples'][0]})  highest class:{args.highest_class_number[0]} NN:{parameters['nn_type_image'][0]}  optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}\n  \
+    title = f"{args.cases[0:25]} ({parameters['n_samples'][0]})  highest class:{len(class_names)-1} NN:{parameters['nn_type_image'][0]}  optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}\n  \
 batch size:{parameters['batch_size'][0]}  held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]:<9.6f}  tiles:{parameters['n_tiles'][0]}  tile_size:{parameters['tile_size'][0]}  batch_size:{parameters['batch_size'][0]}  (mags:{mags} probs:{prob})"
   else:
-    title = f"{args.cases[0:25]} ({parameters['n_samples'][0]}) / {args.rna_genes_tranche} (n_genes:{n_genes})   highest class:{args.highest_class_number[0]})  \
+    title = f"{args.cases[0:25]} ({parameters['n_samples'][0]}) / {args.rna_genes_tranche} (n_genes:{n_genes})   highest class:{len(class_names)-1})  \
 FPKM-UQ threshold cutoff: >{parameters['cutoff_percentile'][0]}%/<{parameters['cov_threshold'][0]} \nNeural Network:{parameters['nn_type_rna'][0]}  optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}  \
 batch size:{parameters['batch_size'][0]}   held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]:<9.6f}  hidden layer:{parameters['hidden_layer_neurons'][0]}  xform:{parameters['gene_data_transform'][0]}  \
 dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topology}"
@@ -5147,14 +5160,17 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
                                 "skyblue",         "skyblue",         "skyblue"
                               ] 
 
+
+  labels  = class_names[0:len(class_names)]
+  
+  print(labels)
+  
+  
   # Render portrait version of box plot
 
   figure_width  = 23
   figure_height = 16
 
-
-
-  labels  = args.class_names
 
   if len(labels) < 20:
     font_big = 20
@@ -5167,8 +5183,8 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
     text_2="total correct="
     text_3="median correct all runs="    
     text_4="expected for random"
-    c_m = f"plt.cm.{eval('args.colour_map')}"                                                                # the 'eval' is so that the user input string will be treated as a variable
-    subtype_colors = [ eval(c_m)(i) for i in range(len(args.class_names))]                                   # makes an array of colours by calling the user defined colour map (which is a function, not a variable)  
+    c_m = f"plt.cm.{eval('args.colour_map')}"                                                              # the 'eval' is so that the user input string will be treated as a variable
+    subtype_colors = [ eval(c_m)(i) for i in range(len(labels))]                                           # makes an array of colours by calling the user defined colour map (which is a function, not a variable)  
   else:
     font_big = 18
     font_med = 6
@@ -5255,15 +5271,11 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
 
 
 
-
   # Render landscape version of box plot
 
   figure_width  = 30
   figure_height = 40
 
-
-
-  labels  = args.long_class_names
 
   if len(labels) < 8:
     rotation = 0
@@ -5278,7 +5290,7 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
     text_3="median correct all runs="    
     text_4="expected for random"
     c_m = f"plt.cm.{eval('args.colour_map')}"                                                                # the 'eval' is so that the user input string will be treated as a variable
-    subtype_colors = [ eval(c_m)(i) for i in range(len(args.class_names))]                                   # makes an array of colours by calling the user defined colour map (which is a function, not a variable)  
+    subtype_colors = [ eval(c_m)(i) for i in range(len(labels))]                                   # makes an array of colours by calling the user defined colour map (which is a function, not a variable)  
   else:
     rotation = 90
     font_big = 18
@@ -5355,7 +5367,7 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
   return
 
 # --------------------------------------------------------------------------------------------  
-def show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, pandas_matrix, level ):
+def show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, pandas_matrix, class_names,  level ):
 
   global final_test_batch_size
 
@@ -5378,17 +5390,17 @@ def show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, pan
   exp_percent_correct_by_subtype    =  np.expand_dims( percent_correct_by_subtype,                         axis=0 )
   ext3_pandas_matrix                =  np.append     ( ext2_pandas_matrix, exp_percent_correct_by_subtype, axis=0 )            
 
-  index_names = args.class_names.copy()   
+  index_names = class_names.copy()   
     
   #print ( "" )                                                                                            # peel off an all numbers pandas version to use for graphing etc
-  pandas_version = pd.DataFrame( pandas_matrix, columns=args.class_names, index=index_names )
+  pandas_version = pd.DataFrame( pandas_matrix, columns=class_names, index=index_names )
   #print(tabulate(pandas_version, headers='keys', tablefmt = 'psql'))     
 
   index_names.append( "subtype totals"  )
   index_names.append( "subtype correct" ) 
   index_names.append( "percent correct" )
 
-  pandas_version_ext = pd.DataFrame( ext3_pandas_matrix, columns=args.class_names, index=index_names )     # this version has subtotals etc at the bottom so it's just for display  
+  pandas_version_ext = pd.DataFrame( ext3_pandas_matrix, columns=class_names, index=index_names )     # this version has subtotals etc at the bottom so it's just for display  
 
   if DEBUG>4:
     print(tabulate( pandas_version_ext, headers='keys', tablefmt = 'fancy_grid' ) )   
@@ -5525,7 +5537,7 @@ if __name__ == '__main__':
   p.add_argument('--n_samples',                                         nargs="+",  type=int,    default="101"                             )                                    
   p.add_argument('--n_tiles',                                           nargs="+",  type=int,    default="50"                              )       
   p.add_argument('--n_tests',                                                       type=int,    default="16"                              )       
-  p.add_argument('--highest_class_number',                              nargs="+",  type=int,    default="989"                             )                                                             
+  p.add_argument('--highest_class_number',                                          type=int,    default="777"                             )                                                             
   p.add_argument('--supergrid_size',                                                type=int,    default=1                                 )                                      
   p.add_argument('--patch_points_to_sample',                                        type=int,    default=1000                              )                                   
   p.add_argument('--tile_size',                                         nargs="+",  type=int,    default=128                               )                                    
@@ -5564,8 +5576,6 @@ if __name__ == '__main__':
   p.add_argument('--stain_norm_target',                                             type=str,   default='NONE'                             )                         
   p.add_argument('--cancer_type',                                                   type=str,   default='NONE'                             )                 
   p.add_argument('--cancer_type_long',                                              type=str,   default='NONE'                             )                 
-  p.add_argument('--class_names',                                       nargs="*",  type=str,   default='NONE'                             )                 
-  p.add_argument('--long_class_names',                                  nargs="+",  type=str,   default='NONE'                             ) 
   p.add_argument('--class_colours',                                     nargs="*"                                                          )                 
   p.add_argument('--colour_map',                                                    type=str,   default='tab20'                            )    
   p.add_argument('--target_tile_coords',                                nargs=2,    type=int,   default=[2000,2000]                        )                 

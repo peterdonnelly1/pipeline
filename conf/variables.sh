@@ -114,114 +114,51 @@ if [[ ${DATASET} == "stad" ]]; then
   STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL STAD SET & THE TARGET_TILE_COORDS COORDINATES BELOW ARE FOR IT
   TARGET_TILE_COORDS="5000 5500"
 
-  if [[ ${INPUT_MODE} == "image" ]]; then
-    HIGHEST_CLASS_NUMBER=8                                                                               # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
-    CLASS_NAMES="diffuse   tubular   mucinous    signet_ring    papillary   tubular  stomach_NOS    intestinal_NOS       none"
-    LONG_CLASS_NAMES="diffuse   tubular   mucinous    signet_ring    papillary   tubular  stomach_NOS    intestinal_NOS       none"
-  else
-    HIGHEST_CLASS_NUMBER=4                                                                               # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
-    CLASS_NAMES="diffuse tubular mucinous intest_nos adeno_nos"
-    LONG_CLASS_NAMES="diffuse tubular mucinous intestinal_nos adenocarcinoma_nos"
-  fi  
-
-
 elif [[ ${DATASET} == "coad" ]]; then
   
   CANCER_TYPE="COAD"
   CANCER_TYPE_LONG="Colon_Adenocarcinoma"      
-  CLASS_NAMES="colon_adenocarcinoma   colon_mucinous_adeno"
-  LONG_CLASS_NAMES="colon_adenocarcinoma   colon_mucinous_adenocarcinoma"
   STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL STAD SET & THE TARGET_TILE_COORDS COORDINATES BELOW ARE FOR IT
   TARGET_TILE_COORDS="5000 5500"
-
-  if [[ ${INPUT_MODE} == "image" ]]; then
-    HIGHEST_CLASS_NUMBER=1                                                                               # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
-  else
-    HIGHEST_CLASS_NUMBER=1                                                                               # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
-  fi  
-
 
 elif [[ ${DATASET} == "thym" ]]; then
 
   CANCER_TYPE="THYM"
   CANCER_TYPE_LONG="Thymoma"   
-  CLASS_NAMES="type_A type_AB type_B1 type_B2 type_B3 type_C"
-  LONG_CLASS_NAMES="type_A type_AB type_B1 type_B2 type_B3 type_C"
   STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL STAD SET & THE TARGET_TILE_COORDS COORDINATES BELOW ARE FOR IT
   TARGET_TILE_COORDS="5000 5500"
-
-  if [[ ${INPUT_MODE} == "image" ]]; then
-    HIGHEST_CLASS_NUMBER=5                                                                               # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
-  else
-    HIGHEST_CLASS_NUMBER=5                                                                               # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
-  fi
-  
   
 elif [[ ${DATASET} == "dlbc" ]]; then
 
   CANCER_TYPE="DLBC"
   CANCER_TYPE_LONG="Diffuse_Large_B_Cell_Lymphoma"   
-  CLASS_NAMES="dlbcl_nos   dlbcl_of_cns   thymic_dlbcl"
-  LONG_CLASS_NAMES="dlbcl_nos   dlbcl_of_cns   thymic_dlbcl"
   STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL STAD SET & THE TARGET_TILE_COORDS COORDINATES BELOW ARE FOR IT
   TARGET_TILE_COORDS="5000 5500"
-
-  if [[ ${INPUT_MODE} == "image" ]]; then
-    HIGHEST_CLASS_NUMBER=2                                                                               # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
-  else
-    HIGHEST_CLASS_NUMBER=2                                                                               # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
-  fi  
-
 
 elif [[ ${DATASET} == "sarc" ]]; then
   
   CANCER_TYPE="SARC"
   CANCER_TYPE_LONG="Sarcoma"   
-  CLASS_NAMES="dedif_lipo  leiomyo   myxofibro  pleo_mfh   pleo_ups"
-  LONG_CLASS_NAMES="dediff_liposarcoma  leiomyosarcoma   myxofibrosarcoma  pleomorphic_mfh   pleomorphic_ups"
   ENCODER_ACTIVATION="none"                                                                              # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
   STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL STAD SET & THE TARGET_TILE_COORDS COORDINATES BELOW ARE FOR IT
   TARGET_TILE_COORDS="5000 5500"
-
-  if [[ ${INPUT_MODE} == "image" ]]; then
-    HIGHEST_CLASS_NUMBER=4                                                                                 # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
-  else
-    HIGHEST_CLASS_NUMBER=4                                                                                 # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
-  fi
   
 elif [[ ${DATASET} == "kidn" ]]; then
   
   CANCER_TYPE="Kidney_Cancer"
   CANCER_TYPE_LONG="Kidney_Cancer"   
-  CLASS_NAMES="clear_cell chromophobe papillary"
-  LONG_CLASS_NAMES="clear_cell chromophobe papillary"
   ENCODER_ACTIVATION="none"                                                                                # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
   STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL STAD SET & THE TARGET_TILE_COORDS COORDINATES BELOW ARE FOR IT
   TARGET_TILE_COORDS="5000 5500"
-
-  if [[ ${INPUT_MODE} == "image" ]]; then
-    HIGHEST_CLASS_NUMBER=2                                                                                 # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
-  else
-    HIGHEST_CLASS_NUMBER=2                                                                                 # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
-  fi  
-
-
-
+y
 elif [[ ${DATASET} == "0008" ]]; then
   
   CANCER_TYPE="Pan_Cancer"
   CANCER_TYPE_LONG="Pan_Cancer"
-  CLASS_NAMES="KIDN_clear KIDN_chrom KIDN_papi STAD_tubu STAD_diff STAD_muci STAD_sNOS STAD_iNOS COAD_aden COAD_muci SARC_ddif SARC_leio SARC_myxo SARC_pleo LUNG_aden LUNG_sqam BRAIN_ast BRAIN_oli PCPG_para PCPG_pheo ESCA_a_NOS ESCA_squam THCA_class THCA_foll THCA_tall"
-  LONG_CLASS_NAMES="KIDN_clear_cell KIDN_chromophobe KIDN_papillary STOM_tubular STOM_diffuse STOM_mucinous STOM_stomach_NOS STOM_intestinal_NOS COAD_adenocarcinoma COAD_mucinous SARC_dediff_liposarcoma SARC_leiomyosarcoma SARC_myxofibrosarcoma SARC_pleomorphic_mfh LUNG_adenocarcinoma LUNG_squamous LGG_astrocytoma LGG_oligodendroglioma  PCPG_Paraganglioma PCPG_Pheochromocytoma ESCA_adeno_NOS ESCA_squamous THCA_classical THCA_follicular THCA_tall_cell"
   ENCODER_ACTIVATION="none"                                                                                # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
   STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL STAD SET & THE TARGET_TILE_COORDS COORDINATES BELOW ARE FOR IT
   TARGET_TILE_COORDS="5000 5500"
 
-  if [[ ${INPUT_MODE} == "image" ]]; then
-    HIGHEST_CLASS_NUMBER=24                                                                                # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
-  else
-    HIGHEST_CLASS_NUMBER=24                                                                                # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
-  fi
 
 
 
