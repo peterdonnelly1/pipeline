@@ -18,6 +18,7 @@ find thca -name '*UQ*' -exec cp --parents \{\} 0008 \;
 find ucec -name '*UQ*' -exec cp --parents \{\} 0008 \;
 find tgct -name '*UQ*' -exec cp --parents \{\} 0008 \;
 find paad -name '*UQ*' -exec cp --parents \{\} 0008 \;
+find blca -name '*UQ*' -exec cp --parents \{\} 0008 \;
 
 mv  0008/stad/* 0008
 mv  0008/coad/* 0008
@@ -32,6 +33,7 @@ mv  0008/thca/* 0008
 mv  0008/ucec/* 0008
 mv  0008/tgct/* 0008
 mv  0008/paad/* 0008
+mv  0008/blca/* 0008
 
 rmdir -v 0008/stad
 rmdir -v 0008/coad
@@ -46,5 +48,6 @@ rmdir -v 0008/thca
 rmdir -v 0008/ucec
 rmdir -v 0008/tgct
 rmdir -v 0008/paad
+rmdir -v 0008/blca
 
 ./create_master.sh 0008

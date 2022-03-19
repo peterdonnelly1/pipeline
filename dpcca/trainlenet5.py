@@ -412,11 +412,11 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     print ( f"CLASSI:         INFO:  subtype_names_as_list[0:highest_class_number] = {CYAN}{subtype_names_as_list[0:highest_class_number+1]}{RESET}" )
 
   if highest_class_number > len(subtype_names_as_list)-1:
-    print( f"{RED}CLASSI:         WARNG: config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{RED}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{RED}') = {MIKADO}{highest_class_number}{RESET}{RED}, but this is greater than the highest class (subtype) number in the dataset ({MIKADO}{len(subtype_names_as_list)-1}{RESET}{RED}){RESET}", flush=True)
-    print( f"{RED}CLASSI:         WARNG: note that class (subtype) numbers start at zero{RESET}", flush=True)
-    print( f"{RED}CLASSI:         WARNG: it will be ignored. Continuing{RESET}", flush=True)
+    print( f"{ORANGE}CLASSI:         WARNG: config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{ORANGE}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{ORANGE}') = {MIKADO}{highest_class_number}{RESET}{ORANGE}, but this is greater than the highest class (subtype) number in the dataset ({MIKADO}{len(subtype_names_as_list)-1}{RESET}{ORANGE}){RESET}", flush=True)
+    print( f"{ORANGE}CLASSI:         WARNG: note that class (subtype) numbers start at zero{RESET}", flush=True)
+    print( f"{ORANGE}CLASSI:         WARNG: it will be ignored. Continuing{RESET}", flush=True)
     time.sleep(4)
-
+  
     
   class_names  =  subtype_names_as_list if highest_class_number>=len(subtype_names_as_list) else subtype_names_as_list[0:highest_class_number+1]
 
@@ -1243,6 +1243,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
             
 
           highest_class_number = n_classes-1
+          
           n_genes, n_samples, batch_size = generate( args, class_names, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, 
                                                       unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, tile_size, 
                                                       cov_threshold, cutoff_percentile, gene_data_norm, gene_data_transform  
@@ -5141,10 +5142,10 @@ def box_plot_by_subtype( args, class_names, n_genes, start_time, parameters, wri
   now        = datetime.datetime.now()
   supertitle = f"{now:%d-%m-%y %H:%M}  Classification of {args.cancer_type_long} Subtypes\n{total_runs_in_job} experiment runs in this box plot.  Total run time: {round(minutes):02d}:{round(seconds):02d}"
   if args.input_mode=='image':
-    title = f"{args.cases[0:25]} ({parameters['n_samples'][0]})  highest class:{len(class_names)-1} NN:{parameters['nn_type_image'][0]}  optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}\n  \
+    title = f"{args.cases[0:25]} ({parameters['n_samples'][0]})  subtypes:{len(class_names)-1} NN:{parameters['nn_type_image'][0]}  optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}\n  \
 batch size:{parameters['batch_size'][0]}  held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]:<9.6f}  tiles:{parameters['n_tiles'][0]}  tile_size:{parameters['tile_size'][0]}  batch_size:{parameters['batch_size'][0]}  (mags:{mags} probs:{prob})"
   else:
-    title = f"{args.cases[0:25]} ({parameters['n_samples'][0]}) / {args.rna_genes_tranche} (n_genes:{n_genes})   highest class:{len(class_names)-1}  \
+    title = f"{args.cases[0:25]} ({parameters['n_samples'][0]}) / {args.rna_genes_tranche} (n_genes:{n_genes})   subtypes:{len(class_names)-1}  \
 FPKM-UQ threshold cutoff: >{parameters['cutoff_percentile'][0]}%/<{parameters['cov_threshold'][0]} \nNeural Network:{parameters['nn_type_rna'][0]}  optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}  \
 batch size:{parameters['batch_size'][0]}   held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]:<9.6f}  hidden layer:{parameters['hidden_layer_neurons'][0]}  xform:{parameters['gene_data_transform'][0]}  \
 dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topology}"
@@ -5159,11 +5160,13 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
                                 "plum",            "plum", 
                                 "skyblue",         "skyblue",         "skyblue",   
                                 "palegreen",       "palegreen",       "palegreen",       "palegreen",
-                                "wheat",           "wheat"
+                                "wheat",           "wheat",
+                                "rosybrown",       "rosybrown"
                               ] 
 
 
   labels  = class_names[0:len(class_names)]
+  labels = [elem[:13] for elem in labels]                                                                  # truncate the class names to be all the same length
   
   print(labels)
   

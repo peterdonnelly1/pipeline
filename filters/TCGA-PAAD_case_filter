@@ -7,7 +7,7 @@
       "content":
       {
         "field": "cases.project.project_id", 
-        "value": ["TCGA-PAAD"]
+        "value": ["TCGA-BLCA"]
       }
     },
     {
