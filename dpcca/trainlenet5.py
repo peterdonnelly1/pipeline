@@ -1729,7 +1729,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
   \r\033[49Closs_images={CARRIBEAN_GREEN}{test_loss_images_sum_ave:5.2f}{DULL_WHITE}\
   \r\033[96Cl1_loss={test_l1_loss_sum_ave:5.2f}{DULL_WHITE}\
   \r\033[120CBATCH AVE OVER EPOCH={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:9.4f}{DULL_WHITE}\
-  \r\033[246Cminimum loss: {test_lowest_total_loss_observed*100/batch_size:6.2f} at {WHITE}epoch {test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE}\
+  \r\033[250Cmin loss: {test_lowest_total_loss_observed*100/batch_size:6.2f} at {WHITE}epoch {test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE}\
   \r\033[204Cimage:{CARRIBEAN_GREEN}{test_lowest_image_loss_observed*100/batch_size:>6.2f} at epoch {test_lowest_image_loss_observed_epoch:<2d}{DULL_WHITE}\
   \033[5B\
   ", end=''  )
@@ -1741,7 +1741,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
   \r\033[73Closs_rna={BITTER_SWEET}{test_loss_genes_sum_ave:5.2f}{DULL_WHITE}\
   \r\033[96Cl1_loss={test_l1_loss_sum_ave:5.2f}{DULL_WHITE}\
   \r\033[120CBATCH AVE OVER EPOCH={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:9.4f}{DULL_WHITE}\
-  \r\033[246Cminimum loss: {test_lowest_total_loss_observed*100/batch_size:6.2f} at {WHITE}epoch {test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} \
+  \r\033[250Cmin loss: {test_lowest_total_loss_observed*100/batch_size:6.2f} at {WHITE}epoch {test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} \
   \033[5B\
   ", end=''  )
   
@@ -5166,7 +5166,7 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
 
 
   labels  = class_names[0:len(class_names)]
-  labels = [elem[:13] for elem in labels]                                                                  # truncate the class names to be all the same length
+  labels = [elem[:11] for elem in labels]                                                                  # truncate the class names to be all the same length
   
   print(labels)
   
