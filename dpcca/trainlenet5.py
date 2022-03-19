@@ -1237,7 +1237,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
           
         if must_generate==True:
           
-          if DEBUG>0:
+          if DEBUG>99:
             print( f"CLASSI:         INFO: type(n_classes)         = {MAGENTA}{type(n_classes)}{RESET}",        flush=True  )
             print( f"CLASSI:         INFO: n_classes               = {MAGENTA}{n_classes}{RESET}",              flush=True  )
             
