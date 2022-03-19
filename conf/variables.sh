@@ -98,6 +98,7 @@ ENS_ID_TO_GENE_NAME_TABLE='ENSG_UCSC_biomart_ENS_id_to_gene_name_table'
 ENSG_REFERENCE_COLUMN=0
 RNA_EXP_COLUMN=1                                                                                           # correct for "*FPKM-UQ.txt" files (where the Gene name is in the first column and the normalized data is in the second column)
 CLASS_NUMPY_FILENAME="class.npy"
+NAMES_COLUMN="type_s"
 CASE_COLUMN="bcr_patient_uuid"
 CLASS_COLUMN="type_n"
 

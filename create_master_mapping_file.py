@@ -209,6 +209,7 @@ def main(args):
       master_spreadsheet = f
       print ( f"CREATE_MASTER:     INFO:    proceeding with master spreadsheet                        '{MAGENTA}{master_spreadsheet}{RESET}'" )
       print ( f"CREATE_MASTER:     INFO:    now looking for {CYAN}{dataset}{RESET} master clinical data spreadsheet, which is assumed to be the only file in '{MAGENTA}{dataset}_global{RESET}' ending with '{MAGENTA}_{dataset}.csv{RESET}'" )
+      break
       
   if master_spreadsheet_found==False:
     print ( f"{RED}CREATE_MASTER:     FATAL:  could not find the '{MAGENTA}{cancer_class}{RESET}{RED}' master spreadsheet in {MAGENTA}{class_specific_global_data_location}{RESET}" )

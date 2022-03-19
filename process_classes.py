@@ -151,7 +151,7 @@ def main(args):
       all_classes.append(true_class)
 
     if (DEBUG>9):
-      print ( "PROCESS_CLASSES:        INFO: # of mapping file rows examined = \033[1m{:}\033[m".format ( tested_count ) )
+      print ( "PROCESS_CLASSES:        INFO: # of mapping file rows examined = \033[1m{:}\033[m".format ( tested_count    ) )
       print ( "PROCESS_CLASSES:        INFO: # of class files created        = \033[1m{:}\033[m".format ( processed_count ) )
   
   all_classes_unique=sorted(set(all_classes))

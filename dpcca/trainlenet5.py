@@ -353,6 +353,10 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   momentum                      = args.momentum  
   epsilon                       = args.epsilon
   min_cluster_size              = args.min_cluster_size
+  
+  names_column                  = args.names_column
+  case_column                   = args.case_column
+  class_column                  = args.class_column
 
   global last_stain_norm                                                                                   # Need to remember this across runs in a job
   global last_gene_norm                                                                                    # Need to remember this across runs in a job
@@ -372,6 +376,41 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   global class_colors
 
   multimode_case_count = unimode_case_matched_count = unimode_case_unmatched_count = unimode_case____image_count = unimode_case____image_test_count = unimode_case____rna_count = unimode_case____rna_test_count = 0
+
+  # extract subtype names from the applicable master clinical data spreadsheet
+  
+  subtype_specific_global_data_location   = f"{base_dir}/{dataset}_global"
+  master_spreadsheet_found=False
+  for f in os.listdir( subtype_specific_global_data_location ):
+    if f.endswith(f"MASTER.csv"):
+      master_spreadsheet_found = True
+      master_spreadsheet_name  = f
+      break
+    
+  if master_spreadsheet_found==False:
+    print ( f"{RED}CLASSI:        FATAL:  could not find the '{CYAN}{dataset}{RESET}{RED}' master clinical data spreadsheet in {MAGENTA}{subtype_specific_global_data_location}{RESET}" )
+    print ( f"{RED}CLASSI:        FATAL:  remedy: ensure there's a valid master clinical data spreadsheet (named {MAGENTA}{dataset}_mapping_file_MASTER.csv{RESET}{RED}) in {MAGENTA}{subtype_specific_global_data_location}{RESET}" )
+    print ( f"{RED}CLASSI:        FATAL:          the master clinical data spreadsheet is created with a command line similar to this: {CYAN}python create_master_mapping_file.py  --dataset <DATASET>{RESET}{RED}{RESET}" )                                        
+    print ( f"{RED}CLASSI:        FATAL:          or with the convenience shell script: {CYAN}./create_master.sh <DATASET>{RESET}{RED}{RESET}" )                                        
+    print ( f"{RED}CLASSI:        FATAL:          detailed instructions on how to construct a master spreadsheet can be found in the comments section at the start of {CYAN}create_master_mapping_file.py{RESET}{RED}){RESET}" )                                        
+    print ( f"{RED}CLASSI:        FATAL:  cannot continue - halting now{RESET}" )                 
+    sys.exit(0)       
+
+
+  fqn = f"{subtype_specific_global_data_location}/{master_spreadsheet_name}"
+
+  if DEBUG>0:
+    print ( f"CLASSI:         INFO:  extracting {CYAN}{dataset}{RESET} subtype names from {MAGENTA}{fqn}{RESET}'" )
+
+
+  subtype_names           = pd.read_csv( fqn, usecols=[names_column], sep=',').dropna()                    # use pandas to extract data, dropping all empty cells
+  subtype_names_as_list   = list( subtype_names[names_column][2:] )                                        # convert everything from row 2 onward into a python list. row 2 is where the subtype names are supposed to start
+
+  class_names      =  subtype_names_as_list
+  args.class_names =  subtype_names_as_list
+  
+  if DEBUG>0:
+    print ( f"CLASSI:         INFO:  subtype names = {CYAN}{subtype_names_as_list}{RESET}" )
 
 
   if ( input_mode=='image' ):
@@ -5571,6 +5610,11 @@ if __name__ == '__main__':
   p.add_argument('--momentum',                                                      type=float, default=0.8                                )        
   p.add_argument('--min_cluster_size',                                              type=int,   default=3                                  )        
   p.add_argument('--render_clustering',                                             type=str,   default="False"                            )        
+
+  p.add_argument('--names_column',                                                   type=str, default="type_s"                            )
+  p.add_argument('--case_column',                                                    type=str, default="bcr_patient_uuid"                  )
+  p.add_argument('--class_column',                                                   type=str, default="type_n"                            )
+
 
   args, _ = p.parse_known_args()
 
