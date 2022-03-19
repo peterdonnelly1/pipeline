@@ -80,7 +80,13 @@ def main(args):
   rna_file_reduced_suffix  = args.rna_file_reduced_suffix
   rna_exp_column           = args.rna_exp_column
   rna_numpy_filename       = args.rna_numpy_filename
-  use_unfiltered_data      = args.use_unfiltered_data  
+  use_unfiltered_data      = args.use_unfiltered_data
+  skip_rna_preprocessing    = args.skip_rna_preprocessing
+  
+  if  skip_rna_preprocessing =='True':
+    print( f"{PINK}REDUCE_FPKM_UQ_FILES:   INFO: '{CYAN}skip_rna_preprocessing{RESET}{ORANGE}' flag = {MIKADO}{skip_rna_preprocessing}{RESET}{ORANGE}. Processing of raw RNA-Seq files will be performed, and '{MAGENTA}{rna_numpy_filename}{RESET}{ORANGE}' files will NOT be generated. {RESET}" )
+    print( f"{PINK}REDUCE_FPKM_UQ_FILES:   INFO: 'This may be intentional on your part: the required files may alreay exist, and you may be using this flag to avoid repeatedly generating the same (gene filtered) files. {RESET}" )
+    return
   
   if (DEBUG>99):
     print ( f"PROCESS_RNA_EXP:        INFO: data directory                        = {MAGENTA}'{data_dir}'{RESET}",                  flush=True )
@@ -171,6 +177,7 @@ if __name__ == '__main__':
   p.add_argument('--rna_exp_column',          type=int, default=1)
   p.add_argument('--rna_numpy_filename',      type=str, default="rna.npy")
   p.add_argument('--use_unfiltered_data',     type=str2bool, nargs='?', const=True, default=True, help="If true, don't filter the genes, but rather use all of them")
+  p.add_argument('--skip_rna_preprocessing',  type=str2bool, nargs='?', const=False, default=False, help="If true, don't preprocess RNA-Seq files")
   
   args, _ = p.parse_known_args()
 

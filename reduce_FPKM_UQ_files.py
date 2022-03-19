@@ -95,11 +95,11 @@ def main(args):
   use_unfiltered_data         = args.use_unfiltered_data
   remove_low_expression_genes = args.remove_low_expression_genes
   low_expression_threshold    = args.low_expression_threshold
-  skip_generation             = args.skip_generation
+  skip_rna_preprocessing      = args.skip_rna_preprocessing
 
 
-  if  skip_generation =='True':
-    print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: '{CYAN}skip_generation{RESET}{ORANGE}' flag = {MIKADO}{skip_generation}{RESET}{ORANGE}. No gene filtering will be performed, and '{MAGENTA}_reduced{RESET}{ORANGE}' files will NOT be generated. {RESET}" )
+  if  skip_rna_preprocessing =='True':
+    print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: '{CYAN}skip_rna_preprocessing{RESET}{ORANGE}' flag = {MIKADO}{skip_rna_preprocessing}{RESET}{ORANGE}. No gene filtering will be performed, and '{MAGENTA}_reduced{RESET}{ORANGE}' files will NOT be generated. {RESET}" )
     print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: 'This may be intentional on your part: the required files may alreay exist, and you may be using this flag to avoid repeatedly generating the same (gene filtered) files. {RESET}" )
     return
 
@@ -384,7 +384,7 @@ if __name__ == '__main__':
   p.add_argument('--use_unfiltered_data',                      type=str2bool, nargs='?', const=True, default=True, help="If true, don't filter the genes, but rather use all of them")
   p.add_argument('--remove_low_expression_genes',              type=str,   default='False'        ) 
   p.add_argument('--low_expression_threshold',                 type=float, default='0.0'          )   
-  p.add_argument('--skip_generation',                          type=str,   default='False'        )
+  p.add_argument('--skip_rna_preprocessing',                   type=str2bool, nargs='?', const=False, default=False, help="If true, don't preprocess RNA-Seq files")
   
   args, _ = p.parse_known_args()
 

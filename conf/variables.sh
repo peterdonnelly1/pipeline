@@ -2,6 +2,8 @@
 #set -e
 
 MAGENTA='\e[38;2;255;0;255m'
+ORANGE='\e[38;2;255;103;0m'
+CYAN='\e[36;1m'
 RED='\e[38;2;255;0;0m'
 RESET='\e[m'
 

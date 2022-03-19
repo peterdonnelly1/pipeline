@@ -1175,7 +1175,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
 
     # (3) Regenerate Torch '.pt' file, if required
 
-    if ( skip_generation=='False' ):
+    if ( skip_generation!='True' ):
       
       if (input_mode=='image'):
         
@@ -5157,7 +5157,9 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
                                 "powderblue",      "powderblue", 
                                 "khaki",           "khaki", 
                                 "plum",            "plum", 
-                                "skyblue",         "skyblue",         "skyblue"
+                                "skyblue",         "skyblue",         "skyblue",   
+                                "palegreen",       "palegreen",       "palegreen",       "palegreen",
+                                "wheat",           "wheat"
                               ] 
 
 

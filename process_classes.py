@@ -71,14 +71,15 @@ DEBUG   = 1
 #====================================================================================================================================================
 def main(args):
   
-  dataset               = args.dataset  
-  data_dir              = args.data_dir
-  global_data           = args.global_data  
-  mapping_file          = args.mapping_file
-  mapping_file_name     = args.mapping_file_name  
-  case_column           = args.case_column
-  class_column          = args.class_column
-  class_numpy_filename  = args.class_numpy_filename
+  dataset                = args.dataset  
+  data_dir               = args.data_dir
+  global_data            = args.global_data  
+  mapping_file           = args.mapping_file
+  mapping_file_name      = args.mapping_file_name  
+  case_column            = args.case_column
+  class_column           = args.class_column
+  class_numpy_filename   = args.class_numpy_filename
+  skip_rna_preprocessing = args.skip_rna_preprocessing
   
   if (DEBUG>1):
     print ( "PROCESS_CLASSES:        INFO: argv[1] (data_dir)             = {:}".format( data_dir             ),  flush=True )
@@ -217,15 +218,16 @@ if __name__ == '__main__':
 	
   p = argparse.ArgumentParser()
 
-  p.add_argument('--data_dir',              type=str, default="/home/peter/git/pipeline/dataset"  )
-  p.add_argument('--dataset',               type=str                                              )
-  p.add_argument('--global_data',           type=str                                              )  
-  p.add_argument('--mapping_file',          type=str, default="./mapping_file"                    )
-  p.add_argument('--mapping_file_name',     type=str, default="mapping_file"                      ) 
-  p.add_argument('--class_numpy_filename',  type=str, default="class.npy"                         ) 
-  p.add_argument('--case_column',           type=str, default="bcr_patient_uuid"                  )
-  p.add_argument('--class_column',          type=str, default="type_n"                            )
-    
+  p.add_argument('--data_dir',                type=str, default="/home/peter/git/pipeline/dataset"  )
+  p.add_argument('--dataset',                 type=str                                              )
+  p.add_argument('--global_data',             type=str                                              )  
+  p.add_argument('--mapping_file',            type=str, default="./mapping_file"                    )
+  p.add_argument('--mapping_file_name',       type=str, default="mapping_file"                      ) 
+  p.add_argument('--class_numpy_filename',    type=str, default="class.npy"                         ) 
+  p.add_argument('--case_column',             type=str, default="bcr_patient_uuid"                  )
+  p.add_argument('--class_column',            type=str, default="type_n"                            )
+  p.add_argument('--skip_rna_preprocessing',  type=str2bool, nargs='?', const=False, default=False, help="If true, don't preprocess RNA-Seq files")
+
 #  p.add_argument('--case_column',        type=str, default="bcr_patient_uuid")
 #  p.add_argument('--class_column',        type=str, default="bcr_patient_uuidhistological_type")
      

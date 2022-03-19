@@ -140,7 +140,7 @@ SHOW_ROWS=1000                                                                  
 SHOW_COLS=100                                                                                              # used by "analyse_data". 
 
 
-HIGHEST_CLASS_NUMBER=3 
+HIGHEST_CLASS_NUMBER=999 
 
 while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:H:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:Q:r:R:s:S:t:T:u:U:v:V:w:W:x:X:y:Y:z:Z:0:1:2:3:4:5:6:7:8:9: option
   do
@@ -303,13 +303,16 @@ if [[ ${SKIP_TILING} == "False" ]];
     find ${DATA_DIR} -type l -name "*.fqln"                    -delete
     #~ echo "DO_ALL.SH: INFO: recursively deleting                           'entire_patch.npy' files created in earlier runs"
     find ${DATA_DIR} -type f -name "entire_patch.npy"          -delete 
-    #~ echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '${RNA_NUMPY_FILENAME}'"
-    find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}       -delete
+    if [[ ${SKIP_RNA_PREPROCESSING} != 'True' ]]; then
+      echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '${RNA_NUMPY_FILENAME}'"
+      find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}       -delete
+    fi
     #~ echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '*${RNA_FILE_REDUCED_SUFFIX}'"
     #~ find ${DATA_DIR} -type f -name *${RNA_FILE_REDUCED_SUFFIX} -delete
-    #~ echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '${CLASS_NUMPY_FILENAME}'"
-    find ${DATA_DIR} -type f -name ${CLASS_NUMPY_FILENAME}     -delete
-    
+    if [[ ${SKIP_RNA_PREPROCESSING} != 'True' ]]; then
+      echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '${CLASS_NUMPY_FILENAME}'"
+      find ${DATA_DIR} -type f -name ${CLASS_NUMPY_FILENAME}     -delete
+    fi
     
     if [[ ${INPUT_MODE} == 'image' ]]; then
         #~ echo "DO_ALL.SH: INFO: image       mode, so recursively deleting existing image     embedding files ('${EMBEDDING_FILE_SUFFIX_IMAGE}')"
@@ -354,24 +357,31 @@ echo "=====> STEP 2 OF 3: PRE-PROCESS TRUTH VALUES (TRUE SUBTYPES) AND IF APPLIC
             cp ${DATASET}_global/just_hg38_protein_coding_genes               ${DATA_DIR} > /dev/null 2>&1
             cp ${DATASET}_global/ENSG_UCSC_biomart_ENS_id_to_gene_name_table  ${DATA_DIR} > /dev/null 2>&1
             python reduce_FPKM_UQ_files.py --data_dir ${DATA_DIR} --target_genes_reference_file ${TARGET_GENES_REFERENCE_FILE} --rna_file_suffix ${RNA_FILE_SUFFIX} --rna_file_reduced_suffix ${RNA_FILE_REDUCED_SUFFIX}  \
-            --rna_exp_column ${RNA_EXP_COLUMN} --use_unfiltered_data ${USE_UNFILTERED_DATA} --skip_generation ${SKIP_GENERATION} --random_genes_count ${RANDOM_GENES_COUNT}
+            --rna_exp_column ${RNA_EXP_COLUMN} --use_unfiltered_data ${USE_UNFILTERED_DATA} --random_genes_count ${RANDOM_GENES_COUNT} --skip_rna_preprocessing  ${SKIP_RNA_PREPROCESSING}
   
   
             #~ echo "=====> EXTRACTING RNA EXPRESSION INFORMATION AND SAVING AS NUMPY FILES"
             sleep ${SLEEP_TIME}
             python process_rna_exp.py --data_dir ${DATA_DIR} --rna_file_suffix ${RNA_FILE_SUFFIX} --rna_file_reduced_suffix ${RNA_FILE_REDUCED_SUFFIX} --rna_exp_column ${RNA_EXP_COLUMN} \
-            --rna_numpy_filename ${RNA_NUMPY_FILENAME} --use_unfiltered_data ${USE_UNFILTERED_DATA}
+            --rna_numpy_filename ${RNA_NUMPY_FILENAME} --use_unfiltered_data ${USE_UNFILTERED_DATA} --skip_rna_preprocessing  ${SKIP_RNA_PREPROCESSING}
+        else
+          echo -e "${ORANGE}DO_ALL.SH: ${CYAN}SKIP_RNA_PREPROCESSING${RESET}${ORANGE} flag is set, so ${CYAN}reduce_FPKM_UQ_files${RESET}${ORANGE} will not be called${RESET}"
+          echo -e "${ORANGE}DO_ALL.SH: ${CYAN}SKIP_RNA_PREPROCESSING${RESET}${ORANGE} flag is set, so ${CYAN}process_rna_exp${RESET}${ORANGE}      will not be called${RESET}"
         fi
     fi
     
-    #~ echo "=====> STEP 2B OF 3: (IF APPLICABLE) PRE-PROCESSING CLASS (GROUND TRUTH) INFORMATION AND SAVING AS NUMPY FILES"
-    sleep ${SLEEP_TIME}
-    #~ cp ${GLOBAL_DATA}/${DATASET}_mapping_file_MASTER ${MAPPING_FILE_NAME}     ${DATA_DIR}
-    cp ${GLOBAL_DATA}/${MAPPING_FILE_NAME}                                    ${DATA_DIR}
-    cp ${GLOBAL_DATA}/${ENSG_REFERENCE_FILE_NAME}                             ${DATA_DIR}
-    python process_classes.py  --data_dir ${DATA_DIR} --dataset ${DATASET} --global_data ${GLOBAL_DATA} --class_numpy_filename ${CLASS_NUMPY_FILENAME} --mapping_file ${MAPPING_FILE} \
---mapping_file_name ${MAPPING_FILE_NAME} --names_column=${NAMES_COLUMN} --case_column ${CASE_COLUMN} --class_column=${CLASS_COLUMN}  
+    echo "=====> STEP 2B OF 3: (IF APPLICABLE) PRE-PROCESSING CLASS (GROUND TRUTH) INFORMATION AND SAVING AS NUMPY FILES"
     
+    if [[ ${SKIP_RNA_PREPROCESSING} != 'True' ]]; then
+      sleep ${SLEEP_TIME}
+      #~ cp ${GLOBAL_DATA}/${DATASET}_mapping_file_MASTER ${MAPPING_FILE_NAME}     ${DATA_DIR}
+      cp ${GLOBAL_DATA}/${MAPPING_FILE_NAME}                                    ${DATA_DIR}
+      cp ${GLOBAL_DATA}/${ENSG_REFERENCE_FILE_NAME}                             ${DATA_DIR}
+      python process_classes.py  --data_dir ${DATA_DIR} --dataset ${DATASET} --global_data ${GLOBAL_DATA} --class_numpy_filename ${CLASS_NUMPY_FILENAME} --mapping_file ${MAPPING_FILE} \
+  --mapping_file_name ${MAPPING_FILE_NAME} --names_column=${NAMES_COLUMN} --case_column ${CASE_COLUMN} --class_column=${CLASS_COLUMN}  --skip_rna_preprocessing  ${SKIP_RNA_PREPROCESSING}
+    else
+      echo -e "${ORANGE}DO_ALL.SH: ${CYAN}SKIP_RNA_PREPROCESSING${RESET}${ORANGE} flag is set, so ${CYAN}process_classes${RESET}${ORANGE}      will not be called${RESET}"    
+    fi
 fi
 
 echo "=====> STEP 3 OF 3: RUNNING THE NETWORK (PYTORCH DATASET WILL BE GENERATED AND TILING WILL BE PERFORMED IF IMAGE MODE, UNLESS EITHER SUPPRESSED BY USER OPTION)"
