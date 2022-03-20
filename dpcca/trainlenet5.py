@@ -412,9 +412,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     print ( f"CLASSI:         INFO:  subtype_names_as_list[0:highest_class_number] = {CYAN}{subtype_names_as_list[0:highest_class_number+1]}{RESET}" )
 
   if highest_class_number > len(subtype_names_as_list)-1:
-    print( f"{ORANGE}CLASSI:         WARNG: config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{ORANGE}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{ORANGE}') = {MIKADO}{highest_class_number}{RESET}{ORANGE}, but this is greater than the highest class (subtype) number in the dataset ({MIKADO}{len(subtype_names_as_list)-1}{RESET}{ORANGE}){RESET}", flush=True)
-    print( f"{ORANGE}CLASSI:         WARNG: note that class (subtype) numbers start at zero{RESET}", flush=True)
-    print( f"{ORANGE}CLASSI:         WARNG: it will be ignored. Continuing{RESET}", flush=True)
+    print( f"{BOLD}{ORANGE}CLASSI:         WARNG: config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{BOLD}{ORANGE}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{BOLD}{ORANGE}') = {MIKADO}{highest_class_number}{RESET}{BOLD}{ORANGE}, but this is greater than the highest class (subtype) number in the dataset ({MIKADO}{len(subtype_names_as_list)-1}{RESET}{BOLD}{ORANGE}) (note that class (subtype) numbers start at zero){RESET}", flush=True)
+    print( f"{BOLD}{ORANGE}CLASSI:         WARNG: therefore the config setting will be ignored. Continuing ...{RESET}", flush=True)
     time.sleep(4)
   
     
@@ -1175,108 +1174,72 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
 
     # (3) Regenerate Torch '.pt' file, if required
 
-    if ( skip_generation!='True' ):
+    if  (input_mode=='image') & ( skip_generation!='True' ):
       
-      if (input_mode=='image'):
-        
-        if ( ( already_tiled==True ) & (n_tiles<=n_tiles_last ) & ( n_samples<=n_samples_last ) & ( tile_size_last==tile_size ) & ( stain_norm==last_stain_norm ) ):    # all three have to be true, or else we must regenerate the .pt file
-          pass  # PGD 201206 - TODO - This logic doesn't look correct
-        else:
-          if global_batch_count==0:
-            if DEBUG>1:
-              print( f"\r{RESET}CLASSI:         INFO: {BOLD}2  now generating torch '.pt' file from contents of dataset directories{RESET}" )
-          else:
-            print( f"\rCLASSI:         INFO: {BOLD}2  will regenerate torch '.pt' file from files, for the following reason(s):{RESET}" )            
-            if n_tiles>n_tiles_last:
-              print( f"                                    -- value of n_tiles   {MIKADO}({n_tiles})        \r\033[60Chas increased since last run{RESET}" )
-            if n_samples>n_samples_last:
-              print( f"                                    -- value of n_samples {MIKADO}({n_samples_last}) \r\033[60Chas increased since last run{RESET}")
-            if not tile_size_last==tile_size:
-              print( f"                                    -- value of tile_size {MIKADO}({tile_size})      \r\033[60Chas changed   since last run{RESET}")
-         
-        if DEBUG>0:
-          print( f"CLASSI:         INFO: n_samples               = {MAGENTA}{n_samples}{RESET}",        flush=True  )
-          print( f"CLASSI:         INFO: args.n_samples          = {MAGENTA}{args.n_samples}{RESET}",   flush=True  )
-          print( f"CLASSI:         INFO: n_classes               = {MAGENTA}{n_classes}{RESET}",        flush=True  )
-          print( f"CLASSI:         INFO: args.n_classes          = {MAGENTA}{args.n_classes}{RESET}",   flush=True  )
-          print( f"CLASSI:         INFO: n_tiles                 = {MAGENTA}{n_tiles}{RESET}",          flush=True  )
-          print( f"CLASSI:         INFO: args.n_tiles            = {MAGENTA}{args.n_tiles}{RESET}",     flush=True  )
-          print( f"CLASSI:         INFO: batch_size              = {MAGENTA}{batch_size}{RESET}",       flush=True  )
-          print( f"CLASSI:         INFO: args.batch_size         = {MAGENTA}{args.batch_size}{RESET}",  flush=True  )
-          print( f"CLASSI:         INFO: n_genes                 = {MAGENTA}{n_genes}{RESET}",          flush=True  )
-          print( f"CLASSI:         INFO: args.n_genes            = {MAGENTA}{args.n_genes}{RESET}",     flush=True  )
-          print( f"CLASSI:         INFO: gene_data_norm          = {MAGENTA}{gene_data_norm}{RESET}",   flush=True  )            
-
-        highest_class_number = n_classes-1
-        _, _,  _ = generate( args, class_names, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, tile_size, cov_threshold, cutoff_percentile, gene_data_norm, gene_data_transform  ) 
-
-        if DEBUG>0:
-          print( f"CLASSI:         INFO: n_samples               = {BLEU}{n_samples}{RESET}"       )
-          print( f"CLASSI:         INFO: args.n_samples          = {BLEU}{args.n_samples}{RESET}"  )
-          print( f"CLASSI:         INFO: n_tiles                 = {BLEU}{n_tiles}{RESET}"         )
-          print( f"CLASSI:         INFO: args.n_tiles            = {BLEU}{args.n_tiles}{RESET}"    )
-          print( f"CLASSI:         INFO: batch_size              = {BLEU}{batch_size}{RESET}"      )
-          print( f"CLASSI:         INFO: args.batch_size         = {BLEU}{args.batch_size}{RESET}" )
-          print( f"CLASSI:         INFO: n_genes                 = {BLEU}{n_genes}{RESET}"         )
-          print( f"CLASSI:         INFO: args.n_genes            = {MAGENTA}{args.n_genes}{RESET}" )
-          print( f"CLASSI:         INFO: gene_data_norm          = {BLEU}{gene_data_norm}{RESET}"  )            
-          
-        n_tiles_last   = n_tiles                                                                           # for the next run
-        n_samples_last = n_samples                                                                         # for the next run
-        tile_size_last = tile_size                                                                         # for the next run
-
-      
-      elif ( input_mode=='rna' ) | ( input_mode=='image_rna' ) :
-        
-        must_generate=False
-        if ( already_generated==False ):                                                                   # if we've never generated
-          must_generate=True
-        
-        if not ( ( gene_data_norm==last_gene_norm ) & (last_gene_norm=="NULL") ):                          # if the type of normalization has changed since the last run, we have to regenerate
-          must_generate=True
-          
-        if must_generate==True:
-          
-          if DEBUG>99:
-            print( f"CLASSI:         INFO: type(n_classes)         = {MAGENTA}{type(n_classes)}{RESET}",        flush=True  )
-            print( f"CLASSI:         INFO: n_classes               = {MAGENTA}{n_classes}{RESET}",              flush=True  )
-            
-
-          highest_class_number = n_classes-1
-          
-          n_genes, n_samples, batch_size = generate( args, class_names, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, 
-                                                      unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, tile_size, 
-                                                      cov_threshold, cutoff_percentile, gene_data_norm, gene_data_transform  
-                                                   )
-
-          if DEBUG>0:
-            print( f"CLASSI:         INFO:    n_genes (calculated)           = {MIKADO}{n_genes:,}{RESET}",   flush=True     )
-
-          last_gene_norm=gene_data_norm
-          already_generated=True
-
-
-        else:
-          if DEBUG>0:      
-            print( f"\nCLASSI:         INFO: \033[1m3 gene_data_norm = {MIKADO}{gene_data_norm}{RESET} and last_gene_norm = {MIKADO}{last_gene_norm}{RESET} so no need to regenerate torch '.pt' file" )
-
-      elif input_mode=='image_rna':
-        print( f"{ORANGE}CLASSI:         INFO:   input mode = '{CHARTREUSE}{input_mode}{RESET}{ORANGE}'. concatentated image_rna embeddings will be generated.{RESET}"  )
-
+      if ( ( already_tiled==True ) & (n_tiles<=n_tiles_last ) & ( n_samples<=n_samples_last ) & ( tile_size_last==tile_size ) & ( stain_norm==last_stain_norm ) ):    # all three have to be true, or else we must regenerate the .pt file
+        pass  # PGD - TODO - This logic doesn't look correct
       else:
-        print( f"{RED}CLASSI:       FATAL:    input mode of type '{MIKADO}{input_mode}{RESET}{RED}' is not supported [200]{RESET}" )
-        sys.exit(0)
+        if global_batch_count==0:
+          if DEBUG>1:
+            print( f"\r{RESET}CLASSI:         INFO: {BOLD}2  now generating torch '.pt' file from contents of dataset directories{RESET}" )
+        else:
+          print( f"\rCLASSI:         INFO: {BOLD}2  will regenerate torch '.pt' file from files, for the following reason(s):{RESET}" )            
+          if n_tiles>n_tiles_last:
+            print( f"                                    -- value of n_tiles   {MIKADO}({n_tiles})        \r\033[60Chas increased since last run{RESET}" )
+          if n_samples>n_samples_last:
+            print( f"                                    -- value of n_samples {MIKADO}({n_samples_last}) \r\033[60Chas increased since last run{RESET}")
+          if not tile_size_last==tile_size:
+            print( f"                                    -- value of tile_size {MIKADO}({tile_size})      \r\033[60Chas changed   since last run{RESET}")
+       
+      if DEBUG>0:
+        print( f"CLASSI:         INFO: n_samples               = {MAGENTA}{n_samples}{RESET}",        flush=True  )
+        print( f"CLASSI:         INFO: args.n_samples          = {MAGENTA}{args.n_samples}{RESET}",   flush=True  )
+        print( f"CLASSI:         INFO: n_classes               = {MAGENTA}{n_classes}{RESET}",        flush=True  )
+        print( f"CLASSI:         INFO: args.n_classes          = {MAGENTA}{args.n_classes}{RESET}",   flush=True  )
+        print( f"CLASSI:         INFO: n_tiles                 = {MAGENTA}{n_tiles}{RESET}",          flush=True  )
+        print( f"CLASSI:         INFO: args.n_tiles            = {MAGENTA}{args.n_tiles}{RESET}",     flush=True  )
+        print( f"CLASSI:         INFO: batch_size              = {MAGENTA}{batch_size}{RESET}",       flush=True  )
+        print( f"CLASSI:         INFO: args.batch_size         = {MAGENTA}{args.batch_size}{RESET}",  flush=True  )
+        print( f"CLASSI:         INFO: n_genes                 = {MAGENTA}{n_genes}{RESET}",          flush=True  )
+        print( f"CLASSI:         INFO: args.n_genes            = {MAGENTA}{args.n_genes}{RESET}",     flush=True  )
+        print( f"CLASSI:         INFO: gene_data_norm          = {MAGENTA}{gene_data_norm}{RESET}",   flush=True  )            
 
-      if DEBUG>5:
-        print( f"CLASSI:         INFO: n_samples               = {MAGENTA}{n_samples}{RESET}"       )
-        print( f"CLASSI:         INFO: args.n_samples          = {MAGENTA}{args.n_samples}{RESET}"  )
-        print( f"CLASSI:         INFO: n_tiles                 = {MAGENTA}{n_tiles}{RESET}"         )
-        print( f"CLASSI:         INFO: args.n_tiles            = {MAGENTA}{args.n_tiles}{RESET}"    )
-        print( f"CLASSI:         INFO: batch_size              = {MAGENTA}{batch_size}{RESET}"      )
-        print( f"CLASSI:         INFO: args.batch_size         = {MAGENTA}{args.batch_size}{RESET}" )
-        print( f"CLASSI:         INFO: n_genes (from args)     = {MAGENTA}{n_genes}{RESET}"         )
-        print( f"CLASSI:         INFO: gene_data_norm          = {MAGENTA}{gene_data_norm}{RESET}"  )            
+      highest_class_number = n_classes-1
+      _, _,  _ = generate( args, class_names, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, tile_size, cov_threshold, cutoff_percentile, gene_data_norm, gene_data_transform  ) 
 
+      if DEBUG>0:
+        print( f"CLASSI:         INFO: n_samples               = {BLEU}{n_samples}{RESET}"       )
+        print( f"CLASSI:         INFO: args.n_samples          = {BLEU}{args.n_samples}{RESET}"  )
+        print( f"CLASSI:         INFO: n_tiles                 = {BLEU}{n_tiles}{RESET}"         )
+        print( f"CLASSI:         INFO: args.n_tiles            = {BLEU}{args.n_tiles}{RESET}"    )
+        print( f"CLASSI:         INFO: batch_size              = {BLEU}{batch_size}{RESET}"      )
+        print( f"CLASSI:         INFO: args.batch_size         = {BLEU}{args.batch_size}{RESET}" )
+        print( f"CLASSI:         INFO: n_genes                 = {BLEU}{n_genes}{RESET}"         )
+        print( f"CLASSI:         INFO: args.n_genes            = {MAGENTA}{args.n_genes}{RESET}" )
+        print( f"CLASSI:         INFO: gene_data_norm          = {BLEU}{gene_data_norm}{RESET}"  )            
+        
+      n_tiles_last   = n_tiles                                                                           # for the next run
+      n_samples_last = n_samples                                                                         # for the next run
+      tile_size_last = tile_size                                                                         # for the next run
+
+      
+    if ( input_mode=='rna' ) | ( input_mode=='image_rna' ) :
+      
+      highest_class_number = n_classes-1
+      
+      n_genes, n_samples, batch_size = generate( args, class_names, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, 
+                                                  unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, tile_size, 
+                                                  cov_threshold, cutoff_percentile, gene_data_norm, gene_data_transform  
+                                               )
+
+      if DEBUG>2:
+        print( f"CLASSI:         INFO:    n_genes     (calculated)           = {MIKADO}{n_genes:,}{RESET}",     flush=True     )
+        print( f"CLASSI:         INFO:    n_samples   (determined)           = {MIKADO}{n_samples:,}{RESET}",   flush=True     )
+        print( f"CLASSI:         INFO:    batch_size  (determined)           = {MIKADO}{batch_size:,}{RESET}",  flush=True     )
+
+
+    if input_mode=='image_rna':
+      print( f"{ORANGE}CLASSI:         INFO:   input mode = '{CHARTREUSE}{input_mode}{RESET}{ORANGE}'. concatentated image_rna embeddings will be generated.{RESET}"  )
 
 
     if clustering!='NONE':
@@ -1663,7 +1626,6 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
   \r\033[1C{CLEAR_LINE}{DULL_WHITE}\
   \r\033[27Ctrain():\
   \r\033[49Closs_images={train_loss_images_sum_ave:5.2f}\
-  \r\033[96Cl1_loss={train_l1_loss_sum_ave:5.2f}\
   \r\033[120CBATCH AVE OVER EPOCH={PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{train_total_loss_sum_ave:9.4f}{DULL_WHITE}\
   \r\033[250Cmin loss: {train_lowest_total_loss_observed:>6.2f} at epoch {train_lowest_total_loss_observed_epoch:<2d}"
   , end=''  )
@@ -1672,7 +1634,6 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
   \r\033[1C{CLEAR_LINE}{DULL_WHITE}\
   \r\033[27Ctrain():\
   \r\033[73Closs_rna={train_loss_genes_sum_ave:5.2f}\
-  \r\033[96Cl1_loss={train_l1_loss_sum_ave:5.2f}\
   \r\033[120CBATCH AVE OVER EPOCH={PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{train_total_loss_sum_ave:9.4f}{DULL_WHITE}\
   \r\033[250Cmin loss: {train_lowest_total_loss_observed:>6.2f} at epoch {train_lowest_total_loss_observed_epoch:<2d}"
   , end=''  )
@@ -1727,7 +1688,6 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
   \r\033[1C\033[2K{DULL_WHITE}\
   \r\033[27Ctest():\
   \r\033[49Closs_images={CARRIBEAN_GREEN}{test_loss_images_sum_ave:5.2f}{DULL_WHITE}\
-  \r\033[96Cl1_loss={test_l1_loss_sum_ave:5.2f}{DULL_WHITE}\
   \r\033[120CBATCH AVE OVER EPOCH={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:9.4f}{DULL_WHITE}\
   \r\033[250Cmin loss: {test_lowest_total_loss_observed*100/batch_size:6.2f} at {WHITE}epoch {test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE}\
   \r\033[204Cimage:{CARRIBEAN_GREEN}{test_lowest_image_loss_observed*100/batch_size:>6.2f} at epoch {test_lowest_image_loss_observed_epoch:<2d}{DULL_WHITE}\
@@ -1739,7 +1699,6 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
   \r\033[1C\033[2K{DULL_WHITE}\
   \r\033[27Ctest():\
   \r\033[73Closs_rna={BITTER_SWEET}{test_loss_genes_sum_ave:5.2f}{DULL_WHITE}\
-  \r\033[96Cl1_loss={test_l1_loss_sum_ave:5.2f}{DULL_WHITE}\
   \r\033[120CBATCH AVE OVER EPOCH={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:9.4f}{DULL_WHITE}\
   \r\033[250Cmin loss: {test_lowest_total_loss_observed*100/batch_size:6.2f} at {WHITE}epoch {test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} \
   \033[5B\
@@ -2978,23 +2937,23 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
         elif (args.input_mode=='rna') | (args.input_mode=='image_rna'):
           total_loss        = loss_genes_value + l1_loss
 
-
+        TL=loss_genes_value
         if DEBUG>0:
           if ( args.input_mode=='image' ):
             print ( f"\
 \033[2K\r\033[27C{DULL_WHITE}train():\
 \r\033[40Cn={i+1:>3d}{CLEAR_LINE}\
 \r\033[49Closs_images={ loss_images_value:5.2f}\
-\r\033[96Cl1_loss={l1_loss:5.2f}\
-\r\033[120CBATCH AVE LOSS      =\r\033[{156+5*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}{RESET}" )
+\r\033[120CBATCH AVE LOSS      =\r\033[\
+{156+5*int((TL*5)//1) if TL<1 else 156+6*int((TL*1)//1) if TL<12 else 250}C{PALE_GREEN if TL<1 else PALE_ORANGE if 1<=TL<2 else PALE_RED}{TL:9.4f}{RESET}" )
             print ( "\033[2A" )
           elif (args.input_mode=='rna') | (args.input_mode=='image_rna'):
             print ( f"\
 \033[2K\r\033[27C{DULL_WHITE}train():\
 \r\033[40Cn={i+1:>3d}{CLEAR_LINE}\
 \r\033[73Closs_rna={loss_genes_value:5.2f}\
-\r\033[96Cl1_loss={l1_loss:5.2f}\
-\r\033[120CBATCH AVE LOSS      =\r\033[{156+5*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}{RESET}" )
+\r\033[120CBATCH AVE LOSS      =\r\033[\
+{156+5*int((TL*5)//1) if TL<1 else 156+6*int((TL*1)//1) if TL<12 else 250}C{PALE_GREEN if TL<1 else PALE_ORANGE if 1<=TL<2 else PALE_RED}{TL:9.4f}{RESET}" )
             print ( "\033[2A" )          
 
 
@@ -3333,8 +3292,8 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
           loss_genes_value  = loss_genes.item()                                                              # use .item() to extract value from tensor: don't create multiple new tensors each of which will have gradient histories
 
 
-        l1_loss          = l1_penalty(model, args.l1_coef)
-        # ~ l1_loss           = 0
+        # ~ l1_loss          = l1_penalty(model, args.l1_coef)
+        l1_loss           = 0
         
         if (args.input_mode=='image'):
           total_loss        = loss_images_value + l1_loss
@@ -3350,7 +3309,6 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
 \033[2K\r\033[27Ctest():\
 \r\033[40C{DULL_WHITE}n={i+1:>3d}{CLEAR_LINE}\
 \r\033[49Closs_images={loss_images_value:5.2f}\
-\r\033[96Cl1_ loss={l1_loss:5.2f}\
 \r\033[120CBATCH AVE LOSS      =\r\033[{150+5*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}{RESET}" )
             print ( "\033[2A" )
           elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
@@ -3358,7 +3316,6 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
 \033[2K\r\033[27Ctest():\
 \r\033[40C{DULL_WHITE}n={i+1:>3d}{CLEAR_LINE}\
 \r\033[73Closs_rna={loss_genes_value:5.2f}\
-\r\033[96Cl1_loss={l1_loss:5.2f}\
 \r\033[120CBATCH AVE LOSS      =\r\033[{150+5*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}{RESET}" )
             print ( "\033[2A" )
 
@@ -5159,9 +5116,10 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
                                 "khaki",           "khaki", 
                                 "plum",            "plum", 
                                 "skyblue",         "skyblue",         "skyblue",   
-                                "palegreen",       "palegreen",       "palegreen",       "palegreen",
+                                "palegreen",       "palegreen",       "palegreen",
                                 "wheat",           "wheat",
-                                "rosybrown",       "rosybrown"
+                                "rosybrown",       "rosybrown",
+                                "lightpink",       "lightpink",       "lightpink"
                               ] 
 
 

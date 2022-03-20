@@ -83,7 +83,7 @@ cols=26
 def generate( args, class_names, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, 
               unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, tile_size, cov_threshold, cutoff_percentile, gene_data_norm, gene_data_transform ):
 
-  # DON'T USE args.n_samples or args.n_tiles or args.gene_data_norm or args.tile_size or args.highest_class_number or args.cov_threshold or args.cutoff_percentile since these are job-level lists. Here we are just using one value of each, passed in as the parameters above
+  # DON'T USE args.n_samples or batch_size or args.n_tiles or args.gene_data_norm or args.tile_size or args.highest_class_number or args.cov_threshold or args.cutoff_percentile since these are job-level lists. Here we are just using one value of each, passed in as the parameters above
   n_tests                      = args.n_tests
   data_dir                     = args.data_dir
   input_mode                   = args.input_mode
@@ -97,6 +97,50 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
   use_autoencoder_output       = args.use_autoencoder_output
   use_unfiltered_data          = args.use_unfiltered_data
 
+
+  
+  # skip generation case for rna (only). Even though we won't generate the pytorch files, we still need to open the existing .pth file to determine n_samples, n_genes; and possibly also modify batch_size
+
+  if  (input_mode=='rna') & ( args.skip_generation=='True' ) & ( args.cases == 'ALL_ELIGIBLE_CASES') :    
+
+    
+    fqn =  f"{args.base_dir}/dpcca/data/{args.nn_mode}/dataset_rna_train.pth"
+    if DEBUG>0:
+      print( f"{BOLD}{ORANGE}GENERATE:       INFO:  {CYAN}-X{RESET}{BOLD}{ORANGE} flag is enabled  - about to load {RESET}{MAGENTA}{fqn}{RESET}",  flush=True )
+    try:
+      data       = torch.load( fqn )
+      genes      = data['genes']
+      n_samples  = genes.shape[0]
+      n_genes    = genes.shape[2]
+    except Exception as e:
+      print ( f"{RED}GENERATE:       INFO:  could not load {MAGENTA}{fqn}{RESET}. Disable -X to force it to be regenerated ... can't continue, so halting now [143]{RESET}" )
+      if DEBUG>0:
+        print ( f"{RED}GENERATE:       INFO:  the exception was: {CYAN}'{e}'{RESET}" )
+      sys.exit(0)
+
+    if DEBUG>2:
+      print ( f"GENERATE:       INFO:    n_samples      = {MIKADO}{n_samples}{RESET}",   flush=True         )  
+      print ( f"GENERATE:       INFO:    n_genes        = {MIKADO}{n_genes}{RESET}",     flush=True         ) 
+  
+    if n_samples > n_samples:
+      print( f"{ORANGE}GENERATE:       WARNG: proposed number of samples {CYAN}N_SAMPLES{RESET}{ORANGE} ({MIKADO}{n_samples}{ORANGE}) is greater than the number of cases processed, 'n_samples' ( = {MIKADO}{n_samples}{RESET}{ORANGE}){RESET}" )
+      print( f"{ORANGE}GENERATE:       WARNG: now changing {CYAN}n_samples{ORANGE} to {MIKADO}{n_samples}{RESET}{RESET}" )
+      print( f"{ORANGE}GENERATE:       WARNG: explanation: perhaps you specified a flag such as {CYAN}MULTIMODE____TEST{RESET}{ORANGE}, which selects a subset of the available samples, and this subset is smaller that {CYAN}{n_samples}{RESET}{ORANGE}. This is perfectly fine.{RESET}" )
+      n_samples = n_samples
+  
+    if batch_size > n_samples:
+      print( f"{ORANGE}GENERATE:       WARNG: proposed batch size ({CYAN}BATCH_SIZE{RESET} = {MIKADO}{batch_size}{RESET}{ORANGE}) is greater than the number of cases available, 'n_samples'  ( = {MIKADO}{n_samples}{RESET}{ORANGE})" )
+      print( f"{ORANGE}GENERATE:       WARNG: changing {CYAN}batch_size){CYAN} to {MIKADO}{int(0.2*n_samples)}{RESET}" )
+      print( f"{ORANGE}GENERATE:       WARNG: further comment: If you don't like this value of {CYAN}BATCH_SIZE{RESET}{ORANGE}, stop the program and provide a new value in the configuration file {MAGENTA}conf.py{RESET}")
+      batch_size = int(0.2*n_samples)
+
+
+    return ( n_genes, n_samples, batch_size )
+  
+
+  if  (input_mode=='rna') & ( args.skip_generation=='True' ) & ( args.cases != 'ALL_ELIGIBLE_CASES') : 
+      print ( f"{BOLD}{ORANGE}GENERATE:       INFO:  {CYAN}-X{RESET} flag (SKIP_GENERATION) is ony allowed if {CYAN}CASES='ALL_ELIGIBLE_CASES'{RESET}. {BOLD}{ORANGE}It will be ignored, and the dataset will be regenerated{RESET}" )  
+  
 
   class_counts = np.zeros( highest_class_number+1, dtype=np.int )
 
@@ -803,14 +847,13 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
   #  If -c = ...
   #    ALL_ELIGIBLE_CASES                      then grab these cases:
   #    if -i rna:
-  #       UNIMODE_CASE                         then grab these cases: UNIMODE_CASE____RNA_TEST                                                          <<< currently catered for
-  #       UNIMODE_CASE____MATCHED              then grab these cases:  <tbd>                                                                              <<< not currently implemented. Uses only matched cases for unimode runs
+  #       UNIMODE_CASE                         then grab these cases: UNIMODE_CASE____RNA_TEST                                                  <<< currently catered for
+  #       UNIMODE_CASE____MATCHED              then grab these cases:  <tbd>                                                                    <<< not currently implemented. Uses only matched cases for unimode runs
   #    if -i rna:
-  #       UNIMODE_CASE                         then grab these cases: UNIMODE_CASE____RNA_TEST_FLAG                                                       <<< currently catered for
-  #       UNIMODE_CASE____MATCHED              then grab these cases: <tbd>                                                                               <<< not currently implemented. Uses only matched cases for unimode runs
+  #       UNIMODE_CASE                         then grab these cases: UNIMODE_CASE____RNA_TEST_FLAG                                             <<< currently catered for
+  #       UNIMODE_CASE____MATCHED              then grab these cases: <tbd>                                                                     <<< not currently implemented. Uses only matched cases for unimode runs
   #    MULTIMODE____TEST                       then grab these cases: MULTIMODE____TEST                                                         <<< the set that's exclusively reserved for multimode testing (always matched)
   #
-  #  Tiling implications:
   #
   #  ------------------------------------------+-----------------------------------------------------------------------------------------------------+----------------------------------------------------
   #                 User Flag                  |                                             Training                                                |                      Test                         
@@ -1212,7 +1255,7 @@ def generate_rna_dataset ( args, class_names, target, cases_required, highest_cl
     if DEBUG>99:
       print( f"GENERATE:       INFO:        {PINK}percentiles.shape             = {MIKADO}{percentiles.shape}{RESET}",  flush=True )        
       print( f"GENERATE:       INFO:        about to apply COV_THRESHOLD to filter out genes that aren't very expressive across all samples (genes whose {MIKADO}{cutoff_percentile}%{RESET} percentile is less than the user provided {CYAN}COV_THRESHOLD{RESET} = {MIKADO}{cov_threshold}{RESET})", flush=True )    
-    logical_mask      = np.array(  [ ( percentiles ) > cov_threshold ]  )                                      # filter out genes that aren't very expressive across all samples
+    logical_mask      = np.array(  [ ( percentiles ) > cov_threshold ]  )                                  # filter out genes that aren't very expressive across all samples
     if DEBUG>99:
       print( f"GENERATE:       INFO:        {PINK}logical_mask.shape            = {MIKADO}{logical_mask.shape}{RESET}", flush=True )
     if DEBUG>99:
@@ -1271,7 +1314,7 @@ def generate_rna_dataset ( args, class_names, target, cases_required, highest_cl
       if DEBUG>0:   
         print( f"{BRIGHT_GREEN}GENERATE:       INFO:  autoencoder feature file successfully loaded{RESET}"  )          
     except Exception as e:
-      print ( f"{RED}GENERATE:       INFO:  could now load feature file. Did you remember to run the system with {CYAN}NN_MODE='pre_compress'{RESET}{RED} and an autoencoder such as {CYAN}'AEDENSE'{RESET}{RED} to generate the feature file? ... can't continue, so halting now [143]{RESET}" )
+      print ( f"{RED}GENERATE:       INFO:  could not load feature file. Did you remember to run the system with {CYAN}NN_MODE='pre_compress'{RESET}{RED} and an autoencoder such as {CYAN}'AEDENSE'{RESET}{RED} to generate the feature file? ... can't continue, so halting now [143]{RESET}" )
       if DEBUG>0:
         print ( f"{RED}GENERATE:       INFO:  the exception was: {CYAN}'{e}'{RESET}" )
       sys.exit(0)
