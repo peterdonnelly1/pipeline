@@ -5092,17 +5092,25 @@ def box_plot_by_subtype( args, class_names, n_genes, start_time, parameters, wri
   minutes =  ( seconds / 60          )  if  seconds >  60  else  0 
   seconds =  ( seconds - 60*minutes  )  if  minutes >=  1  else  seconds
 
-
+  labels  = class_names[0:len(class_names)]
+  labels = [elem[:15] for elem in labels]                                                                  # truncate the class names to be all the same length
+  
+  print(labels)
 
   # Titling
 
   now        = datetime.datetime.now()
-  supertitle = f"{now:%d-%m-%y %H:%M}  Classification of {args.cancer_type_long} Subtypes\n{total_runs_in_job} experiment runs in this box plot.  Total run time: {round(minutes):02d}:{round(seconds):02d}"
+  
+  if len(labels) < 20:
+    supertitle = f"Classification of {args.cancer_type_long} Subtypes\n{total_runs_in_job} experiment runs in this box plot.  Total run time: {round(minutes):02d}m {round(seconds):02d}s"
+  else:
+    supertitle = f"Classification of 13 Cancers into {len(class_names)} Subtypes\n{total_runs_in_job} experiment runs in this box plot.  Total run time: {round(minutes):02d}m:{round(seconds):02d}s"
+  
   if args.input_mode=='image':
-    title = f"{args.cases[0:25]} ({parameters['n_samples'][0]})  subtypes:{len(class_names)-1} NN:{parameters['nn_type_image'][0]}  optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}\n  \
+    title = f"{now:%d-%m-%y %H:%M}  {args.cases[0:25]} ({parameters['n_samples'][0]})  subtypes:{len(class_names)} NN:{parameters['nn_type_image'][0]}  optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}\n  \
 batch size:{parameters['batch_size'][0]}  held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]:<9.6f}  tiles:{parameters['n_tiles'][0]}  tile_size:{parameters['tile_size'][0]}  batch_size:{parameters['batch_size'][0]}  (mags:{mags} probs:{prob})"
   else:
-    title = f"{args.cases[0:25]} ({parameters['n_samples'][0]}) / {args.rna_genes_tranche} (n_genes:{n_genes})   subtypes:{len(class_names)-1}  \
+    title = f"{now:%d-%m-%y %H:%M}  {args.cases[0:25]} ({parameters['n_samples'][0]}) / {args.rna_genes_tranche} (n_genes:{n_genes})   subtypes:{len(class_names)}  \
 FPKM-UQ threshold cutoff: >{parameters['cutoff_percentile'][0]}%/<{parameters['cov_threshold'][0]} \nNeural Network:{parameters['nn_type_rna'][0]}  optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}  \
 batch size:{parameters['batch_size'][0]}   held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]:<9.6f}  hidden layer:{parameters['hidden_layer_neurons'][0]}  xform:{parameters['gene_data_transform'][0]}  \
 dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topology}"
@@ -5123,10 +5131,7 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
                               ] 
 
 
-  labels  = class_names[0:len(class_names)]
-  labels = [elem[:11] for elem in labels]                                                                  # truncate the class names to be all the same length
-  
-  print(labels)
+
   
   
   # Render portrait version of box plot
@@ -5257,8 +5262,8 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
   else:
     rotation = 90
     font_big = 18
-    font_med = 12
-    font_sml = 6
+    font_med = 16
+    font_sml = 14
     base     = 0.75
     gap_1    = 1.3
     gap_2    = 1.3
@@ -5272,8 +5277,8 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
         
   fig, ax       = plt.subplots( figsize=( figure_width, figure_height ), constrained_layout=False )
 
-  plt.yticks( fontsize=font_med )
-  plt.xticks(  range( 0, 100, 10)  )
+  plt.yticks    (  fontsize=font_sml )
+  plt.xticks    (  range( 0, 100, 10), fontsize=font_med  )
   fig.suptitle  (  supertitle,  color='black',  weight='bold',    fontsize=16             )
   ax.set_title  (  title,       color='black',                    fontsize=14             ) 
   ax.set        ( xlim =(0, 100) )
@@ -5283,7 +5288,7 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
   
   bp      = plt.boxplot( pct_correct_predictions_plane, labels=labels, vert=False,  patch_artist=True,  showfliers=True,  medianprops=dict(color="black", alpha=0.7) )
 
-  ax.text( x=-12, y=-2,  s=f"Total predictions made {np.sum(all_predictions_plane):,}; of which correct: {np.sum(correct_predictions_plane):,} ({100*np.sum(correct_predictions_plane)/np.sum(all_predictions_plane):.1f}%)",  horizontalalignment='left', color='black', fontsize=15 ) 
+  ax.text( x=-12, y=-3.5,  s=f"Total predictions made {np.sum(all_predictions_plane):,}; of which correct: {np.sum(correct_predictions_plane):,} ({100*np.sum(correct_predictions_plane)/np.sum(all_predictions_plane):.1f}%)",  horizontalalignment='left', color='black', fontsize=15 ) 
   plt.xlabel    (  'subtypes correctly predicted (%)', weight='bold', fontsize=font_big   )
 
   totals          = total_predictions_by_subtype
