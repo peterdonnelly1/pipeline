@@ -892,7 +892,7 @@ f"\
 
     
     if input_mode=='image':
-      descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases:_<12s}_{args.dataset}_{nn_type_img:_<10}_{nn_optimizer:_<8}_e_{args.n_epochs:03d}_samps_{n_samples:03d}_tiles_{n_tiles:04d}_hi_clss_{n_classes:02d}\
+      descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases:_<10s}_{args.dataset}_{nn_type_img:_<10}_{nn_optimizer:_<8}_e_{args.n_epochs:03d}_samps_{n_samples:03d}_tiles_{n_tiles:04d}_hi_clss_{n_classes:02d}\
 _tlsz_{tile_size:03d}__mags_{mags}__probs_{prob}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:09.6f}"
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}  Tiles/Slide={n_tiles:d}   Tile size={tile_size:d}x{tile_size:d}\n\
@@ -903,7 +903,7 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_pct}_Grey_Pct_{make_g
 
 
     elif input_mode=='rna':
-      descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases[0:10]:_<10s}_{rna_genes_tranche:_<12s}_{nn_type_rna:_<10s}_{nn_optimizer:_<8s}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hiclss_{n_classes:02d}\
+      descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases[0:10]:_<10s}_{rna_genes_tranche:_<10s}_{nn_type_rna:_<10s}_{nn_optimizer:_<8s}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hiclss_{n_classes:02d}\
 _bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:<9.6f}_hid_{hidden_layer_neurons:04d}_low_{cov_threshold:<02.2e}_low_{cutoff_percentile:<4.0f}_DR_{100*dropout_1:4.1f}_xfrm_{gene_data_transform:_<10}_shape_{hidden_layer_encoder_topology}"
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={n_classes:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}\n\
@@ -914,7 +914,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
 
 
     else:
-      descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases:_<10s}_{rna_genes_tranche:_<12s}_{nn_type_rna:_<10}_{nn_optimizer:_<8s}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{n_classes:02d}\
+      descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases:_<10s}_{rna_genes_tranche:_<10s}_{nn_type_rna:_<10}_{nn_optimizer:_<8s}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{n_classes:02d}\
 _bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:<9.6f}_hid_{hidden_layer_neurons:04d}_low_{cov_threshold:<02.2e}_low_{cutoff_percentile:<4.0f}_DR_{100*dropout_1:4.1f}_xfrm_{gene_data_transform:_<10}_shape_{hidden_layer_encoder_topology}"          
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={n_classes:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}\n\
@@ -5229,7 +5229,7 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
   
   writer.add_figure('Box Plot V', fig, 1)
   
-  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_AGG_{headline_correct.astype(int):02d}_BEST_{best_subtype_median:03d}_{descriptor}__box_plot_port.png"
+  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_AGG_{headline_correct.astype(int):02d}_BEST_{best_subtype_median:03d}_{descriptor}__boxplt_port.png"
   fig.savefig(fqn)
     
   plt.close()
@@ -5324,7 +5324,7 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
   writer.add_figure('Box Plot H', fig, 1)
   
   
-  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_AGG_{headline_correct.astype(int):02d}_BEST_{best_subtype_median:03d}_{descriptor}__box_plot_land.png"
+  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_AGG_{headline_correct.astype(int):02d}_BEST_{best_subtype_median:03d}_{descriptor}__boxplt_land.png"
   fig.savefig(fqn)
     
   plt.close()
