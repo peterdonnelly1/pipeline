@@ -904,8 +904,9 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_pct}_Grey_Pct_{make_g
 
     elif input_mode=='rna':
       toplen = len( f"{hidden_layer_encoder_topology}" )
-      print ( f"-------------------------------------------------------------------------------------------------------------> {hidden_layer_encoder_topology}" ) 
-      print ( f"-------------------------------------------------------------------------------------------------------------> {toplen}"                        ) 
+      if DEBUG>99:
+        print ( f"-------------------------------------------------------------------------------------------------------------> {hidden_layer_encoder_topology}" ) 
+        print ( f"-------------------------------------------------------------------------------------------------------------> {toplen}"                        ) 
       if toplen < 14:
         descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases[0:10]:_<10s}_{rna_genes_tranche:_<10s}_{nn_type_rna:_<9s}_{nn_optimizer:_<8s}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hicls_{n_classes:02d}\
 _bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:<9.6f}_hid_{hidden_layer_neurons:04d}_low_{cov_threshold:<02.2e}_low_{cutoff_percentile:<4.0f}_dr_{100*dropout_1:4.1f}_xfrm_{gene_data_transform:_<8s}_shape_{hidden_layer_encoder_topology}"
