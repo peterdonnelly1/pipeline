@@ -106,7 +106,7 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
     
     fqn =  f"{args.base_dir}/dpcca/data/{args.nn_mode}/dataset_rna_train.pth"
     if DEBUG>0:
-      print( f"{BOLD}{ORANGE}GENERATE:       INFO:  {CYAN}-X{RESET}{BOLD}{ORANGE} flag {CYAN}SKIP_GENERATION{RESET}{BOLD}{ORANGE}is set  - about to load {RESET}{MAGENTA}{fqn}{RESET}",  flush=True )
+      print( f"{BOLD}{ORANGE}GENERATE:       INFO:  {CYAN}-X{RESET}{BOLD}{ORANGE} flag {CYAN}SKIP_GENERATION{RESET}{BOLD}{ORANGE} is set  - about to load {RESET}{MAGENTA}{fqn}{RESET}",  flush=True )
     try:
       data       = torch.load( fqn )
       genes      = data['genes']
