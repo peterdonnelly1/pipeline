@@ -5032,7 +5032,7 @@ def box_plot_by_subtype( args, class_names, n_genes, start_time, parameters, wri
   if DEBUG>0:
     np.set_printoptions(formatter={ 'int' : lambda x: f"{x:>5d}   "} )      
     
-    print( f'CLASSI:           INFO:    all_predictions_plane (one row per run)       = \n{CARRIBEAN_GREEN}{all_predictions_plane}{RESET}')
+    print( f'CLASSI:           INFO:    all_predictions_plane (one row per run)    = \n{CARRIBEAN_GREEN}{all_predictions_plane}{RESET}')
     print( f'CLASSI:           INFO:    all_predictions_plane (check sum)          =  {MIKADO}{total_predictions_made}{RESET}')
 
 
@@ -5195,6 +5195,7 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
   bp      = plt.boxplot( pct_correct_predictions_plane, labels=labels, vert=True, patch_artist=True, showfliers=True,  medianprops=dict(color="black", alpha=0.7) )
 
   ax.text( x=.75, y=15,  s=f"Total predictions made {np.sum(all_predictions_plane):,}, of which correct: {np.sum(correct_predictions_plane):,} ({100*np.sum(correct_predictions_plane)/np.sum(all_predictions_plane):.1f}%)",  horizontalalignment='left', color='dimgray', fontsize=14) 
+  ax.text( x=.75, y=12,  s=f"Subtypes for which accuracy >90% = {np.sum(median_pct_correct_predictions_by_subtype >= 90)}",                                                                                                      horizontalalignment='left', color='dimgray', fontsize=14) 
   plt.xticks( fontsize=font_med )
   plt.yticks( fontsize=20 )
 
@@ -5297,7 +5298,10 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
   
   bp      = plt.boxplot( pct_correct_predictions_plane, labels=labels, vert=False,  patch_artist=True,  showfliers=True,  medianprops=dict(color="black", alpha=0.7) )
 
-  ax.text( x=-12, y=-3.5,  s=f"Total predictions made {np.sum(all_predictions_plane):,}; of which correct: {np.sum(correct_predictions_plane):,} ({100*np.sum(correct_predictions_plane)/np.sum(all_predictions_plane):.1f}%)",  horizontalalignment='left', color='black', fontsize=15 ) 
+  ax.annotate( f"Total predictions made {np.sum(all_predictions_plane):,}; of which correct: {np.sum(correct_predictions_plane):,} ({100*np.sum(correct_predictions_plane)/np.sum(all_predictions_plane):.1f}%)",
+                   xy= (0.01,  0.02),    xycoords='figure fraction',  horizontalalignment='left', color='dimgray', fontsize=15  ) 
+  ax.annotate( f"Subtypes for which accuracy >90% = {np.sum(median_pct_correct_predictions_by_subtype >= 90)}",
+                   xy= (0.75,  0.02),  xycoords='figure fraction',  horizontalalignment='left',   color='dimgray', fontsize=15 )
   plt.xlabel    (  'subtypes correctly predicted (%)', weight='bold', fontsize=font_big   )
 
   totals          = total_predictions_by_subtype

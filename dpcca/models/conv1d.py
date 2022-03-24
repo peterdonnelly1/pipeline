@@ -68,9 +68,11 @@ RESTORE_CURSOR='\033[u'
 FAIL    = 0
 SUCCESS = 1
 
-DEBUG   = 1
+DEBUG   = 99
 # ~ columns=241920
 columns=120960
+columns=15120
+columns=3776
 
 class CONV1D( nn.Module ):
 
@@ -88,8 +90,8 @@ class CONV1D( nn.Module ):
     self.conv1_2 = nn.Conv1d( 16,  16, kernel_size=3, stride=1, padding=1)   # output: 16 filters, 3 kernel
     self.bnrm1_2 = nn.BatchNorm1d(16)
 
-    self.conv2_1 = nn.Conv1d( 16, 32,  kernel_size=3, stride=1, padding=1)   # output: 32 filters, 3 kernel
-    self.bnrm2_1 = nn.BatchNorm1d(32)
+    # ~ self.conv2_1 = nn.Conv1d( 16, 32,  kernel_size=3, stride=1, padding=1)   # output: 32 filters, 3 kernel
+    # ~ self.bnrm2_1 = nn.BatchNorm1d(32)
     # ~ self.conv2_2 = nn.Conv1d(32, 32,   kernel_size=3, stride=1, padding=1)   # output: 32 filters, 3 kernel
     # ~ self.bnrm2_2 = nn.BatchNorm1d(32)
 
@@ -141,6 +143,27 @@ class CONV1D( nn.Module ):
     x = F.max_pool1d(x, 2, 2)
     if DEBUG>8:
       print ( f"CONV1D:         INFO:       encode(): after max_pool1d,                        x.size() = {x.size()}", flush=True )    
+    x = F.max_pool1d(x, 2, 2)
+    if DEBUG>8:
+      print ( f"CONV1D:         INFO:       encode(): after max_pool1d,                        x.size() = {x.size()}", flush=True )  
+    x = F.max_pool1d(x, 2, 2)
+    if DEBUG>8:
+      print ( f"CONV1D:         INFO:       encode(): after max_pool1d,                        x.size() = {x.size()}", flush=True )  
+    x = F.max_pool1d(x, 2, 2)
+    if DEBUG>8:
+      print ( f"CONV1D:         INFO:       encode(): after max_pool1d,                        x.size() = {x.size()}", flush=True ) 
+    x = F.max_pool1d(x, 2, 2)
+    if DEBUG>8:
+      print ( f"CONV1D:         INFO:       encode(): after max_pool1d,                        x.size() = {x.size()}", flush=True )  
+    x = F.max_pool1d(x, 2, 2)
+    if DEBUG>8:
+      print ( f"CONV1D:         INFO:       encode(): after max_pool1d,                        x.size() = {x.size()}", flush=True )  
+    x = F.max_pool1d(x, 2, 2)
+    if DEBUG>8:
+      print ( f"CONV1D:         INFO:       encode(): after max_pool1d,                        x.size() = {x.size()}", flush=True )  
+    x = F.max_pool1d(x, 2, 2)
+    if DEBUG>8:
+      print ( f"CONV1D:         INFO:       encode(): after max_pool1d,                        x.size() = {x.size()}", flush=True )  
     # ~ x = F.relu(self.bnrm2_1(self.conv2_1(x)))
     # ~ if DEBUG>8:
       # ~ print ( f"CONV1D:         INFO:       encode(): after conv2_1,                           x.size() = {x.size()}", flush=True ) 
@@ -163,15 +186,15 @@ class CONV1D( nn.Module ):
       # ~ print ( f"CONV1D:         INFO:       encode(): after conv4_1,                           x.size() = {x.size()}", flush=True ) 
     #x = F.relu(self.bnrm4_2(self.conv4_2(x)))
     #x = F.relu(self.bnrm4_3(self.conv4_3(x)))
-    x = F.max_pool1d(x, 2, 2)
-    if DEBUG>8:
-      print ( f"CONV1D:         INFO:       encode(): after max_pool1d,                        x.size() = {x.size()}", flush=True )  
+    # ~ x = F.max_pool1d(x, 2, 2)
+    # ~ if DEBUG>8:
+      # ~ print ( f"CONV1D:         INFO:       encode(): after max_pool1d,                        x.size() = {x.size()}", flush=True )  
     #x = F.relu(self.bnrm5_1(self.conv5_1(x)))
     #x = F.relu(self.bnrm5_2(self.conv5_2(x)))
     #x = F.relu(self.bnrm5_3(self.conv5_3(x)))
-    x = F.max_pool1d(x, 2, 2)
-    if DEBUG>8:
-      print ( f"CONV1D:         INFO:       encode(): after max_pool1d,                        x.size() = {x.size()}", flush=True )  
+    # ~ x = F.max_pool1d(x, 2, 2)
+    # ~ if DEBUG>8:
+      # ~ print ( f"CONV1D:         INFO:       encode(): after max_pool1d,                        x.size() = {x.size()}", flush=True )  
 
 
     if DEBUG>8:
