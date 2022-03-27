@@ -5254,7 +5254,7 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
       print ( f"CLASSI:           INFO:  xtick                                    = {MIKADO}{xtick}{RESET}",  flush=True )
       print ( f"CLASSI:           INFO:  total                                    = {MIKADO}{total}{RESET}",  flush=True )
 
-  if box_plot_show == "True":
+  if args.box_plot_show == "True":
     plt.show()
   
   writer.add_figure('Box Plot V', fig, 1)
@@ -5352,7 +5352,7 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
       print ( f"CLASSI:           INFO:  total        = {MIKADO}{total}{RESET}",  flush=True )
 
  
-  if box_plot_show == "True":
+  if args.box_plot_show == "True":
     plt.show()
   
   writer.add_figure('Box Plot H', fig, 1)
