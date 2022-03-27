@@ -922,16 +922,17 @@ Magnif'n vector={mags}   Stain Norm={stain_norm}   Peer Noise Pct={peer_noise_pc
 Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_pct}_Grey_Pct_{make_grey_pct}_Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_samples:d}_Cases_{args.cases[0:50]}'
 
 
-    elif input_mode=='rna':
+    else:
       toplen = len( f"{hidden_layer_encoder_topology}" )
-      if DEBUG>99:
+      if DEBUG>999:
         print ( f"-------------------------------------------------------------------------------------------------------------> {hidden_layer_encoder_topology}" ) 
         print ( f"-------------------------------------------------------------------------------------------------------------> {toplen}"                        ) 
+        
       if toplen < 14:
-        descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases[0:10]:_<10s}_{rna_genes_tranche:_<10s}_{nn_type_rna:_<9s}_{nn_optimizer:_<8s}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hicls_{n_classes:02d}\
+        descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases[0:10]:_<10s}__{rna_genes_tranche[0:10]:_<10s}__{nn_type_rna:_<9s}_{nn_optimizer:_<8s}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hicls_{n_classes:02d}\
 _bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:<9.6f}_hid_{hidden_layer_neurons:04d}_low_{cov_threshold:<02.2e}_low_{cutoff_percentile:<4.0f}_dr_{100*dropout_1:4.1f}_xfrm_{gene_data_transform:_<8s}_shape_{hidden_layer_encoder_topology}"
       else:                                                                                                # need to abbreviate everything because the long topology string will make the file name too long and it will crash
-        descriptor = f"_RUNS_{total_runs_in_job}_{args.dataset.upper()}_{input_mode.upper():_<3s}_{args.cases[0:10]:_<5s}_{rna_genes_tranche:_<5s}_{nn_type_rna:_<5s}_{nn_optimizer:_<5s}_e_{args.n_epochs}_N_{n_samples}_hicls_{n_classes}\
+        descriptor = f"_RUNS_{total_runs_in_job}_{args.dataset.upper()}_{input_mode.upper():_<3s}_{args.cases[0:6]:_<5s}__{rna_genes_tranche[0:6]:_<5s}__{nn_type_rna:_<5s}_{nn_optimizer:_<5s}_e_{args.n_epochs}_N_{n_samples}_hicls_{n_classes}\
 _bat_{batch_size:02d}_test_{int(100*pct_test)}_lr_{lr}_hid_{hidden_layer_neurons}_low_{cov_threshold}_low_{cutoff_percentile}_dr_{100*dropout_1}_xfrm_{gene_data_transform}_shape_{hidden_layer_encoder_topology}"
 
 
@@ -940,17 +941,6 @@ Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:
 
       desc_2_short = f'{args.dataset.upper()}_HighClass_{n_classes:d}_Encoder_{nn_type_rna:_<15}_e_{args.n_epochs:d}_\
 Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_samples:d}_Cases_{args.cases[0:50]} Genes Subset: {rna_genes_tranche}'
-
-
-    else:
-      descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases:_<10s}_{rna_genes_tranche:_<10s}_{nn_type_rna:_<9s}_{nn_optimizer:_<8s}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_cls_{n_classes:02d}\
-_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:<9.6f}_hid_{hidden_layer_neurons:04d}_low_{cov_threshold:<02.2e}_low_{cutoff_percentile:<4.0f}_dr_{100*dropout_1:4.1f}_xfrm_{gene_data_transform:_<8s}_shape_{hidden_layer_encoder_topology}"          
-
-      descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={n_classes:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}\n\
-Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:<9.6f}   Cases from subset: {args.cases[0:50]} Genes subset: {rna_genes_tranche}"
-
-      desc_2_short = f'{args.dataset.upper()}_HighClass_{n_classes:d}_Encoder_{nn_type_rna}_e_{args.n_epochs:d}_\
-Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_samples:d}_Cases_{args.cases[0:50]}_{rna_genes_tranche}'
 
 
     # ~ if just_test=='True':

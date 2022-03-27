@@ -1341,7 +1341,7 @@ def generate_rna_dataset ( args, class_names, target, cases_required, highest_cl
     
     if DEBUG>0:  
       print ( f"GENERATE:       INFO:  SANITY CHECK: number of unique classes represented in the cases                       = {MIKADO}{len(np.unique(rna_labels_new))}{RESET}"                                                            ) 
-      print ( f"GENERATE:       INFO:  SANITY CHECK: classes in {CYAN}CLASS_NAMES{RESET}                                                  = \n{CYAN}{class_names}{RESET}"          ) 
+      print ( f"GENERATE:       INFO:  SANITY CHECK: classes in {CYAN}CLASS_NAMES{RESET}                                                  = {CYAN}{class_names}{RESET}"          ) 
     
     if len(np.unique(rna_labels_new)) != len(class_names):
       print ( f"{RED}GENERATE:       FATAL: Different number of cancer types represented in the cases to be trained than in the configuration parameter {CYAN}CLASS_NAMES{RESET}{RESET}"                                          ) 
