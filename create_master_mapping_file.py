@@ -394,12 +394,12 @@ def main(args):
           
       if case_found_in_spreadsheet==True:
         if DEBUG>0:
-          print ( f"CREATE_MASTER:     INFO:    {GREEN}directory (case) '{CYAN}{el[1]}{RESET}'{GREEN} \r\033[80C(or its root if applicable) is     listed in master clinical spreadsheet{RESET}" )
+          print ( f"CREATE_MASTER:     INFO:    {GREEN}directory (case) '{CYAN}{el[1]}{RESET}'{GREEN} \r\033[85C(or its root if applicable) is     listed in master clinical spreadsheet{RESET}" )
         else:
           pass
       else:
         if DEBUG>0:        
-          print ( f"CREATE_MASTER:     INFO:    {ORANGE}directory (case) '{CYAN}{el[1]}{RESET}{ORANGE}'\r\033[80C(or its root if applicable) is not listed in master clinical spreadsheet\r\033[200C <<<<< anomoly, but no action will be taken{RESET}" )
+          print ( f"CREATE_MASTER:     INFO:    {ORANGE}directory (case) '{CYAN}{el[1]}{RESET}{ORANGE}'\r\033[85C(or its root if applicable) is not listed in master clinical spreadsheet\r\033[200C <<<<< anomoly, but no action will be taken{RESET}" )
     
     
   # (3) show some useful stats
