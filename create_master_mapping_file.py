@@ -420,23 +420,23 @@ def main(args):
     print ( f"\r\033[225C{RED}  <<<<< anomoly - not listed in spreadsheet{RESET}")
   else:
     print ("")
-  print ( f"CREATE_MASTER:     INFO:    total {DIM_WHITE}files of no interest{RESET}   actually found  =  {DIM_WHITE}{global_other_files_found}{RESET}" )
-  print ( f"CREATE_MASTER:     INFO:    total {DIM_WHITE}files of    interest{RESET}   actually found  =  {DIM_WHITE}{global_found_file_of_interest}{RESET}" )
-  print ( f"CREATE_MASTER:     INFO:    total {CARRIBEAN_GREEN}slide{RESET}   files          actually found  =  {CARRIBEAN_GREEN}{global_found_slide_file}{RESET}" )
-  print ( f"CREATE_MASTER:     INFO:    total {BITTER_SWEET}rna-seq{RESET} files          actually found  =  {BITTER_SWEET}{global_found_rna_seq_file}{RESET}" )
-  print ( f"CREATE_MASTER:     INFO:    total {BLEU}matched{RESET} cases                          =  {BLEU}{matched_cases_count}{RESET}" )
+  print ( f"CREATE_MASTER:     INFO:    total {DIM_WHITE}files of no interest{RESET}   actually found  =  {DIM_WHITE}{global_other_files_found}{RESET}"                 )
+  print ( f"CREATE_MASTER:     INFO:    total {DIM_WHITE}files of    interest{RESET}   actually found  =  {DIM_WHITE}{global_found_file_of_interest}{RESET}"            )
+  print ( f"CREATE_MASTER:     INFO:    total {CARRIBEAN_GREEN}slide{RESET}   files          actually found  =  {CARRIBEAN_GREEN}{global_found_slide_file}{RESET}"      )
+  print ( f"CREATE_MASTER:     INFO:    total {BITTER_SWEET}rna-seq{RESET} files          actually found  =  {BITTER_SWEET}{global_found_rna_seq_file}{RESET}"          )
+  print ( f"CREATE_MASTER:     INFO:    total {BLEU}matched{RESET} cases                          =  {BLEU}{matched_cases_count}{RESET}"                                )
     
 
   save_file_name = f"{class_specific_global_data_location}/{dataset}_mapping_file_MASTER.csv"
   if (DEBUG>0):
-    print ( f"\nCREATE_MASTER:     INFO:    about to save:   {MAGENTA}{save_file_name}{RESET}")
+    print ( f"\nCREATE_MASTER:     INFO:    about to save:   {MAGENTA}{save_file_name}{RESET}" )
       
   try:
     df.to_csv( save_file_name, sep=',', index=False )
   except Exception as e:
     print ( f"{RED}CREATE_MASTER:     FATAL: '{e}'{RESET}" )
-    print ( f"{RED}CREATE_MASTER:     FATAL:  could notw write {MAGENTA}{mapping_file_name}{RESET}{RED} ({MAGENTA}{local_cancer_specific_dataset}{RESET}{RED}){RESET}" )
-    print ( f"{RED}CREATE_MASTER:     FATAL:  cannot continue - halting now{RESET}" )                 
+    print ( f"{RED}CREATE_MASTER:     FATAL:  could notw write {MAGENTA}{mapping_file_name}{RESET}{RED} ({MAGENTA}{local_cancer_specific_dataset}{RESET}{RED}){RESET}"  )
+    print ( f"{RED}CREATE_MASTER:     FATAL:  cannot continue - halting now{RESET}"                                                                                     )                 
     sys.exit(0)  
 
 

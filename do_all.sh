@@ -93,7 +93,7 @@ NN_OPTIMIZER="ADAM"                                                             
 NN_TYPE_IMG="VGG11"                                                                                        # 
 NN_TYPE_RNA="DENSE"                                                                                        # 
 N_CLUSTERS="5"                                                                                             # supported: 'otsne' (opentsne), 'sktsne' (sklearn t-sne), 'hdbscan', 'dbscan', 'NONE'
-N_EPOCHS="10"                                                                                             # 
+N_EPOCHS="150"                                                                                             # 
 N_EPOCHS_TEST="1"
 N_ITERATIONS="250"                                                                                         # 
 N_TESTS="1"                                                                                                # (test mode only) Number of examples to put through the model when just_test=='True'
