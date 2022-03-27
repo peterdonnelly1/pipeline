@@ -1,12 +1,12 @@
 #!/bin/bash
 set -x
   
-# -r regenerates the dataset                (it only needs to be done when you change dataset     )
-# -X suppresses RNA-Seq file pre-processing (it only needs to be done one time for a given dataset )
-# -g suppresses pytotch dataset generation  (it only needs to be done one time for for a given dataset and number of samples)
-# -R 8 repeats the run 8 times
+#  -r    = regenerate the dataset                (this only needs to be used when you change dataset     )
+#  -X    = suppress RNA-Seq file pre-processing (this only needs to be used one time for a given dataset )
+#  -g    = suppress pytotch dataset generation  (this only needs to be used one time for for a given dataset and number of samples )
+#  -R 8  = repeats the run 8 times              (running the experiment > MINIMUM_JOB_SIZE times will generate a box plot that shows the spread of performance over the runs )
 #
-# all other parameters use the defaults provided in do_all.sh
+#  all other parameters use the defaults from do_all.sh
 # 
 
 ./do_all.sh -d kidn -i rna -L  ".00001 .00003 .00007 .0001 .0003 .0007 .001 .003 .007 .01"                                                                     -r True

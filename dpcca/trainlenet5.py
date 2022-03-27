@@ -929,10 +929,10 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_pct}_Grey_Pct_{make_g
         print ( f"-------------------------------------------------------------------------------------------------------------> {toplen}"                        ) 
         
       if toplen < 14:
-        descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases[0:10]:_<10s}__{rna_genes_tranche[0:10]:_<10s}__{nn_type_rna:_<9s}_{nn_optimizer:_<8s}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hicls_{n_classes:02d}\
+        descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases[0:10]:_<10s}__{rna_genes_tranche[0:10].upper():_<10s}__{nn_type_rna:_<9s}_{nn_optimizer[0:8]:_<8s}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hicls_{n_classes:02d}\
 _bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:<9.6f}_hid_{hidden_layer_neurons:04d}_low_{cov_threshold:<02.2e}_low_{cutoff_percentile:<4.0f}_dr_{100*dropout_1:4.1f}_xfrm_{gene_data_transform:_<8s}_shape_{hidden_layer_encoder_topology}"
       else:                                                                                                # need to abbreviate everything because the long topology string will make the file name too long and it will crash
-        descriptor = f"_RUNS_{total_runs_in_job}_{args.dataset.upper()}_{input_mode.upper():_<3s}_{args.cases[0:6]:_<5s}__{rna_genes_tranche[0:6]:_<5s}__{nn_type_rna:_<5s}_{nn_optimizer:_<5s}_e_{args.n_epochs}_N_{n_samples}_hicls_{n_classes}\
+        descriptor = f"_RUNS_{total_runs_in_job}_{args.dataset.upper()}_{input_mode.upper():_<3s}_{args.cases[0:6]:_<5s}__{rna_genes_tranche[0:6].upper():_<5s}__{nn_type_rna:_<5s}_{nn_optimizer[0:8]:_<5s}_e_{args.n_epochs}_N_{n_samples}_hicls_{n_classes}\
 _bat_{batch_size:02d}_test_{int(100*pct_test)}_lr_{lr}_hid_{hidden_layer_neurons}_low_{cov_threshold}_low_{cutoff_percentile}_dr_{100*dropout_1}_xfrm_{gene_data_transform}_shape_{hidden_layer_encoder_topology}"
 
 
