@@ -413,10 +413,29 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     print ( f"CLASSI:         INFO:  subtype_names_as_list[0:highest_class_number] = {CYAN}{subtype_names_as_list[0:highest_class_number+1]}{RESET}" )
 
   if highest_class_number > len(subtype_names_as_list)-1:
-    print( f"{BOLD}{ORANGE}CLASSI:         WARNG: config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{BOLD}{ORANGE}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{BOLD}{ORANGE}') = {MIKADO}{highest_class_number}{RESET}{BOLD}{ORANGE}, but this is greater than the highest class (subtype) number in the dataset ({MIKADO}{len(subtype_names_as_list)-1}{RESET}{BOLD}{ORANGE}) (note that class (subtype) numbers start at zero){RESET}", flush=True)
+    print( f"{BOLD}{ORANGE}CLASSI:         WARNG: config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{BOLD}{ORANGE}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{BOLD}{ORANGE}') = \
+{MIKADO}{highest_class_number}{RESET}{BOLD}{ORANGE}, but this is greater than the highest class (subtype) number in the dataset ({MIKADO}{len(subtype_names_as_list)-1}{RESET}{BOLD}{ORANGE}) (note that class (cancer subtype) numbers start at zero){RESET}", flush=True)
     print( f"{BOLD}{ORANGE}CLASSI:         WARNG: therefore the config setting will be ignored. Continuing ...{RESET}", flush=True)
     time.sleep(4)
   
+  if highest_class_number < 2:
+    print( f"{BOLD}{RED}CLASSI:         FATAL: config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{BOLD}{RED}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{BOLD}{RED}') = \
+{MIKADO}{highest_class_number}{RESET}{BOLD}{RED}, but there must be at least two classes (cancer subtypes) for classification to be meaningful", flush=True)
+    print( f"{BOLD}{RED}CLASSI:         FATAL: cannot continue ... halting{RESET}", flush=True)
+    time.sleep(10)
+    sys.exit(0)
+
+  class_specific_global_data_location   = f"{base_dir}/{dataset}_global"
+
+  if len(subtype_names_as_list) <2:
+    print( f"{BOLD}{RED}CLASSI:         FATAL:  only '{CYAN}{len(subtype_names_as_list)}{RESET}{BOLD}{RED}' classes (subtypes) were detected but there must be at least two class names (cancer subtype names) \
+for classification to be meaningful",                                                           flush=True   )
+    print( f"{BOLD}{RED}CLASSI:         FATAL:  further information: review the applicable MASTER mapping file ({MAGENTA}{class_specific_global_data_location}/{args.mapping_file_name}{RESET}{BOLD}{RED}). \
+Ensure that at leat two subtypes are listed in the leftmost column, and that the first of these is in row 4",                                                                                flush=True   ) 
+    print( f"{BOLD}{RED}CLASSI:         FATAL:  cannot continue ... halting{RESET}",                                                                                                         flush=True   ) 
+    time.sleep(10)
+    sys.exit(0)
+
     
   class_names  =  subtype_names_as_list if highest_class_number>=len(subtype_names_as_list) else subtype_names_as_list[0:highest_class_number+1]
 
