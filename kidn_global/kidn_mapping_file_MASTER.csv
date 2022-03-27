@@ -1,9 +1,9 @@
 type_s,bcr_patient_uuid,type_n,image,rna_seq,bcr_patient_barcode,histologic_diagnosis,Unnamed: 5,Unnamed: 6,Unnamed: 7,Unnamed: 8,Unnamed: 9,Unnamed: 10,Unnamed: 11,Unnamed: 12,Unnamed: 13,Unnamed: 14,Unnamed: 15,Unnamed: 16,Unnamed: 17,Unnamed: 18,Unnamed: 19,Unnamed: 20,Unnamed: 21,Unnamed: 22,Unnamed: 23,Unnamed: 24,Unnamed: 25,Unnamed: 26,Unnamed: 27,Unnamed: 28,Unnamed: 29,Unnamed: 30,Unnamed: 31,Unnamed: 32,Unnamed: 33,Unnamed: 34,Unnamed: 35,Unnamed: 36,Unnamed: 37,Unnamed: 38,Unnamed: 39,Unnamed: 40,Unnamed: 41,Unnamed: 42,Unnamed: 43,Unnamed: 44,Unnamed: 45,Unnamed: 46,Unnamed: 47,Unnamed: 48,Unnamed: 49,Unnamed: 50,Unnamed: 51,Unnamed: 52,Unnamed: 53,Unnamed: 54,Unnamed: 55,Unnamed: 56,Unnamed: 57,Unnamed: 58,Unnamed: 59,Unnamed: 60,Unnamed: 61,Unnamed: 62,Unnamed: 63
 dlbc,bcr_patient_uuid,type_n,image,rna_seq,bcr_patient_barcode,histological_type,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 0,cde_id:,type_n,image,rna_seq,cde_id:2003301,cde_id:3081934,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-,2b1dea0a-6d55-4fdd-9c1c-0d9fbe03bd78,0,0,1,tcga-3z-a93z,kidney clear cell renal carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-,d3b47e53-6f40-4fc8-b5a4-cbe548a770a9,0,0,1,tcga-6d-aa2e,kidney clear cell renal carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-,9fb55e0b-43d8-40a3-8ef2-d198e6290551,0,0,1,tcga-a3-3306,kidney clear cell renal carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+clear_cell,2b1dea0a-6d55-4fdd-9c1c-0d9fbe03bd78,0,0,1,tcga-3z-a93z,kidney clear cell renal carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+chromophobe,d3b47e53-6f40-4fc8-b5a4-cbe548a770a9,0,0,1,tcga-6d-aa2e,kidney clear cell renal carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+papillary,9fb55e0b-43d8-40a3-8ef2-d198e6290551,0,0,1,tcga-a3-3306,kidney clear cell renal carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 ,7ac1d6c6-9ade-49af-8794-10b5b96b2b05,0,0,1,tcga-a3-3307,kidney clear cell renal carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 ,3cbca837-f5a7-4a87-8f02-c59eac232d5a,0,0,1,tcga-a3-3308,kidney clear cell renal carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 ,0c139772-e303-45d1-b0c7-438fa1db105e,0,0,1,tcga-a3-3311,kidney clear cell renal carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,

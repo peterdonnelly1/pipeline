@@ -334,6 +334,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   
   minimum_job_size              = args.minimum_job_size
   box_plot                      = args.box_plot
+  box_plot_show                 = args.box_plot_show
   bar_chart_x_labels            = args.bar_chart_x_labels
   bar_chart_sort_hi_lo          = args.bar_chart_sort_hi_lo
   remove_unexpressed_genes      = args.remove_unexpressed_genes
@@ -5234,8 +5235,8 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
       print ( f"CLASSI:           INFO:  xtick                                    = {MIKADO}{xtick}{RESET}",  flush=True )
       print ( f"CLASSI:           INFO:  total                                    = {MIKADO}{total}{RESET}",  flush=True )
 
- 
-  plt.show()
+  if box_plot_show == "True":
+    plt.show()
   
   writer.add_figure('Box Plot V', fig, 1)
   
@@ -5332,7 +5333,8 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
       print ( f"CLASSI:           INFO:  total        = {MIKADO}{total}{RESET}",  flush=True )
 
  
-  plt.show()
+  if box_plot_show == "True":
+    plt.show()
   
   writer.add_figure('Box Plot H', fig, 1)
   
@@ -5574,6 +5576,7 @@ if __name__ == '__main__':
   p.add_argument('--annotated_tiles',                                               type=str,   default='True'                             )
   p.add_argument('--scattergram',                                                   type=str,   default='True'                             )
   p.add_argument('--box_plot',                                                      type=str,   default='True'                             )
+  p.add_argument('--box_plot_show',                                                 type=str,   default='True'                             )
   p.add_argument('--minimum_job_size',                                              type=float, default=5                                  )
   p.add_argument('--probs_matrix',                                                  type=str,   default='True'                             )
   p.add_argument('--probs_matrix_interpolation',                                    type=str,   default='none'                             )

@@ -97,7 +97,6 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
   use_autoencoder_output       = args.use_autoencoder_output
   use_unfiltered_data          = args.use_unfiltered_data
 
-
   
   # skip generation case for rna (only). Even though we won't generate the pytorch files, we still need to open the existing .pth file to determine n_samples, n_genes; and possibly also modify batch_size
 

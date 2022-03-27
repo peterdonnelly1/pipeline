@@ -20,6 +20,7 @@ find tgct -name '*UQ*' -exec cp --parents \{\} 0008 \;
 find paad -name '*UQ*' -exec cp --parents \{\} 0008 \;
 find blca -name '*UQ*' -exec cp --parents \{\} 0008 \;
 find cesc -name '*UQ*' -exec cp --parents \{\} 0008 \;
+find meso -name '*UQ*' -exec cp --parents \{\} 0008 \;
 
 mv  0008/stad/* 0008
 mv  0008/coad/* 0008
@@ -36,6 +37,7 @@ mv  0008/tgct/* 0008
 mv  0008/paad/* 0008
 mv  0008/blca/* 0008
 mv  0008/cesc/* 0008
+mv  0008/meso/* 0008
 
 rmdir -v 0008/stad
 rmdir -v 0008/coad
@@ -52,5 +54,6 @@ rmdir -v 0008/tgct
 rmdir -v 0008/paad
 rmdir -v 0008/blca
 rmdir -v 0008/cesc
+rmdir -v 0008/meso
 
 ./create_master.sh 0008
