@@ -987,7 +987,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
       if input_mode=='image':
         if run !=1:
           print( f"\033[12B")                                                                              # cursor to bottom of screen
-        print( f"\n\n{UNDER}RUN: {run} of {total_runs_in_job}{RESET}")
+        print( f"\n\n{UNDER}{BOLD}RUN: {run} of {total_runs_in_job}{RESET}")
         print( f"\033[2C{image_headings}{RESET}") 
         print( f"{BITTER_SWEET}\
 \r\033[2C\
@@ -1010,7 +1010,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
       elif input_mode=='rna':
         if run !=1: 
           print( f"\033[12B")                                                                              # cursor to bottom of screen
-        print( f"\n\n{UNDER}RUN: {run} of {total_runs_in_job}{RESET}")
+        print( f"\n\n{UNDER}{BOLD}RUN: {run} of {total_runs_in_job}{RESET}")
         print(f"\033[2C\{rna_headings}{RESET}")
         print( f"{CARRIBEAN_GREEN}\
 \r\033[{start_column+0*offset}C{lr:<9.6f}\
@@ -1568,8 +1568,9 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
    
    
     # (11) Train/Test
-                     
-    print( f"CLASSI:         INFO:  {BOLD}about to commence main loop, one iteration per epoch{RESET}",  end='' )
+    
+    if DEBUG>1:
+      print( f"CLASSI:         INFO:  {BOLD}about to commence main loop, one iteration per epoch{RESET}",  end='' )
 
     global_correct_prediction_count = 0
     global_number_tested            = 0
