@@ -5,9 +5,9 @@
 
 # defaults for use if user doesn't set an option
 
-HIDDEN_LAYER_NEURONS=1100
+HIDDEN_LAYER_NEURONS=2100
 LEARNING_RATE=.00001
-N_EPOCHS=150
+N_EPOCHS=100
 NN_DENSE_DROPOUT_1=.20
 REPEAT=8
 
@@ -47,8 +47,8 @@ set -x
 ./do_all.sh -d kidn -i rna -o ${N_EPOCHS} -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ${NN_DENSE_DROPOUT_1} -I False -D pmcc_cancer_genes_of_interest                     -X True  -g True -R ${REPEAT}         # Variant 1
 ./do_all.sh -d kidn -i rna -o ${N_EPOCHS} -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ${NN_DENSE_DROPOUT_1} -I False -D KIDN_genes_of_interest                            -X True  -g True -R ${REPEAT}         # Variant 1
 ./do_all.sh -d kidn -i rna -o ${N_EPOCHS} -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ${NN_DENSE_DROPOUT_1} -4 "ADAM ADAMAX ADAGRAD ADAMW ADAMW_AMSGRAD ADADELTA ASGD RMSPROP RPROP SGD"                        # Variant 2
-./do_all.sh -d stad -i rna -o ${N_EPOCHS} -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ${NN_DENSE_DROPOUT_1}                                                                                -R ${REPEAT} -r True # Additional Experiment 1 (option 1)
-./do_all.sh -d sarc -i rna -o ${N_EPOCHS} -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ${NN_DENSE_DROPOUT_1}                                                                                -R ${REPEAT} -r True # Additional Experiment 1 (option 2)
-./do_all.sh -d 0008 -i rna -o ${N_EPOCHS} -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ${NN_DENSE_DROPOUT_1}                                                                                -R ${REPEAT} -r True # Additional Experiment 2 
+./do_all.sh -d stad -i rna -o ${N_EPOCHS} -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ${NN_DENSE_DROPOUT_1}                                                               -X True  -g True -R ${REPEAT} -r True # Additional Experiment 1 (option 1)
+./do_all.sh -d sarc -i rna -o ${N_EPOCHS} -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ${NN_DENSE_DROPOUT_1}                                                               -X True  -g True -R ${REPEAT} -r True # Additional Experiment 1 (option 2)
+./do_all.sh -d 0008 -i rna -o ${N_EPOCHS} -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ${NN_DENSE_DROPOUT_1}                                                               -X True  -g True -R ${REPEAT} -r True # Additional Experiment 2 
 ./do_all.sh -d kidn -i rna -o ${N_EPOCHS} -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ${NN_DENSE_DROPOUT_1} -8 "0. .1 .2 .3 .4 .5 .6 .7 .8 .9 1.0 1.1 1.2" -9 "80 90 95"  -X True  -g True              -r True # Variant 3 - at the end because it takes so long (39 runs)
-./do_all.sh -d kidn -i rna -o ${N_EPOCHS} -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ${NN_DENSE_DROPOUT_1} -8  0.90  -9 90                                               -X True  -g True -R ${REPEAT}         # Variant 3
+./do_all.sh -d kidn -i rna -o ${N_EPOCHS} -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ${NN_DENSE_DROPOUT_1} -8  0.90  -9 90                                                                -R ${REPEAT}         # Variant 3
