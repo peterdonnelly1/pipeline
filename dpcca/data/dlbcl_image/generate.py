@@ -281,7 +281,7 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
             cases_required        =  training_cases
             case_designation_flag =  'UNIMODE_CASE____IMAGE'
             if DEBUG>0:
-              print ( f"{CLEAR_LINE}{WHITE}GENERATE:       INFO:    about to generate {CYAN}{target}{RESET} dataset:", flush=True )
+              print ( f"{CLEAR_LINE}{WHITE}GENERATE:       INFO:  about to generate {CYAN}{target}{RESET} dataset:", flush=True )
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",                    flush=True )
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) n_samples (this run)............................................................... = {MIKADO}{n_samples}{RESET}",                                flush=True )
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) n_tiles   (this run)............................................................... = {MIKADO}{n_tiles}{RESET}",                                  flush=True )
@@ -293,7 +293,7 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
             cases_required        =  test_cases
             case_designation_flag =  'UNIMODE_CASE____IMAGE_TEST'
             if DEBUG>0:
-              print ( f"{CLEAR_LINE}{WHITE}GENERATE:       INFO:    about to generate {CYAN}{target}{RESET} dataset:", flush=True )
+              print ( f"{CLEAR_LINE}{WHITE}GENERATE:       INFO:  about to generate {CYAN}{target}{RESET} dataset:", flush=True )
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",                    flush=True )
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) n_samples (this run)............................................................... = {MIKADO}{n_samples}{RESET}",                                flush=True )
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) n_tiles   (this run)............................................................... = {MIKADO}{n_tiles}{RESET}",                                  flush=True )
@@ -318,7 +318,7 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
         case_designation_flag = args.cases
         
         if DEBUG>0:
-          print ( f"{WHITE}GENERATE:       INFO:    about to generate {CYAN}{target}{RESET} dataset", flush=True )
+          print ( f"{WHITE}GENERATE:       INFO:  about to generate {CYAN}{target}{RESET} dataset", flush=True )
         if DEBUG>2:
           print ( f"{DULL_WHITE}GENERATE:       INFO:    case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}{CLEAR_LINE}",  flush=True )
           print ( f"{DULL_WHITE}GENERATE:       INFO:    cases_required (this run).......................................................... = {MIKADO}{n_samples}{RESET}{CLEAR_LINE}",              flush=True )
@@ -752,7 +752,7 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
             cases_required        =  training_cases
             case_designation_flag =  'UNIMODE_CASE____RNA'
             if DEBUG>0:
-              print ( f"{CLEAR_LINE}{WHITE}GENERATE:       INFO:    about to generate {CYAN}{target}{RESET} dataset:", flush=True )
+              print ( f"{CLEAR_LINE}{WHITE}GENERATE:       INFO:  about to generate {CYAN}{target}{RESET} dataset:", flush=True )
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO:    (rna_train) case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",                    flush=True )
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO:    (rna_train)   n_samples (this run)............................................................. = {MIKADO}{n_samples}{RESET}",                                flush=True )
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO:    (rna_train)   pct_test  (this run)............................................................. = {MIKADO}{pct_test}{RESET}",                                 flush=True )
@@ -763,7 +763,7 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
             cases_required        =  test_cases
             case_designation_flag =  'UNIMODE_CASE____RNA_TEST'
             if DEBUG>0:
-              print ( f"{CLEAR_LINE}{WHITE}GENERATE:       INFO:    about to generate {CYAN}{target}{RESET} dataset:", flush=True )
+              print ( f"{CLEAR_LINE}{WHITE}GENERATE:       INFO:  about to generate {CYAN}{target}{RESET} dataset:", flush=True )
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO:    (rna_test)  case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",                    flush=True )
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO:    (rna_test)    n_samples (this run)............................................................. = {MIKADO}{n_samples}{RESET}",                                flush=True )
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO:    (rna_test)    pct_test  (this run)............................................................. = {MIKADO}{pct_test}{RESET}",                                 flush=True )
@@ -787,7 +787,7 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
         case_designation_flag =  args.cases
         
         if DEBUG>0:
-          print ( f"{WHITE}GENERATE:       INFO:    about to generate {CYAN}{target}{RESET} dataset", flush=True )
+          print ( f"{WHITE}GENERATE:       INFO:  about to generate {CYAN}{target}{RESET} dataset", flush=True )
         if DEBUG>2:
           print ( f"{DULL_WHITE}GENERATE:       INFO:    case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}{CLEAR_LINE}",  flush=True )
           print ( f"{DULL_WHITE}GENERATE:       INFO:    cases_required (this run).......................................................... = {MIKADO}{n_samples}{RESET}{CLEAR_LINE}",              flush=True )
