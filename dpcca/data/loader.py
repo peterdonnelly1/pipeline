@@ -438,7 +438,10 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
         if args.input_mode == 'image':      
           print( f"{RED}LOADER:         FATAL: The combination of the chosen {CYAN}BATCH_SIZE{RESET}{RED} and {CYAN}N_TILES{RESET}{RED} would result in there being zero TEST batches. Consider re-running the tiler or try REDUCING the {CYAN}BATCH_SIZE ('-1'){RESET}{RED} (currently {MIKADO}{batch_size}{RESET}{RED}) to not more than {MIKADO}{len(test_inds)}{RESET}{RED} or REDUCING {CYAN}PCT_TEST ('-1') {RESET}{RED}(currently {MIKADO}{pct_test}{RESET}{RED}){RESET}")
         else:
-          print( f"{RED}LOADER:         FATAL: The combination of the chosen {CYAN}BATCH_SIZE{RESET}{RED} and {CYAN}N_TILES{RESET}{RED} would result in there being zero TEST batches. Try REDUCING the {CYAN}BATCH_SIZE ('-b'){RESET}{RED} (currently {MIKADO}{batch_size}{RESET}{RED}) to not more than {MIKADO}{len(test_inds)}{RESET}{RED} or REDUCING {CYAN}PCT_TEST ('-1') {RESET}{RED}(currently {MIKADO}{pct_test}{RESET}{RED}){RESET}")
+          print( f"{RED}LOADER:         FATAL: The combination of the chosen {CYAN}BATCH_SIZE{RESET}{RED} and {CYAN}N_TILES{RESET}{RED} would result in there being zero TEST batches.")
+          print( f"{RED}LOADER:         FATAL: Possible remedy 1: Try REDUCING the {CYAN}BATCH_SIZE ('-b'){RESET}{RED} (currently {MIKADO}{batch_size}{RESET}{RED}) to not more than {MIKADO}{len(test_inds)}{RESET}{RED}")
+          print( f"{RED}LOADER:         FATAL: Possible remedy 2: Try REDUCING {CYAN}PCT_TEST ('-1') {RESET}{RED}(currently {MIKADO}{pct_test}{RESET}{RED}){RESET}")
+          print( f"{RED}LOADER:         FATAL: Possible remedy 3: Try regenerating the dataset {CYAN}REGENERATE ('-r) {RESET}{RED}){RESET}")
         print( f"{RED}LOADER:         FATAL: can't continue -- halting now{RESET}")
         sys.exit(0)
 
