@@ -826,7 +826,6 @@ f"\
 \r\033[{start_column+12*offset}Cnormalisation\
 \r\033[{start_column+13*offset+3}Ctransform\
 \r\033[{start_column+14*offset+3}Clabel_swap\
-\r\033[{start_column+15*offset+3}Cjitter vector\
 "
   
   if DEBUG>0:
@@ -874,7 +873,6 @@ f"\
 \r\033[{start_column+12*offset}C{gene_data_norm:<10s}\
 \r\033[{start_column+13*offset+3}C{gene_data_transform:<10s}\
 \r\033[{start_column+14*offset+3}C{label_swap_pct:<6.1f}\
-\r\033[{start_column+15*offset+3}C{jitter:}\
 {RESET}" )
 
   if (just_test=='True') & (input_mode=='image') & (multimode!= 'image_rna'):   
@@ -1028,7 +1026,6 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
 \r\033[{start_column+12*offset}C{gene_data_norm:<10s}\
 \r\033[{start_column+13*offset+3}C{gene_data_transform:<10s}\
 \r\033[{start_column+14*offset+3}C{label_swap_pct:<6.1f}\
-\r\033[{start_column+15*offset+3}C{jitter:}\
 {RESET}" ) 
   
 
@@ -5043,8 +5040,8 @@ def box_plot_by_subtype( args, class_names, n_genes, start_time, parameters, wri
   if DEBUG>0:
     np.set_printoptions(formatter={ 'int' : lambda x: f"{x:>5d}   "} )      
     
-    print( f'CLASSI:           INFO:    all_predictions_plane (one row per run)    = \n{CARRIBEAN_GREEN}{all_predictions_plane}{RESET}')
-    print( f'CLASSI:           INFO:    all_predictions_plane (check sum)          =  {MIKADO}{total_predictions_made}{RESET}')
+    print( f'CLASSI:           INFO:    all_predictions_plane (one row per run)   = \n{CARRIBEAN_GREEN}{all_predictions_plane}{RESET}')
+    print( f'CLASSI:           INFO:    all_predictions_plane (check sum)         =  {MIKADO}{total_predictions_made}{RESET}')
 
 
   all_predictions_plane[all_predictions_plane == 0] = 1                                                                                                # to avoid divide by zero for any subtype which has so few examples that no predictions at all were made
@@ -5086,7 +5083,7 @@ def box_plot_by_subtype( args, class_names, n_genes, start_time, parameters, wri
   median_pct_correct_predictions_by_subtype  =  np.median ( pct_correct_predictions_plane, axis=0 )
   if DEBUG>0:
     np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:5.1f}   "} )          
-    print( f'CLASSI:           INFO:    median_pct_correct_predictions_by_subtype  = \n{CARRIBEAN_GREEN}{median_pct_correct_predictions_by_subtype}{RESET}')
+    print( f'CLASSI:           INFO:    median_pct_correct_predictions_by_subtype = \n{CARRIBEAN_GREEN}{median_pct_correct_predictions_by_subtype}{RESET}')
     
   
   best_subtype_median      =  0 if np.around( np.max ( median_pct_correct_predictions_by_subtype ) ).astype(int) < 1 else np.around( np.max ( median_pct_correct_predictions_by_subtype ) ).astype(int)
@@ -5161,54 +5158,60 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
 
 
   if len(labels) < 20:
-    font_big = 20
-    font_med = 18
-    font_sml = 16
-    base     = 0.75
-    gap_1    = 2.75
-    gap_2    = 2.5
-    text_1="total predictions="
-    text_2="total correct="
-    text_3="median correct all runs="    
-    text_4="expected for random"
-    c_m = f"plt.cm.{eval('args.colour_map')}"                                                              # the 'eval' is so that the user input string will be treated as a variable
+    font_big  = 20
+    font_med  = 18
+    font_sml  = 14
+    font_tiny = 12
+    base      = 0.75
+    gap_1     = 2.75
+    gap_2     = 2.5
+    text_1    = "total predictions="
+    text_2    = "total correct="
+    text_3    = "median correct all runs="    
+    text_4    = "expected for random"
+    c_m       = f"plt.cm.{eval('args.colour_map')}"                                                              # the 'eval' is so that the user input string will be treated as a variable
     subtype_colors = [ eval(c_m)(i) for i in range(len(labels))]                                           # makes an array of colours by calling the user defined colour map (which is a function, not a variable)  
   else:
-    font_big = 18
-    font_med = 6
-    font_sml = 6
-    base     = 0.75
-    gap_1    = 1.3
-    gap_2    = 1.3
+    font_big  = 18
+    font_med  = 6
+    font_sml  = 6
+    font_tiny = 6
+    base      = 0.75
+    gap_1     = 1.3
+    gap_2     = 1.3
     text_1="preds="
     text_2="right="
     text_3="med="    
     text_4="random"
-    subtype_colors = pan_cancer_subtype_colors  
+    subtype_colors = pan_cancer_subtype_colors
 
-
-  fig, ax       = plt.subplots( figsize=( figure_width, figure_height ), constrained_layout=True )
+  fig, ax  = plt.subplots( figsize=( figure_width, figure_height ), constrained_layout=True )
 
   plt.ylabel    (  'subtypes correctly predicted (%)', weight='bold', fontsize=font_big   )
-  plt.yticks    (  range(0, 100, 10) )
+  plt.yticks    (  range(0, 100, 10)                                                      )
   fig.suptitle  (  supertitle,  color='black',  weight='bold',    fontsize=16             )
   ax.set_title  (  title,       color='black',                    fontsize=14             )  
   ax.set        (  ylim =(0, 100)                                                         )
   ax.xaxis.grid (  True, linestyle='dashed', color='lightgrey'                            )
   ax.yaxis.grid (  True, linestyle='dotted'                                               )
 
-  # ~ line_props  = dict( color="r", alpha=0.3 )
-  # ~ bbox_props  = dict( color="g", alpha=0.9, linestyle="dashdot")
-  # ~ flier_props = dict( marker="o", markersize=17)
-  # ~ box_plot = plt.boxplot(pct_correct_predictions_plane, notch=True, whiskerprops=line_props, boxprops=bbox_props, flierprops=flier_props)
-    
+  
+  alpha_lite=0.3
+  alpha_hard=0.6
+  line_props  = dict( color="black", alpha=alpha_lite, linewidth=2           )
+  box_props   = dict( color="black", alpha=alpha_lite, linestyle="dashdot"   )
+  cap_props   = dict( color="black", alpha=alpha_lite                        )
+  flier_props = dict( marker="o",    markersize=17                           )
 
-  bp      = plt.boxplot( pct_correct_predictions_plane, labels=labels, vert=True, patch_artist=True, showfliers=True,  medianprops=dict(color="black", alpha=0.7) )
+  bp      = plt.boxplot( pct_correct_predictions_plane, labels=labels, vert=True, patch_artist=True, showfliers=True,  medianprops=dict(color="black", alpha=alpha_hard), boxprops=box_props, whiskerprops=line_props, capprops=cap_props, flierprops=flier_props )
 
-  ax.text( x=.75, y=15,  s=f"Total predictions made {np.sum(all_predictions_plane):,}, of which correct: {np.sum(correct_predictions_plane):,} ({100*np.sum(correct_predictions_plane)/np.sum(all_predictions_plane):.1f}%)",  horizontalalignment='left', color='dimgray', fontsize=14) 
-  ax.text( x=.75, y=12,  s=f"Subtypes for which accuracy >90% = {np.sum(median_pct_correct_predictions_by_subtype >= 90)}",                                                                                                      horizontalalignment='left', color='dimgray', fontsize=14) 
+  ax.annotate( f"Total predictions made {np.sum(all_predictions_plane):,}; of which correct: {np.sum(correct_predictions_plane):,} ({100*np.sum(correct_predictions_plane)/np.sum(all_predictions_plane):.1f}%)",
+                   xy= (0.01,  0.02),    xycoords='figure fraction',  horizontalalignment='left', color='dimgray', fontsize=15  ) 
+  ax.annotate( f"Subtypes for which accuracy >90% = {np.sum(median_pct_correct_predictions_by_subtype >= 90)}",
+                   xy= (0.75,  0.02),  xycoords='figure fraction',  horizontalalignment='left',   color='dimgray', fontsize=15 )
+
   plt.xticks( fontsize=font_med )
-  plt.yticks( fontsize=20 )
+  plt.yticks( fontsize=20       )
 
   totals            = total_predictions_by_subtype
   corrects          = correct_predictions_by_subtype
@@ -5234,11 +5237,11 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
     median   = median_pct_correct_predictions_by_subtype[xtick-1]
     random   = expected_IFF_random_preds[xtick-1]
     
-    ax.text( x=xtick, y=base,                         s=f"{text_1}{total:,}",                        horizontalalignment='center',  color='dimgray',    fontsize=font_sml  ) 
-    ax.text( x=xtick, y=base+gap_1,                   s=f"{text_2}{correct:,}",                      horizontalalignment='center',  color='dimgray',    fontsize=font_sml  )     
-    ax.text( x=xtick, y=base+gap_1+gap_2,             s=f"{text_3}{median:2.1f}%",                   horizontalalignment='center',  color='dimgray',    fontsize=font_sml  )    
-    ax.text( x=xtick, y=random-0.9, s=f"{text_4}",                                                   horizontalalignment='center',  color='lightcoral', fontsize=font_sml  )    
-    plt.plot( [xtick-0.27, xtick+0.27], [random, random],                                        linewidth=1,     linestyle="--",   color='lightcoral'                     )
+    ax.text( x=xtick, y=base,                         s=f"{text_1}{total:,}",                        horizontalalignment='center',  color='dimgray',    fontsize=font_sml   ) 
+    ax.text( x=xtick, y=base+gap_1,                   s=f"{text_2}{correct:,}",                      horizontalalignment='center',  color='dimgray',    fontsize=font_sml   )     
+    ax.text( x=xtick, y=base+gap_1+gap_2,             s=f"{text_3}{median:2.1f}%",                   horizontalalignment='center',  color='dimgray',    fontsize=font_sml   )    
+    ax.text( x=xtick, y=random-2,                     s=f"{text_4}",                                 horizontalalignment='center',  color='lightcoral', fontsize=font_tiny  )    
+    plt.plot( [xtick-0.27, xtick+0.27], [random, random],           linewidth=1,     linestyle="--",                                color='lightcoral'                      )
  
 
     if (DEBUG>99):
@@ -5267,15 +5270,15 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
 
 
   if len(labels) < 8:
-    rotation = 0
+    rotation = 90
     font_big = 20
     font_med = 18
     font_sml = 16
     base     = 0.75
     gap_1    = 2.75
     gap_2    = 2.5
-    text_1="total predictions="
-    text_2="total correct="
+    text_1="predictions="
+    text_2="correct="
     text_3="median correct all runs="    
     text_4="expected for random"
     c_m = f"plt.cm.{eval('args.colour_map')}"                                                                # the 'eval' is so that the user input string will be treated as a variable
@@ -5298,16 +5301,23 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
         
   fig, ax       = plt.subplots( figsize=( figure_width, figure_height ), constrained_layout=False )
 
-  plt.yticks    (  fontsize=font_sml )
-  plt.xticks    (  range( 0, 100, 10), fontsize=font_med  )
-  fig.suptitle  (  supertitle,  color='black',  weight='bold',    fontsize=16             )
-  ax.set_title  (  title,       color='black',                    fontsize=14             ) 
-  ax.set        ( xlim =(0, 100) )
-  ax.xaxis.grid ( True, linestyle='dotted' )  
-  ax.yaxis.grid ( True, linestyle='dashed', color='lightgrey')  
+  plt.yticks    (  fontsize=font_sml                                         )
+  plt.xticks    (  range( 0, 100, 10), fontsize=font_med                     )
+  fig.suptitle  (  supertitle,  color='black',  weight='bold', fontsize=16   )
+  ax.set_title  (  title,       color='black',                 fontsize=14   ) 
+  ax.set        (  xlim =(0, 100)                                            )
+  ax.xaxis.grid (  True, linestyle='dotted'                                  )  
+  ax.yaxis.grid (  True, linestyle='dashed', color='lightgrey'               )  
 
-  
-  bp      = plt.boxplot( pct_correct_predictions_plane, labels=labels, vert=False,  patch_artist=True,  showfliers=True,  medianprops=dict(color="black", alpha=0.7) )
+
+  alpha_lite=0.3
+  alpha_hard=0.6
+  line_props  = dict( color="black", alpha=alpha_lite, linewidth=2           )
+  box_props   = dict( color="black", alpha=alpha_lite, linestyle="dashdot"   )
+  cap_props   = dict( color="black", alpha=alpha_lite                        )
+  flier_props = dict( marker="o",    markersize=17                           )
+
+  bp      = plt.boxplot( pct_correct_predictions_plane, labels=labels, vert=False, patch_artist=True, showfliers=True,  medianprops=dict(color="black", alpha=alpha_hard), boxprops=box_props, whiskerprops=line_props, capprops=cap_props, flierprops=flier_props )
 
   ax.annotate( f"Total predictions made {np.sum(all_predictions_plane):,}; of which correct: {np.sum(correct_predictions_plane):,} ({100*np.sum(correct_predictions_plane)/np.sum(all_predictions_plane):.1f}%)",
                    xy= (0.01,  0.02),    xycoords='figure fraction',  horizontalalignment='left', color='dimgray', fontsize=15  ) 
@@ -5331,11 +5341,11 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
     random   = expected_IFF_random_preds[ytick-1]
     
     ax.text( x=1,            y=ytick,       s=f"{text_1}{total:,}",                                        horizontalalignment='left',     color='#202020',     fontsize=10  ) 
-    ax.text( x=8,            y=ytick,       s=f"{text_2}{correct:,}",                                      horizontalalignment='left',     color='#202020',     fontsize=10  )    
-    ax.text( x=16,           y=ytick,       s=f"({percent:2.1f}%)",                                        horizontalalignment='left',     color='#202020',     fontsize=10  )    
-    ax.text( x=21,           y=ytick,       s=f"{text_3}{median:2.1f}%",                                   horizontalalignment='left',     color='#202020',     fontsize=10  )  
+    ax.text( x=10,           y=ytick,       s=f"{text_2}{correct:,}",                                      horizontalalignment='left',     color='#202020',     fontsize=10  )    
+    ax.text( x=17,           y=ytick,       s=f"({percent:2.1f}%)",                                        horizontalalignment='left',     color='#202020',     fontsize=10  )    
+    ax.text( x=22,           y=ytick,       s=f"{text_3}{median:2.1f}%",                                   horizontalalignment='left',     color='#202020',     fontsize=10  )  
     ax.text( x=random-0.7,   y=ytick,       s=f"{text_4}",                    rotation=rotation,           verticalalignment  ='center',   color='hotpink',     fontsize=7   )    
-    plt.plot( [random, random],  [ytick-0.5, ytick+0.5],                    linewidth=1,  linestyle="-",                                   color='hotpink'                   )
+    plt.plot( [random, random],  [ytick-0.25, ytick+0.25],                    linewidth=1,  linestyle="-",                                   color='hotpink'                   )
 
    
     if (DEBUG>99):
