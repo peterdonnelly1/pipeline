@@ -910,7 +910,7 @@ f"\
 
     
     if input_mode=='image':
-      descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases:_<10s}_{args.dataset}_{nn_type_img:_<9s}_{nn_optimizer:_<8}_e_{args.n_epochs:03d}_samps_{n_samples:03d}_tiles_{n_tiles:04d}_hi_cls_{n_classes:02d}\
+      descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases:_<10s}_{args.dataset}_{nn_type_img:_<9s}_{nn_optimizer:_<8}_e_{args.n_epochs:03d}_samps_{n_samples:04d}_tiles_{n_tiles:04d}_hi_cls_{n_classes:02d}\
 _tlsz_{tile_size:03d}__mags_{mags}__probs_{prob}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:09.6f}"
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}  Tiles/Slide={n_tiles:d}   Tile size={tile_size:d}x{tile_size:d}\n\
@@ -927,7 +927,7 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_pct}_Grey_Pct_{make_g
         print ( f"-------------------------------------------------------------------------------------------------------------> {toplen}"                        ) 
         
       if toplen < 14:
-        descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases[0:10]:_<10s}__{rna_genes_tranche[0:10].upper():_<10s}__{nn_type_rna:_<9s}_{nn_optimizer[0:8]:_<8s}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hicls_{n_classes:02d}\
+        descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases[0:10]:_<10s}__{rna_genes_tranche[0:10].upper():_<10s}__{nn_type_rna:_<9s}_{nn_optimizer[0:8]:_<8s}_e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}\
 _bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:<9.6f}_hid_{hidden_layer_neurons:04d}_low_{cov_threshold:<02.2e}_low_{cutoff_percentile:<4.0f}_dr_{100*dropout_1:4.1f}_xfrm_{gene_data_transform:_<8s}_shape_{hidden_layer_encoder_topology}"
       else:                                                                                                # need to abbreviate everything because the long topology string will make the file name too long and it will crash
         descriptor = f"_RUNS_{total_runs_in_job}_{args.dataset.upper()}_{input_mode.upper():_<3s}_{args.cases[0:6]:_<5s}__{rna_genes_tranche[0:6].upper():_<5s}__{nn_type_rna:_<5s}_{nn_optimizer[0:8]:_<5s}_e_{args.n_epochs}_N_{n_samples}_hicls_{n_classes}\
@@ -2863,7 +2863,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
           print ( f"CLASSI:           INFO:  {BOLD}recall{RESET}            [{CHARTREUSE}{i}{RESET}] = {COQUELICOT}{ recall       :.2f}{RESET}",                                                  flush=True  ) 
           print ( f"CLASSI:           INFO:  {BOLD}accuracy{RESET}          [{CHARTREUSE}{i}{RESET}] = {COQUELICOT}{ accuracy     :.2f}{RESET}",                                                  flush=True  ) 
           print ( f"CLASSI:           INFO:  {BOLD}specificity{RESET}       [{CHARTREUSE}{i}{RESET}] = {COQUELICOT}{ specificity  :.2f}{RESET}",                                                  flush=True  ) 
-          print ( f"CLASSI:           INFO:  {BOLD}F1{RESET}                [{CHARTREUSE}{i}{RESET}] = {COQUELICOT}{ F1           :.1f}{RESET}",                                                  flush=True  ) 
+          print ( f"CLASSI:           INFO:  {BOLD}F1{RESET}                [{CHARTREUSE}{i}{RESET}] = {COQUELICOT}{ F1           :.2f}{RESET}",                                                  flush=True  ) 
 
         if DEBUG>999:
           print ( f"\n",                                                                                                                                                                          flush=True  ) 
@@ -5066,18 +5066,20 @@ def box_plot_by_subtype( args, class_names, n_genes, start_time, parameters, wri
   if DEBUG>0:
     np.set_printoptions(formatter={'int': lambda x: "{:>7d}".format(x)})    
     print( f'CLASSI:           INFO:    total_predictions_by_subtype              = \n{CARRIBEAN_GREEN}{total_predictions_by_subtype}{RESET}') 
+  if DEBUG>2:
     print( f'CLASSI:           INFO:    total predictions (check sum)             =  {MIKADO}{np.sum(total_predictions_by_subtype)}{RESET}')   
 
 
   total_predictions_by_subtype[total_predictions_by_subtype == 0] = 1                                                                                  # to avoid divide by zero for any subtype which has so few examples that no predictions at all were made
 
-  if DEBUG>0:    
+  if DEBUG>2:    
     print( f'CLASSI:           INFO:    total_predictions_by_subtype mod to change subtypes with zero predictions overall so that they will have exactly one prediction = \n{CARRIBEAN_GREEN}{total_predictions_by_subtype}{RESET}') 
 
 
   correct_predictions_by_subtype  =  np.squeeze( np.array( [ confusion_matrix[i,i] for i in  range( 0 , len( confusion_matrix ))  ] )   )              # pick out diagonal elements (= number correct) to produce a row vector
   if DEBUG>0:
     print( f'CLASSI:           INFO:    correct_predictions_by_subtype            = \n{CARRIBEAN_GREEN}{correct_predictions_by_subtype}{RESET}')                                
+  if DEBUG>2:
     print( f'CLASSI:           INFO:    total corects (check sum)                 =  {MIKADO}{np.sum(correct_predictions_by_subtype)}{RESET}')
 
   pct_correct_predictions_by_subtype  =  correct_predictions_by_subtype / total_predictions_by_subtype
@@ -5092,7 +5094,7 @@ def box_plot_by_subtype( args, class_names, n_genes, start_time, parameters, wri
   all_predictions_plane           =   np.sum(  run_level_classifications_matrix_acc, axis=1 )[ 0:total_runs_in_job, : ]                                # sum elements (= numbers correct) from 3D volume down columns (axis 1) to produce a matrix
   total_predictions_made          =   np.sum(  all_predictions_plane )
   
-  if DEBUG>0:
+  if DEBUG>2:
     np.set_printoptions(formatter={ 'int' : lambda x: f"{x:>5d}   "} )      
     
     print( f'CLASSI:           INFO:    all_predictions_plane (one row per run)   = \n{CARRIBEAN_GREEN}{all_predictions_plane}{RESET}')
@@ -5101,19 +5103,19 @@ def box_plot_by_subtype( args, class_names, n_genes, start_time, parameters, wri
 
   all_predictions_plane[all_predictions_plane == 0] = 1                                                                                                # to avoid divide by zero for any subtype which has so few examples that no predictions at all were made
 
-  if DEBUG>0:    
+  if DEBUG>2:    
     print( f'CLASSI:           INFO:    all_predictions_plane mod to change subtypes with zero predictions overall so that they will have exactly one prediction = \n{CARRIBEAN_GREEN}{all_predictions_plane}{RESET}') 
 
 
   expected_IFF_random_preds      =   100* total_predictions_by_subtype / total_predictions_made                                                        # what we'd expect if the classifications were entirely random
 
-  if DEBUG>0:
+  if DEBUG>2:
     np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:.1f}   "} )    
     print( f"CLASSI:           INFO:    expected correct if random class'n        = \n{CARRIBEAN_GREEN}{expected_IFF_random_preds}{RESET}")
 
 
   correct_predictions_plane       =   np.transpose( np.array( [ run_level_classifications_matrix_acc[:,i,i] for i in  range( 0 , run_level_classifications_matrix_acc.shape[1] ) ]  )  ) [ 0:total_runs_in_job, : ]      # pick out diagonal elements (= numbers correct) from 3D volume  to produce a matrix
-  if DEBUG>0 :
+  if DEBUG>2:
     np.set_printoptions(formatter={ 'int' : lambda x: f"   {CARRIBEAN_GREEN}{x:>5d}   "} )          
     print( f'CLASSI:           INFO:    correct predictions (one row per run)     = \n{CARRIBEAN_GREEN}{correct_predictions_plane}{RESET}')
     print( f'CLASSI:           INFO:    total corects (check sum)                 = {MIKADO}{np.sum(correct_predictions_plane)}{RESET}')
@@ -5121,7 +5123,7 @@ def box_plot_by_subtype( args, class_names, n_genes, start_time, parameters, wri
   
   np.seterr( invalid='ignore', divide='ignore' )          
   pct_correct_predictions_plane   =   100 * np.divide( correct_predictions_plane, all_predictions_plane )
-  if DEBUG>0 :
+  if DEBUG>2:
     np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:5.1f}   "} )          
     print( f'CLASSI:           INFO:    pct_correct_predictions_plane (pre-NaN handling) = \n{CARRIBEAN_GREEN}{pct_correct_predictions_plane}{RESET}')
 
@@ -5130,19 +5132,19 @@ def box_plot_by_subtype( args, class_names, n_genes, start_time, parameters, wri
   pct_correct_predictions_plane   =   pct_correct_predictions_plane[~np.isnan(pct_correct_predictions_plane).any(axis=1), :]                           # delete any rows (runs) which contain a NaN because they will spoil the box plot
   num_rows_with_nan               =   pct_correct_predictions_plane.shape[0] - pct_correct_predictions_plane.shape[0]
   
-  if DEBUG>0 :
+  if DEBUG>2:
     np.set_printoptions(formatter={ 'float' : lambda x: f"   {MIKADO}{x:5.1f}   "} )          
     print( f'CLASSI:           INFO:    pct_correct_predictions_plane (one row per run) = \n{pct_correct_predictions_plane}{RESET}')
     print( f'CLASSI:           INFO:    {MAGENTA}number of rows with NaN = {MIKADO}{num_rows_with_nan}{RESET}')
   
   median_pct_correct_predictions_by_subtype  =  np.median ( pct_correct_predictions_plane, axis=0 )
-  if DEBUG>0:
+  if DEBUG>2:
     np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:5.1f}   "} )          
     print( f'CLASSI:           INFO:    median_pct_correct_predictions_by_subtype = \n{CARRIBEAN_GREEN}{median_pct_correct_predictions_by_subtype}{RESET}')
     
   
   best_subtype_median      =  0 if np.around( np.max ( median_pct_correct_predictions_by_subtype ) ).astype(int) < 1 else np.around( np.max ( median_pct_correct_predictions_by_subtype ) ).astype(int)
-  if DEBUG>0:
+  if DEBUG>2:
     print( f'CLASSI:           INFO:    best subtype median                       = {CARRIBEAN_GREEN}{best_subtype_median}{RESET}') 
 
 
