@@ -2795,7 +2795,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
   
   
   
-    # (G)  MAYBE PROCESS AND DISPLAY JOB LEVEL CONFUSION MATRIX
+    # (G)  MAYBE PROCESS AND GENERATE AND SAVE AND MAYBE DISPLAY JOB LEVEL CONFUSION MATRIX AND BOX PLOTS
     
     if (args.just_test!='True') & (total_runs_in_job>1) & (run==total_runs_in_job):
       
@@ -2805,6 +2805,9 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
       print( f"CLASSI:         INFO:    {CARRIBEAN_GREEN}======================================================{RESET}"  )  
       print( f'CLASSI:         INFO:'                                                                                    )      
     
+    
+      # (i) generate and save job level classification matrix
+      
       total_correct, total_examples  = show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, job_level_classifications_matrix, class_names, level='job' )
     
       np.set_printoptions(edgeitems=1000)
@@ -2812,21 +2815,73 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
       
       np.seterr( invalid='ignore', divide='ignore' )
       print( f"\n" )
-      print( f'CLASSI:         INFO:    number of runs in this job                = {MIKADO}{total_runs_in_job}{RESET}')
-      print( f"CLASSI:         INFO:    total for ALL test examples over ALL runs =  {CARRIBEAN_GREEN}{np.sum(total_correct, axis=0)} / {np.sum(job_level_classifications_matrix, axis=None)}  ({CARRIBEAN_GREEN}{100 * np.sum(total_correct, axis=0) / np.sum(job_level_classifications_matrix):3.1f}%){RESET}")
-    
-      np.set_printoptions(formatter={'int': lambda x: f"{CARRIBEAN_GREEN}{x:>6d}"})
-      print( f'CLASSI:         INFO:    total correct per subtype over all runs:     {total_correct}{RESET}')
-      np.set_printoptions(formatter={'float': lambda x: f"{CARRIBEAN_GREEN}{x:>6.1f}"})
-      print( f'CLASSI:         INFO:     %    correct per subtype over all runs:     { 100 * np.divide( total_correct, total_examples) }{RESET}')
+      print( f'CLASSI:         INFO:    number of runs in this job                   = {CHARTREUSE}{total_runs_in_job}{RESET}')
+      print( f"CLASSI:         INFO:    total for ALL test examples over ALL runs    = {CHARTREUSE}{np.sum(total_correct, axis=0)} / {np.sum(job_level_classifications_matrix, axis=None)}  ({CHARTREUSE}{100 * np.sum(total_correct, axis=0) / np.sum(job_level_classifications_matrix):3.1f}%){RESET}")
+      np.set_printoptions(formatter={'int': lambda x: f"{CHARTREUSE}{x:>6d}"})
+      print( f'CLASSI:         INFO:    total correct per subtype over all runs      = { total_correct }{RESET}')
+      np.set_printoptions(formatter={'float': lambda x: f"{CHARTREUSE}{x:>6.1f}"})
+      print( f'CLASSI:         INFO:     %    correct per subtype over all runs      = { 100 * np.divide( total_correct, total_examples) }{RESET}')
       np.seterr(divide='warn', invalid='warn')  
       
       if DEBUG>9:
-        np.set_printoptions(formatter={'int': lambda x: f"{CARRIBEAN_GREEN}{x:>6d}    "})    
-        print ( f"CLASSI:           INFO:    run_level_classifications_matrix_acc[0:total_runs_in_job,:,:]            = \n{run_level_classifications_matrix_acc[0:total_runs_in_job,:,:] }{RESET}" )
+        np.set_printoptions(formatter={'int': lambda x: f"{CHARTREUSE}{x:>6d}    "})    
+        print ( f"CLASSI:        INFO:    run_level_classifications_matrix_acc[0:total_runs_in_job,:,:] = \n{run_level_classifications_matrix_acc[0:total_runs_in_job,:,:] }{RESET}",  flush=True  )
       if DEBUG>9:
-        print ( f"CLASSI:           INFO:  run_level_classifications_matrix_acc                 = {MIKADO}{run_level_classifications_matrix_acc[ 0:total_runs_in_job, : ] }{RESET}"     )
-  
+        print ( f"CLASSI:           INFO:  run_level_classifications_matrix_acc        = \n{CHARTREUSE}{run_level_classifications_matrix_acc[ 0:total_runs_in_job, : ] }{RESET}",      flush=True      )
+
+
+      # (ii) generate and save per-subtype confusion matrices and associated statistics
+      
+      if DEBUG>0:
+        print ( f"CLASSI:           INFO:  job_level_classifications_matrix.shape       = {CHARTREUSE}{job_level_classifications_matrix.shape}{RESET}",  flush=True      )
+        print ( f"CLASSI:           INFO:  job_level_classifications_matrix             = \n{CHARTREUSE}{job_level_classifications_matrix}{RESET}",  flush=True      )
+      
+      
+      total_predictions = np.sum( job_level_classifications_matrix )
+      for i in range ( 0, job_level_classifications_matrix.shape[1] ):                                           # for each row (subtype)
+
+        true_positives  = float(        job_level_classifications_matrix[ i, i ]                          )      # the element on the diagonal
+        false_positives = float(np.sum( job_level_classifications_matrix[ i, : ] ) -  true_positives      )      # every item in the same the row    minus the diagonal element
+        false_negatives = float(np.sum( job_level_classifications_matrix[ :, i ] ) -  true_positives      )      # every item in the same the column minus the diagonal element
+        true_negatives  = float(total_predictions - true_positives - false_positives - false_negatives    )      # everything else
+        precision       = true_positives / ( true_positives + false_positives )        if ( true_positives + false_positives ) !=0    else 0
+        recall          = true_positives / ( true_positives + false_negatives )        if ( true_positives + false_negatives ) !=0    else 0
+        F1              = ( 2 * precision * recall) / ( precision + recall )           if ( precision + recall               ) !=0    else 0
+        accuracy        = ( true_positives + true_negatives ) / total_predictions      if ( total_predictions                ) !=0    else 0
+        specificity     = true_negatives / ( true_negatives + false_positives )        if ( true_negatives + false_positives ) !=0    else 0
+
+        if DEBUG>0:
+          print ( f"\n",                                                                                                                                                                          flush=True  ) 
+          print ( f"CLASSI:           INFO:  class name        [{CHARTREUSE}{i}{RESET}] = {COTTON_CANDY}{ class_names[i] }{RESET}",                                                               flush=True  ) 
+          print ( f"CLASSI:           INFO:  total predictions [{CHARTREUSE}{i}{RESET}] = {BLEU}{ total_predictions }{RESET}",                                                                    flush=True  ) 
+          print ( f"CLASSI:           INFO:  true  positives   [{CHARTREUSE}{i}{RESET}] = {CHARTREUSE}{  true_positives  }{RESET}",                                                               flush=True  ) 
+          print ( f"CLASSI:           INFO:  true  negatives   [{CHARTREUSE}{i}{RESET}] = {CHARTREUSE}{  true_negatives  }{RESET}",                                                               flush=True  ) 
+          print ( f"CLASSI:           INFO:  false positives   [{CHARTREUSE}{i}{RESET}] = {CHARTREUSE}{  false_positives }{RESET}",                                                               flush=True  ) 
+          print ( f"CLASSI:           INFO:  false negatives   [{CHARTREUSE}{i}{RESET}] = {CHARTREUSE}{  false_negatives }{RESET}",                                                               flush=True  ) 
+          print ( f"CLASSI:           INFO:  checksum          [{CHARTREUSE}{i}{RESET}] = {BLEU}{  true_positives + true_negatives + false_positives + false_negatives }{RESET}",                 flush=True  ) 
+          print ( f"CLASSI:           INFO:  {BOLD}precision         [{CHARTREUSE}{i}{RESET}] = {COQUELICOT}{ precision    :.2f}{RESET}",   flush=True  ) 
+          print ( f"CLASSI:           INFO:  {BOLD}recall            [{CHARTREUSE}{i}{RESET}] = {COQUELICOT}{ recall       :.2f}{RESET}",   flush=True  ) 
+          print ( f"CLASSI:           INFO:  {BOLD}accuracy          [{CHARTREUSE}{i}{RESET}] = {COQUELICOT}{ accuracy     :.2f}{RESET}",   flush=True  ) 
+          print ( f"CLASSI:           INFO:  {BOLD}specificity       [{CHARTREUSE}{i}{RESET}] = {COQUELICOT}{ specificity  :.2f}{RESET}",   flush=True  ) 
+          print ( f"CLASSI:           INFO:  {BOLD}F1                [{CHARTREUSE}{i}{RESET}] = {COQUELICOT}{ F1           :.1f}{RESET}",   flush=True  ) 
+
+        if DEBUG>999:
+          print ( f"\n",                                                                                                                                                                         flush=True  ) 
+          print ( f"CLASSI:           INFO:  true_positives    [{ARYLIDE}{i}{RESET}] = {ARYLIDE}{ type(true_positives)  }{RESET}",                                                               flush=True  ) 
+          print ( f"CLASSI:           INFO:  true_negatives    [{ARYLIDE}{i}{RESET}] = {ARYLIDE}{ type(true_negatives)  }{RESET}",                                                               flush=True  ) 
+          print ( f"CLASSI:           INFO:  false_positives   [{ARYLIDE}{i}{RESET}] = {ARYLIDE}{ type(false_positives) }{RESET}",                                                               flush=True  ) 
+          print ( f"CLASSI:           INFO:  false_negatives   [{ARYLIDE}{i}{RESET}] = {ARYLIDE}{ type(false_negatives) }{RESET}",                                                               flush=True  ) 
+          print ( f"CLASSI:           INFO:  precision         [{ARYLIDE}{i}{RESET}] = {ARYLIDE}{ type(precision)       }{RESET}",   flush=True  ) 
+          print ( f"CLASSI:           INFO:  recall            [{ARYLIDE}{i}{RESET}] = {ARYLIDE}{ type(recall)          }{RESET}",   flush=True  ) 
+          print ( f"CLASSI:           INFO:  accuracy          [{ARYLIDE}{i}{RESET}] = {ARYLIDE}{ type(accuracy)        }{RESET}",   flush=True  ) 
+          print ( f"CLASSI:           INFO:  specificity       [{ARYLIDE}{i}{RESET}] = {ARYLIDE}{ type(specificity)     }{RESET}",   flush=True  ) 
+          print ( f"CLASSI:           INFO:  F1                [{ARYLIDE}{i}{RESET}] = {ARYLIDE}{ type(F1)              }{RESET}",   flush=True  ) 
+        
+      print ( f"\n" )      
+      
+
+      # (iii) generate and save and maybe display box plots
+
       if ( args.box_plot=='True' ) & ( total_runs_in_job>=args.minimum_job_size ):
           box_plot_by_subtype( args, class_names, n_genes, start_time, parameters, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc )
 
@@ -5148,18 +5203,45 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
                               ] 
 
 
-
-  
   
   # Render portrait version of box plot
 
   figure_width  = 23
   figure_height = 16
 
-
-  if len(labels) < 20:
+  if len(labels) > 15:
+    rotation  = 30
+    font_big  = 18
+    font_med  = 10
+    font_sml  = 6
+    font_tiny = 6
+    base      = 0.75
+    gap_1     = 3.00
+    gap_2     = 3.00
+    text_1="preds="
+    text_2="right="
+    text_3="med="    
+    text_4="random"
+    subtype_colors = pan_cancer_subtype_colors
+  elif 5 < len(labels) <= 15:
+    rotation  = 0
     font_big  = 20
-    font_med  = 18
+    font_med  = 16
+    font_sml  = 12
+    font_tiny = 10
+    base      = 0.75
+    gap_1     = 2.75
+    gap_2     = 2.5
+    text_1    = "total predictions="
+    text_2    = "total correct="
+    text_3    = "median correct="    
+    text_4    = "expected for random"
+    c_m       = f"plt.cm.{eval('args.colour_map')}"                                                        # the 'eval' is so that the user input string will be treated as a variable
+    subtype_colors = [ eval(c_m)(i) for i in range(len(labels))]                                           # makes an array of colours by calling the user defined colour map (which is a function, not a variable)  
+  else:
+    rotation  = 0
+    font_big  = 20
+    font_med  = 16
     font_sml  = 14
     font_tiny = 12
     base      = 0.75
@@ -5169,24 +5251,15 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
     text_2    = "total correct="
     text_3    = "median correct all runs="    
     text_4    = "expected for random"
-    c_m       = f"plt.cm.{eval('args.colour_map')}"                                                              # the 'eval' is so that the user input string will be treated as a variable
+    c_m       = f"plt.cm.{eval('args.colour_map')}"                                                        # the 'eval' is so that the user input string will be treated as a variable
     subtype_colors = [ eval(c_m)(i) for i in range(len(labels))]                                           # makes an array of colours by calling the user defined colour map (which is a function, not a variable)  
-  else:
-    font_big  = 18
-    font_med  = 6
-    font_sml  = 6
-    font_tiny = 6
-    base      = 0.75
-    gap_1     = 1.3
-    gap_2     = 1.3
-    text_1="preds="
-    text_2="right="
-    text_3="med="    
-    text_4="random"
-    subtype_colors = pan_cancer_subtype_colors
+  
+
 
   fig, ax  = plt.subplots( figsize=( figure_width, figure_height ), constrained_layout=True )
 
+  plt.xticks    ( fontsize=font_med, rotation=rotation, ha="right"                        )
+  plt.yticks    ( fontsize=20                                                             )
   plt.ylabel    (  'subtypes correctly predicted (%)', weight='bold', fontsize=font_big   )
   plt.yticks    (  range(0, 100, 10)                                                      )
   fig.suptitle  (  supertitle,  color='black',  weight='bold',    fontsize=16             )
@@ -5201,17 +5274,20 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
   line_props  = dict( color="black", alpha=alpha_lite, linewidth=2           )
   box_props   = dict( color="black", alpha=alpha_lite, linestyle="dashdot"   )
   cap_props   = dict( color="black", alpha=alpha_lite                        )
-  flier_props = dict( marker="o",    markersize=17                           )
+  flier_props = dict( marker="o",    markersize=7                            )
 
   bp      = plt.boxplot( pct_correct_predictions_plane, labels=labels, vert=True, patch_artist=True, showfliers=True,  medianprops=dict(color="black", alpha=alpha_hard), boxprops=box_props, whiskerprops=line_props, capprops=cap_props, flierprops=flier_props )
 
   ax.annotate( f"Total predictions made {np.sum(all_predictions_plane):,}; of which correct: {np.sum(correct_predictions_plane):,} ({100*np.sum(correct_predictions_plane)/np.sum(all_predictions_plane):.1f}%)",
-                   xy= (0.01,  0.02),    xycoords='figure fraction',  horizontalalignment='left', color='dimgray', fontsize=15  ) 
+                   xy= (0.08,  0.2),    xycoords='figure fraction',  horizontalalignment='left', color='dimgray', fontsize=12  ) 
   ax.annotate( f"Subtypes for which accuracy >90% = {np.sum(median_pct_correct_predictions_by_subtype >= 90)}",
-                   xy= (0.75,  0.02),  xycoords='figure fraction',  horizontalalignment='left',   color='dimgray', fontsize=15 )
+                   xy= (0.77,  0.2),  xycoords='figure fraction',  horizontalalignment='left',   color='dimgray', fontsize=12 )
 
-  plt.xticks( fontsize=font_med )
-  plt.yticks( fontsize=20       )
+  if len(labels) > 15:
+    ax.annotate( f"{text_3}", xy= (0.033,  0.1475),    xycoords='figure fraction',  horizontalalignment='left', color='blue',   fontsize=font_med  ) 
+    ax.annotate( f"{text_2}", xy= (0.033,  0.1275),    xycoords='figure fraction',  horizontalalignment='left', color='green', fontsize=font_med  ) 
+    ax.annotate( f"{text_1}", xy= (0.033,  0.1015),    xycoords='figure fraction',  horizontalalignment='left', color='red',  fontsize=font_med  ) 
+  
 
   totals            = total_predictions_by_subtype
   corrects          = correct_predictions_by_subtype
@@ -5237,12 +5313,19 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
     median   = median_pct_correct_predictions_by_subtype[xtick-1]
     random   = expected_IFF_random_preds[xtick-1]
     
-    ax.text( x=xtick, y=base,                         s=f"{text_1}{total:,}",                        horizontalalignment='center',  color='dimgray',    fontsize=font_sml   ) 
-    ax.text( x=xtick, y=base+gap_1,                   s=f"{text_2}{correct:,}",                      horizontalalignment='center',  color='dimgray',    fontsize=font_sml   )     
-    ax.text( x=xtick, y=base+gap_1+gap_2,             s=f"{text_3}{median:2.1f}%",                   horizontalalignment='center',  color='dimgray',    fontsize=font_sml   )    
-    ax.text( x=xtick, y=random-2,                     s=f"{text_4}",                                 horizontalalignment='center',  color='lightcoral', fontsize=font_tiny  )    
-    plt.plot( [xtick-0.27, xtick+0.27], [random, random],           linewidth=1,     linestyle="--",                                color='lightcoral'                      )
- 
+    if len(labels) > 15:
+      ax.text( x=xtick, y=base,                         s=f"{total:,}",                                horizontalalignment='center',  color='red',        fontsize=font_med   ) 
+      ax.text( x=xtick, y=base+gap_1,                   s=f"{correct:,}",                              horizontalalignment='center',  color='green',      fontsize=font_med   )     
+      ax.text( x=xtick, y=base+gap_1+gap_2,             s=f"{median:2.0f}%",                           horizontalalignment='center',  color='blue',       fontsize=font_med   )    
+      ax.text( x=xtick, y=random-1.5,                   s=f"{text_4}",                                 horizontalalignment='center',  color='lightcoral', fontsize=font_tiny  )    
+      plt.plot( [xtick-0.27, xtick+0.27], [random, random],           linewidth=1,     linestyle="--",                                color='lightcoral'                      )
+    else:
+      ax.text( x=xtick, y=base,                         s=f"{text_1}{total:,}",                        horizontalalignment='center',  color='dimgray',        fontsize=font_med   ) 
+      ax.text( x=xtick, y=base+gap_1,                   s=f"{text_2}{correct:,}",                      horizontalalignment='center',  color='dimgray',      fontsize=font_med   )     
+      ax.text( x=xtick, y=base+gap_1+gap_2,             s=f"{text_3}{median:2.0f}%",                   horizontalalignment='center',  color='dimgray',       fontsize=font_med   )    
+      ax.text( x=xtick, y=random-1.5,                     s=f"{text_4}",                               horizontalalignment='center',  color='lightcoral', fontsize=font_tiny  )    
+      plt.plot( [xtick-0.27, xtick+0.27], [random, random],           linewidth=1,     linestyle="--",                                color='lightcoral'                      )      
+    
 
     if (DEBUG>99):
       print ( f"CLASSI:           INFO:  xtick                                    = {MIKADO}{xtick}{RESET}",  flush=True )
@@ -5257,10 +5340,8 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
   fig.savefig(fqn)
     
   plt.close()
-
-
-
-
+  
+  
 
 
   # Render landscape version of box plot
@@ -5281,8 +5362,8 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
     text_2="correct="
     text_3="median correct all runs="    
     text_4="expected for random"
-    c_m = f"plt.cm.{eval('args.colour_map')}"                                                                # the 'eval' is so that the user input string will be treated as a variable
-    subtype_colors = [ eval(c_m)(i) for i in range(len(labels))]                                   # makes an array of colours by calling the user defined colour map (which is a function, not a variable)  
+    c_m = f"plt.cm.{eval('args.colour_map')}"                                                              # the 'eval' is so that the user input string will be treated as a variable
+    subtype_colors = [ eval(c_m)(i) for i in range(len(labels))]                                           # makes an array of colours by calling the user defined colour map (which is a function, not a variable)  
   else:
     rotation = 90
     font_big = 18
@@ -5315,7 +5396,7 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
   line_props  = dict( color="black", alpha=alpha_lite, linewidth=2           )
   box_props   = dict( color="black", alpha=alpha_lite, linestyle="dashdot"   )
   cap_props   = dict( color="black", alpha=alpha_lite                        )
-  flier_props = dict( marker="o",    markersize=17                           )
+  flier_props = dict( marker="o",    markersize=7                            )
 
   bp      = plt.boxplot( pct_correct_predictions_plane, labels=labels, vert=False, patch_artist=True, showfliers=True,  medianprops=dict(color="black", alpha=alpha_hard), boxprops=box_props, whiskerprops=line_props, capprops=cap_props, flierprops=flier_props )
 
