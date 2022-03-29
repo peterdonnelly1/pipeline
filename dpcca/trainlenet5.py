@@ -2859,11 +2859,11 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
           print ( f"CLASSI:           INFO:  false positives                [{CHARTREUSE}{i}{RESET}] = {CHARTREUSE}{  false_positives }{RESET}",                                                  flush=True  ) 
           print ( f"CLASSI:           INFO:  false negatives                [{CHARTREUSE}{i}{RESET}] = {CHARTREUSE}{  false_negatives }{RESET}",                                                  flush=True  ) 
           print ( f"CLASSI:           INFO:  checksum                       [{CHARTREUSE}{i}{RESET}] = {BLEU}{  true_positives + true_negatives + false_positives + false_negatives }{RESET}",    flush=True  ) 
-          print ( f"CLASSI:           INFO:  {BOLD}precision{RESET}         [{CHARTREUSE}{i}{RESET}] = {COQUELICOT}{ precision    :.2f}{RESET}",                                                  flush=True  ) 
-          print ( f"CLASSI:           INFO:  {BOLD}recall{RESET}            [{CHARTREUSE}{i}{RESET}] = {COQUELICOT}{ recall       :.2f}{RESET}",                                                  flush=True  ) 
-          print ( f"CLASSI:           INFO:  {BOLD}accuracy{RESET}          [{CHARTREUSE}{i}{RESET}] = {COQUELICOT}{ accuracy     :.2f}{RESET}",                                                  flush=True  ) 
-          print ( f"CLASSI:           INFO:  {BOLD}specificity{RESET}       [{CHARTREUSE}{i}{RESET}] = {COQUELICOT}{ specificity  :.2f}{RESET}",                                                  flush=True  ) 
-          print ( f"CLASSI:           INFO:  {BOLD}F1{RESET}                [{CHARTREUSE}{i}{RESET}] = {COQUELICOT}{ F1           :.2f}{RESET}",                                                  flush=True  ) 
+          print ( f"CLASSI:           INFO:  {BOLD}precision{RESET}         [{CHARTREUSE}{i}{RESET}] = {COQUELICOT}{ precision    :.3f}{RESET}",                                                  flush=True  ) 
+          print ( f"CLASSI:           INFO:  {BOLD}recall{RESET}            [{CHARTREUSE}{i}{RESET}] = {COQUELICOT}{ recall       :.3f}{RESET}",                                                  flush=True  ) 
+          print ( f"CLASSI:           INFO:  {BOLD}accuracy{RESET}          [{CHARTREUSE}{i}{RESET}] = {COQUELICOT}{ accuracy     :.3f}{RESET}",                                                  flush=True  ) 
+          print ( f"CLASSI:           INFO:  {BOLD}specificity{RESET}       [{CHARTREUSE}{i}{RESET}] = {COQUELICOT}{ specificity  :.3f}{RESET}",                                                  flush=True  ) 
+          print ( f"CLASSI:           INFO:  {BOLD}F1{RESET}                [{CHARTREUSE}{i}{RESET}] = {COQUELICOT}{ F1           :.3f}{RESET}",                                                  flush=True  ) 
 
         if DEBUG>999:
           print ( f"\n",                                                                                                                                                                          flush=True  ) 
