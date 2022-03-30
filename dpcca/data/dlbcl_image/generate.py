@@ -220,7 +220,8 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
       print ( f"{RED}GENERATE:       FATAL:  there are no tile files ('png' files) at all. To generate tiles, run '{CYAN}./do_all.sh -d <cancer type code> -i image -c <CASES SELECTOR>{RESET}{RED}' ... halting now{RESET}", flush=True )                 
       sys.exit(0)         
   
-    print( f"{ORANGE}GENERATE:       NOTE:    input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so rna and other data will not be generated{RESET}" )  
+    if DEBUG>2:
+      print( f"{ORANGE}GENERATE:       NOTE:    input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so rna and other data will not be generated{RESET}" )  
   
       
     if args.just_test=='True':
@@ -1373,7 +1374,7 @@ def generate_rna_dataset ( args, class_names, target, cases_required, highest_cl
 
   fqn =  f"{args.base_dir}/dpcca/data/{args.nn_mode}/dataset_{target}.pth"
   
-  if DEBUG>1:  
+  if DEBUG>2:  
     print( f"GENERATE:       INFO:  {WHITE}now saving to Torch dictionary (this takes a little time){RESET}{CLEAR_LINE}")
     
   torch.save({
