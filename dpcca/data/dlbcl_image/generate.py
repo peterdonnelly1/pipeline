@@ -789,7 +789,7 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
         cases_required        =  n_samples
         case_designation_flag =  args.cases
         
-        if DEBUG>0:
+        if DEBUG>2:
           print ( f"{WHITE}GENERATE:       INFO:  about to generate {CYAN}{target}{RESET} dataset", flush=True )
         if DEBUG>2:
           print ( f"{DULL_WHITE}GENERATE:       INFO:    case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}{CLEAR_LINE}",  flush=True )
