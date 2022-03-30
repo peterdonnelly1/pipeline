@@ -5276,7 +5276,7 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
   alpha_lite=0.3
   alpha_hard=0.6
   line_props  = dict( color="black", alpha=alpha_lite, linewidth=2           )
-  box_props   = dict( color="black", alpha=alpha_lite, linestyle="dashdot"   )
+  box_props   = dict( color="black",                   linestyle="dashdot"   )
   cap_props   = dict( color="black", alpha=alpha_lite                        )
   flier_props = dict( marker="o",    markersize=7                            )
 
