@@ -776,7 +776,7 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
           global_rna_files_processed, n_genes = generate_rna_dataset ( args, class_names, target, cases_required, highest_class_number, case_designation_flag, n_genes, cov_threshold, cutoff_percentile, gene_data_norm, gene_data_transform, use_autoencoder_output, class_counts )
     
           if DEBUG>0:
-            print ( f"{DULL_WHITE}GENERATE:       INFO:    global_rna_files_processed  (this run)................................................. = {MIKADO}{global_rna_files_processed}{RESET}{CLEAR_LINE}", flush=True )
+            print ( f"{WHITE}GENERATE:       INFO:    rna files processed  (this run)................................................. = {MIKADO}{global_rna_files_processed}{RESET}{CLEAR_LINE}", flush=True )
   
 
       # (b) case_designation_flag for training set = args.cases
@@ -800,7 +800,7 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
         global_rna_files_processed, n_genes = generate_rna_dataset ( args, class_names, target, cases_required, highest_class_number, case_designation_flag, n_genes, cov_threshold, cutoff_percentile, gene_data_norm, gene_data_transform, use_autoencoder_output, class_counts )
 
         if DEBUG>0:
-          print ( f"{DULL_WHITE}GENERATE:       INFO:  global_rna_files_processed  (this run)............................................. = {MIKADO}{global_rna_files_processed}{RESET}{CLEAR_LINE}", flush=True )
+          print ( f"{WHITE}GENERATE:       INFO:  rna files processed  (this run)............................................. = {MIKADO}{global_rna_files_processed}{RESET}{CLEAR_LINE}", flush=True )
 
 
 
