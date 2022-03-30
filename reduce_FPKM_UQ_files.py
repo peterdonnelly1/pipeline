@@ -176,7 +176,7 @@ def main(args):
     
           try:
             gene_vector_filtered.to_csv(args.target_genes_reference_file, index=False, header=False, index_label=False  )           # don't add the column and row labels that Pandas would otherwise add
-            if DEBUG>0:
+            if DEBUG>1:
               print ( f"REDUCE_FPKM_UQ_FILES:   INFO: saving case with dims {MIKADO}{gene_vector_filtered.shape}{RESET} to name {MAGENTA}{args.target_genes_reference_file}{RESET}"  )
           except Exception as e:
             print ( f"{RED}REDUCE_FPKM_UQ_FILES:   FATAL: could not save file            = {CYAN}{gene_vector_filtered}{RESET}"  )
@@ -259,6 +259,7 @@ def reduce_genes( args, target_genes_reference_file ):
   genes_of_interest_concatenated = [i for i in genes_of_interest_concatenated if "ENSG" in i ]
 
   print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: user provided ('{CYAN}TARGET_GENES_REFERENCE_FILE{RESET}{ORANGE}') '{MAGENTA}{os.path.basename(target_genes_reference_file)}{RESET}{ORANGE}' ('{MAGENTA}{target_genes_reference_file}{RESET}{ORANGE}') contains {MIKADO}{len(genes_of_interest_concatenated)}{RESET}{ORANGE} genes. {RESET}" )    
+  print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: now removing unwanted genes ... this takes a minute or two per thousand cases {RESET}" )    
 
 
   if DEBUG>999:
@@ -328,7 +329,7 @@ def reduce_genes( args, target_genes_reference_file ):
   
         try:
           gene_vector_filtered.to_csv(gene_vector_filtered_fqn, index=False, header=False, index_label=False )           # don't add the column and row labels that Pandas would otherwise add
-          if DEBUG>0:
+          if DEBUG>1:
             print ( f"REDUCE_FPKM_UQ_FILES:   INFO: saving case with dims {MIKADO}{gene_vector_filtered.shape}{RESET} to name  {MAGENTA}{gene_vector_filtered_fqn}{RESET}        \r\033[210Ccases_found_count = {MIKADO}{cases_found_count}{RESET}"  )
         except Exception as e:
           print ( f"{RED}REDUCE_FPKM_UQ_FILES:   FATAL: could not save file            = {CYAN}{gene_vector_filtered}{RESET}"  )
@@ -340,6 +341,10 @@ def reduce_genes( args, target_genes_reference_file ):
           print( f"{RED}REDUCE_FPKM_UQ_FILES:         FATAL:  ... halting now\n\n\n\n\n\n {RESET}" )
           sys.exit(0)
 
+  
+  if (DEBUG>0):
+    print ( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: {MIKADO}{cases_found_count}{RESET}{ORANGE} cases found and processed{RESET}",  flush=True )  
+        
   return SUCCESS
 
 #====================================================================================================================================================
