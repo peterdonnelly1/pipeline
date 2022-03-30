@@ -911,7 +911,7 @@ f"\
     
     if input_mode=='image':
       descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases:_<10s}_{args.dataset}_{nn_type_img:_<9s}_{nn_optimizer:_<8}_e_{args.n_epochs:03d}_samps_{n_samples:04d}_tiles_{n_tiles:04d}_hi_cls_{n_classes:02d}\
-_tlsz_{tile_size:03d}__mags_{mags}__probs_{prob}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:09.6f}"
+_tlsz_{tile_size:03d}__mags_{mags}__probs_{prob}_bat_{batch_size:03d}_test_{int(100*pct_test):02d}_lr_{lr:09.6f}"
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}  Tiles/Slide={n_tiles:d}   Tile size={tile_size:d}x{tile_size:d}\n\
 Magnif'n vector={mags}   Stain Norm={stain_norm}   Peer Noise Pct={peer_noise_pct}   Grey Scale Pct={make_grey_pct}   Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:<09.6f}   Selected from cases subset: {args.cases[0:50]}"
@@ -928,10 +928,10 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_pct}_Grey_Pct_{make_g
         
       if toplen < 14:
         descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases[0:10]:_<10s}__{rna_genes_tranche[0:10].upper():_<10s}__{nn_type_rna:_<9s}_{nn_optimizer[0:8]:_<8s}_e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}\
-_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:<9.6f}_hid_{hidden_layer_neurons:04d}_low_{cov_threshold:<02.2e}_low_{cutoff_percentile:<4.0f}_dr_{100*dropout_1:4.1f}_xfrm_{gene_data_transform:_<8s}_shape_{hidden_layer_encoder_topology}"
+_bat_{batch_size:03d}_test_{int(100*pct_test):02d}_lr_{lr:<9.6f}_hid_{hidden_layer_neurons:04d}_low_{cov_threshold:<02.2e}_low_{cutoff_percentile:<4.0f}_dr_{100*dropout_1:4.1f}_xfrm_{gene_data_transform:_<8s}_shape_{hidden_layer_encoder_topology}"
       else:                                                                                                # need to abbreviate everything because the long topology string will make the file name too long and it will crash
         descriptor = f"_RUNS_{total_runs_in_job}_{args.dataset.upper()}_{input_mode.upper():_<3s}_{args.cases[0:6]:_<5s}__{rna_genes_tranche[0:6].upper():_<5s}__{nn_type_rna:_<5s}_{nn_optimizer[0:8]:_<5s}_e_{args.n_epochs}_N_{n_samples}_hicls_{n_classes}\
-_bat_{batch_size:02d}_test_{int(100*pct_test)}_lr_{lr}_hid_{hidden_layer_neurons}_low_{cov_threshold}_low_{cutoff_percentile}_dr_{100*dropout_1}_xfrm_{gene_data_transform}_shape_{hidden_layer_encoder_topology}"
+_bat_{batch_size:03d}_test_{int(100*pct_test)}_lr_{lr}_hid_{hidden_layer_neurons}_low_{cov_threshold}_low_{cutoff_percentile}_dr_{100*dropout_1}_xfrm_{gene_data_transform}_shape_{hidden_layer_encoder_topology}"
 
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={n_classes:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}\n\
@@ -5189,6 +5189,7 @@ FPKM-UQ threshold cutoff: >{parameters['cutoff_percentile'][0]}%/<{parameters['c
 batch size:{parameters['batch_size'][0]}   held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]:<9.6f}  hidden layer:{parameters['hidden_layer_neurons'][0]}  xform:{parameters['gene_data_transform'][0]}  \
 dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topology}"
 
+  # these colors are hard wired to the number and order of the pan-cancer subtypes (0008_global). Sorry!  
   pan_cancer_subtype_colors = [ "lightcoral",      "lightcoral",      "lightcoral", 
                                 "lightsteelblue",  "lightsteelblue",  "lightsteelblue",  "lightsteelblue", "lightsteelblue",
                                 "thistle",         "thistle", 
@@ -5201,7 +5202,8 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
                                 "palegreen",       "palegreen",       "palegreen",
                                 "wheat",           "wheat",
                                 "rosybrown",       "rosybrown",
-                                "lightpink",       "lightpink",       "lightpink"
+                                "lightpink",       "lightpink",       "lightpink",
+                                "wheat",           "wheat"
                               ] 
 
 
@@ -5338,7 +5340,7 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
   
   writer.add_figure('Box Plot V', fig, 1)
   
-  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_AGG_{headline_correct.astype(int):02d}_BEST_{best_subtype_median:03d}_{descriptor}__box_port.png"
+  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_AGG_{headline_correct.astype(int):02d}_BEST_{best_subtype_median:03d}__box_port.png"
   fig.savefig(fqn)
     
   plt.close()
@@ -5396,7 +5398,7 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
   alpha_lite=0.3
   alpha_hard=0.6
   line_props  = dict( color="black", alpha=alpha_lite, linewidth=2           )
-  box_props   = dict( color="black", alpha=alpha_lite, linestyle="dashdot"   )
+  box_props   = dict( color="black",                   linestyle="dashdot"   )
   cap_props   = dict( color="black", alpha=alpha_lite                        )
   flier_props = dict( marker="o",    markersize=7                            )
 
@@ -5406,7 +5408,7 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
                    xy= (0.01,  0.02),    xycoords='figure fraction',  horizontalalignment='left', color='dimgray', fontsize=15  ) 
   ax.annotate( f"Subtypes for which accuracy >90% = {np.sum(median_pct_correct_predictions_by_subtype >= 90)}",
                    xy= (0.75,  0.02),  xycoords='figure fraction',  horizontalalignment='left',   color='dimgray', fontsize=15 )
-  plt.xlabel    (  'subtypes correctly predicted (%)', weight='bold', fontsize=font_big   )
+  plt.xlabel (  'subtypes correctly predicted (%)', weight='bold', fontsize=font_big   )
 
   totals          = total_predictions_by_subtype
   corrects        = correct_predictions_by_subtype

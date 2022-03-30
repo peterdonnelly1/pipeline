@@ -344,7 +344,8 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
 
   if ( input_mode=='image_rna' ):
 
-    print( f"{CARRIBEAN_GREEN}GENERATE:       NOTE:  input_mode is '{CYAN}{input_mode}{RESET}{CARRIBEAN_GREEN}', so image and other data will not be generated{RESET}" )  
+    if DEBUG>1:
+      print( f"{CARRIBEAN_GREEN}GENERATE:       NOTE:  input_mode is '{CYAN}{input_mode}{RESET}{CARRIBEAN_GREEN}', so image and other data will not be generated{RESET}" )  
     
       
     # (3A) preliminary step: create concatenated image+rna embeddings
@@ -1372,7 +1373,7 @@ def generate_rna_dataset ( args, class_names, target, cases_required, highest_cl
 
   fqn =  f"{args.base_dir}/dpcca/data/{args.nn_mode}/dataset_{target}.pth"
   
-  if DEBUG>0:  
+  if DEBUG>1:  
     print( f"GENERATE:       INFO:  {WHITE}now saving to Torch dictionary (this takes a little time){RESET}{CLEAR_LINE}")
     
   torch.save({
