@@ -318,7 +318,7 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
         cases_required        =  n_samples
         case_designation_flag = args.cases
         
-        if DEBUG>0:
+        if DEBUG>2:
           print ( f"{WHITE}GENERATE:       INFO:  about to generate {CYAN}{target}{RESET} dataset", flush=True )
         if DEBUG>2:
           print ( f"{DULL_WHITE}GENERATE:       INFO:    case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}{CLEAR_LINE}",  flush=True )
@@ -345,7 +345,7 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
 
   if ( input_mode=='image_rna' ):
 
-    if DEBUG>1:
+    if DEBUG>2:
       print( f"{CARRIBEAN_GREEN}GENERATE:       NOTE:  input_mode is '{CYAN}{input_mode}{RESET}{CARRIBEAN_GREEN}', so image and other data will not be generated{RESET}" )  
     
       
@@ -682,7 +682,8 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
     # (4B)  info and warnings
     
     if ( input_mode=='rna' ):
-      print( f"GENERATE:       NOTE:  input_mode is '{RESET}{CYAN}{input_mode}{RESET}', so image and other data will not be generated{RESET}" )  
+      if DEBUG>2:
+        print( f"GENERATE:       NOTE:  input_mode is '{RESET}{CYAN}{input_mode}{RESET}', so image and other data will not be generated{RESET}" )  
 
     if use_unfiltered_data==True:
       rna_suffix = rna_file_suffix[1:]
