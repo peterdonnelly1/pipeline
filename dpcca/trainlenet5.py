@@ -5178,7 +5178,7 @@ def box_plot_by_subtype( args, class_names, n_genes, start_time, parameters, wri
   if len(labels) < 20:
     supertitle = f"Classification of {args.cancer_type_long} Subtypes\n{total_runs_in_job} experiment runs in this box plot.  Total run time: {round(minutes):02d}m {round(seconds):02d}s"
   else:
-    supertitle = f"Classification of 13 Cancers into {len(class_names)} Subtypes\n{total_runs_in_job} experiment runs in this box plot.  Total run time: {round(minutes):02d}m:{round(seconds):02d}s"
+    supertitle = f"Classification of 14 Cancers into {len(class_names)} Subtypes\n{total_runs_in_job} experiment runs in this box plot.  Total run time: {round(minutes):02d}m:{round(seconds):02d}s"
   
   if args.input_mode=='image':
     title = f"{now:%d-%m-%y %H:%M}  {args.cases[0:25]} ({parameters['n_samples'][0]})  subtypes:{len(class_names)} NN:{parameters['nn_type_image'][0]}  optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}\n  \
