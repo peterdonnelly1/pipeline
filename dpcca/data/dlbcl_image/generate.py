@@ -687,7 +687,7 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
 
     if use_unfiltered_data==True:
       rna_suffix = rna_file_suffix[1:]
-      print( f"{BOLD}{ORANGE}GENERATE:       NOTE:  flag '{CYAN}USE_UNFILTERED_DATA{CYAN}{RESET}{BOLD}{ORANGE}' is set, so all genes listed in file '{CYAN}ENSG_UCSC_biomart_ENS_id_to_gene_name_table{RESET}{BOLD}{ORANGE}' will be used{RESET}" )        
+      print( f"{BOLD}{ORANGE}GENERATE:       NOTE:  flag '{CYAN}USE_UNFILTERED_DATA{CYAN}{RESET}{BOLD}{ORANGE}' is set, so all genes listed in file '{CYAN}ENSG_UCSC_biomart_ENS_id_to_gene_name_table{RESET}{BOLD}{ORANGE}' are being used{RESET}" )        
     else:
       rna_suffix = rna_file_reduced_suffix
       print( f"{BOLD}{ORANGE}GENERATE:       NOTE: flag '{CYAN}USE_UNFILTERED_DATA{CYAN}{RESET}{BOLD}{ORANGE}' is NOT set, so only the subset of genes specified in '{CYAN}TARGET_GENES_REFERENCE_FILE{RESET}{ORANGE}' = '{CYAN}{args.target_genes_reference_file}{RESET}{ORANGE}' will be used.{RESET}" ) 
@@ -734,7 +734,7 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
         global_rna_files_processed, n_genes = generate_rna_dataset ( args, class_names, target, cases_required, highest_class_number, case_designation_flag, n_genes, cov_threshold, cutoff_percentile, gene_data_norm, gene_data_transform, use_autoencoder_output, class_counts )
   
         if DEBUG>0:
-          print ( f"{DULL_WHITE}GENERATE:       INFO:    global_rna_files_processed  (this run)................................................. = {MIKADO}{global_rna_files_processed}{RESET}{CLEAR_LINE}", flush=True )
+          print ( f"GENERATE:       INFO:    rna files processed  (this run)................................................. = {MIKADO}{global_rna_files_processed}{RESET}{CLEAR_LINE}", flush=True )
 
 
     else:
