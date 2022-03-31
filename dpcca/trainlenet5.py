@@ -5444,7 +5444,7 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
   writer.add_figure('Box Plot H', fig, 1)
   
   
-  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_AGG_{headline_correct.astype(int):02d}_BEST_{best_subtype_median:03d}_{descriptor}__box_land.png"
+  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_AGG_{headline_correct.astype(int):02d}_BEST_{best_subtype_median:03d}__box_land.png"
   fig.savefig(fqn)
     
   plt.close()
