@@ -690,7 +690,7 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
       print( f"{BOLD}{ORANGE}GENERATE:       NOTE:  flag '{CYAN}USE_UNFILTERED_DATA{CYAN}{RESET}{BOLD}{ORANGE}' is set, so all genes listed in file '{CYAN}ENSG_UCSC_biomart_ENS_id_to_gene_name_table{RESET}{BOLD}{ORANGE}' are being used{RESET}" )        
     else:
       rna_suffix = rna_file_reduced_suffix
-      print( f"{BOLD}{ORANGE}GENERATE:       NOTE: flag '{CYAN}USE_UNFILTERED_DATA{CYAN}{RESET}{BOLD}{ORANGE}' is NOT set, so only the subset of genes specified in '{CYAN}TARGET_GENES_REFERENCE_FILE{RESET}{ORANGE}' = '{CYAN}{args.target_genes_reference_file}{RESET}{ORANGE}' will be used.{RESET}" ) 
+      print( f"{BOLD}{ORANGE}GENERATE:       NOTE: flag '{CYAN}USE_UNFILTERED_DATA{CYAN}{RESET}{BOLD}{ORANGE}' is NOT set, so only the subset of genes specified in '{CYAN}TARGET_GENES_REFERENCE_FILE{RESET}{ORANGE}' = '{CYAN}{args.target_genes_reference_file}{RESET}{ORANGE}' are being used.{RESET}" ) 
       print( f"{ORANGE}GENERATE:       NOTE: Set user parameter {CYAN}'USE_UNFILTERED_DATA'{RESET}{ORANGE} to {MIKADO}True{RESET}{ORANGE} if you wish to use all genes (all genes means all the genes in '{MAGENTA}ENSG_UCSC_biomart_ENS_id_to_gene_name_table{RESET}{ORANGE}'){RESET}" ) 
    
    

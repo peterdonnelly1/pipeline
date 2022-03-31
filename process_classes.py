@@ -21,7 +21,8 @@ DIM_WHITE       ='\033[37;2m'
 CYAN            ='\033[36;1m'
 PALE_RED        ='\033[31m'
 PALE_GREEN      ='\033[32m'
-AUREOLIN        ='\033[38;2;253;238;0m'
+BLACK           ='\033[38;2;0;0;0m' 
+AUREOLIN        ='\033[38;2;253;238;0m' 
 DULL_WHITE      ='\033[38;2;140;140;140m'
 MIKADO          ='\033[38;2;255;196;12m'
 AZURE           ='\033[38;2;0;127;255m'
@@ -193,7 +194,9 @@ def main(args):
   
     
   # now go through tree and delete any first level subfolder which does not contain a class.npy file (we can't use these). By doing this we exclude the sample from the experiment
-    
+  
+  cases_without_class_file_count = 0
+  
   walker = os.walk( data_dir )
   for root, dirs, files in walker:
     for d in dirs:
@@ -208,9 +211,13 @@ def main(args):
           has_class_file=True
       
       if has_class_file==False:
-        if (DEBUG>0):
+        cases_without_class_file_count += 1
+        if (DEBUG>2):
           print ( "PROCESS_CLASSES:        INFO: this case did not obtain a class file; deleting from working dataset: \033[31m{:}\033[m".format(   current_dir     ),  flush=True )    
         shutil.rmtree ( current_dir )
+
+  if (DEBUG>0):
+    print ( f"{BOLD}{ORANGE}PROCESS_CLASSES:        WARNG: {MIKADO}{cases_without_class_file_count}{RESET}{BOLD}{ORANGE} cases did not obtain a class file. These cases were deleted from the working dataset{RESET}",  flush=True )    
 
 #====================================================================================================================================================
       
