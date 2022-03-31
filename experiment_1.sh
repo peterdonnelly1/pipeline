@@ -27,9 +27,9 @@ while getopts H:L:o:R:7: option                                                 
 
 #  Meaning of Parameters (they are consumed by do_all.sh):   
 #
-# -R     = regenerate the dataset                       (only need to use one time, after you change dataset)
-# -X     = suppress RNA-Seq file pre-processing         (set this to True if using the same dataset as the previous run, otherwise omit)
-# -g     = suppress pytotch dataset generation          (set this to True if using the same dataset as the previous run, otherwise omit)
+# -r     = regenerate the dataset                       (only need to use one time, after you change dataset)
+# -X     = suppress RNA-Seq file pre-processing         (set this to True if using the same dataset as the previous run and not filtering genes)
+# -g     = suppress pytotch dataset generation          (set this to True if using the same dataset as the previous run and not filtering genes)
 # -R     = repeats the run indicated number of times    
 
 #  all other parameters use the defaults from do_all.sh
@@ -44,12 +44,12 @@ set -x
 ./do_all.sh -d kidn -i rna -o ${N_EPOCHS}  -b ${BATCH_SIZE} -L ${LEARNING_RATE} -H "300 600 900 1200 1500 1800 2100 2400 2700 3000"                    -7 ${NN_DENSE_DROPOUT_1}                                  -X True  -g True                      N_BOX_PLOT_SHOW="False"    # Base Experiment
 ./do_all.sh -d kidn -i rna -o ${N_EPOCHS}  -b ${BATCH_SIZE} -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ".00 .05 .10 .15 .20 .25 .30 .35 .40 .45"                                                          -X True  -g True                      N_BOX_PLOT_SHOW="False"    # Base Experiment
 ./do_all.sh -d kidn -i rna -o ${N_EPOCHS}  -b ${BATCH_SIZE} -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ${NN_DENSE_DROPOUT_1}                                                                              -X True  -g True -R ${REPEAT}         N_BOX_PLOT_SHOW="False"    # Base Experiment
-./do_all.sh -d kidn -i rna -o ${N_EPOCHS}  -b ${BATCH_SIZE} -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ${NN_DENSE_DROPOUT_1} -I False -D just_hg38_protein_coding_genes                                   -X True          -R ${REPEAT}         N_BOX_PLOT_SHOW="False"    # Variant 1.1
-./do_all.sh -d kidn -i rna -o ${N_EPOCHS}  -b ${BATCH_SIZE} -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ${NN_DENSE_DROPOUT_1} -I False -D pmcc_cancer_genes_of_interest                                    -X True          -R ${REPEAT}         N_BOX_PLOT_SHOW="False"    # Variant 1.2
-./do_all.sh -d kidn -i rna -o ${N_EPOCHS}  -b ${BATCH_SIZE} -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ${NN_DENSE_DROPOUT_1} -I False -D KIDN_genes_of_interest                                           -X True          -R ${REPEAT}         N_BOX_PLOT_SHOW="False"    # Variant 1.3
+./do_all.sh -d kidn -i rna -o ${N_EPOCHS}  -b ${BATCH_SIZE} -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ${NN_DENSE_DROPOUT_1} -I False -D just_hg38_protein_coding_genes                                                    -R ${REPEAT}         N_BOX_PLOT_SHOW="False"    # Variant 1.1
+./do_all.sh -d kidn -i rna -o ${N_EPOCHS}  -b ${BATCH_SIZE} -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ${NN_DENSE_DROPOUT_1} -I False -D pmcc_cancer_genes_of_interest                                                     -R ${REPEAT}         N_BOX_PLOT_SHOW="False"    # Variant 1.2
+./do_all.sh -d kidn -i rna -o ${N_EPOCHS}  -b ${BATCH_SIZE} -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ${NN_DENSE_DROPOUT_1} -I False -D KIDN_genes_of_interest                                                            -R ${REPEAT}         N_BOX_PLOT_SHOW="False"    # Variant 1.3
 ./do_all.sh -d kidn -i rna -o ${N_EPOCHS}  -b ${BATCH_SIZE} -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ${NN_DENSE_DROPOUT_1} -4 "ADAM ADAMAX ADAGRAD ADAMW ADAMW_AMSGRAD ADADELTA ASGD RMSPROP RPROP SGD" -X True                               N_BOX_PLOT_SHOW="False"    # Variant 2
 ./do_all.sh -d kidn -i rna -o ${N_EPOCHS}  -b ${BATCH_SIZE} -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ${NN_DENSE_DROPOUT_1}                                    -4 "RPROP"                                -X True          -R ${REPEAT}         N_BOX_PLOT_SHOW="False"    # Variant 2
-./do_all.sh -d kidn -i rna -o ${N_EPOCHS}  -b ${BATCH_SIZE} -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ${NN_DENSE_DROPOUT_1} -I False -D KIDN_genes_of_interest -4 "RPROP"                                 X True          -R ${REPEAT}         N_BOX_PLOT_SHOW="False"    # Variant 1.3
+./do_all.sh -d kidn -i rna -o ${N_EPOCHS}  -b ${BATCH_SIZE} -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ${NN_DENSE_DROPOUT_1} -I False -D KIDN_genes_of_interest -4 "RPROP"                                                 -R ${REPEAT}         N_BOX_PLOT_SHOW="False"    # Variant 1.3
 ./do_all.sh -d stad -i rna -o ${N_EPOCHS}  -b 91            -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ${NN_DENSE_DROPOUT_1}                                                                                               -R ${REPEAT} -r True N_BOX_PLOT_SHOW="False"    # Additional Experiment 1 (option 1)
 ./do_all.sh -d sarc -i rna -o ${N_EPOCHS}  -b 50            -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ${NN_DENSE_DROPOUT_1}                                                                                               -R ${REPEAT} -r True N_BOX_PLOT_SHOW="False"    # Additional Experiment 1 (option 2)
 ./do_all.sh -d 0008 -i rna -o ${N_EPOCHS}  -b 107           -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ${NN_DENSE_DROPOUT_1}                                                                                               -R ${REPEAT} -r True N_BOX_PLOT_SHOW="False"    # Additional Experiment 2 
