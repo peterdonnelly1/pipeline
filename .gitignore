@@ -115,14 +115,17 @@ dmypy.json
 .pyre/
 .idea
 
-# PIPELINE PROJECT SPECIFIC PGD 200120
+# PIPELINE PROJECT SPECIFIC -- PETER DONNELLY -- UPDATED 2022-04-03
+*.pt
 *.pth
-tcga/
-output/
-dpcca/__pycache__/
-dpcca/*/__pycache__/
-dpcca/tests/
-dpcca/data/*/logs
-dpcca/data/*/raw
-dpcca/data/*/__pycache__/
-dpcca/experiments/example/
+*.npy
+*.pickle
+odata/
+logs/
+working_data/
+source_data/
+__pycache__/
+class/H_target
+classi/runs
+classi/*/__pycache__
+classi/modes/mnist/MNIST

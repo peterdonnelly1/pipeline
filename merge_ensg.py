@@ -163,14 +163,13 @@ if __name__ == '__main__':
 
   p = argparse.ArgumentParser()
 
-  p.add_argument('--log_dir',                        type=str,   default='data/dlbcl_image/logs')
-  p.add_argument('--base_dir',                       type=str,   default='/home/peter/git/pipeline')
-  p.add_argument('--data_dir',                       type=str,   default='/home/peter/git/pipeline/dataset')     
-  p.add_argument('--save_model_every',               type=int,   default=10)                                     
-  p.add_argument('--nn_mode',                        type=str,   default='dlbcl_image')
-  p.add_argument('--min_tile_sd',                    type=float, default=3)                                      
-  p.add_argument('--greyness',                       type=int,   default=0)                                      
-  p.add_argument('--class_colours',      nargs="*"                                  )    
+  p.add_argument('--log_dir',                        type=str,   default='logs'                                     )
+  p.add_argument('--base_dir',                       type=str,   default='/home/peter/git/pipeline'                 )
+  p.add_argument('--data_dir',                       type=str,   default='/home/peter/git/pipeline/working_data'    )     
+  p.add_argument('--save_model_every',               type=int,   default=10                                         )                                     
+  p.add_argument('--min_tile_sd',                    type=float, default=3                                          )                                      
+  p.add_argument('--greyness',                       type=int,   default=0                                          )                                      
+  p.add_argument('--class_colours',      nargs="*"                                                                  )    
       
   args, _ = p.parse_known_args()
 

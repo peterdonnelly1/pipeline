@@ -1,0 +1,12 @@
+"""=============================================================================
+Data module interface.
+  ============================================================================="""
+
+from   modes.classify.config  import GTExV6Config                                                           # use for any dataset in image-only dpcca mode
+from   modes.classify.dataset import GTExV6Dataset                                                          # use for any dataset in image-only dpcca mode
+
+from   modes.pre_compress.config  import pre_compressConfig                                                 # use for any dataset when pre-compressing
+from   modes.pre_compress.dataset import pre_compressDataset                                                # use for any dataset when pre-compressing
+
+from   modes.mnist.dataset  import MnistDataset
+from   modes.mnist.config   import MnistConfig

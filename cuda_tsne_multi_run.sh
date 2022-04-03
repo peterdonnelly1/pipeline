@@ -16,7 +16,7 @@
 #     NN_TYPE_IMG, TILE_SIZE, N_TILES, RANDOM_TILES, STAIN_NORM, JITTER, MAKE_GREY_PCT
 #
 #   RNA parameters: 
-#     NN_TYPE_RNA, HIDDEN_LAYER_NEURONS, NN_DENSE_DROPOUT_1, NN_DENSE_DROPOUT_2, GENE_DATA_NORM, GENE_DATA_TRANSFORM, GENE_EMBED_DIM, COV_THRESHOLD
+#     NN_TYPE_RNA, HIDDEN_LAYER_NEURONS, NN_DENSE_DROPOUT_1, NN_DENSE_DROPOUT_2, GENE_DATA_NORM, GENE_DATA_TRANSFORM, EMBEDDING_DIMENSIONS, LOW_EXPRESSION_THRESHOLD
 #
 # If more than one value is specified for any of these, an experiment 'job' will be created and run
 # The job will comprise one run for every combination of the specified parameters (Cartesian product of the parameters)
@@ -74,7 +74,7 @@ ENCODER_ACTIVATION="none"                                                       
 EPSILON="0.5"                                                                                         
 GENE_DATA_NORM="GAUSSIAN"                                                                                      # supported options are NONE JUST_SCALE GAUSSIAN 
 GENE_DATA_TRANSFORM="LOG2PLUS1"                                                                           # supported options are NONE LN LOG2 LOG2PLUS1 LOG10 LOG10PLUS1 RANKED
-GENE_EMBED_DIM="100"
+EMBEDDING_DIMENSIONS="100"
 HIDDEN_LAYER_NEURONS="1100"
 INPUT_MODE="rna"
 JUST_CLUSTER="False"
@@ -87,7 +87,7 @@ MIN_CLUSTER_SIZE="10"
 MULTIMODE="NONE"                                                                                           # 
 NN_DENSE_DROPOUT_1="0.2"                                                                                   # 
 NN_DENSE_DROPOUT_2="0.0"                                                                                   # (no getopts option) percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
-NN_MODE="dlbcl_image"                                                                                      # 
+MODE="classify"                                                                                      # 
 NN_OPTIMIZER="ADAM"                                                                                        # supported options are ADAM, ADAMAX, ADAGRAD, ADAMW, ADAMW_AMSGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
 NN_TYPE_IMG="VGG11"                                                                                        # 
 NN_TYPE_RNA="DENSE"                                                                                        # 
@@ -114,7 +114,7 @@ SUPERGRID_SIZE="4"
 TILES_PER_IMAGE="10"
 TILE_SIZE="32"
 USE_AUTOENCODER_OUTPUT="False"
-                                                                                                           # It's better to filter with the combination of CUTOFF_PERCENTILE/COV_THRESHOLD than wth COV_UQ_THRESHOLD because the former is computationally much faster
+                                                                                                           # It's better to filter with the combination of CUTOFF_PERCENTILE/LOW_EXPRESSION_THRESHOLD than wth HIGH_CORRELATION_THRESHOLD because the former is computationally much faster
 HIDDEN_LAYER_ENCODER_TOPOLOGY="40 20"
 STAIN_NORMALIZATION='NONE'
 
@@ -122,20 +122,17 @@ USE_UNFILTERED_DATA="True"
 TARGET_GENES_REFERENCE_FILE="just_hg38_protein_coding_genes"                                               # file specifying genes to be used if USE_UNFILTERED_DATA=False 
 TARGET_GENES_REFERENCE_FILE_NAME="just_hg38_protein_coding_genes"                                          # To allow "data_comp.sh" to pass in just the file name, so that the user does not need to specify the whole path
 
-REMOVE_LOW_EXPRESSION_GENES="True"                                                                         # DELETE AT CONVENIENCE
-LOW_EXPRESSION_THRESHOLD=0.5                                                                               # DELETE AT CONVENIENCE
-
 RANDOM_GENES_COUNT=0
 
-                                                                                                           # It's better to filter with the combination of CUTOFF_PERCENTILE/COV_THRESHOLD than wth COV_UQ_THRESHOLD because the former is computationally much faster
-COV_THRESHOLD="0"                                                                                          # Only genes with at least CUTOFF_PERCENTILE % across samples having rna-exp values above COV_THRESHOLD will go into the analysis. Set to zero if you want to include every gene
-CUTOFF_PERCENTILE=100                                                                                      # Lower CUTOFF_PERCENTILE -> more genes will be filtered out and higher COV_THRESHOLD ->  more genes will be filtered out. Set low if you only want genes with very high correlation values
+                                                                                                           # It's better to filter with the combination of CUTOFF_PERCENTILE/LOW_EXPRESSION_THRESHOLD than wth HIGH_CORRELATION_THRESHOLD because the former is computationally much faster
+LOW_EXPRESSION_THRESHOLD="0"                                                                                          # Only genes with at least CUTOFF_PERCENTILE % across samples having rna-exp values above LOW_EXPRESSION_THRESHOLD will go into the analysis. Set to zero if you want to include every gene
+CUTOFF_PERCENTILE=100                                                                                      # Lower CUTOFF_PERCENTILE -> more genes will be filtered out and higher LOW_EXPRESSION_THRESHOLD ->  more genes will be filtered out. Set low if you only want genes with very high correlation values
 
 DO_COVARIANCE="False"                                                                                      # used by "analyse_data". Should covariance  calculation be performed ? (analyse_data mode only)
 DO_CORRELATION="False"                                                                                     # used by "analyse_data". Should correlation calculation be performed ? (analyse_data mode only)    
 A_D_USE_CUPY="True"                                                                                        # used by "analyse_data". if True, use cupy linear algrebra library rather than numpy. Only works if computer has a CUDA compatible GPU    
 REMOVE_UNEXPRESSED_GENES="True"                                                                            # used by "analyse_data". create and then apply a filter to remove genes whose value is zero                                                 *for every sample*
-COV_UQ_THRESHOLD=2                                                                                         # used by "analyse_data". minimum percentile value highly correlated genes to be displayed. Quite a sensitive parameter so tweak carefully
+HIGH_CORRELATION_THRESHOLD=2                                                                                         # used by "analyse_data". minimum percentile value highly correlated genes to be displayed. Quite a sensitive parameter so tweak carefully
 SHOW_ROWS=1000                                                                                             # used by "analyse_data". 
 SHOW_COLS=100                                                                                              # used by "analyse_data". 
 
@@ -155,9 +152,9 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:H:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:Q:
     d) DATASET=${OPTARG};;                                                                                 # TCGA cancer class abbreviation: stad, tcl, dlbcl, thym ...
     D) TARGET_GENES_REFERENCE_FILE_NAME=${OPTARG};;
     e) EPSILON=${OPTARG};;                                                                                 # supported: any of the sklearn metrics
-    E) GENE_EMBED_DIM=${OPTARG};;                                                                          # supported: in most cases, one of the sklearn metrics (but not cuda_tsne, which only supports Euclidean)
-    f) TILES_PER_IMAGE=${OPTARG};;                                                                         # network mode: supported: 'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
-    F) HIDDEN_LAYER_ENCODER_TOPOLOGY=${OPTARG};;                                                           # structure of hidden layers (DEEPDENSE, AEDEEPDENSE and TTVAE only. The number of neurons for the final layer is taken from GENE_EMBED_DIMS
+    E) EMBEDDING_DIMENSIONS=${OPTARG};;                                                                          # supported: in most cases, one of the sklearn metrics (but not cuda_tsne, which only supports Euclidean)
+    f) TILES_PER_IMAGE=${OPTARG};;                                                                         # network mode: supported: 'classify', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
+    F) HIDDEN_LAYER_ENCODER_TOPOLOGY=${OPTARG};;                                                           # structure of hidden layers (DEEPDENSE, AEDEEPDENSE and TTVAE only. The number of neurons for the final layer is taken from EMBEDDING_DIMENSIONSS
     g) SKIP_GENERATION=${OPTARG};;                                                                         # 'True'   or 'False'. If True, skip generation of the pytorch dataset (to save time if it already exists)
     G) SUPERGRID_SIZE=${OPTARG};;                                                                          
     H) HIDDEN_LAYER_NEURONS=${OPTARG};;                                                                    
@@ -166,13 +163,13 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:H:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:Q:
     j) JUST_TEST=${OPTARG};;                                                                               
     J) JUST_CLUSTER=${OPTARG};;                                                                             
     k) REMOVE_UNEXPRESSED_GENES=${OPTARG};;
-    K) COV_UQ_THRESHOLD=${OPTARG};;
+    K) HIGH_CORRELATION_THRESHOLD=${OPTARG};;
     l) CLUSTERING=${OPTARG};;                                                                              # supported: NONE, otsne, sk_tsne, cuda_tsne, sk_agglom, sk_spectral, hdbscan, dbscan
     L) LEARNING_RATE=${OPTARG};;                                                                           
     m) MULTIMODE=${OPTARG};;                                                                               # multimode: supported:  image_rna (use only cases that have matched image and rna examples (test mode only)
     M) METRIC=${OPTARG};;                                                                                  # supported: any of the sklearn metrics. Only 'euclidean' in the case of cuda_tsne
-    n) NN_MODE=${OPTARG};;                                                                                 # network mode: supported: 'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
-    N) SKIP_TRAINING=${OPTARG};;                                                                           # network mode: supported: 'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
+    n) MODE=${OPTARG};;                                                                                 # network mode: supported: 'classify', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
+    N) SKIP_TRAINING=${OPTARG};;                                                                           # network mode: supported: 'classify', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
     o) N_EPOCHS=${OPTARG};;                                                                                # Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Can only omit cases from the top (e.g. 'normal' has the highest class number for 'stad' - see conf/variables). Currently only implemented for unimode/image (not implemented for rna_seq)
     O) N_EPOCHS_TEST=${OPTARG};;                                                                           
     p) PERPLEXITY=${OPTARG};;                                                                              
@@ -205,7 +202,7 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:H:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:Q:
     5) GENE_DATA_TRANSFORM=${OPTARG};; 
     6) GENE_DATA_NORM=${OPTARG};; 
     7) NN_DENSE_DROPOUT_1=${OPTARG};; 
-    8) COV_THRESHOLD=${OPTARG};; 
+    8) LOW_EXPRESSION_THRESHOLD=${OPTARG};; 
     9) CUTOFF_PERCENTILE=${OPTARG};; 
     esac
   done
@@ -214,12 +211,12 @@ source conf/variables.sh
 
 i=1
 
-for GENE_EMBED_DIM_VALUE in "2000"
+for EMBEDDING_DIMENSIONS_VALUE in "2000"
 
 do
 
   echo "CUDA_TSNE_MULTI_RUN.SH:  run number           = "${i}     "                                   <<< dataset generation and tiling (if image) are performed on the first run only"
-  echo "CUDA_TSNE_MULTI_RUN.SH:  GENE_EMBED_DIM_VALUE = "${GENE_EMBED_DIM_VALUE} "for this run"
+  echo "CUDA_TSNE_MULTI_RUN.SH:  EMBEDDING_DIMENSIONS_VALUE = "${EMBEDDING_DIMENSIONS_VALUE} "for this run"
       
   if [[ ${i} -eq 1 ]]
   
@@ -229,7 +226,7 @@ do
       
       # training (first time)
      ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}  -S ${N_SAMPLES}  -o ${N_EPOCHS}  -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b ${BATCH_SIZE}       -1 ${PCT_TEST___TRAIN}      -h ${HIGHEST_CLASS_NUMBER}   -s False   \
--X ${SKIP_RNA_PREPROCESSING}  -g False   -j False  -n pre_compress  -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -E ${GENE_EMBED_DIM_VALUE}  -v ${DIVIDE_CASES}  -A ${AE_ADD_NOISE}  -c ${CASES}                                         \
+-X ${SKIP_RNA_PREPROCESSING}  -g False   -j False  -n pre_compress  -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -E ${EMBEDDING_DIMENSIONS_VALUE}  -v ${DIVIDE_CASES}  -A ${AE_ADD_NOISE}  -c ${CASES}                                         \
 -3 ${PEER_NOISE_PCT} -4 ${MAKE_GREY_PCT} -u False
  
     else
@@ -238,7 +235,7 @@ do
       echo "CUDA_TSNE_MULTI_RUN.SH:  run = "${i} " tiling (iff image) and generation will be skipped"
      rm logs/lowest_loss_ae_model.pt
     ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}   -S ${N_SAMPLES}  -o ${N_EPOCHS} -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b ${BATCH_SIZE}       -1 ${PCT_TEST___TRAIN}      -h ${HIGHEST_CLASS_NUMBER}    -s True    \
--X ${SKIP_RNA_PREPROCESSING}  -g True   -j False  -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -E ${GENE_EMBED_DIM_VALUE}   -A ${AE_ADD_NOISE}  -c ${CASES}                                      \
+-X ${SKIP_RNA_PREPROCESSING}  -g True   -j False  -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -E ${EMBEDDING_DIMENSIONS_VALUE}   -A ${AE_ADD_NOISE}  -c ${CASES}                                      \
 -3 ${PEER_NOISE_PCT} -4 ${MAKE_GREY_PCT} -u False 
 
   fi
@@ -250,11 +247,11 @@ do
   echo "CUDA_TSNE_MULTI_RUN.SH:  generate embeddings using best model produced and saved during training (test mode is invoked by ' -j True' user option)"
   
   ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}   -S ${N_SAMPLES}  -o ${N_EPOCHS_TEST} -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b ${BATCH_SIZE_TEST}  -1 ${PCT_TEST___JUST_TEST}  -h ${HIGHEST_CLASS_NUMBER}  -s True   \
--X True  -g True  -j True   -n pre_compress     -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -E ${GENE_EMBED_DIM_VALUE} -A False -u True  -c ${CASES}
+-X True  -g True  -j True   -n pre_compress     -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -E ${EMBEDDING_DIMENSIONS_VALUE} -A False -u True  -c ${CASES}
   
 
   # cluster and display
-  ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}   -a ${NN_TYPE_IMG}  -E ${GENE_EMBED_DIM_VALUE} -t 5000  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l cuda_tsne  -p "1 2 3 7 10 20 30 70 100"  \
+  ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}   -a ${NN_TYPE_IMG}  -E ${EMBEDDING_DIMENSIONS_VALUE} -t 5000  -s True  -g True  -n classify  -c ${CASES}  -l cuda_tsne  -p "1 2 3 7 10 20 30 70 100"  \
 -G ${SUPERGRID_SIZE}  -R ${RENDER_CLUSTERING} -P ${PRETRAIN}
 
   i=$((i+1))  

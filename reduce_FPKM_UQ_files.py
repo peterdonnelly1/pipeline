@@ -93,7 +93,6 @@ def main(args):
   rna_file_reduced_suffix     = args.rna_file_reduced_suffix
   rna_exp_column              = args.rna_exp_column
   use_unfiltered_data         = args.use_unfiltered_data
-  remove_low_expression_genes = args.remove_low_expression_genes
   low_expression_threshold    = args.low_expression_threshold
   skip_rna_preprocessing      = args.skip_rna_preprocessing
 
@@ -104,14 +103,12 @@ def main(args):
     return
 
   
-  # ~ if remove_low_expression_genes=='True':
-    # ~ print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: 'remove_low_expression_genes'  flag is set. Genes whose expression value is less than {CYAN}{low_expression_threshold}{RESET} for {BOLD}all{RESET}{ORANGE} samples will be deleted prior to any other filter being applied{RESET}" )
 
   if  use_unfiltered_data == True:
     print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: '{CYAN}use_unfiltered_data{RESET}{ORANGE}' flag = {MIKADO}{use_unfiltered_data}{RESET}{ORANGE}. No gene filtering will be performed, and '{MAGENTA}_reduced{RESET}{ORANGE}' files will NOT be generated. {RESET}" )
     return
   else:
-    print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: '{CYAN}use_unfiltered_data{RESET}{ORANGE}' flag = {MIKADO}{use_unfiltered_data}{RESET}{ORANGE}. Filtering will be performed; '{MAGENTA}_reduced{RESET}{ORANGE}' files WILL be generated. {RESET}" )    
+    print( f"{ORANGE}{BOLD}REDUCE_FPKM_UQ_FILES:   INFO: '{CYAN}{BOLD}use_unfiltered_data{RESET}{ORANGE}{BOLD}' flag = {MIKADO}{use_unfiltered_data}{RESET}{ORANGE}{BOLD}, so filtering will be performed{RESET}{ORANGE}{BOLD} and '{MAGENTA}{BOLD}_reduced{RESET}{ORANGE}{BOLD}' files generated in the working dataset {RESET}" )    
 
 
   if (DEBUG>99):
@@ -128,7 +125,7 @@ def main(args):
     if DEBUG>9999:
       print ( f"\n{BOLD}{UNDER}REDUCE_FPKM_UQ_FILES:   INFO: STEP 0: User has requested that {MAGENTA}{random_genes_count}{RESET}{BOLD}{UNDER} randomly selected genes be used{RESET}\n" )
     
-    cases_found_count = 0
+    cases_processed_count = 0
 
     # Any old RNA-Seq gene vector file will do, as they all list the same set of genes
     
@@ -140,7 +137,7 @@ def main(args):
     
         if fnmatch.fnmatch( f, args.rna_file_suffix ):
      
-          cases_found_count  +=1 
+          cases_processed_count  +=1 
           
           if (DEBUG>4444):
             print ( f"REDUCE_FPKM_UQ_FILES:   INFO: will extract the random genes that will be used from this file  {MAGENTA}{gene_vector_unfiltered_fqn}{RESET}",  flush=True )  
@@ -188,10 +185,10 @@ def main(args):
             print( f"{RED}REDUCE_FPKM_UQ_FILES:         FATAL:  ... halting now\n\n\n\n\n\n {RESET}" )
             sys.exit(0)
   
-        if cases_found_count > 0:
+        if cases_processed_count > 0:
           break 
 
-      if cases_found_count > 0:
+      if cases_processed_count > 0:
         break 
 
   
@@ -258,8 +255,7 @@ def reduce_genes( args, target_genes_reference_file ):
 
   genes_of_interest_concatenated = [i for i in genes_of_interest_concatenated if "ENSG" in i ]
 
-  print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: user provided ('{CYAN}TARGET_GENES_REFERENCE_FILE{RESET}{ORANGE}') '{MAGENTA}{os.path.basename(target_genes_reference_file)}{RESET}{ORANGE}' ('{MAGENTA}{target_genes_reference_file}{RESET}{ORANGE}') contains {MIKADO}{len(genes_of_interest_concatenated)}{RESET}{ORANGE} genes. {RESET}" )    
-  print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: now removing unwanted genes ... this takes a minute or two per thousand cases {RESET}" )    
+  print( f"REDUCE_FPKM_UQ_FILES:   INFO: the user provided file which lists ENSG gene names to keep; namely: {CYAN}{BOLD}TARGET_GENES_REFERENCE_FILE{RESET}={MAGENTA}{BOLD}{os.path.basename(target_genes_reference_file)}{RESET} contains {MIKADO}{len(genes_of_interest_concatenated)}{RESET} genes. (location: '{MAGENTA}{target_genes_reference_file}{RESET}'){RESET}" )    
 
 
   if DEBUG>999:
@@ -281,7 +277,7 @@ def reduce_genes( args, target_genes_reference_file ):
     print ( f"REDUCE_FPKM_UQ_FILES:   INFO: pmcc_reference.shape = {ARYLIDE}{pmcc_reference.shape}{RESET}" )
 
 
-  cases_found_count = 0
+  cases_processed_count = 0
   
   for root, __, files in os.walk(args.data_dir):
     
@@ -295,10 +291,10 @@ def reduce_genes( args, target_genes_reference_file ):
   
       if fnmatch.fnmatch( f, args.rna_file_suffix ):                                                      # for this case
    
-        cases_found_count  +=1  
+        cases_processed_count  +=1  
         
         if (DEBUG>4444):
-          print ( f"REDUCE_FPKM_UQ_FILES:   INFO: (match !)                              {CARRIBEAN_GREEN}{gene_vector_unfiltered_fqn}{RESET}    \r\033[210Ccases_found_count = {MIKADO}{cases_found_count}{RESET}",  flush=True )
+          print ( f"REDUCE_FPKM_UQ_FILES:   INFO: (match !)                              {CARRIBEAN_GREEN}{gene_vector_unfiltered_fqn}{RESET}    \r\033[210Ccases_processed_count = {MIKADO}{cases_processed_count}{RESET}",  flush=True )
 
         gene_vector_unfiltered = pd.read_csv( gene_vector_unfiltered_fqn, sep='\t', usecols=[0,1], header=None )
         
@@ -330,7 +326,7 @@ def reduce_genes( args, target_genes_reference_file ):
         try:
           gene_vector_filtered.to_csv(gene_vector_filtered_fqn, index=False, header=False, index_label=False )           # don't add the column and row labels that Pandas would otherwise add
           if DEBUG>1:
-            print ( f"REDUCE_FPKM_UQ_FILES:   INFO: saving case with dims {MIKADO}{gene_vector_filtered.shape}{RESET} to name  {MAGENTA}{gene_vector_filtered_fqn}{RESET}        \r\033[210Ccases_found_count = {MIKADO}{cases_found_count}{RESET}"  )
+            print ( f"REDUCE_FPKM_UQ_FILES:   INFO: saving case with dims {MIKADO}{gene_vector_filtered.shape}{RESET} to name  {MAGENTA}{gene_vector_filtered_fqn}{RESET}        \r\033[210Ccases_processed_count = {MIKADO}{cases_processed_count}{RESET}"  )
         except Exception as e:
           print ( f"{RED}REDUCE_FPKM_UQ_FILES:   FATAL: could not save file            = {CYAN}{gene_vector_filtered}{RESET}"  )
           print ( f"{RED}REDUCE_FPKM_UQ_FILES:        FATAL:     ^^^^ NOTICE THE ABOVE FATAL ERROR MESSAGE{RESET}"  )
@@ -341,9 +337,19 @@ def reduce_genes( args, target_genes_reference_file ):
           print( f"{RED}REDUCE_FPKM_UQ_FILES:         FATAL:  ... halting now\n\n\n\n\n\n {RESET}" )
           sys.exit(0)
 
-  
+
+      if (DEBUG>0):
+        if cases_processed_count % 50==0:
+          print ( f"REDUCE_FPKM_UQ_FILES:   INFO: {MIKADO}{cases_processed_count}{RESET} cases (RNA-Seq files) processed and filtered versions saved. Filtering takes a minute or two per thousand cases depending on how many/fast CPUs there are",  flush=True )
+          print ( "\033[2A",  flush=True )
+
+
   if (DEBUG>0):
-    print ( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: {MIKADO}{cases_found_count}{RESET}{ORANGE} cases found and processed{RESET}",  flush=True )  
+    print ( "\033[1B",  flush=True )
+
+  
+  # ~ if (DEBUG>0):
+    # ~ print ( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: {MIKADO}{cases_processed_count}{RESET}{ORANGE} cases found and processed{RESET}",  flush=True )  
         
   return SUCCESS
 
@@ -380,14 +386,13 @@ if __name__ == '__main__':
             
   p = argparse.ArgumentParser()
 
-  p.add_argument('--data_dir',                                 type=str,   default="/home/peter/git/pipeline/dataset")
-  p.add_argument('--target_genes_reference_file',              type=str,   default="/home/peter/git/pipeline/dataset/pmcc_cancer_genes_of_interest")
+  p.add_argument('--data_dir',                                 type=str,   default="/home/peter/git/pipeline/working_data")
+  p.add_argument('--target_genes_reference_file',              type=str,                          )
   p.add_argument('--rna_file_suffix',                          type=str,   default='*FPKM-UQ.txt' )
   p.add_argument('--rna_file_reduced_suffix',                  type=str,   default='_reduced'     )
   p.add_argument('--rna_exp_column',                           type=int,   default=1              )
   p.add_argument('--random_genes_count',                       type=int,   default=0              )
   p.add_argument('--use_unfiltered_data',                      type=str2bool, nargs='?', const=True, default=True, help="If true, don't filter the genes, but rather use all of them")
-  p.add_argument('--remove_low_expression_genes',              type=str,   default='False'        ) 
   p.add_argument('--low_expression_threshold',                 type=float, default='0.0'          )   
   p.add_argument('--skip_rna_preprocessing',                   type=str2bool, nargs='?', const=False, default=False, help="If true, don't preprocess RNA-Seq files")
   

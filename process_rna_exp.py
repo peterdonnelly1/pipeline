@@ -73,6 +73,7 @@ BB="\033[38;2;{:};{:};{:}m".format( a,b,c )
 #====================================================================================================================================================
 def main(args):
 
+  files_reviewed_count        = 0
   cumulative_rna_results = 0
   
   data_dir                 = args.data_dir
@@ -150,8 +151,16 @@ def main(args):
         
         np.save(rna_npy_file, rna)                                                                         # rna.npy
 
-  if (DEBUG>0): 
-    print ( f"PROCESS_RNA_EXP:        INFO: cumulative match count                = {MIKADO}{cumulative_rna_results}{RESET}",  flush=True )
+      files_reviewed_count += 1
+
+      if (DEBUG>0):
+        if files_reviewed_count % 50==0:
+          print ( f"PROCESS_RNA_EXP:        INFO: {MIKADO}{files_reviewed_count}{RESET} files reviewed, of which {MIKADO}{cumulative_rna_results}{RESET} TCGA format RNA-Seq files found. Numpy versions made and stored for these {MIKADO}{cumulative_rna_results}{RESET} RNA-Seq files{RESET}",  flush=True )
+          print ( "\033[2A",  flush=True )
+
+
+  if (DEBUG>0):
+    print ( "\033[1B",  flush=True )
 
       
 #====================================================================================================================================================
@@ -171,7 +180,7 @@ if __name__ == '__main__':
   
   p = argparse.ArgumentParser()
 
-  p.add_argument('--data_dir',                type=str, default="/home/peter/git/pipeline/dataset")
+  p.add_argument('--data_dir',                type=str, default="/home/peter/git/pipeline/working_data")
   p.add_argument('--rna_file_suffix',         type=str, default='*FPKM-UQ.txt')
   p.add_argument('--rna_file_reduced_suffix', type=str, default='_reduced')
   p.add_argument('--rna_exp_column',          type=int, default=1)

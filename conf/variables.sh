@@ -14,21 +14,24 @@ SLEEP_TIME=0
 # main directory paths & file names
 
 BASE_DIR=/home/peter/git/pipeline                                                                          # root directory for everything (shell scripts, code, datasets, logs ...)
-NN_APPLICATION_PATH=dpcca
-DATA_ROOT=dataset                                                                                          # holds working copy of the dataset. Cleaned each time if "do_all" script used. Fully regenerated if "regen" option specified. Not cleaned if "just_.. or _only_ scripts used (to save time. Regeneration i particular can take a lot of time)
+APPLICATION_DIR=classi
+DATA_ROOT=working_data                                                                                     # holds working copy of the dataset. Cleaned each time if "do_all" script used. Fully regenerated if "regen" option specified. Not cleaned if "just_.. or _only_ scripts used (to save time. Regeneration i particular can take a lot of time)
+DATA_SOURCE=${BASE_DIR}/source_data/${DATASET}                                                             # structured directory containing dataset. A copy is made to DATA_ROOT. DATA_SOURCE is left untouched
 DATA_DIR=${BASE_DIR}/${DATA_ROOT}                                                                          # location of the above. Not to be confused with DATA_SOURCE, which points to the master directory (via ${DATASET})
-DATA_SOURCE=${BASE_DIR}/${DATASET}                                                                         # structured directory containing dataset. A copy is made to DATA_ROOT. DATA_SOURCE is left untouched
-GLOBAL_DATA=${BASE_DIR}/${DATASET}_global                                                                  # name of a custom mapping file, if one exists, else "none"
-MAPPING_FILE_NAME=${DATASET}_mapping_file_MASTER.csv                                                       # mapping file to use, if it's a special one. (Default "mapping_file" (no extension), doesn't have to be specified)
+GLOBAL_DATA_DIR=${BASE_DIR}/global
+GLOBAL_DATA=${GLOBAL_DATA_DIR}/${DATASET}_global                                                           # name of a custom mapping file, if one exists, else "none"
+MAPPING_FILE_NAME=${DATASET}_mapping_file_MASTER.csv                                                       
 MAPPING_FILE=${DATA_DIR}/${MAPPING_FILE_NAME}
 LOG_DIR=${BASE_DIR}/logs
 
 # common
+
 SHOW_ROWS=1000
 SHOW_COLS=100
 
 
 # only used for image
+
 RANDOM_TILES="True"                                                                                        # select tiles at random coordinates from image. Done AFTER other quality filtering
 ANNOTATED_TILES="False"                                                                                    # show annotated tiles image in tensorboard (use SCATTERGRAM for larger numbers of tiles. ANNOTATED_TILES generates each tile as a separate subplot and can be very slow and also has a much lower upper limit on the number of tiles it can handle)
 SCATTERGRAM="True"                                                                                         # show scattergram image in tensorboard
@@ -40,6 +43,7 @@ FIGURE_WIDTH=8
 FIGURE_HEIGHT=8
 
 # only used for rna
+
 ENCODER_ACTIVATION="none"                                                                                  # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
 
 
@@ -54,29 +58,30 @@ fi
 
 # 'pre-sets' for the five processing modes
 
-if [[ ${NN_MODE} == "dlbcl_image" ]]; then
-  cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_dlbcl_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py 
-  MAIN_APPLICATION_NAME=trainlenet5.py                                                                      # use trainlenet5.py   for any "images + classes" dataset
-  DATASET_HELPER_APPLICATION_NAME=data.dlbcl_image.generate_image                                          # use generate_images  for any "images + classes" dataset OTHER THAN MNIST
-elif [[ ${NN_MODE} == "pre_compress" ]]; then
-  cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_pre_compress_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py
-  MAIN_APPLICATION_NAME=pre_compress.py                                                                     # use pre_compress.py   for pre-compressing a dataset
-  DATASET_HELPER_APPLICATION_NAME=data.pre_compress.generate                                               # use pre_compress      for pre-compressing a dataset
-elif [[ ${NN_MODE} == "analyse_data" ]]; then
-  cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_analyse_data_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py
+if [[ ${MODE} == "classify" ]]; then
+  #~ cp -f ${BASE_DIR}/${APPLICATION_DIR}/modes/__init__.py_classify_version      ${BASE_DIR}/${APPLICATION_DIR}/modes/__init__.py 
+  MAIN_APPLICATION_NAME=classify.py                                                                        # use classify.py   for any "images + classes" dataset
+  #~ DATASET_HELPER_APPLICATION_NAME=data.classify.generate_image                                             # use generate_images  for any "images + classes" dataset OTHER THAN MNIST
+elif [[ ${MODE} == "pre_compress" ]]; then
+  #~ cp -f ${BASE_DIR}/${APPLICATION_DIR}/modes/__init__.py_pre_compress_version  ${BASE_DIR}/${APPLICATION_DIR}/modes/__init__.py
+  MAIN_APPLICATION_NAME=pre_compress.py                                                                    # use pre_compress.py   for pre-compressing a dataset
+  #~ DATASET_HELPER_APPLICATION_NAME=data.pre_compress.generate                                               # use pre_compress      for pre-compressing a dataset
+elif [[ ${MODE} == "analyse_data" ]]; then
+  #~ cp -f ${BASE_DIR}/${APPLICATION_DIR}/modes/__init__.py_analyse_data_version  ${BASE_DIR}/${APPLICATION_DIR}/modes/__init__.py
   A_D_USE_CUPY='True'                                                                                      # whether or not to use cupy (instead of numpy). cupy is roughly the equivalent of numpy, but supports NVIDIA GPUs
   MAIN_APPLICATION_NAME=analyse_data.py                               
-  DATASET_HELPER_APPLICATION_NAME=data.pre_compress.generate           
-elif [[ ${NN_MODE} == "gtexv6" ]]; then  
-  cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_gtexv6_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py
-elif [[ ${NN_MODE} == "mnist" ]]; then  
+  #~ DATASET_HELPER_APPLICATION_NAME=data.pre_compress.generate           
+elif [[ ${MODE} == "gtexv6" ]]; then  
+  #~ cp -f ${BASE_DIR}/${APPLICATION_DIR}/modes/__init__.py_gtexv6_version        ${BASE_DIR}/${APPLICATION_DIR}/modes/__init__.py
+  MAIN_APPLICATION_NAME=traindpcca.py                                                                      # use traindpcca.py    for the  MNIST "digit images + synthetic classes" dataset  
+elif [[ ${MODE} == "mnist" ]]; then  
   SKIP_GENERATION="True"
-  cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_mnist_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py
+  #~ cp -f ${BASE_DIR}/${APPLICATION_DIR}/modes/__init__.py_mnist_version         ${BASE_DIR}/${APPLICATION_DIR}/modes/__init__.py
   MAIN_APPLICATION_NAME=traindpcca.py                                                                      # use traindpcca.py    for the  MNIST "digit images + synthetic classes" dataset  
   #~ DATASET_HELPER_APPLICATION_NAME=data.mnist.generate                                                   # use generate_mnist   for the  MNIST "digit images + synthetic classes" dataset
-  DATASET_HELPER_APPLICATION_NAME=data.dlbcl_image.generate_image                                          # use generate_images  for any "images + classes" dataset OTHER THAN MNIST    
+  #~ DATASET_HELPER_APPLICATION_NAME=data.classify.generate_image                                             # use generate_images  for any "images + classes" dataset OTHER THAN MNIST    
 else
-  echo "VARIABLES.SH: INFO: no such NN_MODE as '${NN_MODE}'"
+  echo "VARIABLES.SH: INFO: no such MODE as '${MODE}'"
   exit
 fi
 

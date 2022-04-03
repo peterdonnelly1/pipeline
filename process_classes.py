@@ -104,8 +104,8 @@ def main(args):
     sys.exit(0)  
 
 
-  processed_count= 0
-  tested_count   = 0
+  cases_processed_count  = 0
+  cases_reviewed_count   = 0
   
   for row in reader:
 
@@ -115,7 +115,7 @@ def main(args):
     c = 120
     BB="\033[38;2;{:};{:};{:}m".format( a,b,c )
 
-    tested_count += 1
+    cases_reviewed_count += 1
 
     if (DEBUG>8):    
       print ( f"PROCESS_CLASSES:        INFO: row[case_column] = {BLEU}{row[case_column]}{RESET}, row[class_column] = {MIKADO}{row[class_column]}{RESET}", flush=True )
@@ -124,7 +124,7 @@ def main(args):
     true_class  =   row[class_column]
     
     if (DEBUG>9):
-      print ( "PROCESS_CLASSES:        INFO: processed_count   = {:}".format( processed_count ),  flush=True )
+      print ( "PROCESS_CLASSES:        INFO: cases_processed_count   = {:}".format( cases_processed_count ),  flush=True )
       print ( "PROCESS_CLASSES:        INFO: case id                                 = {:}{:}{:}".format( BB, case,  RESET ),  flush=True )
 
     target_dir =  "{:}/{:}*".format(  data_dir,  case  ) 
@@ -149,15 +149,25 @@ def main(args):
           print ( f"PROCESS_CLASSES:        INFO: about to save                            class value {MIKADO}{tissue[0]}{RESET} to file {BLEU}{tissue_npy_file}{RESET}",  flush=True )
         np.save(tissue_npy_file, tissue)
  
-      processed_count+=1
+      cases_processed_count+=1
       all_classes.append(true_class)
 
     if (DEBUG>9):
-      print ( "PROCESS_CLASSES:        INFO: # of mapping file rows examined = \033[1m{:}\033[m".format ( tested_count    ) )
-      print ( "PROCESS_CLASSES:        INFO: # of class files created        = \033[1m{:}\033[m".format ( processed_count ) )
+      print ( "PROCESS_CLASSES:        INFO: # of mapping file rows examined = \033[1m{:}\033[m".format ( cases_reviewed_count    ) )
+      print ( "PROCESS_CLASSES:        INFO: # of class files created        = \033[1m{:}\033[m".format ( cases_processed_count ) )
+  
+    if (DEBUG>0):
+      if cases_reviewed_count % 50==0:
+        print ( f"PROCESS_RNA_EXP:        INFO: {MIKADO}{cases_reviewed_count}{RESET} cases reviewed; class (subtype) labels allocated to {MIKADO}{cases_processed_count}{RESET} RNA-Seq files in the working dataset directory accordingly {RESET}",  flush=True )
+        print ( "\033[2A",  flush=True )
+
+  if (DEBUG>0):
+    print ( "\033[2B",  flush=True )
+  
+
   
   all_classes_unique=sorted(set(all_classes))
-  if (DEBUG>0):    
+  if (DEBUG>2):    
     print ( f"{DIM_WHITE}PROCESS_CLASSES:        INFO: unique subtypes seen in dataset       = {MIKADO}{all_classes_unique}{RESET}   {DIM_WHITE}CAUTION! for a given dataset (e.g. stad), a given subtype may have image examples but not RNA-Seq examples, or vice-versa{RESET}" )
     
   if (DEBUG>99):
@@ -217,7 +227,10 @@ def main(args):
         shutil.rmtree ( current_dir )
 
   if (DEBUG>0):
-    print ( f"{BOLD}{ORANGE}PROCESS_CLASSES:        WARNG: {MIKADO}{cases_without_class_file_count}{RESET}{BOLD}{ORANGE} cases did not obtain a class file. These cases were deleted from the working dataset{RESET}",  flush=True )    
+    if cases_without_class_file_count>0:
+      print ( f"{BOLD}{ORANGE}PROCESS_CLASSES:        WARNG: {MIKADO}{cases_without_class_file_count}{RESET}{BOLD}{ORANGE} cases did not obtain a class file. Those cases have been deleted from the working dataset (but not from the source data directory){RESET}",  flush=True )    
+
+
 
 #====================================================================================================================================================
       
@@ -236,7 +249,7 @@ if __name__ == '__main__':
           
   p = argparse.ArgumentParser()
 
-  p.add_argument('--data_dir',                type=str, default="/home/peter/git/pipeline/dataset"  )
+  p.add_argument('--data_dir',                type=str, default="/home/peter/git/pipeline/working_data"  )
   p.add_argument('--dataset',                 type=str                                              )
   p.add_argument('--global_data',             type=str                                              )  
   p.add_argument('--mapping_file',            type=str, default="./mapping_file"                    )
