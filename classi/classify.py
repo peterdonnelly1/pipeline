@@ -2785,7 +2785,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         print ( f"CLASSI:           INFO:  job_level_classifications_matrix.shape       = {CHARTREUSE}{job_level_classifications_matrix.shape}{RESET}",  flush=True      )
         print ( f"CLASSI:           INFO:  job_level_classifications_matrix             = \n{CHARTREUSE}{job_level_classifications_matrix}{RESET}",  flush=True      )
       
-        df = pd.DataFrame( columns=[ 'Subtype',  'True Positive Count', 'True Negative Count',   '                    ',   'True Negative %', 'True Negative %' ] )
+        df = pd.DataFrame( columns=[ 'Subtype',  'Statistics          ',   'True Positive Count', 'True Negative Count',   '                    ',   'True Negative %', 'True Negative %' ] )
               
       total_predictions = np.sum( job_level_classifications_matrix )
       for i in range ( 0, job_level_classifications_matrix.shape[1] ):                                                                                 # for each row (subtype)
@@ -2827,12 +2827,12 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         class_name = class_names[i][:25]
         row_1_string   = f"{class_name: <30s} Predicted Positive Count"
         row_2_string   = f"{class_name: <30s} Predicted Negative Count"
-        row_3_string   = f"{class_name: <30s}              Total Cases"
-        row_4_string   = f"{class_name: <30s}                Precision"
-        row_5_string   = f"{class_name: <30s}                   Recall"
-        row_6_string   = f"{class_name: <30s}                 F1 Score"
-        row_7_string   = f"{class_name: <30s}                 Accuracy"
-        row_8_string   = f"{class_name: <30s}              Specificity"
+        row_3_string   = f"{class_name: <30s} .............Total Cases"
+        row_4_string   = f"{class_name: <30s} ...............Precision"
+        row_5_string   = f"{class_name: <30s} ..................Recall"
+        row_6_string   = f"{class_name: <30s} ................F1 Score"
+        row_7_string   = f"{class_name: <30s} ................Accuracy"
+        row_8_string   = f"{class_name: <30s} .............Specificity"
       
         
         # ~ df = pd.DataFrame( index=[ 'Actual Positives', 'Actual Negatives', 'blank row' ], columns=[ 'Subtype', 'Predicted Positives', 'Predicted Negatives'] )
@@ -2845,18 +2845,17 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         # ~ df.at['Actual Negatives', 'Predicted Positives'] = false_positives
         # ~ df.at['Actual Negatives', 'Predicted Negatives'] = true_negatives
         
-        df.loc[len(df.index)] = [  row_1_string,          true_positives,         false_positives,         '                    ',                         true_positives_pct,         false_positives_pct  ]
-        df.loc[len(df.index)] = [  row_2_string,          false_negatives,        true_negatives,          '                    ',                         false_negatives_pct,        true_negatives_pct   ]
-        df.loc[len(df.index)] = [  row_3_string,          total,                  '',                      '                    ',                         '',                         ''                   ]
-        df.loc[len(df.index)] = [  row_4_string,          precision,              '',                      '                    ',                         '',                         ''                   ]
-        df.loc[len(df.index)] = [  row_5_string,          recall,                 '',                      '                    ',                         '',                         ''                   ]
-        df.loc[len(df.index)] = [  row_6_string,          F1,                     '',                      '                    ',                         '',                         ''                   ]
-        df.loc[len(df.index)] = [  row_7_string,          accuracy,               '',                      '                    ',                         '',                         ''                   ]
-        df.loc[len(df.index)] = [  row_8_string,          specificity,            '',                      '                    ',                         '',                         ''                   ]
-        df.loc[len(df.index)] = [  '',                    '',                     '',                      '                    ',                         '',                         ''                   ]
-        
-        if DEBUG>0:
-          print(tabulate( df, headers='keys', tablefmt = 'fancy_grid' ) )   
+        df.loc[len(df.index)] = [  row_1_string,     '',                     true_positives,         false_positives,        '                    ',               true_positives_pct,         false_positives_pct   ]
+        df.loc[len(df.index)] = [  row_2_string,     '',                     false_negatives,        true_negatives,         '                    ',               false_negatives_pct,        true_negatives_pct    ]
+        df.loc[len(df.index)] = [  '',               '',                     '',                     '',                     '                    ',               '',                         ''                    ]
+        df.loc[len(df.index)] = [  row_3_string,     total,                  '',                     '',                     '                    ',               '',                         ''                    ]
+        df.loc[len(df.index)] = [  row_4_string,     precision,              '',                     '',                     '                    ',               '',                         ''                    ]
+        df.loc[len(df.index)] = [  row_5_string,     recall,                 '',                     '',                     '                    ',               '',                         ''                    ]
+        df.loc[len(df.index)] = [  row_6_string,     F1,                     '',                     '',                     '                    ',               '',                         ''                    ]
+        df.loc[len(df.index)] = [  row_7_string,     accuracy,               '',                     '',                     '                    ',               '',                         ''                    ]
+        df.loc[len(df.index)] = [  row_8_string,     specificity,            '',                     '',                     '                    ',               '',                         ''                    ]
+        df.loc[len(df.index)] = [  '',               '',                     '',                     '',                     '                    ',               '',                         ''                    ]
+        df.loc[len(df.index)] = [  'Subtype',        'Statistics          ', 'True Positive Count',  'True Negative Count',  '                    ',              'True Negative %',          'True Negative %'      ]
         
         # ~ display( df)
       
@@ -2864,7 +2863,9 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
 
         df.to_csv ( fqn, sep='\t' )
         
-        
+
+      if DEBUG>0:
+        print(tabulate( df, headers='keys', tablefmt = 'fancy_grid' ) )           
         
       
       print ( f"\n" )      
