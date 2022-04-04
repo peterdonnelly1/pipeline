@@ -158,6 +158,9 @@ def main(args):
           print ( f"PROCESS_RNA_EXP:        INFO: {MIKADO}{files_reviewed_count}{RESET} files reviewed, of which {MIKADO}{cumulative_rna_results}{RESET} TCGA format RNA-Seq files found. Numpy versions made and stored for these {MIKADO}{cumulative_rna_results}{RESET} RNA-Seq files{RESET}",  flush=True )
           print ( "\033[2A",  flush=True )
 
+    if (DEBUG>0):                                                                                          # this will show the final count
+      print ( f"PROCESS_RNA_EXP:        INFO: {MIKADO}{files_reviewed_count}{RESET} files reviewed, of which {MIKADO}{cumulative_rna_results}{RESET} TCGA format RNA-Seq files found. Numpy versions made and stored for these {MIKADO}{cumulative_rna_results}{RESET} RNA-Seq files{RESET}",  flush=True )
+      print ( "\033[2A",  flush=True )
 
   if (DEBUG>0):
     print ( "\033[1B",  flush=True )

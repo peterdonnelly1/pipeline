@@ -161,6 +161,10 @@ def main(args):
         print ( f"PROCESS_RNA_EXP:        INFO: {MIKADO}{cases_reviewed_count}{RESET} cases reviewed; class (subtype) labels allocated to {MIKADO}{cases_processed_count}{RESET} RNA-Seq files in the working dataset directory accordingly {RESET}",  flush=True )
         print ( "\033[2A",  flush=True )
 
+  if (DEBUG>0):                                                                                            # this will show the final count
+    print ( f"PROCESS_RNA_EXP:        INFO: {MIKADO}{cases_reviewed_count}{RESET} cases reviewed; class (subtype) labels allocated to {MIKADO}{cases_processed_count}{RESET} RNA-Seq files in the working dataset directory accordingly {RESET}",  flush=True )
+    print ( "\033[2A",  flush=True )
+
   if (DEBUG>0):
     print ( "\033[2B",  flush=True )
   

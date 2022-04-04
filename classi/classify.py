@@ -2785,7 +2785,8 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         print ( f"CLASSI:           INFO:  job_level_classifications_matrix.shape       = {CHARTREUSE}{job_level_classifications_matrix.shape}{RESET}",  flush=True      )
         print ( f"CLASSI:           INFO:  job_level_classifications_matrix             = \n{CHARTREUSE}{job_level_classifications_matrix}{RESET}",  flush=True      )
       
-      
+        df = pd.DataFrame( columns=[ 'Subtype', 'True Positive Count', 'True Negative Count'] )
+              
       total_predictions = np.sum( job_level_classifications_matrix )
       for i in range ( 0, job_level_classifications_matrix.shape[1] ):                                                                                        # for each row (subtype)
 
@@ -2829,23 +2830,31 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         
         # (1) use pandas to save as a csv file
         
-        class_name = class_names[i]
-        df = pd.DataFrame( index=[ 'Actual Positives', 'Actual Negatives', 'blank row' ], columns=[ 'Subtype', 'Predicted Positives', 'Predicted Negatives'] )
+        class_name = class_names[i][:25]
+        row_1_string   = f"{class_name: <30s} Predicted Positive Count"
+        row_2_string   = f"{class_name: <30s} Predicted Negative Count"
+      
+        
+        # ~ df = pd.DataFrame( index=[ 'Actual Positives', 'Actual Negatives', 'blank row' ], columns=[ 'Subtype', 'Predicted Positives', 'Predicted Negatives'] )
 
-        df.at['Actual Positives', 'Subtype'] = class_name
-        df.at['Actual Negatives', 'Subtype'] = class_name
+        # ~ df.at['Actual Positives', 'Subtype'] = class_name
+        # ~ df.at['Actual Negatives', 'Subtype'] = class_name
 
-        df.at['Actual Positives', 'Predicted Positives'] = true_positives
-        df.at['Actual Positives', 'Predicted Negatives'] = false_negatives
-        df.at['Actual Negatives', 'Predicted Positives'] = false_positives
-        df.at['Actual Negatives', 'Predicted Negatives'] = true_negatives
+        # ~ df.at['Actual Positives', 'Predicted Positives'] = true_positives
+        # ~ df.at['Actual Positives', 'Predicted Negatives'] = false_negatives
+        # ~ df.at['Actual Negatives', 'Predicted Positives'] = false_positives
+        # ~ df.at['Actual Negatives', 'Predicted Negatives'] = true_negatives
+        
+        df.loc[len(df.index)] = [  row_1_string,          true_positives,         false_positives ]
+        df.loc[len(df.index)] = [  row_2_string,          false_negatives,        true_negatives ]
+        df.loc[len(df.index)] = [ "",  "",                     "" ]
         
         if DEBUG>0:
           print(tabulate( df, headers='keys', tablefmt = 'fancy_grid' ) )   
         
         # ~ display( df)
       
-        fqn =   fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__individual_confusion_matrices_per_subtype.tsv"
+        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__confusion_matrices_for_each_subtype.tsv"
 
         df.to_csv ( fqn, sep='\t' )
         
