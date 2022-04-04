@@ -2828,12 +2828,12 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         row_1_string   = f"Subtype: {class_name: <30s}"
         row_2_string   = f".                              Predicted Positive Count"
         row_3_string   = f".                              Predicted Negative Count"
-        row_4_string   = f".                                           Total Cases:"
-        row_5_string   = f".                                             Precision:"
-        row_6_string   = f".                                                Recall:"
-        row_7_string   = f".                                              F1 Score:"
-        row_8_string   = f".                                              Accuracy:"
-        row_9_string   = f".                                           Specificity:"
+        row_4_string   = f".                                          Total Cases:"
+        row_5_string   = f".                 Precision              TP / (TP+FP) :"
+        row_6_string   = f".                 Recall                 TP / (TP+FN) :"
+        row_7_string   = f".                 F1 Score            2*P*R / (P + R) :"
+        row_8_string   = f".                 Accuracy    (TP+TN) / (TP+TN+FP+FN) :"
+        row_9_string   = f".                 Specificity            TP / (TN+FP) :"
       
         
         # ~ df = pd.DataFrame( index=[ 'Actual Positives', 'Actual Negatives', 'blank row' ], columns=[ 'Subtype', 'Predicted Positives', 'Predicted Negatives'] )
@@ -2860,7 +2860,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         
         # ~ display( df)
       
-        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__confusion_matrices_for_each_subtype.tsv"
+        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__conf_matrices_per_subtype.tsv"
 
         df.to_csv ( fqn, sep='\t' )
         
