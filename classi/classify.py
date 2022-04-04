@@ -2794,11 +2794,11 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         false_positives = np.sum( job_level_classifications_matrix[ i, : ] )    -  true_positives                                                      # every item in the same the row    minus the diagonal element
         false_negatives = np.sum( job_level_classifications_matrix[ :, i ] )    -  true_positives                                                      # every item in the same the column minus the diagonal element
         true_negatives  = total_predictions - true_positives - false_positives  - false_negatives                                                      # everything else
-        precision       = true_positives / ( true_positives + false_positives )        if ( true_positives + false_positives ) !=0    else 0
-        recall          = true_positives / ( true_positives + false_negatives )        if ( true_positives + false_negatives ) !=0    else 0
-        F1              = ( 2 * precision * recall) / ( precision + recall )           if ( precision + recall               ) !=0    else 0
-        accuracy        = ( true_positives + true_negatives ) / total_predictions      if ( total_predictions                ) !=0    else 0
-        specificity     = true_negatives / ( true_negatives + false_positives )        if ( true_negatives + false_positives ) !=0    else 0
+        precision       = round ( ( true_positives / ( true_positives + false_positives )        if ( true_positives + false_positives ) !=0    else 0 ), 2)
+        recall          = round ( ( true_positives / ( true_positives + false_negatives )        if ( true_positives + false_negatives ) !=0    else 0 ), 2)
+        F1              = round ( ( ( 2 * precision * recall) / ( precision + recall )           if ( precision + recall               ) !=0    else 0 ), 2)
+        accuracy        = round ( ( ( true_positives + true_negatives ) / total_predictions      if ( total_predictions                ) !=0    else 0 ), 2)
+        specificity     = round ( ( true_negatives / ( true_negatives + false_positives )        if ( true_negatives + false_positives ) !=0    else 0 ), 2)
         total           = true_positives + true_negatives + false_positives + false_negatives
 
         true_positives_pct  = round ( (100 * true_positives  / total                            if ( total                            ) !=0    else 0 ), 2)
@@ -2806,7 +2806,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         false_negatives_pct = round ( (100 * false_negatives / total                            if ( total                            ) !=0    else 0 ), 2)
         true_negatives_pct  = round ( (100 * true_negatives  / total                            if ( total                            ) !=0    else 0 ), 2)
 
-        if DEBUG>0:
+        if DEBUG>2:
           print ( f"\n",                                                                                                                                                                          flush=True  ) 
           print ( f"CLASSI:           INFO:  class/subtype name             [{CHARTREUSE}{i}{RESET}] = {COTTON_CANDY}{ class_names[i] }{RESET}",                                                  flush=True  ) 
           print ( f"CLASSI:           INFO:  total predictions              [{CHARTREUSE}{i}{RESET}] = {BLEU}{ total_predictions }{RESET}",                                                       flush=True  ) 
@@ -2828,6 +2828,11 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         row_1_string   = f"{class_name: <30s} Predicted Positive Count"
         row_2_string   = f"{class_name: <30s} Predicted Negative Count"
         row_3_string   = f"{class_name: <30s}              Total Cases"
+        row_4_string   = f"{class_name: <30s}                Precision"
+        row_5_string   = f"{class_name: <30s}                   Recall"
+        row_6_string   = f"{class_name: <30s}                 F1 Score"
+        row_7_string   = f"{class_name: <30s}                 Accuracy"
+        row_8_string   = f"{class_name: <30s}              Specificity"
       
         
         # ~ df = pd.DataFrame( index=[ 'Actual Positives', 'Actual Negatives', 'blank row' ], columns=[ 'Subtype', 'Predicted Positives', 'Predicted Negatives'] )
@@ -2843,6 +2848,11 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         df.loc[len(df.index)] = [  row_1_string,          true_positives,         false_positives,         '                    ',                         true_positives_pct,         false_positives_pct  ]
         df.loc[len(df.index)] = [  row_2_string,          false_negatives,        true_negatives,          '                    ',                         false_negatives_pct,        true_negatives_pct   ]
         df.loc[len(df.index)] = [  row_3_string,          total,                  '',                      '                    ',                         '',                         ''                   ]
+        df.loc[len(df.index)] = [  row_4_string,          precision,              '',                      '                    ',                         '',                         ''                   ]
+        df.loc[len(df.index)] = [  row_5_string,          recall,                 '',                      '                    ',                         '',                         ''                   ]
+        df.loc[len(df.index)] = [  row_6_string,          F1,                     '',                      '                    ',                         '',                         ''                   ]
+        df.loc[len(df.index)] = [  row_7_string,          accuracy,               '',                      '                    ',                         '',                         ''                   ]
+        df.loc[len(df.index)] = [  row_8_string,          specificity,            '',                      '                    ',                         '',                         ''                   ]
         df.loc[len(df.index)] = [  '',                    '',                     '',                      '                    ',                         '',                         ''                   ]
         
         if DEBUG>0:
