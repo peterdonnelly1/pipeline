@@ -543,8 +543,8 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
     print( f"{ORANGE}CLASSI:         CAUTION:   this will definitely cause problems unless the requested subset of cases ({RESET}{ORANGE}'{CYAN}{args.cases}{RESET}{ORANGE}') already exists (in {RESET}{ORANGE}'{CYAN}{args.data_dir}{RESET}{ORANGE}') as a result of a previous run which had {CYAN}-v {'divide_cases'}{RESET}{ORANGE} flag set" )
     print( f"{ORANGE}CLASSI:         CAUTION:   ... NOT halting, but if the program crashes, you'll at least know the likely cause{RESET}" )
       
-  c_m = f"plt.cm.{eval('colour_map')}"                                                                    # the 'eval' is so that the user input string will be treated as a variable
-  class_colors = [ eval(c_m)(i) for i in range(len(class_names))]                                    # makes an array of colours by calling the user defined colour map (which is a function, not a variable)
+  c_m = f"plt.cm.{eval('colour_map')}"                                                                     # the 'eval' is so that the user input string will be treated as a variable
+  class_colors = [ eval(c_m)(i) for i in range(len(class_names))]                                          # makes an array of colours by calling the user defined colour map (which is a function, not a variable)
   if DEBUG>555:
     print (f"CLASSI:         INFO:  class_colors = \n{MIKADO}{class_colors}{RESET}" )
             
@@ -878,7 +878,7 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_pct}_Grey_Pct_{make_g
         
       if toplen < 14:
         descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases[0:10]:_<10s}__{rna_genes_tranche[0:10].upper():_<10s}__{nn_type_rna:_<9s}_{nn_optimizer[0:8]:_<8s}_e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}\
-_bat_{batch_size:03d}_test_{int(100*pct_test):02d}_lr_{lr:<9.6f}_hid_{hidden_layer_neurons:04d}_low_{low_expression_threshold:<02.2e}_low_{cutoff_percentile:<4.0f}_dr_{100*dropout_1:4.1f}_xfrm_{gene_data_transform:_<8s}_shape_{hidden_layer_encoder_topology}"
+_bat_{batch_size:03d}_test_{int(100*pct_test):02d}_lr_{lr:09.6f}_hid_{hidden_layer_neurons:04d}_low_{low_expression_threshold:<02.2e}_low_{cutoff_percentile:04.0f}_dr_{100*dropout_1:4.1f}_xfrm_{gene_data_transform:_<8s}_shape_{hidden_layer_encoder_topology}"
       else:                                                                                                # need to abbreviate everything because the long topology string will make the file name too long and it will crash
         descriptor = f"_RUNS_{total_runs_in_job}_{args.dataset.upper()}_{input_mode.upper():_<3s}_{args.cases[0:6]:_<5s}__{rna_genes_tranche[0:6].upper():_<5s}__{nn_type_rna:_<5s}_{nn_optimizer[0:8]:_<5s}_e_{args.n_epochs}_N_{n_samples}_hicls_{n_classes}\
 _bat_{batch_size:03d}_test_{int(100*pct_test)}_lr_{lr}_hid_{hidden_layer_neurons}_low_{low_expression_threshold}_low_{cutoff_percentile}_dr_{100*dropout_1}_xfrm_{gene_data_transform}_shape_{hidden_layer_encoder_topology}"
@@ -1205,7 +1205,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
 
 
     if input_mode=='image_rna':
-      print( f"{ORANGE}CLASSI:         INFO:   input mode = '{CHARTREUSE}{input_mode}{RESET}{ORANGE}'. concatentated image_rna embeddings will be generated.{RESET}"  )
+      print( f"{ORANGE}CLASSI:         INFO:   input = '{CHARTREUSE}{input_mode}{RESET}{ORANGE}'. Concatentated image_rna embeddings will be generated.{RESET}"  )
 
 
     if clustering!='NONE':
@@ -1556,14 +1556,14 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
     for epoch in range(1, n_epochs+1):
   
         if   args.input_mode=='image':
-          print( f'\nCLASSI:         INFO:  in epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  mode:{MIKADO}{input_mode}{RESET} lr:{MIKADO}{lr:<9.6f}{RESET} samples:{MIKADO}{n_samples}{RESET} batch size:{MIKADO}{batch_size}{RESET} tile size:{MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide:{MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+          print( f'\nCLASSI:         INFO:  in epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  input:{MIKADO}{input_mode}{RESET} lr:{MIKADO}{lr:<9.6f}{RESET} samples:{MIKADO}{n_samples}{RESET} batch size:{MIKADO}{batch_size}{RESET} tile size:{MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide:{MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
         elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
-          print( f'\nCLASSI:         INFO:  in epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  mode:{MIKADO}{input_mode}{RESET} lr:{MIKADO}{lr:<9.6f}{RESET} samples:{MIKADO}{n_samples}{RESET} batch size:{MIKADO}{batch_size}{RESET} hidden layer neurons:{MIKADO}{hidden_layer_neurons}{RESET} embedded dimensions:{MIKADO}{batch_size if args.use_autoencoder_output==True  else "N/A" }{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+          print( f'\nCLASSI:         INFO:  in epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  input:{MIKADO}{input_mode}{RESET} lr:{MIKADO}{lr:<9.6f}{RESET} samples:{MIKADO}{n_samples}{RESET} batch size:{MIKADO}{batch_size}{RESET} hidden layer neurons:{MIKADO}{hidden_layer_neurons}{RESET} embedded dimensions:{MIKADO}{batch_size if args.use_autoencoder_output==True  else "N/A" }{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
         else:
-          print( f'\nCLASSI:         INFO:  in epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  mode:{MIKADO}{input_mode}{RESET} lr:{MIKADO}{lr:<9.6f}{RESET} samples:{MIKADO}{n_samples}{RESET} batch size:{MIKADO}{batch_size}{RESET} tile size:{MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide:{MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+          print( f'\nCLASSI:         INFO:  in epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  input:{MIKADO}{input_mode}{RESET} lr:{MIKADO}{lr:<9.6f}{RESET} samples:{MIKADO}{n_samples}{RESET} batch size:{MIKADO}{batch_size}{RESET} tile size:{MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide:{MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
 
     
-        if just_test=='True':                                                                              # skip trainiNG in 'test mode'
+        if just_test=='True':                                                                              # skip training in 'test mode'
           pass
         
         # DO TRAINING
@@ -3974,7 +3974,7 @@ def segment_cases( pct_test ):
     # (1Cf) Designate 'UNIMODE_CASE____IMAGE_TEST' cases. Go through directories one time. Flag 'PCT_TEST' % of the UNIMODE_CASE IMAGE cases as UNIMODE_CASE____IMAGE_TESTxxx
     #        These cases are used for unimode image testing. Necessary to strictly separated cases in this manner for image mode so that tiles from a single image do not end up in both the training and test sets   
     #        In image mode, tiles allocated to the training set cann't come from an image which is also contributing tiles to the test set. Ditto the reverse.
-    #        This issue does not affect rna mode, where there is only one artefact per case. I.e. when input mode is rna, any rna sample can be allocated to either the training set or test set
+    #        This issue does not affect rna mode, where there is only one artefact per case. I.e. when input is rna, any rna sample can be allocated to either the training set or test set
     #
     #        Strategy: re-designate an appropriate number of the 'UNIMODE_CASE____IMAGE' to be 'UNIMODE_CASE____IMAGE_TEST' (delete the first flag)
   
