@@ -2785,7 +2785,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         print ( f"CLASSI:           INFO:  job_level_classifications_matrix.shape       = {CHARTREUSE}{job_level_classifications_matrix.shape}{RESET}",  flush=True      )
         print ( f"CLASSI:           INFO:  job_level_classifications_matrix             = \n{CHARTREUSE}{job_level_classifications_matrix}{RESET}",  flush=True      )
       
-        df = pd.DataFrame( columns=[ 'Subtype',  'Statistics          ',   'True Positive Count', 'True Negative Count',   '                    ',   'True Negative %', 'True Negative %' ] )
+        df = pd.DataFrame( columns=[ 'Per Subtype Confusion Matrices', '',  '', '',  '',  '', '' ]  )
               
       total_predictions = np.sum( job_level_classifications_matrix )
       for i in range ( 0, job_level_classifications_matrix.shape[1] ):                                                                                 # for each row (subtype)
@@ -2825,14 +2825,15 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         # (1) use pandas to save as a csv file
         
         class_name = class_names[i][:25]
-        row_1_string   = f"{class_name: <30s} Predicted Positive Count"
-        row_2_string   = f"{class_name: <30s} Predicted Negative Count"
-        row_3_string   = f"{class_name: <30s} .............Total Cases"
-        row_4_string   = f"{class_name: <30s} ...............Precision"
-        row_5_string   = f"{class_name: <30s} ..................Recall"
-        row_6_string   = f"{class_name: <30s} ................F1 Score"
-        row_7_string   = f"{class_name: <30s} ................Accuracy"
-        row_8_string   = f"{class_name: <30s} .............Specificity"
+        row_1_string   = f"Subtype: {class_name: <30s}"
+        row_2_string   = f".                              Predicted Positive Count"
+        row_3_string   = f".                              Predicted Negative Count"
+        row_4_string   = f".                                           Total Cases:"
+        row_5_string   = f".                                             Precision:"
+        row_6_string   = f".                                                Recall:"
+        row_7_string   = f".                                              F1 Score:"
+        row_8_string   = f".                                              Accuracy:"
+        row_9_string   = f".                                           Specificity:"
       
         
         # ~ df = pd.DataFrame( index=[ 'Actual Positives', 'Actual Negatives', 'blank row' ], columns=[ 'Subtype', 'Predicted Positives', 'Predicted Negatives'] )
@@ -2844,18 +2845,18 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         # ~ df.at['Actual Positives', 'Predicted Negatives'] = false_negatives
         # ~ df.at['Actual Negatives', 'Predicted Positives'] = false_positives
         # ~ df.at['Actual Negatives', 'Predicted Negatives'] = true_negatives
-        
-        df.loc[len(df.index)] = [  row_1_string,     '',                     true_positives,         false_positives,        '                    ',               true_positives_pct,         false_positives_pct   ]
-        df.loc[len(df.index)] = [  row_2_string,     '',                     false_negatives,        true_negatives,         '                    ',               false_negatives_pct,        true_negatives_pct    ]
-        df.loc[len(df.index)] = [  '',               '',                     '',                     '',                     '                    ',               '',                         ''                    ]
-        df.loc[len(df.index)] = [  row_3_string,     total,                  '',                     '',                     '                    ',               '',                         ''                    ]
-        df.loc[len(df.index)] = [  row_4_string,     precision,              '',                     '',                     '                    ',               '',                         ''                    ]
-        df.loc[len(df.index)] = [  row_5_string,     recall,                 '',                     '',                     '                    ',               '',                         ''                    ]
-        df.loc[len(df.index)] = [  row_6_string,     F1,                     '',                     '',                     '                    ',               '',                         ''                    ]
-        df.loc[len(df.index)] = [  row_7_string,     accuracy,               '',                     '',                     '                    ',               '',                         ''                    ]
-        df.loc[len(df.index)] = [  row_8_string,     specificity,            '',                     '',                     '                    ',               '',                         ''                    ]
-        df.loc[len(df.index)] = [  '',               '',                     '',                     '',                     '                    ',               '',                         ''                    ]
-        df.loc[len(df.index)] = [  'Subtype',        'Statistics          ', 'True Positive Count',  'True Negative Count',  '                    ',              'True Negative %',          'True Negative %'      ]
+
+        df.loc[len(df.index)] = [  row_1_string,     '',                         'True Positive Count',     'True Negative Count',    '                    ',              'True Negative Percent',     'True Negative Percent' ]        
+        df.loc[len(df.index)] = [  row_2_string,     '',                          true_positives,            false_positives,         '                    ',               true_positives_pct,         false_positives_pct     ]
+        df.loc[len(df.index)] = [  row_3_string,     '',                          false_negatives,           true_negatives,          '                    ',               false_negatives_pct,        true_negatives_pct      ]
+        df.loc[len(df.index)] = [  '.',               '--- Statistics ---',       '',                        '',                      '                    ',               '',                         ''                      ]
+        df.loc[len(df.index)] = [  row_4_string,     total,                       '',                        '',                      '                    ',               '',                         ''                      ]
+        df.loc[len(df.index)] = [  row_5_string,     precision,                   '',                        '',                      '                    ',               '',                         ''                      ]
+        df.loc[len(df.index)] = [  row_6_string,     recall,                      '',                        '',                      '                    ',               '',                         ''                      ]
+        df.loc[len(df.index)] = [  row_7_string,     F1,                          '',                        '',                      '                    ',               '',                         ''                      ]
+        df.loc[len(df.index)] = [  row_8_string,     accuracy,                    '',                        '',                      '                    ',               '',                         ''                      ]
+        df.loc[len(df.index)] = [  row_9_string,     specificity,                 '',                        '',                      '                    ',               '',                         ''                      ]
+        df.loc[len(df.index)] = [  '.',               '',                         '',                        '',                      '                    ',               '',                         ''                      ]
         
         # ~ display( df)
       
@@ -5274,7 +5275,9 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
   bp      = plt.boxplot( pct_correct_predictions_plane, labels=labels, vert=True, patch_artist=True, showfliers=True,  medianprops=dict(color="black", alpha=alpha_hard), boxprops=box_props, whiskerprops=line_props, capprops=cap_props, flierprops=flier_props )
 
   ax.annotate( f"Total predictions made {np.sum(all_predictions_plane):,}; of which correct: {np.sum(correct_predictions_plane):,} ({100*np.sum(correct_predictions_plane)/np.sum(all_predictions_plane):.1f}%)",
-                   xy= (0.08,  0.2),    xycoords='figure fraction',  horizontalalignment='left', color='dimgray', fontsize=12  ) 
+                   xy= (0.08,  0.2),  xycoords='figure fraction',  horizontalalignment='left', color='dimgray', fontsize=12  ) 
+  ax.annotate( f"Subtypes for which accuracy >80% = {np.sum(median_pct_correct_predictions_by_subtype >= 80)}",
+                   xy= (0.55,  0.2),  xycoords='figure fraction',  horizontalalignment='left',   color='dimgray', fontsize=12 )
   ax.annotate( f"Subtypes for which accuracy >90% = {np.sum(median_pct_correct_predictions_by_subtype >= 90)}",
                    xy= (0.77,  0.2),  xycoords='figure fraction',  horizontalalignment='left',   color='dimgray', fontsize=12 )
 
@@ -5397,6 +5400,8 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
 
   ax.annotate( f"Total predictions made {np.sum(all_predictions_plane):,}; of which correct: {np.sum(correct_predictions_plane):,} ({100*np.sum(correct_predictions_plane)/np.sum(all_predictions_plane):.1f}%)",
                    xy= (0.01,  0.02),    xycoords='figure fraction',  horizontalalignment='left', color='dimgray', fontsize=15  ) 
+  ax.annotate( f"Subtypes for which accuracy >80% = {np.sum(median_pct_correct_predictions_by_subtype >= 80)}",
+                   xy= (0.50,  0.02),  xycoords='figure fraction',  horizontalalignment='left',   color='dimgray', fontsize=15 )
   ax.annotate( f"Subtypes for which accuracy >90% = {np.sum(median_pct_correct_predictions_by_subtype >= 90)}",
                    xy= (0.75,  0.02),  xycoords='figure fraction',  horizontalalignment='left',   color='dimgray', fontsize=15 )
   plt.xlabel (  'subtypes correctly predicted (%)', weight='bold', fontsize=font_big   )
