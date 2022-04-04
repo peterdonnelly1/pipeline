@@ -2785,20 +2785,26 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         print ( f"CLASSI:           INFO:  job_level_classifications_matrix.shape       = {CHARTREUSE}{job_level_classifications_matrix.shape}{RESET}",  flush=True      )
         print ( f"CLASSI:           INFO:  job_level_classifications_matrix             = \n{CHARTREUSE}{job_level_classifications_matrix}{RESET}",  flush=True      )
       
-        df = pd.DataFrame( columns=[ 'Subtype', 'True Positive Count', 'True Negative Count'] )
+        df = pd.DataFrame( columns=[ 'Subtype',  'True Positive Count', 'True Negative Count',   '                    ',   'True Negative %', 'True Negative %' ] )
               
       total_predictions = np.sum( job_level_classifications_matrix )
-      for i in range ( 0, job_level_classifications_matrix.shape[1] ):                                                                                        # for each row (subtype)
+      for i in range ( 0, job_level_classifications_matrix.shape[1] ):                                                                                 # for each row (subtype)
 
-        true_positives  = float(        job_level_classifications_matrix[ i, i ]                          )                                                   # the element on the diagonal
-        false_positives = float(np.sum( job_level_classifications_matrix[ i, : ] ) -  true_positives      )                                                   # every item in the same the row    minus the diagonal element
-        false_negatives = float(np.sum( job_level_classifications_matrix[ :, i ] ) -  true_positives      )                                                   # every item in the same the column minus the diagonal element
-        true_negatives  = float(total_predictions - true_positives - false_positives - false_negatives    )                                                   # everything else
+        true_positives  =         job_level_classifications_matrix[ i, i ]                                                                             # the element on the diagonal
+        false_positives = np.sum( job_level_classifications_matrix[ i, : ] )    -  true_positives                                                      # every item in the same the row    minus the diagonal element
+        false_negatives = np.sum( job_level_classifications_matrix[ :, i ] )    -  true_positives                                                      # every item in the same the column minus the diagonal element
+        true_negatives  = total_predictions - true_positives - false_positives  - false_negatives                                                      # everything else
         precision       = true_positives / ( true_positives + false_positives )        if ( true_positives + false_positives ) !=0    else 0
         recall          = true_positives / ( true_positives + false_negatives )        if ( true_positives + false_negatives ) !=0    else 0
         F1              = ( 2 * precision * recall) / ( precision + recall )           if ( precision + recall               ) !=0    else 0
         accuracy        = ( true_positives + true_negatives ) / total_predictions      if ( total_predictions                ) !=0    else 0
         specificity     = true_negatives / ( true_negatives + false_positives )        if ( true_negatives + false_positives ) !=0    else 0
+        total           = true_positives + true_negatives + false_positives + false_negatives
+
+        true_positives_pct  = round ( (100 * true_positives  / total                            if ( total                            ) !=0    else 0 ), 2)
+        false_positives_pct = round ( (100 * false_positives / total                            if ( total                            ) !=0    else 0 ), 2)
+        false_negatives_pct = round ( (100 * false_negatives / total                            if ( total                            ) !=0    else 0 ), 2)
+        true_negatives_pct  = round ( (100 * true_negatives  / total                            if ( total                            ) !=0    else 0 ), 2)
 
         if DEBUG>0:
           print ( f"\n",                                                                                                                                                                          flush=True  ) 
@@ -2808,31 +2814,20 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
           print ( f"CLASSI:           INFO:  true  negatives                [{CHARTREUSE}{i}{RESET}] = {CHARTREUSE}{  true_negatives  }{RESET}",                                                  flush=True  ) 
           print ( f"CLASSI:           INFO:  false positives                [{CHARTREUSE}{i}{RESET}] = {CHARTREUSE}{  false_positives }{RESET}",                                                  flush=True  ) 
           print ( f"CLASSI:           INFO:  false negatives                [{CHARTREUSE}{i}{RESET}] = {CHARTREUSE}{  false_negatives }{RESET}",                                                  flush=True  ) 
-          print ( f"CLASSI:           INFO:  checksum                       [{CHARTREUSE}{i}{RESET}] = {BLEU}{  true_positives + true_negatives + false_positives + false_negatives }{RESET}",    flush=True  ) 
+          print ( f"CLASSI:           INFO:  checksum                       [{CHARTREUSE}{i}{RESET}] = {BLEU}{  total }{RESET}",                                                                  flush=True  ) 
           print ( f"CLASSI:           INFO:  {BOLD}precision{RESET}         [{CHARTREUSE}{i}{RESET}] = {COQUELICOT}{ precision    :.3f}{RESET}",                                                  flush=True  ) 
           print ( f"CLASSI:           INFO:  {BOLD}recall{RESET}            [{CHARTREUSE}{i}{RESET}] = {COQUELICOT}{ recall       :.3f}{RESET}",                                                  flush=True  ) 
           print ( f"CLASSI:           INFO:  {BOLD}accuracy{RESET}          [{CHARTREUSE}{i}{RESET}] = {COQUELICOT}{ accuracy     :.3f}{RESET}",                                                  flush=True  ) 
           print ( f"CLASSI:           INFO:  {BOLD}specificity{RESET}       [{CHARTREUSE}{i}{RESET}] = {COQUELICOT}{ specificity  :.3f}{RESET}",                                                  flush=True  ) 
           print ( f"CLASSI:           INFO:  {BOLD}F1{RESET}                [{CHARTREUSE}{i}{RESET}] = {COQUELICOT}{ F1           :.3f}{RESET}",                                                  flush=True  ) 
 
-        if DEBUG>999:
-          print ( f"\n",                                                                                                                                                                          flush=True  ) 
-          print ( f"CLASSI:           INFO:  true_positives    [{ARYLIDE}{i}{RESET}] = {ARYLIDE}{ type(true_positives)  }{RESET}",                                                                flush=True  ) 
-          print ( f"CLASSI:           INFO:  true_negatives    [{ARYLIDE}{i}{RESET}] = {ARYLIDE}{ type(true_negatives)  }{RESET}",                                                                flush=True  ) 
-          print ( f"CLASSI:           INFO:  false_positives   [{ARYLIDE}{i}{RESET}] = {ARYLIDE}{ type(false_positives) }{RESET}",                                                                flush=True  ) 
-          print ( f"CLASSI:           INFO:  false_negatives   [{ARYLIDE}{i}{RESET}] = {ARYLIDE}{ type(false_negatives) }{RESET}",                                                                flush=True  ) 
-          print ( f"CLASSI:           INFO:  precision         [{ARYLIDE}{i}{RESET}] = {ARYLIDE}{ type(precision)       }{RESET}",                                                                flush=True  ) 
-          print ( f"CLASSI:           INFO:  recall            [{ARYLIDE}{i}{RESET}] = {ARYLIDE}{ type(recall)          }{RESET}",                                                                flush=True  ) 
-          print ( f"CLASSI:           INFO:  accuracy          [{ARYLIDE}{i}{RESET}] = {ARYLIDE}{ type(accuracy)        }{RESET}",                                                                flush=True  ) 
-          print ( f"CLASSI:           INFO:  specificity       [{ARYLIDE}{i}{RESET}] = {ARYLIDE}{ type(specificity)     }{RESET}",                                                                flush=True  ) 
-          print ( f"CLASSI:           INFO:  F1                [{ARYLIDE}{i}{RESET}] = {ARYLIDE}{ type(F1)              }{RESET}",                                                                flush=True  ) 
-        
         
         # (1) use pandas to save as a csv file
         
         class_name = class_names[i][:25]
         row_1_string   = f"{class_name: <30s} Predicted Positive Count"
         row_2_string   = f"{class_name: <30s} Predicted Negative Count"
+        row_3_string   = f"{class_name: <30s}              Total Cases"
       
         
         # ~ df = pd.DataFrame( index=[ 'Actual Positives', 'Actual Negatives', 'blank row' ], columns=[ 'Subtype', 'Predicted Positives', 'Predicted Negatives'] )
@@ -2845,9 +2840,10 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         # ~ df.at['Actual Negatives', 'Predicted Positives'] = false_positives
         # ~ df.at['Actual Negatives', 'Predicted Negatives'] = true_negatives
         
-        df.loc[len(df.index)] = [  row_1_string,          true_positives,         false_positives ]
-        df.loc[len(df.index)] = [  row_2_string,          false_negatives,        true_negatives ]
-        df.loc[len(df.index)] = [ "",  "",                     "" ]
+        df.loc[len(df.index)] = [  row_1_string,          true_positives,         false_positives,         '                    ',                         true_positives_pct,         false_positives_pct  ]
+        df.loc[len(df.index)] = [  row_2_string,          false_negatives,        true_negatives,          '                    ',                         false_negatives_pct,        true_negatives_pct   ]
+        df.loc[len(df.index)] = [  row_3_string,          total,                  '',                      '                    ',                         '',                         ''                   ]
+        df.loc[len(df.index)] = [  '',                    '',                     '',                      '                    ',                         '',                         ''                   ]
         
         if DEBUG>0:
           print(tabulate( df, headers='keys', tablefmt = 'fancy_grid' ) )   
