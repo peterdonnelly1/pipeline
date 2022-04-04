@@ -2794,11 +2794,11 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         false_positives = np.sum( job_level_classifications_matrix[ i, : ] )    -  true_positives                                                      # every item in the same the row    minus the diagonal element
         false_negatives = np.sum( job_level_classifications_matrix[ :, i ] )    -  true_positives                                                      # every item in the same the column minus the diagonal element
         true_negatives  = total_predictions - true_positives - false_positives  - false_negatives                                                      # everything else
-        precision       = round ( ( true_positives / ( true_positives + false_positives )        if ( true_positives + false_positives ) !=0    else 0 ), 2)
-        recall          = round ( ( true_positives / ( true_positives + false_negatives )        if ( true_positives + false_negatives ) !=0    else 0 ), 2)
-        F1              = round ( ( ( 2 * precision * recall) / ( precision + recall )           if ( precision + recall               ) !=0    else 0 ), 2)
-        accuracy        = round ( ( ( true_positives + true_negatives ) / total_predictions      if ( total_predictions                ) !=0    else 0 ), 2)
-        specificity     = round ( ( true_negatives / ( true_negatives + false_positives )        if ( true_negatives + false_positives ) !=0    else 0 ), 2)
+        precision       = round ( ( true_positives / ( true_positives + false_positives )        if ( true_positives + false_positives ) !=0    else 0 ), 3)
+        recall          = round ( ( true_positives / ( true_positives + false_negatives )        if ( true_positives + false_negatives ) !=0    else 0 ), 3)
+        F1              = round ( ( ( 2 * precision * recall) / ( precision + recall )           if ( precision + recall               ) !=0    else 0 ), 3)
+        accuracy        = round ( ( ( true_positives + true_negatives ) / total_predictions      if ( total_predictions                ) !=0    else 0 ), 3)
+        specificity     = round ( ( true_negatives / ( true_negatives + false_positives )        if ( true_negatives + false_positives ) !=0    else 0 ), 3)
         total           = true_positives + true_negatives + false_positives + false_negatives
 
         true_positives_pct  = round ( (100 * true_positives  / total                            if ( total                            ) !=0    else 0 ), 2)
