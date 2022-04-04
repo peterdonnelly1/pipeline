@@ -234,7 +234,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   hidden_layer_neurons          = args.hidden_layer_neurons
   low_expression_threshold      = args.low_expression_threshold
   cutoff_percentile             = args.cutoff_percentile
-  embedding_dimensions                = args.embedding_dimensions
+  embedding_dimensions          = args.embedding_dimensions
   hidden_layer_encoder_topology = args.hidden_layer_encoder_topology
   dropout_1                     = args.nn_dense_dropout_1
   dropout_2                     = args.nn_dense_dropout_2
@@ -547,9 +547,7 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
   class_colors = [ eval(c_m)(i) for i in range(len(class_names))]                                          # makes an array of colours by calling the user defined colour map (which is a function, not a variable)
   if DEBUG>555:
     print (f"CLASSI:         INFO:  class_colors = \n{MIKADO}{class_colors}{RESET}" )
-            
-  
-  pplog.set_logfiles( log_dir )
+
 
   if ( input_mode=='image' ): 
     if 1 in batch_size:
@@ -860,8 +858,8 @@ f"\
 
     
     if input_mode=='image':
-      descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases:_<10s}_{args.dataset}_{nn_type_img:_<9s}_{nn_optimizer:_<8}_e_{args.n_epochs:03d}_samps_{n_samples:04d}_tiles_{n_tiles:04d}_hi_cls_{n_classes:02d}\
-_tlsz_{tile_size:03d}__mags_{mags}__probs_{prob}_bat_{batch_size:03d}_test_{int(100*pct_test):02d}_lr_{lr:09.6f}"
+      descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases:_<10s}_{args.dataset}_{nn_type_img:_<9s}_{nn_optimizer:_<8}_e_{args.n_epochs:03d}_samps_{n_samples:04d}\
+_tiles_{n_tiles:04d}_hi_cls_{n_classes:02d}_tlsz_{tile_size:03d}__mags_{mags}__probs_{prob}_bat_{batch_size:03d}_test_{int(100*pct_test):02d}_lr_{lr:09.6f}"
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}  Tiles/Slide={n_tiles:d}   Tile size={tile_size:d}x{tile_size:d}\n\
 Magnif'n vector={mags}   Stain Norm={stain_norm}   Peer Noise Pct={peer_noise_pct}   Grey Scale Pct={make_grey_pct}   Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:<09.6f}   Selected from cases subset: {args.cases[0:50]}"
@@ -871,17 +869,21 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_pct}_Grey_Pct_{make_g
 
 
     else:
-      toplen = len( f"{hidden_layer_encoder_topology}" )
+      topology_length = len( f"{hidden_layer_encoder_topology}" )
       if DEBUG>999:
         print ( f"-------------------------------------------------------------------------------------------------------------> {hidden_layer_encoder_topology}" ) 
-        print ( f"-------------------------------------------------------------------------------------------------------------> {toplen}"                        ) 
-        
-      if toplen < 14:
-        descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases[0:10]:_<10s}__{rna_genes_tranche[0:10].upper():_<10s}__{nn_type_rna:_<9s}_{nn_optimizer[0:8]:_<8s}_e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}\
-_bat_{batch_size:03d}_test_{int(100*pct_test):02d}_lr_{lr:09.6f}_hid_{hidden_layer_neurons:04d}_low_{low_expression_threshold:<02.2e}_low_{cutoff_percentile:04.0f}_dr_{100*dropout_1:4.1f}_xfrm_{gene_data_transform:_<8s}_shape_{hidden_layer_encoder_topology}"
+        print ( f"-------------------------------------------------------------------------------------------------------------> {topology_length}"                        ) 
+    
+      topology_as_whitespace_free_string = '-'.join(map(str, hidden_layer_encoder_topology))
+     
+      if topology_length < 14:
+        descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases[0:10]:_<10s}__{rna_genes_tranche[0:10].upper():_<10s}__{nn_type_rna:_<9s}_{nn_optimizer[0:8]:_<8s}\
+_e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:03d}_test_{int(100*pct_test):02d}_lr_{lr:09.6f}_hid_{hidden_layer_neurons:04d}_low_{low_expression_threshold:<02.2e}_low_{cutoff_percentile:04.0f}\
+_dr_{100*dropout_1:4.1f}_xfrm_{gene_data_transform:_<8s}_shape_{topology_as_whitespace_free_string}"
       else:                                                                                                # need to abbreviate everything because the long topology string will make the file name too long and it will crash
-        descriptor = f"_RUNS_{total_runs_in_job}_{args.dataset.upper()}_{input_mode.upper():_<3s}_{args.cases[0:6]:_<5s}__{rna_genes_tranche[0:6].upper():_<5s}__{nn_type_rna:_<5s}_{nn_optimizer[0:8]:_<5s}_e_{args.n_epochs}_N_{n_samples}_hicls_{n_classes}\
-_bat_{batch_size:03d}_test_{int(100*pct_test)}_lr_{lr}_hid_{hidden_layer_neurons}_low_{low_expression_threshold}_low_{cutoff_percentile}_dr_{100*dropout_1}_xfrm_{gene_data_transform}_shape_{hidden_layer_encoder_topology}"
+        descriptor = f"_RUNS_{total_runs_in_job}_{args.dataset.upper()}_{input_mode.upper():_<3s}_{args.cases[0:6]:_<5s}__{rna_genes_tranche[0:6].upper():_<5s}__{nn_type_rna:_<5s}_{nn_optimizer[0:8]:_<5s}\
+_e_{args.n_epochs}_N_{n_samples}_hicls_{n_classes}_bat_{batch_size:03d}_test_{int(100*pct_test)}_lr_{lr}_hid_{hidden_layer_neurons}_low_{low_expression_threshold}_low_{cutoff_percentile}_dr_{100*dropout_1}\
+_xfrm_{gene_data_transform}_shape_{topology_as_whitespace_free_string}"
 
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={n_classes:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}\n\
@@ -896,7 +898,8 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         # ~ n_samples = int(pct_test * n_samples )
 
 
-    now              = datetime.datetime.now()    
+    now  = datetime.datetime.now()    
+    pplog.set_logfiles( log_dir, descriptor, now )
     pplog.log_section(f"run = {now:%y-%m-%d %H:%M}   parameters = {descriptor}")
     pplog.log_section(f"      zoom_out_mags = {zoom_out_mags}")
     pplog.log_section(f"      zoom_out_prob = {zoom_out_prob}")
@@ -5497,7 +5500,7 @@ def show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, pan
   if level=='job':
 
     now              = datetime.datetime.now()
-    fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__conf_matrix.csv"
+    fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__conf_matrix_job.csv"
 
     try:
       pandas_version.to_csv( fqn, sep='\t' )
@@ -5508,7 +5511,7 @@ def show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, pan
       print ( f"{RED}CLASSI:         FATAL:     error was: {e}{RESET}" )
       sys.exit(0)    
     
-    fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__conf_matrix_ext.csv"
+    fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__conf_matrix_Job_ext.csv"
     try:
       pandas_version_ext.to_csv( fqn, sep='\t' )
       if DEBUG>0:

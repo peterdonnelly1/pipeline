@@ -19,13 +19,13 @@ DIRECTORY   = None
 
 # ------------------------------------------------------------------------------
 
-def set_logfiles(directory, level=logging.INFO):
+def set_logfiles(directory, descriptor, now, level=logging.INFO):
     """Function setup as many loggers as you want.
     """
     global DIRECTORY
     DIRECTORY = directory
 
-    handler = logging.FileHandler(f'{directory}/log.txt')
+    handler = logging.FileHandler(f'{directory}/{now:%y%m%d_%H%M}_{descriptor}_run_log.txt')
     logger = logging.getLogger(MAIN_LOGGER)
     logger.setLevel(level)
     logger.addHandler(handler)
