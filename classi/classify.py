@@ -29,6 +29,7 @@ import matplotlib.gridspec   as gridspec
 # ~ from matplotlib import rc
 # ~ rc('text', usetex=True)
 
+from   IPython.display              import display
 from   pathlib                      import Path
 from   random                       import randint
 from   matplotlib.colors            import ListedColormap
@@ -2786,12 +2787,12 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
       
       
       total_predictions = np.sum( job_level_classifications_matrix )
-      for i in range ( 0, job_level_classifications_matrix.shape[1] ):                                           # for each row (subtype)
+      for i in range ( 0, job_level_classifications_matrix.shape[1] ):                                                                                        # for each row (subtype)
 
-        true_positives  = float(        job_level_classifications_matrix[ i, i ]                          )      # the element on the diagonal
-        false_positives = float(np.sum( job_level_classifications_matrix[ i, : ] ) -  true_positives      )      # every item in the same the row    minus the diagonal element
-        false_negatives = float(np.sum( job_level_classifications_matrix[ :, i ] ) -  true_positives      )      # every item in the same the column minus the diagonal element
-        true_negatives  = float(total_predictions - true_positives - false_positives - false_negatives    )      # everything else
+        true_positives  = float(        job_level_classifications_matrix[ i, i ]                          )                                                   # the element on the diagonal
+        false_positives = float(np.sum( job_level_classifications_matrix[ i, : ] ) -  true_positives      )                                                   # every item in the same the row    minus the diagonal element
+        false_negatives = float(np.sum( job_level_classifications_matrix[ :, i ] ) -  true_positives      )                                                   # every item in the same the column minus the diagonal element
+        true_negatives  = float(total_predictions - true_positives - false_positives - false_negatives    )                                                   # everything else
         precision       = true_positives / ( true_positives + false_positives )        if ( true_positives + false_positives ) !=0    else 0
         recall          = true_positives / ( true_positives + false_negatives )        if ( true_positives + false_negatives ) !=0    else 0
         F1              = ( 2 * precision * recall) / ( precision + recall )           if ( precision + recall               ) !=0    else 0
@@ -2800,7 +2801,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
 
         if DEBUG>0:
           print ( f"\n",                                                                                                                                                                          flush=True  ) 
-          print ( f"CLASSI:           INFO:  class /subtype name            [{CHARTREUSE}{i}{RESET}] = {COTTON_CANDY}{ class_names[i] }{RESET}",                                                  flush=True  ) 
+          print ( f"CLASSI:           INFO:  class/subtype name             [{CHARTREUSE}{i}{RESET}] = {COTTON_CANDY}{ class_names[i] }{RESET}",                                                  flush=True  ) 
           print ( f"CLASSI:           INFO:  total predictions              [{CHARTREUSE}{i}{RESET}] = {BLEU}{ total_predictions }{RESET}",                                                       flush=True  ) 
           print ( f"CLASSI:           INFO:  true  positives                [{CHARTREUSE}{i}{RESET}] = {CHARTREUSE}{  true_positives  }{RESET}",                                                  flush=True  ) 
           print ( f"CLASSI:           INFO:  true  negatives                [{CHARTREUSE}{i}{RESET}] = {CHARTREUSE}{  true_negatives  }{RESET}",                                                  flush=True  ) 
@@ -2825,6 +2826,32 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
           print ( f"CLASSI:           INFO:  specificity       [{ARYLIDE}{i}{RESET}] = {ARYLIDE}{ type(specificity)     }{RESET}",                                                                flush=True  ) 
           print ( f"CLASSI:           INFO:  F1                [{ARYLIDE}{i}{RESET}] = {ARYLIDE}{ type(F1)              }{RESET}",                                                                flush=True  ) 
         
+        
+        # (1) use pandas to save as a csv file
+        
+        class_name = class_names[i]
+        df = pd.DataFrame( index=[ 'Actual Positives', 'Actual Negatives', 'blank row' ], columns=[ 'Subtype', 'Predicted Positives', 'Predicted Negatives'] )
+
+        df.at['Actual Positives', 'Subtype'] = class_name
+        df.at['Actual Negatives', 'Subtype'] = class_name
+
+        df.at['Actual Positives', 'Predicted Positives'] = true_positives
+        df.at['Actual Positives', 'Predicted Negatives'] = false_negatives
+        df.at['Actual Negatives', 'Predicted Positives'] = false_positives
+        df.at['Actual Negatives', 'Predicted Negatives'] = true_negatives
+        
+        if DEBUG>0:
+          print(tabulate( df, headers='keys', tablefmt = 'fancy_grid' ) )   
+        
+        # ~ display( df)
+      
+        fqn =   fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__individual_confusion_matrices_per_subtype.tsv"
+
+        df.to_csv ( fqn, sep='\t' )
+        
+        
+        
+      
       print ( f"\n" )      
       
 
@@ -5520,7 +5547,8 @@ if __name__ == '__main__':
   
   if DEBUG>0:
     print ( f"{BLEU}{sys.argv[1:]}{RESET}" );
-    
+  
+  # using this to handle booleans in user parms, which argparse doesn't support
   def str2bool(v):
       if isinstance(v, bool):
           return v
@@ -5533,24 +5561,24 @@ if __name__ == '__main__':
 
   p = argparse.ArgumentParser()
 
-  p.add_argument('--repeat',                                                        type=int,   default=1                                       )
-  p.add_argument('--skip_tiling',                                                   type=str,   default='False'                                 )                                
-  p.add_argument('--skip_generation',                                               type=str,   default='False'                                 )                                
-  p.add_argument('--pretrain',                                                      type=str,   default='False'                                 )                                
-  p.add_argument('--log_dir',                                                       type=str,   default='logs'                                  )                
-  p.add_argument('--base_dir',                                                      type=str,   default='/home/peter/git/pipeline'              )
-  p.add_argument('--application_dir',                                               type=str,   default='/home/peter/git/pipeline/classi'       )
-  p.add_argument('--data_dir',                                                      type=str,   default='/home/peter/git/pipeline/working_data' )     
-  p.add_argument('--save_model_name',                                               type=str,   default='model.pt'                              )                             
-  p.add_argument('--save_model_every',                                              type=int,   default=10                                      )                                     
-  p.add_argument('--rna_file_name',                                                 type=str,   default='rna.npy'                               )                              
-  p.add_argument('--rna_file_suffix',                                               type=str,   default='*FPKM-UQ.txt'                          )                        
+  p.add_argument('--repeat',                                                        type=int,    default=1                                       )
+  p.add_argument('--skip_tiling',                                                   type=str,    default='False'                                 )                                
+  p.add_argument('--skip_generation',                                               type=str,    default='False'                                 )                                
+  p.add_argument('--pretrain',                                                      type=str,    default='False'                                 )                                
+  p.add_argument('--log_dir',                                                       type=str,    default='logs'                                  )                
+  p.add_argument('--base_dir',                                                      type=str,    default='/home/peter/git/pipeline'              )
+  p.add_argument('--application_dir',                                               type=str,    default='/home/peter/git/pipeline/classi'       )
+  p.add_argument('--data_dir',                                                      type=str,    default='/home/peter/git/pipeline/working_data' )     
+  p.add_argument('--save_model_name',                                               type=str,    default='model.pt'                              )                             
+  p.add_argument('--save_model_every',                                              type=int,    default=10                                      )                                     
+  p.add_argument('--rna_file_name',                                                 type=str,    default='rna.npy'                               )                              
+  p.add_argument('--rna_file_suffix',                                               type=str,    default='*FPKM-UQ.txt'                          )                        
   p.add_argument('--embedding_file_suffix_rna',                                     type=str                                                    )                        
   p.add_argument('--embedding_file_suffix_image',                                   type=str                                                    )                        
   p.add_argument('--embedding_file_suffix_image_rna',                               type=str                                                    )                        
-  p.add_argument('--rna_file_reduced_suffix',                                       type=str,   default='_reduced'                              )                             
+  p.add_argument('--rna_file_reduced_suffix',                                       type=str,    default='_reduced'                              )                             
   p.add_argument('--use_unfiltered_data',                                           type=str2bool, nargs='?', const=True, default=True, help="If true, don't filter the genes, but rather use all of them"     )
-  p.add_argument('--class_numpy_file_name',                                         type=str,   default='class.npy'                             )                            
+  p.add_argument('--class_numpy_file_name',                                         type=str,    default='class.npy'                             )                            
   p.add_argument('--wall_time',                                                     type=int,    default=24                                     )
   p.add_argument('--seed',                                                          type=int,    default=0                                      )
   p.add_argument('--mode',                                                          type=str,    default='classify'                             )
