@@ -214,55 +214,54 @@ i=1
 
 for EMBEDDING_DIMENSIONS in "2000"
 
-do
-
-  echo "CUDA_TSNE_MULTI_RUN.SH:  run number           = "${i}     "                                   <<< dataset generation and tiling (if input==image) are performed on the first run only"
-  echo "CUDA_TSNE_MULTI_RUN.SH:  EMBEDDING_DIMENSIONS = "${EMBEDDING_DIMENSIONS} "for this run"
-      
-  if [[ ${i} -eq 1 ]]
+  do
   
-    then 
-      
-      rm logs/lowest_loss_ae_model.pt > /dev/null 2>&1
-      
-      # training (first time)
-      echo "CUDA_TSNE_MULTI_RUN.SH:  training (first time)"
-      echo 
-  
-     ./do_all.sh  -n pre_compress  -d ${DATASET}  -i ${INPUT_MODE}  -S ${N_SAMPLES}  -o ${N_EPOCHS}  -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b ${BATCH_SIZE}       -1 ${PCT_TEST___TRAIN}        -s False       \
--X ${SKIP_RNA_PREPROCESSING}  -g False   -j False   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -E ${EMBEDDING_DIMENSIONS}  -v ${DIVIDE_CASES}  -A ${AE_ADD_NOISE}  -c ${CASES}   \
--3 ${PEER_NOISE_PCT} -4 ${MAKE_GREY_PCT} -u False  -I ${USE_UNFILTERED_DATA} -D ${TARGET_GENES_REFERENCE_FILE_NAME} -r ${REGEN}
- 
-    else
-
-      # training (subsequent times)
-      echo "CUDA_TSNE_MULTI_RUN.SH:  run = "${i} " tiling (iff image) and generation will be skipped"
-     rm logs/lowest_loss_ae_model.pt
-    ./do_all.sh  -n pre_compress  -d ${DATASET}  -i ${INPUT_MODE}   -S ${N_SAMPLES}  -o ${N_EPOCHS} -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b ${BATCH_SIZE}       -1 ${PCT_TEST___TRAIN}         -s True        \
--X ${SKIP_RNA_PREPROCESSING}  -g True   -j False   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -E ${EMBEDDING_DIMENSIONS}   -A ${AE_ADD_NOISE}  -c ${CASES}                      \
--3 ${PEER_NOISE_PCT} -4 ${MAKE_GREY_PCT} -u False   -I ${USE_UNFILTERED_DATA} -D ${TARGET_GENES_REFERENCE_FILE_NAME}
-
-  fi
+    echo "CUDA_TSNE_MULTI_RUN.SH:  run number = ${i}    TRAINING "                                         # dataset generation and tiling (if input==image) are performed on the first run only
+    echo "CUDA_TSNE_MULTI_RUN.SH:  EMBEDDING_DIMENSIONS = ${EMBEDDING_DIMENSIONS}"
+        
+    if [[ ${i} -eq 1 ]]
     
-  rm logs/ae_output_features.pt
+      then 
+        
+        rm logs/lowest_loss_ae_model.pt > /dev/null 2>&1
+        
+        # training (first time)
+        echo "CUDA_TSNE_MULTI_RUN.SH:  training (first time)"
+    
+       ./do_all.sh  -n pre_compress  -d ${DATASET}  -i ${INPUT_MODE}      -S ${N_SAMPLES}   -o ${N_EPOCHS}      -f ${TILES_PER_IMAGE}     -T ${TILE_SIZE}             -b ${BATCH_SIZE}       -1 ${PCT_TEST___TRAIN}      -s False    \
+                    -X ${SKIP_RNA_PREPROCESSING}    -g False              -j False          -a ${NN_TYPE_IMG}   -z ${NN_TYPE_RNA}         -E ${EMBEDDING_DIMENSIONS}  -A ${AE_ADD_NOISE}     -c ${CASES}                                \
+                    -3 ${PEER_NOISE_PCT}            -4 ${MAKE_GREY_PCT}   -u False          -r ${REGEN}         -v ${DIVIDE_CASES}    
+   
+      else
   
-  echo ""
-  echo ""
-  echo "CUDA_TSNE_MULTI_RUN.SH:  generate embeddings using best model produced and saved during training (test mode is invoked by ' -j True' user option)"
+        # training (subsequent times)
+        echo "CUDA_TSNE_MULTI_RUN.SH:  run = "${i} " tiling (iff image) and generation will be skipped"
+       rm logs/lowest_loss_ae_model.pt
+      ./do_all.sh  -n pre_compress   -d ${DATASET}  -i ${INPUT_MODE}      -S ${N_SAMPLES}   -o ${N_EPOCHS}      -f ${TILES_PER_IMAGE}     -T ${TILE_SIZE}             -b ${BATCH_SIZE}       -1 ${PCT_TEST___TRAIN}      -s True     \
+                   -X ${SKIP_RNA_PREPROCESSING}     -g True               -j False          -a ${NN_TYPE_IMG}   -z ${NN_TYPE_RNA}         -E ${EMBEDDING_DIMENSIONS}  -A ${AE_ADD_NOISE}     -c ${CASES}                                                    \
+                   -3 ${PEER_NOISE_PCT}             -4 ${MAKE_GREY_PCT}   -u False          -r False
   
-  ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}   -S ${N_SAMPLES}  -o ${N_EPOCHS_TEST} -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b ${BATCH_SIZE_TEST}  -1 ${PCT_TEST___JUST_TEST}  -s True        \
--X True  -g True  -j True   -n pre_compress     -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -E ${EMBEDDING_DIMENSIONS} -A False -u True  -c ${CASES} 
+    fi
+      
+    rm logs/ae_output_features.pt
   
+    echo ""
+    echo ""
+    echo "CUDA_TSNE_MULTI_RUN.SH:  generate embeddings using best model produced and saved during training (test mode is invoked by ' -j True' user option)"
+    
+      ./do_all.sh  -n pre_compress   -d ${DATASET}  -i ${INPUT_MODE}      -S ${N_SAMPLES}   -o ${N_EPOCHS_TEST}  -f ${TILES_PER_IMAGE}    -T ${TILE_SIZE}             -b ${BATCH_SIZE_TEST}  -1 ${PCT_TEST___JUST_TEST}  -s True    \
+                   -X True                          -g True               -j True           -a ${NN_TYPE_IMG}    -z ${NN_TYPE_RNA}        -E ${EMBEDDING_DIMENSIONS}  -A False               -c ${CASES}                                   \
+                   -3 ${PEER_NOISE_PCT}             -4 ${MAKE_GREY_PCT}   -u True           -r False
 
-  # cluster and display
-  ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}   -a ${NN_TYPE_IMG}  -E ${EMBEDDING_DIMENSIONS} -t 5000  -s True  -g True  -n classify  -c ${CASES}  -l cuda_tsne  -p "1 2 3 7 10 20 30 70 100"  \
--G ${SUPERGRID_SIZE} -P ${PRETRAIN}
-
-  i=$((i+1))  
   
-done
+    # cluster and display
+    ./do_all.sh    -n classify       -d ${DATASET}  -i ${INPUT_MODE}      -E ${EMBEDDING_DIMENSIONS}  -t 5000  -s True  -g True    -c ${CASES}  -l cuda_tsne  -p "1 2 3 7 10 20 30 70 100"   \
+                   -G ${SUPERGRID_SIZE} -P ${PRETRAIN}
+  
+    i=$((i+1))  
+    
+  done
 
 
 echo -en "\007"; sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
-
 
