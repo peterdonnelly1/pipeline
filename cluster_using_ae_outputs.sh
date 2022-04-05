@@ -209,7 +209,7 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:H:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:Q:
   
 source conf/variables.sh
   
-# The SKIP_TRAINING and JUST_CLUSTER flags are used to control this script per user inputs. They aren't passed into any programs.
+# The SKIP_TRAINING and JUST_CLUSTER flags are used to allow user to control this script. They aren't passed into any programs.
 
 
 if [[ ${JUST_CLUSTER} != "True" ]]                                                                         # Skip Autoencoder training and testing if if JUST_CLUSTER flag is true                                                
@@ -226,22 +226,23 @@ if [[ ${JUST_CLUSTER} != "True" ]]                                              
       
       ./do_all.sh  -n pre_compress   -d ${DATASET}                -i ${INPUT_MODE}      -S ${N_SAMPLES}               -o ${N_EPOCHS}          -f ${TILES_PER_IMAGE}    -T ${TILE_SIZE}       -b ${BATCH_SIZE}           \
                                      -1 ${PCT_TEST___TRAIN}       -s ${SKIP_TILING}     -X ${SKIP_RNA_PREPROCESSING}  -g ${SKIP_GENERATION}   -j False                 -a ${NN_TYPE_IMG}     -z ${NN_TYPE_RNA}          \
-                                     -E ${EMBEDDING_DIMENSIONS}   -A ${AE_ADD_NOISE}    -3 ${PEER_NOISE_PCT}          -4 ${MAKE_GREY_PCT}     -u False                -v ${DIVIDE_CASES}
+                                     -E ${EMBEDDING_DIMENSIONS}   -A ${AE_ADD_NOISE}    -3 ${PEER_NOISE_PCT}          -4 ${MAKE_GREY_PCT}     -u False                 -v ${DIVIDE_CASES}
       
       sleep 0.2; echo -en "\007";
   
   fi
 
      
-  # Pushes feature vectors produced during training (this file MUST exist) through the best model produced during training
-  # Key glags: -u True means "USE_AUTOENCODER_OUTPUT" and -j True means "JUST_TEST"
+  # Pushes feature vectors produced during training (the feature vector file MUST exist) through the best model produced during training
+  # Key flags: -u True means "USE_AUTOENCODER_OUTPUT"   (that is: the embeddings we just generated and not raw inputs)
+  #            -j True means "JUST_TEST"                (that is: use only held out test examples and pushe them through the optimised/saved model produced during training)
    
       rm logs/ae_output_features.pt  > /dev/null 2>&1
  
       ./do_all.sh  -n pre_compress   -d ${DATASET}                -i ${INPUT_MODE}      -S ${N_SAMPLES}               -o ${N_EPOCHS_TEST}     -f ${TILES_PER_IMAGE}    -T ${TILE_SIZE}       -b ${BATCH_SIZE_TEST}      \
                                      -1 ${PCT_TEST___JUST_TEST}   -s True               -X True                       -g True                 -j True                  -a ${NN_TYPE_IMG}     -z ${NN_TYPE_RNA}          \
-                                     -E ${EMBEDDING_DIMENSIONS}   -A False
-       -u True
+                                     -E ${EMBEDDING_DIMENSIONS}   -A False                                                                    -u True
+
 
 sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
 

@@ -576,7 +576,9 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
               if DEBUG>9:
                 print ( f"{WHITE}GENERATE:       INFO: global_image_rna_files_processed = {MIKADO}{global_image_rna_files_processed}{RESET}",  flush=True )
                 print ( f"{DIM_WHITE}GENERATE:       INFO: n_samples                  = {CYAN}{n_samples}{RESET}",                             flush=True )
-      
+
+
+
           
   if ( input_mode=='rna' ):
        
@@ -1035,7 +1037,7 @@ def generate_rna_dataset ( args, class_names, target, cases_required, highest_cl
               print ( f"{RED}CLASSI:         FATAL: '{e}'{RESET}" )
               print ( f"{RED}CLASSI:         FATAL:  explanation: expected a numpy file named {MAGENTA}{args.class_numpy_file_name}{RESET}{RED} containing the current sample's class number in this location: {MAGENTA}{label_file}{RESET}{RED}{RESET}" )
               print ( f"{RED}CLASSI:         FATAL:  remedy 1: probably no {MAGENTA}{args.class_numpy_file_name}{RESET}{RED} files exist. Use '{CYAN}./do_all.sh rna <cancer code> {RESET}{RED}' to regenerate them{RESET}" ) 
-              print ( f"{RED}CLASSI:         FATAL:  remedy 2: if that doesn't work, use '{CYAN}./do_all.sh rna <cancer code> regen{RESET}{RED}'. This will regenerate every file in the working dataset from respective sources (note: it can take a long time so try remedy one first){RESET}" )                                    
+              print ( f"{RED}CLASSI:         FATAL:  remedy 2: if that doesn't work, use '{CYAN}./do_all.sh rna <cancer code> -r True{RESET}{RED}'. This will regenerate every file in the working dataset from respective sources (note: it can take a long time so try remedy one first){RESET}" )                                    
               print ( f"{RED}CLASSI:         FATAL:  remedy 3: this error can also occur if the user specified mapping file (currently filename: '{CYAN}{args.mapping_file_name}{RESET}{RED}') doesn't exist in '{CYAN}{args.global_data}{RESET}{RED}', because without it, no class files can be generated'{RESET}" )                                    
               print ( f"{RED}CLASSI:         FATAL:  cannot continue - halting now{RESET}" )                 
               sys.exit(0)     

@@ -7,6 +7,7 @@ import os
 import sys
 import csv
 import glob
+import time
 import random
 import fnmatch
 import shutil
@@ -118,6 +119,22 @@ def main(args):
   if (DEBUG>0):
     print ( "\033[2B",  flush=True )
   
+  if cases_processed_count==0:
+    print ( f"{RED}CLASSI:        FATAL:  no cases at all were successfully processed{RESET}" )
+    print ( f"{RED}CLASSI:        FATAL:  possible cause: perhaps you changed to a different cancer type but did not regenerate the dataset?{RESET}" )
+    print ( f"{RED}CLASSI:        FATAL:                  if so, use the {CYAN}-r {RESET}{RED}option ('{CYAN}REGEN{RESET}{RED}') to force the dataset to be regenerated into the working directory{RESET}" )
+    print ( f"{RED}CLASSI:        FATAL:                  e.g. '{CYAN}./do_all.sh -d <cancer type code> -i image ... {CHARTREUSE}-r True{RESET}{RED}'{RESET}\n\n" )
+    time.sleep(10)                                    
+    sys.exit(0)   
+  
+  if len(all_classes)==0:
+    print ( f"{RED}CLASSI:        FATAL:  no classes (subtypes) cases at all were seen when processing the cases{RESET}" )
+    print ( f"{RED}CLASSI:        FATAL:  possible cause: perhaps you changed to a different cancer type but did not regenerate the dataset?{RESET}" )
+    print ( f"{RED}CLASSI:        FATAL:                  if so, use the {CYAN}-r {RESET}{RED}option ('{CYAN}REGEN{RESET}{RED}') to force the dataset to be regenerated into the working directory{RESET}" )
+    print ( f"{RED}CLASSI:        FATAL:                  e.g. '{CYAN}./do_all.sh -d <cancer type code> -i image ... {CHARTREUSE}-r True{RESET}{RED}'{RESET}\n\n" )
+    time.sleep(10)                                    
+    sys.exit(0)
+  
   
   all_classes_unique=sorted(set(all_classes))
   if (DEBUG>2):    
@@ -131,11 +148,13 @@ def main(args):
   as_integers = [int(i) for i in all_classes_unique]
   as_integers_sorted = sorted( as_integers )
   
+
   if (DEBUG>99):
     print ( f"{as_integers_sorted}"   )
     print ( f"{ min (as_integers) }"  )
     print ( f"{ max(as_integers)+1 }" )
     print ( f"{range(min(as_integers), max(as_integers)+1)}" )
+
   
   IsConsecutive= (sorted(as_integers) == list(range(min(as_integers), max(as_integers)+1)))
   if (DEBUG>0):

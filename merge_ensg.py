@@ -85,11 +85,11 @@ def main( args ):
   data_dir                    = args.data_dir
 
 
-  # convert to pandas dataframe, then pickle and save for possible use with analyse_data
-  
+  # convert to pandas dataframe, then pickle and save for possible use with analyse_data  
 
   ensg_reference_file_name = f"{data_dir}/ENSG_UCSC_biomart_ENS_id_to_gene_name_table"
   ensg_reference_file_save_name = f"{data_dir}/ENSG_UCSC_biomart_ENS_id_to_gene_name_table_normalized"  
+
   if DEBUG>0:  
     print ( f"P_C_GENERATE:       INFO:      loading ensg_reference_file_name (containing ENSG-> gene name mapping) from {MAGENTA}{ensg_reference_file_name}{RESET}", flush=True )      
   df_map = pd.read_csv( ensg_reference_file_name, sep='\t' )
