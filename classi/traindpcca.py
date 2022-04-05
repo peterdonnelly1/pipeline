@@ -59,7 +59,7 @@ def main(args):
     print("TRAINDPCCJ:     Torchvision version = {:}".format( torchvision.__version__ )  )
 
     start_time = time.time()
-    pprint.set_logfiles( args.log_dir, descriptor )
+    pprint.set_logfiles( args.log_dir, descriptor, now )
 
     torch.cuda.empty_cache()                # PGD 200128 - for CUDA memory optimizations
     torch.backends.cudnn.benchmark = True   # PGD 200128 - for CUDA memory optimizations

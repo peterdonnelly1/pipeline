@@ -20,56 +20,7 @@ import argparse
 import numpy  as np
 import pandas as pd
 
-WHITE           ='\033[37;1m'
-PURPLE          ='\033[35;1m'
-DIM_WHITE       ='\033[37;2m'
-CYAN            ='\033[36;1m'
-PALE_RED        ='\033[31m'
-PALE_GREEN      ='\033[32m'
-AUREOLIN        ='\033[38;2;253;238;0m'
-DULL_WHITE      ='\033[38;2;140;140;140m'
-MIKADO          ='\033[38;2;255;196;12m'
-AZURE           ='\033[38;2;0;127;255m'
-AMETHYST        ='\033[38;2;153;102;204m'
-ASPARAGUS       ='\033[38;2;135;169;107m'
-CHARTREUSE      ='\033[38;2;223;255;0m'
-COQUELICOT      ='\033[38;2;255;56;0m'
-COTTON_CANDY    ='\033[38;2;255;188;217m'
-HOT_PINK        ='\033[38;2;255;105;180m'
-CAMEL           ='\033[38;2;193;154;107m'
-MAGENTA         ='\033[38;2;255;0;255m'
-YELLOW          ='\033[38;2;255;255;0m'
-DULL_YELLOW     ='\033[38;2;179;179;0m'
-ARYLIDE         ='\033[38;2;233;214;107m'
-BLEU            ='\033[38;2;49;140;231m'
-DULL_BLUE       ='\033[38;2;0;102;204m'
-RED             ='\033[38;2;255;0;0m'
-PINK            ='\033[38;2;255;192;203m'
-BITTER_SWEET    ='\033[38;2;254;111;94m'
-DARK_RED        ='\033[38;2;120;0;0m'
-ORANGE          ='\033[38;2;255;103;0m'
-PALE_ORANGE     ='\033[38;2;127;63;0m'
-GOLD            ='\033[38;2;255;215;0m'
-GREEN           ='\033[38;2;19;136;8m'
-BRIGHT_GREEN    ='\033[38;2;102;255;0m'
-CARRIBEAN_GREEN ='\033[38;2;0;204;153m'
-GREY_BACKGROUND ='\033[48;2;60;60;60m'
-
-
-BOLD='\033[1m'
-ITALICS='\033[3m'
-UNDER='\033[4m'
-BLINK='\033[5m'
-RESET='\033[m'
-
-CLEAR_LINE='\033[0K'
-UP_ARROW='\u25B2'
-DOWN_ARROW='\u25BC'
-SAVE_CURSOR='\033[s'
-RESTORE_CURSOR='\033[u'
-
-FAIL    = 0
-SUCCESS = 1
+from classi.constants  import *
 
 DEBUG   = 1
 
@@ -108,7 +59,7 @@ def main(args):
     print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: '{CYAN}use_unfiltered_data{RESET}{ORANGE}' flag = {MIKADO}{use_unfiltered_data}{RESET}{ORANGE}. No gene filtering will be performed, and '{MAGENTA}_reduced{RESET}{ORANGE}' files will NOT be generated. {RESET}" )
     return
   else:
-    print( f"{ORANGE}{BOLD}REDUCE_FPKM_UQ_FILES:   INFO: '{CYAN}{BOLD}use_unfiltered_data{RESET}{ORANGE}{BOLD}' flag = {MIKADO}{use_unfiltered_data}{RESET}{ORANGE}{BOLD}, so filtering will be performed{RESET}{ORANGE}{BOLD} and '{MAGENTA}{BOLD}_reduced{RESET}{ORANGE}{BOLD}' files generated in the working dataset {RESET}" )    
+    print( f"{CHARTREUSE}{BOLD}REDUCE_FPKM_UQ_FILES:   INFO: '{CYAN}{BOLD}use_unfiltered_data{RESET}{CHARTREUSE}{BOLD}' flag = {MIKADO}{use_unfiltered_data}{RESET}{CHARTREUSE}{BOLD}, so filtering will be performed{RESET}{CHARTREUSE}{BOLD} and '{MAGENTA}{BOLD}_reduced{RESET}{CHARTREUSE}{BOLD}' files will be generated and saved to the working dataset {RESET}" )    
 
 
   if (DEBUG>99):
@@ -339,10 +290,13 @@ def reduce_genes( args, target_genes_reference_file ):
 
 
       if (DEBUG>0):
-        if cases_processed_count % 50==0:
-          print ( f"REDUCE_FPKM_UQ_FILES:   INFO: {MIKADO}{cases_processed_count}{RESET} cases (RNA-Seq files) processed and filtered versions saved. Filtering takes a minute or two per thousand cases depending on how many/fast CPUs there are",  flush=True )
+        if cases_processed_count % 25==0:
+          print ( f"REDUCE_FPKM_UQ_FILES:   INFO: {MIKADO}{cases_processed_count}{RESET} cases (RNA-Seq files) processed and filtered versions saved. Filtering takes a minute or two per thousand cases depending on how many/fast CPUs",  flush=True )
           print ( "\033[2A",  flush=True )
 
+  if (DEBUG>0):                                                                                          # this will show the final count
+    print ( f"{CLEAR_LINE}REDUCE_FPKM_UQ_FILES:   INFO: {MIKADO}{cases_processed_count}{RESET} cases (RNA-Seq files) processed and filtered versions saved",  flush=True )
+    print ( "\033[2A",  flush=True )
 
   if (DEBUG>0):
     print ( "\033[1B",  flush=True )

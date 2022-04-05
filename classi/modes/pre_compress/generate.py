@@ -70,7 +70,7 @@ SAVE_CURSOR='\033[s'
 RESTORE_CURSOR='\033[u'
 
 SUCCESS=1
-DEBUG=1
+DEBUG=10
 
 def generate( args, n_samples, highest_class_number, multimode_case_count, unimode_case_count, not_a_multimode_case_count, not_a_multimode_case____image_count, not_a_multimode_case____image_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform ):
 
@@ -654,7 +654,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
             
               try:
                 image_rna_embedding = np.load( image_rna_file )
-                if DEBUG>9:
+                if DEBUG>99:
                   print ( f"P_C_GENERATE:   INFO:         image_rna_embedding.shape       =  '{MIKADO}{image_rna_embedding.shape}{RESET}' "      )
                   print ( f"P_C_GENERATE:   INFO:         genes_new.shape =  '{MIKADO}{genes_new.shape}{RESET}' ")
                 if DEBUG>999:
@@ -832,11 +832,11 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
           f = open( fqn, 'r' )
           designated_case_count+=1
           use_this_case_flag=True
-          if DEBUG>2:
+          if DEBUG>10:
             print ( f"{PALE_GREEN}P_C_GENERATE:   INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[132C is a {BITTER_SWEET}designated {RESET}{PALE_GREEN} case (designated_case_count = {designated_case_count}{RESET}",  flush=True )
         except Exception:
           not_designated_case_count+=1
-          if DEBUG>3:
+          if DEBUG>10:
             print ( f"{DARK_RED}P_C_GENERATE:   INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{DARK_RED} \r\033[132C is NOT    a {BITTER_SWEET}designated {RESET}{DARK_RED} case (not_designated_case_count = {not_designated_case_count}{RESET})",  flush=True )
 
 
@@ -858,7 +858,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
               final_chars               = no_special_chars_version[-6:]
               int_version               = int( final_chars, 16)
                   
-              if DEBUG>5:
+              if DEBUG>10:
                 print (f"P_C_GENERATE:   INFO:              fully qualified case directory = '{MAGENTA}{fqcd}{RESET}'" )
                 print (f"P_C_GENERATE:   INFO:                                    dir_path = '{MAGENTA}{dir_path}{RESET}'" )
                 print (f"P_C_GENERATE:   INFO:                                  parent_dir = '{MAGENTA}{parent_dir}{RESET}'" )
@@ -878,7 +878,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
                 else:
                   pass
         
-              if DEBUG>5:
+              if DEBUG>10:
                 print( f"P_C_GENERATE:   INFO:                            rna_file_link_id =  {MAGENTA}{rna_file_link_id}{RESET}" )
                 print( f"P_C_GENERATE:   INFO:                          rna_file_link_name = '{MAGENTA}{rna_file_link_name}{RESET}'" )
                 print( f"P_C_GENERATE:   INFO:                                        fqln = '{MAGENTA}{fqln}{RESET}'" )
@@ -906,7 +906,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
   
               # set up the pytorch array
             
-              if DEBUG>8:
+              if DEBUG>10:
                 print ( f"{DIM_WHITE}P_C_GENERATE:   INFO:  file                         = {BLEU}{f}{RESET}", flush=True )
 
 # THIS IS DIFFERENT TO THE DLBCL VERSION, BECAUSE WE ALWAYS WANT TO GENERATE A PYTORCH DICTIONARY IN THE CASE OF PRECOMPRESS     
@@ -918,7 +918,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
           
               try:
                 rna = np.load( rna_file )
-                if DEBUG>9:
+                if DEBUG>99:
                   print ( f"P_C_GENERATE:   INFO:         rna.shape       =  '{MIKADO}{rna.shape}{RESET}' "      )
                   print ( f"P_C_GENERATE:   INFO:         genes_new.shape =  '{MIKADO}{genes_new.shape}{RESET}' ")
                 if DEBUG>999:
@@ -974,7 +974,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
                 if DEBUG>99:
                   print ( "P_C_GENERATE:   INFO:         label.shape =  \"{:}\"".format(  label.shape) )
                   print ( "P_C_GENERATE:   INFO:         label       =  \"{:}\"".format(  label      ) )
-                if DEBUG>2:
+                if DEBUG>10:
                   print ( f"{label[0]},", end='', flush=True )
                 if label[0]>highest_class_number:
                   if DEBUG>1:
@@ -1059,7 +1059,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
   if ( input_mode=='rna' )  | ( input_mode=='image_rna'):
  
  
- # THIS IS DIFFERENT TO THE DLBCL VERSION - WE ARE SAVING A COPY OF THE ENTIRE GENES DATASET FOR USE IN reduce_FPKM_UQ and in analyse_data
+ # THIS IS DIFFERENT TO THE CLASSIFY VERSION - WE ARE SAVING A COPY OF THE ENTIRE GENES DATASET FOR USE IN reduce_FPKM_UQ and in analyse_data
  
     # convert to pandas dataframe, then pickle and save for possible use with analyse_data
      
@@ -1074,7 +1074,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
     if DEBUG>9:
       print ( f"P_C_GENERATE:   INFO:       len(ensg_reference.shape) = {MAGENTA}{len(ensg_reference)}{RESET}", flush=True ) 
       print ( f"P_C_GENERATE:   INFO:       df.shape = {MAGENTA}{df.shape}{RESET}", flush=True )   
-    if DEBUG>99:
+    if DEBUG>9:
       print (df)
     
     # save a pickled pandas version

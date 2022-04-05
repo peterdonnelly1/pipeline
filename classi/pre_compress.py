@@ -109,15 +109,15 @@ def main( args ):
 
   if ( 'AE' in args.nn_type_img[0] ) | ( 'AE' in args.nn_type_rna[0] ): 
     if args.just_test!='True':
-      print( f"PRE_COMPRESS:   INFO: {RED}{BRIGHT}AUTOENCODER WORKING HAS BEEN ENABLED FOR THIS TRAINING RUN{RESET}. Output dimensions ('Embedding') = {BOLD}{CHARTREUSE}{args.embedding_dimensions[0]}{WHITE}   {RED}{BRIGHT}LOWEST LOSS MODEL WILL BE SAVED AS {CYAN}logs/lowest_loss_ae_model.pt{RESET}" )
+      print( f"PRE_COMPRESS:   INFO: {RED}{BOLD}AUTOENCODER WORKING HAS BEEN ENABLED FOR THIS TRAINING RUN{RESET}. Output dimensions ('Embedding') = {BOLD}{CHARTREUSE}{args.embedding_dimensions[0]}{WHITE}   {RED}{BOLD}LOWEST LOSS MODEL WILL BE SAVED AS {CYAN}logs/lowest_loss_ae_model.pt{RESET}" )
     else:
-      print( f"PRE_COMPRESS:   INFO: {RED}{BRIGHT}ABOUT TO GENERATE EMBEDDINGS USING BEST MODEL PRODUCED AND SAVED DURING TRAINING{RESET}.  Output dimensions ('Embedding') = {BOLD}{CHARTREUSE}{args.embedding_dimensions[0]}{WHITE}.  EMBEDDINGS FROM {CYAN}ae_output_features.pt{RESET} WILL BE USED AS INPUT RATHER THAN IMAGE TILES OR RNA_SEQ VECTORS{RESET}" )
+      print( f"PRE_COMPRESS:   INFO: {RED}{BOLD}ABOUT TO GENERATE EMBEDDINGS USING BEST MODEL PRODUCED AND SAVED DURING TRAINING{RESET}.  Output dimensions ('Embedding') = {BOLD}{CHARTREUSE}{args.embedding_dimensions[0]}{WHITE}.  EMBEDDINGS FROM {CYAN}ae_output_features.pt{RESET} WILL BE USED AS INPUT RATHER THAN IMAGE TILES OR RNA_SEQ VECTORS{RESET}" )
 
     if args.ae_add_noise=='True':
-      print( f"PRE_COMPRESS:   INFO: CAUTION! {RED}{BRIGHT}NOISE ADDITION HAS BEEN ENABLED FOR THIS TRAINING RUN{RESET}      (flag {CYAN}'AE_USE_NOISE'{RESET}={CYAN}{args.ae_add_noise}{RESET})" )
+      print( f"PRE_COMPRESS:   INFO: CAUTION! {RED}{BOLD}NOISE ADDITION HAS BEEN ENABLED FOR THIS TRAINING RUN{RESET}      (flag {CYAN}'AE_USE_NOISE'{RESET}={CYAN}{args.ae_add_noise}{RESET})" )
 
     if args.peer_noise_pct>0.0:
-      print( f"PRE_COMPRESS:   INFO: CAUTION! {RED}{BRIGHT}ADD PEER NOISE{RESET} IS ACTIVE!; DURING AUTOENCODING, IN TRAINING MODE (ONLY), EACH TILE WILL RECEIVE {MIKADO}{args.peer_noise_pct * 100:3.0f}%{RESET} NOISE FROM ANOTHER RANDONLY SELECTED TILE{RESET}" )  
+      print( f"PRE_COMPRESS:   INFO: CAUTION! {RED}{BOLD}ADD PEER NOISE{RESET} IS ACTIVE!; DURING AUTOENCODING, IN TRAINING MODE (ONLY), EACH TILE WILL RECEIVE {MIKADO}{args.peer_noise_pct * 100:3.0f}%{RESET} NOISE FROM ANOTHER RANDONLY SELECTED TILE{RESET}" )  
         
 
 # THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 
@@ -246,7 +246,6 @@ g_xform={WHITE}{ORANGE        if not args.gene_data_transform[0]=='NONE' else MA
   class_names                   = args.class_names
   cancer_type                   = args.cancer_type
   cancer_type_long              = args.cancer_type_long    
-  long_class_names              = args.long_class_names  
   class_colours                 = args.class_colours
   colour_map                    = args.colour_map
   input_mode                    = args.input_mode
@@ -389,7 +388,7 @@ g_xform={WHITE}{ORANGE        if not args.gene_data_transform[0]=='NONE' else MA
 
     # ~ if args.use_autoencoder_output!=True:
       # ~ if n_epochs>1:
-        # ~ print( f"{BRIGHT}{ORANGE}PRE_COMPRESS:   INFO:  CAUTION! 'just_test'  flag is set, so n_epochs (currently {MIKADO}{n_epochs}{RESET}{ORANGE}) has been set to {MIKADO}1{RESET}{ORANGE} for this job{RESET}" ) 
+        # ~ print( f"{BOLD}{ORANGE}PRE_COMPRESS:   INFO:  CAUTION! 'just_test'  flag is set, so n_epochs (currently {MIKADO}{n_epochs}{RESET}{ORANGE}) has been set to {MIKADO}1{RESET}{ORANGE} for this job{RESET}" ) 
         # ~ n_epochs=1
     # ~ else:
       # ~ pass
@@ -545,7 +544,7 @@ f"\
         sys.exit(0)        
  
  
-    if use_unfiltered_data==True:
+    if args.use_unfiltered_data==True:
       rna_genes_tranche="all_ENSG_genes_including_non_coding_genes"
     else:
       rna_genes_tranche=os.path.basename(target_genes_reference_file)    
@@ -637,7 +636,7 @@ f"\
           pass          # no need to re-tile                                                              
         else:           # must re-tile
           if DEBUG>0:
-            print( f"PRE_COMPRESS:     INFO:{BRIGHT}1 about to launch tiling processes{RESET}" )
+            print( f"PRE_COMPRESS:     INFO:{BOLD}1 about to launch tiling processes{RESET}" )
           if DEBUG>1:
             print( f"PRE_COMPRESS:     INFO:    stain normalization method = {CYAN}{stain_norm}{RESET}" )
           delete_selected( data_dir, "png" )
@@ -652,7 +651,7 @@ f"\
             norm_method='NONE'
           else:                                                                                          # we are going to stain normalize ...
             if DEBUG>0:
-              print( f"PRE_COMPRESS:       INFO: {BRIGHT}about to set up stain normalization target{RESET}" )
+              print( f"PRE_COMPRESS:       INFO: {BOLD}about to set up stain normalization target{RESET}" )
             if stain_norm_target.endswith(".svs"):                                                       # ... then grab the user provided target
               norm_method = tiler_set_target( args, n_tiles, tile_size, stain_norm, stain_norm_target, writer )
             else:                                                                                        # ... and there MUST be a target
@@ -1941,6 +1940,7 @@ if __name__ == '__main__':
   p.add_argument('--skip_generation',                                               type=str,   default='False'                                 )                                
   p.add_argument('--log_dir',                                                       type=str,   default='logs'                                  )                
   p.add_argument('--base_dir',                                                      type=str,   default='/home/peter/git/pipeline'              )
+  p.add_argument('--application_dir',                                               type=str,   default='/home/peter/git/pipeline/classi'       )
   p.add_argument('--data_dir',                                                      type=str,   default='/home/peter/git/pipeline/working_data' )     
   p.add_argument('--save_model_name',                                               type=str,   default='model.pt'                              )                             
   p.add_argument('--save_model_every',                                              type=int,   default=10                                      )                                     
@@ -1954,7 +1954,7 @@ if __name__ == '__main__':
   p.add_argument('--class_numpy_file_name',                                         type=str,   default='class.npy'                             )                            
   p.add_argument('--wall_time',                                                     type=int,    default=24                                     )
   p.add_argument('--seed',                                                          type=int,    default=0                                      )
-  p.add_argument('--mode',                                                       type=str,    default='pre_compress'                         )
+  p.add_argument('--mode',                                                          type=str,    default='pre_compress'                         )
   p.add_argument('--use_same_seed',                                                 type=str,    default='False'                                )
   p.add_argument('--nn_type_img',                                       nargs="+",  type=str,    default='VGG11'                                )
   p.add_argument('--nn_type_rna',                                       nargs="+",  type=str,    default='DENSE'                                )
@@ -2013,7 +2013,6 @@ if __name__ == '__main__':
   p.add_argument('--cancer_type',                                                   type=str,   default='NONE'                                  )                 
   p.add_argument('--cancer_type_long',                                              type=str,   default='NONE'                                  )                 
   p.add_argument('--class_names',                                       nargs="*",  type=str,   default='NONE'                                  )                 
-  p.add_argument('--long_class_names',                                  nargs="+",  type=str,   default='NONE'                                  ) 
   p.add_argument('--class_colours',                                     nargs="*"                                                               )                 
   p.add_argument('--colour_map',                                                    type=str,   default='tab10'                                 )    
   p.add_argument('--target_tile_coords',                                nargs=2,    type=int,    default=[2000,2000]                            )                 
@@ -2021,7 +2020,6 @@ if __name__ == '__main__':
   p.add_argument('--zoom_out_mags',                                     nargs="*",  type=int,                                                   )                 
 
   p.add_argument('--a_d_use_cupy',                                                  type=str,   default='True'                                  )                    
-  p.add_argument('--low_expression_threshold',                                                 type=float, default=8.0                                     )                    
   p.add_argument('--cov_uq_threshold',                                              type=float, default=0.0                                     )                    
   p.add_argument('--cutoff_percentile',                                             type=float, default=0.05                                    )                    
 
@@ -2045,7 +2043,7 @@ if __name__ == '__main__':
   p.add_argument('-nr', '--nr',                                                     type=int,   default=0,  help='ranking within node'          )  # only supported for 'NN_MODE=pre_compress' ATM (auto-encoder front-end     )
   
   p.add_argument('--hidden_layer_neurons',                              nargs="+",  type=int,    default=2000                                   )     
-  p.add_argument('--embedding_dimensions',                                    nargs="+",  type=int,    default=1000                                   )    
+  p.add_argument('--embedding_dimensions',                              nargs="+",  type=int,    default=1000                                   )    
   
   p.add_argument('--use_autoencoder_output',                                        type=str,   default='False'                                 ) # if "True", use file containing auto-encoder output (which must exist, in log_dir     ) as input rather than the usual input (e.g. rna-seq values     )
   p.add_argument('--ae_add_noise',                                                  type=str,   default='False'                                 )

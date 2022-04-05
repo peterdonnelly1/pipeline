@@ -121,7 +121,7 @@ STAIN_NORMALIZATION='NONE'
 
 USE_UNFILTERED_DATA="True"                                                      
 TARGET_GENES_REFERENCE_FILE="just_hg38_protein_coding_genes"                                               # file specifying genes to be used if USE_UNFILTERED_DATA=False 
-TARGET_GENES_REFERENCE_FILE_NAME="just_hg38_protein_coding_genes"                                          # To allow "data_comp.sh" to pass in just the file name, so that the user does not need to specify the whole path
+TARGET_GENES_REFERENCE_FILE_NAME="pmcc_cancer_genes_of_interest"                                           # To allow "data_comp.sh" to pass in just the file name, so that the user does not need to specify the whole path
 
 RANDOM_GENES_COUNT=0
 
@@ -137,7 +137,7 @@ SHOW_ROWS=1000                                                                  
 SHOW_COLS=100                                                                                              # used by "analyse_data". 
 
 
-HIGHEST_CLASS_NUMBER=876 
+HIGHEST_CLASS_NUMBER=98765 
 
 while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:H:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:Q:r:R:s:S:t:T:u:U:v:V:w:W:x:X:y:Y:z:Z:0:1:2:3:4:5:6:7:8:9: option
   do
