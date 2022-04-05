@@ -1164,7 +1164,6 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         print( f"CLASSI:         INFO: n_samples               = {MAGENTA}{n_samples}{RESET}",        flush=True  )
         print( f"CLASSI:         INFO: args.n_samples          = {MAGENTA}{args.n_samples}{RESET}",   flush=True  )
         print( f"CLASSI:         INFO: n_classes               = {MAGENTA}{n_classes}{RESET}",        flush=True  )
-        print( f"CLASSI:         INFO: args.n_classes          = {MAGENTA}{args.n_classes}{RESET}",   flush=True  )
         print( f"CLASSI:         INFO: n_tiles                 = {MAGENTA}{n_tiles}{RESET}",          flush=True  )
         print( f"CLASSI:         INFO: args.n_tiles            = {MAGENTA}{args.n_tiles}{RESET}",     flush=True  )
         print( f"CLASSI:         INFO: batch_size              = {MAGENTA}{batch_size}{RESET}",       flush=True  )
