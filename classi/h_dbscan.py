@@ -33,7 +33,7 @@ DEBUG   = 1
 np.set_printoptions(edgeitems=100000)
 np.set_printoptions(linewidth=100000)
 
-def h_dbscan( args, pct_test, min_cluster_size ):
+def h_dbscan( args, class_names, pct_test, min_cluster_size ):
  
   # 1. load and prepare data
 
@@ -192,8 +192,8 @@ def h_dbscan( args, pct_test, min_cluster_size ):
   labels = all_clusters_unique
   plt.xticks( xx, labels=labels )
   
-  yy     = [ i for i in range (0, len(args.class_names) )]
-  labels = args.class_names
+  yy     = [ i for i in range (0, len(class_names) )]
+  labels = class_names
   plt.yticks(yy, labels=labels )
 
   s = ax.scatter( X, Y, s=5, linewidth=0, marker="s", c=c, cmap=cmap, alpha=1.0)
@@ -203,10 +203,10 @@ def h_dbscan( args, pct_test, min_cluster_size ):
   if (DEBUG>1):
     offset=.5
     for i, label in enumerate( labels ):
-      plt.annotate( args.class_names[label][0], ( X[i]-.25, Y[i]-.5), fontsize=5, color='black' )
+      plt.annotate( class_names[label][0], ( X[i]-.25, Y[i]-.5), fontsize=5, color='black' )
   
       if (DEBUG>1):  
-        print ( f"i={i:4d} label={MIKADO}{label}{RESET}  args.class_names[label]={MIKADO}{ args.class_names[label]:16s}{RESET} args.class_names[label][0]={MIKADO}{args.class_names[label][0]}{RESET}" )
+        print ( f"i={i:4d} label={MIKADO}{label}{RESET}  class_names[label]={MIKADO}{ class_names[label]:16s}{RESET} class_names[label][0]={MIKADO}{class_names[label][0]}{RESET}" )
 
   if DEBUG>1:
     print( f"HDBSCAN:        INFO: X = \n{MIKADO}{X}{RESET}" )

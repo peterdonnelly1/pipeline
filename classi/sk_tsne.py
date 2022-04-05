@@ -36,7 +36,7 @@ DEBUG   = 1
 np.set_printoptions(edgeitems=100000)
 np.set_printoptions(linewidth=100000)
 
-def sk_tsne( args, pct_test):
+def sk_tsne( args, class_names, pct_test):
     
   n_components = 2
   n_iter       = args.n_iterations
@@ -163,7 +163,7 @@ def sk_tsne( args, pct_test):
   title=f"Unsupervised Clustering using sklearn T-SNE \n(cancer type={args.dataset}, N={N:,}, n_iter={n_iter:,}, n_components={n_components}, perplexity={perplexity}, metric={metric})"
 
   # ~ plot( embedding_train, labels, colors=MACOSKO_COLORS )
-  plot( embedding_train, labels, args.class_names, ax=ax, title=title  )
+  plot( embedding_train, labels, class_names, ax=ax, title=title  )
   plt.show()
 
 

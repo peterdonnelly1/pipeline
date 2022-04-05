@@ -37,7 +37,7 @@ DEBUG   = 1
 np.set_printoptions(edgeitems=100000)
 np.set_printoptions(linewidth=100000)
 
-def o_tsne( args, pct_test):
+def o_tsne( args, class_names, pct_test):
   
   
   # 1. load and prepare data
@@ -107,7 +107,7 @@ def o_tsne( args, pct_test):
   embedding_train = tsne.fit( x_train )
   embedding_test  = tsne.fit( x_test  )
 
-  # ~ n_classes = len(args.class_names)
+  # ~ n_classes = len(class_names)
   # ~ confusion_matrix    =  np.zeros( (n_classes, n_classes), dtype=int )
   
   # ~ for j in range(0, len(embedding_test) ):
@@ -161,10 +161,10 @@ def o_tsne( args, pct_test):
   # ~ cmap, norm = matplotlib.colors.from_levels_and_colors( np.arange(1, c.max()+3), colors )
 
   # ~ plot( embedding_train, y_train, colors=MACOSKO_COLORS )
-  plot( embedding_train, y_train, args.class_names, ax=ax )
+  plot( embedding_train, y_train, class_names, ax=ax )
   plt.show()
   
-  plot( embedding_test,  y_test, args.class_names )
+  plot( embedding_test,  y_test, class_names )
   plt.show()    
 
 
