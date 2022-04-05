@@ -243,14 +243,13 @@ g_xform={WHITE}{ORANGE        if not args.gene_data_transform[0]=='NONE' else MA
   global_data                   = args.global_data
   mapping_file_name             = args.mapping_file_name
   target_genes_reference_file   = args.target_genes_reference_file
-  class_names                   = args.class_names
   cancer_type                   = args.cancer_type
   cancer_type_long              = args.cancer_type_long    
   class_colours                 = args.class_colours
   colour_map                    = args.colour_map
   input_mode                    = args.input_mode
   multimode                     = args.multimode
-  mode                       = args.mode
+  mode                          = args.mode
   nn_type_img                   = args.nn_type_img
   nn_type_rna                   = args.nn_type_rna
   use_same_seed                 = args.use_same_seed

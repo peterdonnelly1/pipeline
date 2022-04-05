@@ -40,7 +40,7 @@ np.set_printoptions(edgeitems=5)
 np.set_printoptions(linewidth=20)
 
 
-def cuda_tsne( args, pct_test, super_title, output_file_name ):
+def cuda_tsne( args, class_names, pct_test, super_title, output_file_name ):
     
   n_components      =  2
   n_jobs            = -1                                                                                   # -1 means use all available processors
@@ -50,7 +50,6 @@ def cuda_tsne( args, pct_test, super_title, output_file_name ):
   n_iter            = args.n_iterations
   perplexity        = args.perplexity
   grid_size         = args.supergrid_size
-  class_names       = args.class_names
   render_clustering = args.render_clustering                                                               # 'True'   or 'False'. if 'True', show plots on terminal (they are always be saved to logs)
   
 

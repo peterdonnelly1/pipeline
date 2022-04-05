@@ -1217,7 +1217,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         time.sleep(4)
      
     if clustering=='o_tsne':
-      o_tsne ( args, pct_test)
+      o_tsne   ( args, class_names, pct_test)
       writer.close()        
       hours   = round( (time.time() - start_time) / 3600,  1   )
       minutes = round( (time.time() - start_time) /   60,  1   )
@@ -1226,7 +1226,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
       sys.exit(0)
 
     elif clustering=='cuda_tsne':
-      cuda_tsne(  args, pct_test, descriptor_2, desc_2_short)
+      cuda_tsne(  args, class_names, pct_test, descriptor_2, desc_2_short)
       writer.close()        
       hours   = round( (time.time() - start_time) / 3600,  1   )
       minutes = round( (time.time() - start_time) /   60,  1   )
@@ -1235,7 +1235,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
       sys.exit(0)
       
     elif clustering=='sk_tsne':
-      sk_tsne(  args, pct_test)
+      sk_tsne(  args, class_names, pct_test)
       writer.close()        
       hours   = round( (time.time() - start_time) / 3600,  1   )
       minutes = round( (time.time() - start_time) /   60,  1   )
@@ -1244,7 +1244,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
       sys.exit(0)
 
     elif clustering=='sk_agglom':
-      sk_agglom(  args, pct_test)
+      sk_agglom(  args, class_names, pct_test)
       writer.close()        
       hours   = round( (time.time() - start_time) / 3600,  1   )
       minutes = round( (time.time() - start_time) /   60,  1   )
@@ -1253,7 +1253,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
       sys.exit(0)
       
     elif clustering=='sk_spectral':
-      sk_spectral(  args, pct_test)
+      sk_spectral(  args, class_names, pct_test)
       writer.close()        
       hours   = round( (time.time() - start_time) / 3600,  1   )
       minutes = round( (time.time() - start_time) /   60,  1   )
@@ -1262,7 +1262,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
       sys.exit(0)
       
     elif clustering=='dbscan':
-      _dbscan ( args, pct_test, epsilon )
+      _dbscan ( args, class_names, pct_test, epsilon )
       writer.close()        
       hours   = round( (time.time() - start_time) / 3600,  1   )
       minutes = round( (time.time() - start_time) /   60,  1   )
@@ -1271,7 +1271,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
       sys.exit(0)
       
     elif clustering=='h_dbscan':
-      h_dbscan ( args, pct_test, min_cluster_size )
+      h_dbscan ( args, class_names, pct_test, min_cluster_size )
       writer.close()        
       hours   = round( (time.time() - start_time) / 3600,  1   )
       minutes = round( (time.time() - start_time) /   60,  1   )
