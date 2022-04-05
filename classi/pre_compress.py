@@ -838,7 +838,7 @@ f"\
         print( f"PRE_COMPRESS:     INFO:args.batch_size         = {MAGENTA}{args.batch_size}{RESET}" )
         print( f"PRE_COMPRESS:     INFO:gene_data_norm          = {MAGENTA}{gene_data_norm}{RESET}"  )            
                       
-      n_genes = generate( args, n_samples, highest_class_number, multimode_case_count, unimode_case_count, not_a_multimode_case_count, not_a_multimode_case____image_count, not_a_multimode_case____image_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform  ) 
+      n_genes = generate( args, class_names, n_samples, highest_class_number, multimode_case_count, unimode_case_count, not_a_multimode_case_count, not_a_multimode_case____image_count, not_a_multimode_case____image_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform  ) 
 
       if DEBUG>0:
         print( f"CLASSI:         INFO:     n_genes (calculated)           = {MIKADO}{n_genes}{RESET}"     )

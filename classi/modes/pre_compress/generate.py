@@ -72,7 +72,7 @@ RESTORE_CURSOR='\033[u'
 SUCCESS=1
 DEBUG=10
 
-def generate( args, n_samples, highest_class_number, multimode_case_count, unimode_case_count, not_a_multimode_case_count, not_a_multimode_case____image_count, not_a_multimode_case____image_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform ):
+def generate( args, class_names, n_samples, highest_class_number, multimode_case_count, unimode_case_count, not_a_multimode_case_count, not_a_multimode_case____image_count, not_a_multimode_case____image_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform ):
 
   # DON'T USE args.n_samples or args.n_tiles or args.gene_data_norm or args.tile_size or args.highest_class_number since these are job-level lists. Here we are just using one value of each, passed in as the parameters above
   n_tests                      = args.n_tests
@@ -84,7 +84,6 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
   rna_file_name                = args.rna_file_name
   rna_file_suffix              = args.rna_file_suffix  
   rna_file_reduced_suffix      = args.rna_file_reduced_suffix
-  class_names                  = args.class_names
   class_numpy_file_name        = args.class_numpy_file_name
   use_autoencoder_output       = args.use_autoencoder_output
   use_unfiltered_data          = args.use_unfiltered_data 
