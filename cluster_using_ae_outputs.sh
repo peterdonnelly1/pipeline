@@ -222,7 +222,7 @@ if [[ ${JUST_CLUSTER} != "True" ]]                                              
     
     then
     
-      rm logs/lowest_loss_ae_model.pt
+      rm logs/lowest_loss_ae_model.pt  > /dev/null 2>&1
       
       ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}   -S ${N_SAMPLES}  -o ${N_EPOCHS} -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b ${BATCH_SIZE}       -1 ${PCT_TEST___TRAIN}     -s ${SKIP_TILING}   \
        -X ${SKIP_RNA_PREPROCESSING}  -g ${SKIP_GENERATION}   -j False  -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -E ${EMBEDDING_DIMENSIONS}  -v ${DIVIDE_CASES}  -A ${AE_ADD_NOISE}  \
@@ -238,8 +238,8 @@ if [[ ${JUST_CLUSTER} != "True" ]]                                              
      
   # Pushes feature vectors produced during training (which must exist) through the best model produced during training
   # Key glags: -u True means "USE_AUTOENCODER_OUTPUT" and -j True means "JUST_TEST"
-  
- rm logs/ae_output_features.pt
+   
+ rm logs/ae_output_features.pt  > /dev/null 2>&1
  
     ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}   -S ${N_SAMPLES}  -o ${N_EPOCHS_TEST} -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b ${BATCH_SIZE_TEST}  -1 ${PCT_TEST___JUST_TEST}    -s True         \
      -X True                       -g True    -j True   -n pre_compress  -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -E ${EMBEDDING_DIMENSIONS} -A False  \
@@ -295,7 +295,7 @@ elif [[ ${CLUSTERING} == "sk_tsne" ]]
 
   then
 
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n classify  -c ${CASES}  -l sk_tsne  -p 0.1 -u ${USE_AUTOENCODER_OUTPUT}  -R True
+    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n classify  -c ${CASES}  -l sk_tsne  -p 0.1 -u ${USE_AUTOENCODER_OUTPUT}
     ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n classify  -c ${CASES}  -l sk_tsne  -p 1   -u ${USE_AUTOENCODER_OUTPUT}  
     ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n classify  -c ${CASES}  -l sk_tsne  -p 7   -u ${USE_AUTOENCODER_OUTPUT}  
     ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n classify  -c ${CASES}  -l sk_tsne  -p 10  -u ${USE_AUTOENCODER_OUTPUT}  
@@ -307,7 +307,7 @@ elif [[ ${CLUSTERING} == "cuda_tsne" ]]
 
   then
 
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n classify  -c ${CASES}  -l cuda_tsne  -p "10 30 400 500"  -G ${SUPERGRID_SIZE} -u ${USE_AUTOENCODER_OUTPUT} -R ${RENDER_CLUSTERING}
+    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n classify  -c ${CASES}  -l cuda_tsne  -p "10 30 400 500"  -G ${SUPERGRID_SIZE} -u ${USE_AUTOENCODER_OUTPUT}
 
 
 elif [[ ${CLUSTERING} == "dbscan" ]]
