@@ -5511,7 +5511,7 @@ def show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, pan
       print ( f"{RED}CLASSI:         FATAL:     error was: {e}{RESET}" )
       sys.exit(0)    
     
-    fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__conf_matrix_Job_ext.csv"
+    fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__conf_matrix_job_ext.csv"
     try:
       pandas_version_ext.to_csv( fqn, sep='\t' )
       if DEBUG>0:
