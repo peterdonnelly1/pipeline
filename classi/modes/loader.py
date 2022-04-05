@@ -401,7 +401,11 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
         sys.exit(0)
 
 
-    total_batches  = number_of_train_batches + number_of_test_batches
+    if just_test!='True':
+      total_batches  = number_of_train_batches + number_of_test_batches
+    else:
+      total_batches  = number_of_test_batches
+
     used_samples   = total_batches*batch_size
     unused_samples = n_samples - used_samples 
     percent_unused = 100*unused_samples/n_samples
