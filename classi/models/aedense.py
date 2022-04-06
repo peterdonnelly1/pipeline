@@ -18,7 +18,7 @@ DEBUG=1
 
 class AEDENSE(nn.Module):
 
-  def __init__( self, cfg, args, gpu, rank, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, nn_dense_dropout_1, nn_dense_dropout_2   ):
+  def __init__( self, cfg, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, nn_dense_dropout_1, nn_dense_dropout_2   ):
 
     if DEBUG>0:
       print ( f"AEDENSE:        INFO:       __init__(): n_genes                = {CYAN}{n_genes}{RESET}",               flush=True   ) 
@@ -82,7 +82,7 @@ class AEDENSE(nn.Module):
 
 # ------------------------------------------------------------------------------
 
-  def forward( self, args, x, gpu, encoder_activation ):
+  def forward( self, x, gpu, encoder_activation ):
 
     if DEBUG>1:
       print ( f"AEDENSE:        INFO:    forward(): x.shape     = {CYAN}{x.shape}{RESET}", flush=True             ) 

@@ -109,29 +109,29 @@ def main(args):
   
     if (DEBUG>0):
       if cases_reviewed_count % 50==0:
-        print ( f"PROCESS_RNA_EXP:        INFO: {MIKADO}{cases_reviewed_count}{RESET} cases listed; class (subtype) labels allocated to {MIKADO}{cases_processed_count}{RESET} RNA-Seq files in the working dataset directory accordingly {RESET}",  flush=True )
+        print ( f"PROCESS_CLASSES:        INFO: {MIKADO}{cases_reviewed_count}{RESET} cases listed; class (subtype) labels allocated to {MIKADO}{cases_processed_count}{RESET} RNA-Seq files in the working dataset directory accordingly {RESET}",  flush=True )
         print ( "\033[2A",  flush=True )
 
   if (DEBUG>0):                                                                                            # this will show the final count
-    print ( f"PROCESS_RNA_EXP:        INFO: {MIKADO}{cases_reviewed_count}{RESET} cases reviewed; class (subtype) labels allocated to {MIKADO}{cases_processed_count}{RESET} RNA-Seq files in the working dataset directory accordingly {RESET}",  flush=True )
+    print ( f"PROCESS_CLASSES:        INFO: {MIKADO}{cases_reviewed_count}{RESET} cases reviewed; class (subtype) labels allocated to {MIKADO}{cases_processed_count}{RESET} RNA-Seq files in the working dataset directory accordingly {RESET}",  flush=True )
     print ( "\033[2A",  flush=True )
 
   if (DEBUG>0):
     print ( "\033[2B",  flush=True )
   
   if cases_processed_count==0:
-    print ( f"{RED}CLASSI:        FATAL:  no cases at all were successfully processed{RESET}" )
-    print ( f"{RED}CLASSI:        FATAL:  possible cause: perhaps you changed to a different cancer type but did not regenerate the dataset?{RESET}" )
-    print ( f"{RED}CLASSI:        FATAL:                  if so, use the {CYAN}-r {RESET}{RED}option ('{CYAN}REGEN{RESET}{RED}') to force the dataset to be regenerated into the working directory{RESET}" )
-    print ( f"{RED}CLASSI:        FATAL:                  e.g. '{CYAN}./do_all.sh -d <cancer type code> -i image ... {CHARTREUSE}-r True{RESET}{RED}'{RESET}\n\n" )
+    print ( f"{RED}PROCESS_CLASSES:        FATAL:  no cases at all were successfully processed{RESET}" )
+    print ( f"{RED}PROCESS_CLASSES:        FATAL:  possible cause: perhaps you changed to a different cancer type but did not regenerate the dataset?{RESET}" )
+    print ( f"{RED}PROCESS_CLASSES:        FATAL:                  if so, use the {CYAN}-r {RESET}{RED}option ('{CYAN}REGEN{RESET}{RED}') to force the dataset to be regenerated into the working directory{RESET}" )
+    print ( f"{RED}PROCESS_CLASSES:        FATAL:                  e.g. '{CYAN}./do_all.sh -d <cancer type code> -i image ... {CHARTREUSE}-r True{RESET}{RED}'{RESET}\n\n" )
     time.sleep(10)                                    
     sys.exit(0)   
   
   if len(all_classes)==0:
-    print ( f"{RED}CLASSI:        FATAL:  no classes (subtypes) cases at all were seen when processing the cases{RESET}" )
-    print ( f"{RED}CLASSI:        FATAL:  possible cause: perhaps you changed to a different cancer type but did not regenerate the dataset?{RESET}" )
-    print ( f"{RED}CLASSI:        FATAL:                  if so, use the {CYAN}-r {RESET}{RED}option ('{CYAN}REGEN{RESET}{RED}') to force the dataset to be regenerated into the working directory{RESET}" )
-    print ( f"{RED}CLASSI:        FATAL:                  e.g. '{CYAN}./do_all.sh -d <cancer type code> -i image ... {CHARTREUSE}-r True{RESET}{RED}'{RESET}\n\n" )
+    print ( f"{RED}PROCESS_CLASSES:        FATAL:  no classes (subtypes) cases at all were seen when processing the cases{RESET}" )
+    print ( f"{RED}PROCESS_CLASSES:        FATAL:  possible cause: perhaps you changed to a different cancer type but did not regenerate the dataset?{RESET}" )
+    print ( f"{RED}PROCESS_CLASSES:        FATAL:                  if so, use the {CYAN}-r {RESET}{RED}option ('{CYAN}REGEN{RESET}{RED}') to force the dataset to be regenerated into the working directory{RESET}" )
+    print ( f"{RED}PROCESS_CLASSES:        FATAL:                  e.g. '{CYAN}./do_all.sh -d <cancer type code> -i image ... {CHARTREUSE}-r True{RESET}{RED}'{RESET}\n\n" )
     time.sleep(10)                                    
     sys.exit(0)
   

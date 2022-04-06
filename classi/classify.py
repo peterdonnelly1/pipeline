@@ -411,7 +411,24 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
            
             if (   ( f.endswith( 'svs' ))  |  ( f.endswith( 'SVS' ))  | ( f.endswith( 'tif' ))  |  ( f.endswith( 'tiff' ))   ):
               svs_file_count +=1
-            
+          
+
+      if svs_file_count==0:
+        print ( f"{RED}\n\nCLASSI:         FATAL:  there are no image files at all in the working data directory{RESET}" )
+        print ( f"{RED}CLASSI:         FATAL:  possible cause: perhaps you changed to a different cancer type but did not regenerate the dataset?{RESET}" )
+        print ( f"{RED}CLASSI:         FATAL:                  if so, use the {CYAN}-r {RESET}{RED}option ('{CYAN}REGEN{RESET}{RED}') to force the dataset to be regenerated into the working directory{RESET}" )
+        print ( f"{RED}CLASSI:         FATAL:                  e.g. '{CYAN}./do_all.sh -d <cancer type code> -i image ... {CHARTREUSE}-r True{RESET}{RED}'{RESET}\n\n" )
+        print( f"{RED}CLASSI:         FATAL: ... halting now{RESET}" )
+        time.sleep(10)                                    
+        sys.exit(0)
+        
+      if svs_file_count<10:
+        print ( f"{BOLD}{ORANGE}\n\nCLASSI:         WARNG:  there are fewer than 10 image files in the working data directory, which seems odd{RESET}" )
+        print ( f"{BOLD}{ORANGE}CLASSI:         WARNG:          consider using the the {CYAN}-r {RESET}{BOLD}{ORANGE}option ('{CYAN}REGEN{RESET}{BOLD}{ORANGE}') to force the dataset to be regenerated{RESET}" )
+        print ( f"{BOLD}{ORANGE}CLASSI:         WARNG:          e.g. '{CYAN}./do_all.sh -d <cancer type code> -i image ... {CHARTREUSE}-r True{RESET}{BOLD}{ORANGE}'{RESET}" )
+        print ( f"{BOLD}{ORANGE}CLASSI:         WARNG: ... continuing, but it's kind of pointless{RESET}\n\n\n" )
+        time.sleep(10)                           
+
       if svs_file_count<np.max(args.n_samples):
         print( f"{BOLD}{ORANGE}CLASSI:         WARNG:  there aren't enough samples. A file count reveals a total of {MIKADO}{svs_file_count}{RESET}{BOLD}{ORANGE} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}{BOLD}{ORANGE}, whereas the largest value in user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{BOLD}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
         print( f"{BOLD}{ORANGE}CLASSI:         WARNG:  changing values of '{CYAN}N_SAMPLES{RESET}{BOLD}{ORANGE} that are greater than {RESET}{MIKADO}{svs_file_count}{RESET}{BOLD}{ORANGE} to exactly {MIKADO}{svs_file_count}{RESET}{BOLD}{ORANGE} and continuing{RESET}" )
@@ -560,13 +577,13 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
     args.just_test=False
 
   
-  if  (mode=='classify') & (args.clustering=='NONE'):
-    if  'AE' in nn_type_img[0]:
-      print( f"{RED}CLASSI:         FATAL: the network model must not be an autoencoder if mode='{MIKADO}{mode}{RESET}{RED}' (you have NN_TYPE_IMG='{MIKADO}{nn_type_img[0]}{RESET}{RED}', which is an autoencoder) ... halting now{RESET}" )
-      sys.exit(0)
-    if  'AE' in nn_type_rna[0]:
-      print( f"{RED}CLASSI:         FATAL: the network model must {UNDER}not{RESET}{RED} be an autoencoder if mode='{MIKADO}{mode}{RESET}{RED}' (you have NN_TYPE_RNA='{MIKADO}{nn_type_rna[0]}{RESET}{RED}', which is an autoencoder) ... halting now{RESET}" )
-      sys.exit(0)
+  # ~ if  (mode=='classify') & (args.clustering=='NONE'):
+    # ~ if  'AE' in nn_type_img[0]:
+      # ~ print( f"{RED}CLASSI:         FATAL: the network model must not be an autoencoder if mode='{MIKADO}{mode}{RESET}{RED}' (you have NN_TYPE_IMG='{MIKADO}{nn_type_img[0]}{RESET}{RED}', which is an autoencoder) ... halting now{RESET}" )
+      # ~ sys.exit(0)
+    # ~ if  'AE' in nn_type_rna[0]:
+      # ~ print( f"{RED}CLASSI:         FATAL: the network model must {UNDER}not{RESET}{RED} be an autoencoder if mode='{MIKADO}{mode}{RESET}{RED}' (you have NN_TYPE_RNA='{MIKADO}{nn_type_rna[0]}{RESET}{RED}', which is an autoencoder) ... halting now{RESET}" )
+      # ~ sys.exit(0)
       
 
   if clustering=='NONE':
@@ -858,8 +875,8 @@ f"\
 
     
     if input_mode=='image':
-      descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases:_<10s}_{args.dataset}_{nn_type_img:_<9s}_{nn_optimizer:_<8}_e_{args.n_epochs:03d}_samps_{n_samples:04d}\
-_tiles_{n_tiles:04d}_hi_cls_{n_classes:02d}_tlsz_{tile_size:03d}__mags_{mags}__probs_{prob}_bat_{batch_size:03d}_test_{int(100*pct_test):02d}_lr_{lr:09.6f}"
+      descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases[0:20]:_<23s}_{nn_type_img:_<9s}_{nn_optimizer:_<8s}_e_{args.n_epochs:03d}_N_{n_samples:04d}\
+_hicls_{n_classes:02d}_bat_{batch_size:03d}_test_{int(100*pct_test):02d}_lr_{lr:09.6f}_tiles_{n_tiles:04d}_tlsz_{tile_size:03d}__mags_{mags}__probs_{prob:_<30s}"
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}  Tiles/Slide={n_tiles:d}   Tile size={tile_size:d}x{tile_size:d}\n\
 Magnif'n vector={mags}   Stain Norm={stain_norm}   Peer Noise Pct={peer_noise_pct}   Grey Scale Pct={make_grey_pct}   Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:<09.6f}   Selected from cases subset: {args.cases[0:50]}"
@@ -3000,10 +3017,11 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
 
         if (args.input_mode=='image'):
           total_loss        = loss_images_value + l1_loss
+          TL=loss_images_value
         elif (args.input_mode=='rna') | (args.input_mode=='image_rna'):
           total_loss        = loss_genes_value + l1_loss
-
-        TL=loss_genes_value
+          TL=loss_genes_value
+        
         if DEBUG>0:
           if ( args.input_mode=='image' ):
             print ( f"\

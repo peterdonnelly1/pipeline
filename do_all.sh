@@ -97,7 +97,7 @@ N_EPOCHS="150"                                                                  
 N_EPOCHS_TEST="1"
 N_ITERATIONS="250"                                                                                         # 
 N_TESTS="1"                                                                                                # (test mode only) Number of examples to put through the model when just_test=='True'
-N_SAMPLES=9876
+N_SAMPLES=1234
 PCT_TEST=".2"
 PCT_TEST___JUST_TEST="1.0"
 PCT_TEST___TRAIN="0.2"
@@ -137,7 +137,7 @@ SHOW_ROWS=1000                                                                  
 SHOW_COLS=100                                                                                              # used by "analyse_data". 
 
 
-HIGHEST_CLASS_NUMBER=98765 
+HIGHEST_CLASS_NUMBER=12345 
 
 while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:H:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:Q:r:R:s:S:t:T:u:U:v:V:w:W:x:X:y:Y:z:Z:0:1:2:3:4:5:6:7:8:9: option
   do
