@@ -613,11 +613,12 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
                   if DEBUG>2:
                     print ( f"GENERATE:       INFO:  n_genes (determined)  = {MIKADO}{n_genes}{RESET}"        )
                 except Exception as e:
-                    print ( f"{RED}GENERATE:       FATAL:   error message: '{e}'{RESET}" )
-                    print ( f"{PALE_RED}GENERATE:       FATAL:   explanation: a required rna file doesn't exist. (Probably no rna files exist){RESET}" )                 
-                    print ( f"{PALE_RED}GENERATE:       FATAL:   did you change from image mode to rna mode but neglect to run '{CYAN}./do_all.sh{RESET}{PALE_RED}' to generate the rna files the NN needs for rna mode ? {RESET}" )
-                    print ( f"{PALE_RED}GENERATE:       FATAL:   if so, run '{CYAN}./do_all.sh -d <cancer type code> -i rna{RESET}{PALE_RED}' to generate the rna files{RESET}" )                 
-                    print ( f"{PALE_RED}GENERATE:       FATAL:   halting now ...{RESET}" )                 
+                    print ( f"{BOLD}{RED}GENERATE:       FATAL: error message: '{e}'{RESET}" )
+                    print ( f"{BOLD}{RED}GENERATE:       FATAL: explanation: a required rna class file doesn't exist. (Probably none exist){RESET}" )                 
+                    print ( f"{BOLD}{RED}GENERATE:       FATAL: did you change from image mode to rna mode but neglect to regenerate the rna files the NN needs for rna mode ? {RESET}" )
+                    print ( f"{BOLD}{RED}GENERATE:       FATAL: if so, run '{CYAN}./do_all.sh -d <cancer type code> -i rna {BOLD}{CHARTREUSE}-r True{RESET}{BOLD}{RED}' to generate the rna files{RESET}" )                 
+                    print ( f"{BOLD}{RED}GENERATE:       FATAL: when you do this, don't suppress preprocessing or dataset generation (i.e. DON'T use either '{BOLD}{CYAN}-X True{RESET}{BOLD}{RED}' or '{BOLD}{CYAN}-g True{RESET}{BOLD}{RED}')" )                 
+                    print ( f"{BOLD}{RED}GENERATE:       FATAL: halting now ...{RESET}" )                 
                     sys.exit(0)
 
       if found_one==False:                  

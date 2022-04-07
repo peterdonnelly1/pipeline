@@ -413,9 +413,6 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
             if (   ( f.endswith( 'svs' ))  |  ( f.endswith( 'SVS' ))  | ( f.endswith( 'tif' ))  |  ( f.endswith( 'tiff' ))   ):
               svs_file_count +=1
 
-            if (   ( f.endswith( 'HAS_IMAGE' ))   ):
-              has_image_flag_count +=1
-          
 
       if svs_file_count==0:
         print ( f"{BOLD}{RED}\n\nCLASSI:         FATAL:  there are no image files at all in the working data directory{RESET}" )
@@ -432,18 +429,6 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
         print ( f"{BOLD}{ORANGE}CLASSI:         WARNG:          e.g. '{CYAN}./do_all.sh -d <cancer type code> -i image ... {CHARTREUSE}-r True{RESET}{BOLD}{ORANGE}'{RESET}" )
         print ( f"{BOLD}{ORANGE}CLASSI:         WARNG: ... continuing, but it's kind of pointless{RESET}\n\n\n" )
         time.sleep(10)                           
-
-      if has_image_flag_count==0:
-        print ( f"{BOLD}{RED}\n\nCLASSI:         FATAL:  although there are {MIKADO}{svs_file_count}{RESET}{BOLD}{RED} cases with images in the working dataset, none is currently flagged as having an image{RESET}" )
-        print ( f"{BOLD}{RED}CLASSI:         FATAL:  this suggests that the case division process, which is mandatory for image inputs ({CYAN}-i image{RESET}{BOLD}{RED}), has not been carried out{RESET}" )
-        print ( f"{BOLD}{RED}CLASSI:         FATAL:          remedy: re-run the experiment with option {CYAN}-v {RESET}{BOLD}{RED} set to {CYAN}True{RESET}{BOLD}{RED} to have cases divided and flagged{RESET}" )
-        print ( f"{BOLD}{RED}CLASSI:         FATAL:                  i.e. '{CYAN}./do_all.sh -d <cancer type code> -i image ... {CHARTREUSE}-v True{RESET}{BOLD}{RED}'{RESET}" )
-        print ( f"{BOLD}{RED}CLASSI:         FATAL:          further information: this only needs to be one time, following dataset regeneration{RESET}" )
-        print ( f"{BOLD}{RED}CLASSI:         FATAL:          further information: in general, it should not be done more than one time following dataset regeneration{RESET}" )
-        print ( f"{BOLD}{RED}CLASSI:         FATAL:          further information: in particular, for multimode image+rna classification, NEVER perform case division more than one time, since each repetition would flag different subsets of the examples for hold-out testing, and these need to be strictly separated{RESET}" )
-        print(  f"{BOLD}{RED}CLASSI:         FATAL: ... halting now{RESET}\n\n" )
-        time.sleep(10)                           
-        sys.exit(0)
 
 
       if svs_file_count<np.max(args.n_samples):
@@ -715,7 +700,6 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
       print ( f"CLASSI:         INFO:  n_tiles              = {MIKADO}{n_tiles}{RESET}",                 flush=True)
       print ( f"CLASSI:         INFO:  tile_size            = {MIKADO}{tile_size}{RESET}",               flush=True)
 
-    
 
   # (A)  SET UP JOB LOOP
 
@@ -879,6 +863,34 @@ f"\
         print( f"{RED}CLASSI:         FATAL: ... halting now{RESET}" )
         sys.exit(0)
  
+
+    if input_mode=='image':                                                                                # in the case of images, the HAS_IMAGE flag MUST be present, so we check.  Can't automate, as segment_cases should only be run one time, after regeneration of the dataset. 
+      
+      has_image_flag_count   = 0
+    
+      for dir_path, dirs, files in os.walk( args.data_dir ):                                               
+    
+        if not (dir_path==args.data_dir):                                                                  # the top level directory (dataset) has be skipped because it only contains sub-directories, not data      
+          
+          for f in files:
+           
+            if (   ( f.endswith( 'HAS_IMAGE' ))   ):
+              has_image_flag_count +=1
+    
+      if has_image_flag_count==0:
+        print ( f"{BOLD}{RED}\n\nCLASSI:         FATAL:  although there are {MIKADO}{svs_file_count}{RESET}{BOLD}{RED} cases with images in the working dataset, none is currently flagged as having an image{RESET}" )
+        print ( f"{BOLD}{RED}CLASSI:         FATAL:  this suggests that the case division process, which is mandatory for image inputs ({CYAN}-i image{RESET}{BOLD}{RED}), has not been carried out{RESET}" )
+        print ( f"{BOLD}{RED}CLASSI:         FATAL:          remedy: re-run the experiment with option {CYAN}-v {RESET}{BOLD}{RED} set to {CYAN}True{RESET}{BOLD}{RED} to have cases divided and flagged{RESET}" )
+        print ( f"{BOLD}{RED}CLASSI:         FATAL:                  i.e. '{CYAN}./do_all.sh -d <cancer type code> -i image ... {CHARTREUSE}-v True{RESET}{BOLD}{RED}'{RESET}" )
+        print ( f"{BOLD}{RED}CLASSI:         FATAL:          further information: this only needs to be one time, following dataset regeneration{RESET}" )
+        print ( f"{BOLD}{RED}CLASSI:         FATAL:          further information: in general, it should not be done more than one time following dataset regeneration{RESET}" )
+        print ( f"{BOLD}{RED}CLASSI:         FATAL:          further information: in particular, for multimode image+rna classification, NEVER perform case division more than one time, since each repetition would flag different subsets of the examples for hold-out testing, and these need to be strictly separated{RESET}" )
+        print(  f"{BOLD}{RED}CLASSI:         FATAL: ... halting now{RESET}\n\n" )
+        time.sleep(10)                           
+        sys.exit(0)
+    
+
+
     if use_unfiltered_data == True:
       args.rna_genes_tranche  = f"EVERY_GENE"
       rna_genes_tranche       = f"EVERY_GENE"
@@ -890,7 +902,7 @@ f"\
     mags = ("_".join(str(z) for z in zoom_out_mags))
     prob = ("_".join(str(z) for z in zoom_out_prob))
 
-    
+
     if input_mode=='image':
       descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases[0:20]:_<23s}_{nn_type_img:_<9s}_{nn_optimizer:_<8s}_e_{args.n_epochs:03d}_N_{n_samples:04d}\
 _hicls_{n_classes:02d}_bat_{batch_size:03d}_test_{int(100*pct_test):02d}_lr_{lr:09.6f}_tiles_{n_tiles:04d}_tlsz_{tile_size:03d}__mags_{mags}__probs_{prob:_<30s}"
@@ -1029,11 +1041,14 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
       print( f"CLASSI:         INFO:          PCT_TEST                        = {MIKADO}{pct_test}{RESET}" )
       print( f"CLASSI:         INFO:          hence available test tiles      = {MIKADO}{int(final_test_batch_size)}{RESET}" )
     if args.final_test_batch_size > final_test_batch_size:
-      print ( f"{ORANGE}CLASSI:         WARNING: there aren't enough test tiles to support a {CYAN}FINAL_TEST_BATCH_SIZE{RESET}{ORANGE} of {MIKADO}{args.final_test_batch_size}{RESET}{ORANGE} for this run{RESET}", flush=True )                
-      print ( f"{ORANGE}CLASSI:                  the number of test tiles available is {CYAN}N_SAMPLES{RESET} x {CYAN}N_TILES{RESET} x {CYAN}PCT_TEST{RESET}  = {MIKADO}{n_samples}{RESET} x {MIKADO}{n_tiles}{RESET} x {MIKADO}{pct_test}{RESET} = {MIKADO}{int(final_test_batch_size)}{RESET}{ORANGE}{RESET}", flush=True )                
-      print ( f"{ORANGE}CLASSI:                  {CYAN}FINAL_TEST_BATCH_SIZE{RESET}{ORANGE} has accordingly been set to {MIKADO}{int(final_test_batch_size)}{RESET} {ORANGE}for this run {RESET}", flush=True )
       args.final_test_batch_size = final_test_batch_size
-
+      if (input_mode=='image'):
+        print ( f"{ORANGE}CLASSI:         WARNG: there aren't enough test tiles to support a {CYAN}FINAL_TEST_BATCH_SIZE{RESET}{ORANGE} of {MIKADO}{args.final_test_batch_size}{RESET}{ORANGE} for this run{RESET}", flush=True )                
+        print ( f"{ORANGE}CLASSI:         WARNG: the number of test tiles available is {CYAN}N_SAMPLES{RESET} x {CYAN}N_TILES{RESET} x {CYAN}PCT_TEST{RESET}  = {MIKADO}{n_samples}{RESET} x {MIKADO}{n_tiles}{RESET} x {MIKADO}{pct_test}{RESET} = {MIKADO}{int(final_test_batch_size)}{RESET}{ORANGE}{RESET}", flush=True )                
+        print ( f"{ORANGE}CLASSI:         WARNG: {CYAN}FINAL_TEST_BATCH_SIZE{RESET}{ORANGE} has accordingly been set to {MIKADO}{int(final_test_batch_size)}{RESET} {ORANGE}for this run {RESET}", flush=True )
+      else:
+        print ( f"{ORANGE}CLASSI:         WARNG: there aren't enough examples to support a {CYAN}FINAL_TEST_BATCH_SIZE{RESET}{ORANGE} of {MIKADO}{args.final_test_batch_size}{RESET}{ORANGE} for this run{RESET}", flush=True )                
+        print ( f"{ORANGE}CLASSI:         WARNG: {CYAN}FINAL_TEST_BATCH_SIZE{RESET}{ORANGE} has accordingly been set to {MIKADO}{int(final_test_batch_size)}{RESET} {ORANGE}for this run {RESET}", flush=True )
 
     # (1) set up Tensorboard
     
@@ -1194,7 +1209,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
           if not tile_size_last==tile_size:
             print( f"                                    -- value of tile_size {MIKADO}({tile_size})      \r\033[60Chas changed   since last run{RESET}")
        
-      if DEBUG>0:
+      if DEBUG>8:
         print( f"CLASSI:         INFO: n_samples               = {MAGENTA}{n_samples}{RESET}",        flush=True  )
         print( f"CLASSI:         INFO: args.n_samples          = {MAGENTA}{args.n_samples}{RESET}",   flush=True  )
         print( f"CLASSI:         INFO: n_classes               = {MAGENTA}{n_classes}{RESET}",        flush=True  )
@@ -1209,7 +1224,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
       highest_class_number = n_classes-1
       _, _,  _ = generate( args, class_names, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, tile_size, low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform  ) 
 
-      if DEBUG>0:
+      if DEBUG>8:
         print( f"CLASSI:         INFO: n_samples               = {BLEU}{n_samples}{RESET}"       )
         print( f"CLASSI:         INFO: args.n_samples          = {BLEU}{args.n_samples}{RESET}"  )
         print( f"CLASSI:         INFO: n_tiles                 = {BLEU}{n_tiles}{RESET}"         )
