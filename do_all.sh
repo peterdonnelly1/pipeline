@@ -96,8 +96,8 @@ N_CLUSTERS="5"                                                                  
 N_EPOCHS="150"                                                                                             # 
 N_EPOCHS_TEST="1"
 N_ITERATIONS="250"                                                                                         # 
-N_TESTS="1"                                                                                                # (test mode only) Number of examples to put through the model when just_test=='True'
-N_SAMPLES=1234
+N_TESTS=1                                                                                                  # (test mode only) Number of examples to put through the model when just_test=='True'
+N_SAMPLES=98765
 PCT_TEST=".2"
 PCT_TEST___JUST_TEST="1.0"
 PCT_TEST___TRAIN="0.2"

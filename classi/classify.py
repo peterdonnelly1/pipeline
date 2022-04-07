@@ -401,7 +401,8 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
       
       # make sure there are enough samples available to cover the user's requested 'n_samples' - svs case
     
-      svs_file_count   = 0
+      svs_file_count         = 0
+      has_image_flag_count   = 0
     
       for dir_path, dirs, files in os.walk( args.data_dir ):                                               
     
@@ -411,14 +412,17 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
            
             if (   ( f.endswith( 'svs' ))  |  ( f.endswith( 'SVS' ))  | ( f.endswith( 'tif' ))  |  ( f.endswith( 'tiff' ))   ):
               svs_file_count +=1
+
+            if (   ( f.endswith( 'HAS_IMAGE' ))   ):
+              has_image_flag_count +=1
           
 
       if svs_file_count==0:
-        print ( f"{RED}\n\nCLASSI:         FATAL:  there are no image files at all in the working data directory{RESET}" )
-        print ( f"{RED}CLASSI:         FATAL:  possible cause: perhaps you changed to a different cancer type but did not regenerate the dataset?{RESET}" )
-        print ( f"{RED}CLASSI:         FATAL:                  if so, use the {CYAN}-r {RESET}{RED}option ('{CYAN}REGEN{RESET}{RED}') to force the dataset to be regenerated into the working directory{RESET}" )
-        print ( f"{RED}CLASSI:         FATAL:                  e.g. '{CYAN}./do_all.sh -d <cancer type code> -i image ... {CHARTREUSE}-r True{RESET}{RED}'{RESET}" )
-        print(  f"{RED}CLASSI:         FATAL: ... halting now{RESET}\n\n" )
+        print ( f"{BOLD}{RED}\n\nCLASSI:         FATAL:  there are no image files at all in the working data directory{RESET}" )
+        print ( f"{BOLD}{RED}CLASSI:         FATAL:  possible cause: perhaps you changed to a different cancer type or input type but did not regenerate the dataset?{RESET}" )
+        print ( f"{BOLD}{RED}CLASSI:         FATAL:                  if so, use the {CYAN}-r {RESET}{BOLD}{RED}option ('{BOLD}{CYAN}REGEN{RESET}{BOLD}{RED}') to force the dataset to be regenerated into the working directory{RESET}" )
+        print ( f"{BOLD}{RED}CLASSI:         FATAL:                  e.g. '{CYAN}./do_all.sh -d <cancer type code> -i image ... {CHARTREUSE}-r True{RESET}{BOLD}{RED}'{RESET}" )
+        print(  f"{BOLD}{RED}CLASSI:         FATAL: ... halting now{RESET}\n\n" )
         time.sleep(10)                                    
         sys.exit(0)
         
@@ -428,6 +432,19 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
         print ( f"{BOLD}{ORANGE}CLASSI:         WARNG:          e.g. '{CYAN}./do_all.sh -d <cancer type code> -i image ... {CHARTREUSE}-r True{RESET}{BOLD}{ORANGE}'{RESET}" )
         print ( f"{BOLD}{ORANGE}CLASSI:         WARNG: ... continuing, but it's kind of pointless{RESET}\n\n\n" )
         time.sleep(10)                           
+
+      if has_image_flag_count==0:
+        print ( f"{BOLD}{RED}\n\nCLASSI:         FATAL:  although there are {MIKADO}{svs_file_count}{RESET}{BOLD}{RED} cases with images in the working dataset, none is currently flagged as having an image{RESET}" )
+        print ( f"{BOLD}{RED}CLASSI:         FATAL:  this suggests that the case division process, which is mandatory for image inputs ({CYAN}-i image{RESET}{BOLD}{RED}), has not been carried out{RESET}" )
+        print ( f"{BOLD}{RED}CLASSI:         FATAL:          remedy: re-run the experiment with option {CYAN}-v {RESET}{BOLD}{RED} set to {CYAN}True{RESET}{BOLD}{RED} to have cases divided and flagged{RESET}" )
+        print ( f"{BOLD}{RED}CLASSI:         FATAL:                  i.e. '{CYAN}./do_all.sh -d <cancer type code> -i image ... {CHARTREUSE}-v True{RESET}{BOLD}{RED}'{RESET}" )
+        print ( f"{BOLD}{RED}CLASSI:         FATAL:          further information: this only needs to be one time, following dataset regeneration{RESET}" )
+        print ( f"{BOLD}{RED}CLASSI:         FATAL:          further information: in general, it should not be done more than one time following dataset regeneration{RESET}" )
+        print ( f"{BOLD}{RED}CLASSI:         FATAL:          further information: in particular, for multimode image+rna classification, NEVER perform case division more than one time, since each repetition would flag different subsets of the examples for hold-out testing, and these need to be strictly separated{RESET}" )
+        print(  f"{BOLD}{RED}CLASSI:         FATAL: ... halting now{RESET}\n\n" )
+        time.sleep(10)                           
+        sys.exit(0)
+
 
       if svs_file_count<np.max(args.n_samples):
         print( f"{BOLD}{ORANGE}CLASSI:         WARNG:  there aren't enough samples. A file count reveals a total of {MIKADO}{svs_file_count}{RESET}{BOLD}{ORANGE} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}{BOLD}{ORANGE}, whereas the largest value in user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{BOLD}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 

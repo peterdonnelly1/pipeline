@@ -63,25 +63,24 @@ def tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_nor
 
 
   if just_test=='True':
-    
     print( f"{ORANGE}TILER_THREADER: INFO: CAUTION! 'just_test' flag is set. Only one process will be used (to ensure the same tiles aren't selected more than one time){RESET}" )     
     task=executor.submit( tiler_scheduler, args, r_norm, flag, count, n_tiles, tile_size, batch_size, stain_norm, norm_method, 0, 1)
     tasks.append(task)
-
-
   else:
-    if DEBUG>8:
-      print ( f"TILER_THREADER: INFO: about to launch {MIKADO}{num_cpus}{RESET} tiler_scheduler threads", flush=True )
-    if DEBUG>28:
-      print( f"TILER_THREADER: INFO: count                   = {CARRIBEAN_GREEN}{count}{RESET}"           )
-      print( f"TILER_THREADER: INFO: n_tiles                 = {CARRIBEAN_GREEN}{n_tiles}{RESET}"         )
-      print( f"TILER_THREADER: INFO: batch_size              = {CARRIBEAN_GREEN}{batch_size}{RESET}"      )
+    if DEBUG>2:
+      print ( f"TILER_THREADER: INFO: about to launch {MIKADO}{num_cpus}{RESET} tiler_scheduler threads",  flush=True       )
+    if DEBUG>20:
+      print( f"TILER_THREADER: INFO: number of image samples = {CARRIBEAN_GREEN}{count}{RESET}",           flush=True       )
+      print( f"TILER_THREADER: INFO: tiles per image         = {CARRIBEAN_GREEN}{n_tiles}{RESET}",         flush=True       )
+      print( f"TILER_THREADER: INFO: tile_size               = {CARRIBEAN_GREEN}{tile_size}{RESET}",         flush=True       )
+      print( f"TILER_THREADER: INFO: batch_size              = {CARRIBEAN_GREEN}{batch_size}{RESET}",      flush=True       )
 
     for n in range(0, num_cpus):
       task=executor.submit( tiler_scheduler, args, r_norm, flag, count, n_tiles, tile_size, batch_size, stain_norm, norm_method, n, num_cpus )
       tasks.append(task)
 
   wait( tasks, return_when=ALL_COMPLETED )
+
   
   if just_test!='True':
     results = [ tasks[x].result() for x in range(0, num_cpus) ]
