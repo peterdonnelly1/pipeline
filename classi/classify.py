@@ -417,8 +417,8 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
         print ( f"{RED}\n\nCLASSI:         FATAL:  there are no image files at all in the working data directory{RESET}" )
         print ( f"{RED}CLASSI:         FATAL:  possible cause: perhaps you changed to a different cancer type but did not regenerate the dataset?{RESET}" )
         print ( f"{RED}CLASSI:         FATAL:                  if so, use the {CYAN}-r {RESET}{RED}option ('{CYAN}REGEN{RESET}{RED}') to force the dataset to be regenerated into the working directory{RESET}" )
-        print ( f"{RED}CLASSI:         FATAL:                  e.g. '{CYAN}./do_all.sh -d <cancer type code> -i image ... {CHARTREUSE}-r True{RESET}{RED}'{RESET}\n\n" )
-        print( f"{RED}CLASSI:         FATAL: ... halting now{RESET}" )
+        print ( f"{RED}CLASSI:         FATAL:                  e.g. '{CYAN}./do_all.sh -d <cancer type code> -i image ... {CHARTREUSE}-r True{RESET}{RED}'{RESET}" )
+        print(  f"{RED}CLASSI:         FATAL: ... halting now{RESET}\n\n" )
         time.sleep(10)                                    
         sys.exit(0)
         

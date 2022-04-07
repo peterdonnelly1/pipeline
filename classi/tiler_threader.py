@@ -86,7 +86,7 @@ def tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_nor
   if just_test!='True':
     results = [ tasks[x].result() for x in range(0, num_cpus) ]
     if sum(results)==0:
-      print ( f"{RED}TILER_THREADER:  FATAL:  no tile at all were successfully processed{RESET}" )
+      print ( f"{RED}TILER_THREADER:  FATAL:  no tiles at all were successfully processed{RESET}" )
       print ( f"{RED}TILER_THREADER:  FATAL:  possible cause: perhaps you changed to a different cancer type but did not regenerate the dataset?{RESET}" )
       print ( f"{RED}TILER_THREADER:  FATAL:                  if so, use the {CYAN}-r {RESET}{RED}option ('{CYAN}REGEN{RESET}{RED}') to force the dataset to be regenerated into the working directory{RESET}" )
       print ( f"{RED}TILER_THREADER:  FATAL:                  e.g. '{CYAN}./do_all.sh -d <cancer type code> -i image ... {CHARTREUSE}-r True{RESET}{RED}'{RESET}\n\n" )

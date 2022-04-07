@@ -123,7 +123,8 @@ def main(args):
     print ( f"{RED}PROCESS_CLASSES:        FATAL:  no cases at all were successfully processed{RESET}" )
     print ( f"{RED}PROCESS_CLASSES:        FATAL:  possible cause: perhaps you changed to a different cancer type but did not regenerate the dataset?{RESET}" )
     print ( f"{RED}PROCESS_CLASSES:        FATAL:                  if so, use the {CYAN}-r {RESET}{RED}option ('{CYAN}REGEN{RESET}{RED}') to force the dataset to be regenerated into the working directory{RESET}" )
-    print ( f"{RED}PROCESS_CLASSES:        FATAL:                  e.g. '{CYAN}./do_all.sh -d <cancer type code> -i image ... {CHARTREUSE}-r True{RESET}{RED}'{RESET}\n\n" )
+    print ( f"{RED}PROCESS_CLASSES:        FATAL:                  e.g. '{CYAN}./do_all.sh -d <cancer type code> -i image ... {CHARTREUSE}-r True{RESET}{RED}'{RESET}" )
+    print(  f"{RED}PROCESS_CLASSES:        FATAL: ... halting now{RESET}\n\n" )
     time.sleep(10)                                    
     sys.exit(0)   
   
@@ -131,7 +132,8 @@ def main(args):
     print ( f"{RED}PROCESS_CLASSES:        FATAL:  no classes (subtypes) cases at all were seen when processing the cases{RESET}" )
     print ( f"{RED}PROCESS_CLASSES:        FATAL:  possible cause: perhaps you changed to a different cancer type but did not regenerate the dataset?{RESET}" )
     print ( f"{RED}PROCESS_CLASSES:        FATAL:                  if so, use the {CYAN}-r {RESET}{RED}option ('{CYAN}REGEN{RESET}{RED}') to force the dataset to be regenerated into the working directory{RESET}" )
-    print ( f"{RED}PROCESS_CLASSES:        FATAL:                  e.g. '{CYAN}./do_all.sh -d <cancer type code> -i image ... {CHARTREUSE}-r True{RESET}{RED}'{RESET}\n\n" )
+    print ( f"{RED}PROCESS_CLASSES:        FATAL:                  e.g. '{CYAN}./do_all.sh -d <cancer type code> -i image ... {CHARTREUSE}-r True{RESET}{RED}'{RESET}" )
+    print(  f"{RED}PROCESS_CLASSES:        FATAL: ... halting now{RESET}\n\n" )
     time.sleep(10)                                    
     sys.exit(0)
   
