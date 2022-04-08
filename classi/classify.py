@@ -1871,11 +1871,15 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
           print( f"CLASSI:         INFO:      test(): e.g. batch_fnames_npy[0]                 = {MAGENTA}{fq_link}{RESET}",      flush=True )
                   
   
+        # batch will only sometimes be complete
+        
         # save each embedding in its associated case directory using a randomly generated name
         if just_test=='True':                                                                              #  in test mode we are pushing inputs through the optimised model, which was saved during training mode
 
           for n in range( 0, batch_fnames_npy.shape[0] ):                                                    
   
+            if batch_fnames_npy[n] == 0:
+              break
             if args.input_mode=='image': 
               fq_link       = f"{args.data_dir}/{batch_fnames_npy[n]}.fqln"                                # where to save the embedding (which case directory to save it to)
               if DEBUG>0:
