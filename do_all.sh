@@ -280,6 +280,7 @@ fi
 
 
 if [[ ${SKIP_TILING} == "False" ]]; 
+  
   then
     #~ echo "=====> DELETING All PRE-PROCEESSING FILES AND LEAVING JUST SVS AND UQ FILES"
     #~ echo "DO_ALL.SH: INFO: deleting all empty subdirectories under '${DATA_DIR}'"
@@ -300,6 +301,7 @@ if [[ ${SKIP_TILING} == "False" ]];
     find ${DATA_DIR} -type l -name "*.fqln"                    -delete
     #~ echo "DO_ALL.SH: INFO: recursively deleting                           'entire_patch.npy' files created in earlier runs"
     find ${DATA_DIR} -type f -name "entire_patch.npy"          -delete 
+
     if [[ ${SKIP_RNA_PREPROCESSING} != 'True' ]]; then
       #~ echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '${RNA_NUMPY_FILENAME}'"
       find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}       -delete
@@ -331,25 +333,22 @@ if [[ ${SKIP_TILING} == "False" ]];
   #~ fi    
 
 
-    if [[ ${MULTIMODE} != 'image_rna' ]];     then
+  if [[ ${MULTIMODE} != 'image_rna' ]];     then
+  
+    if [[ ${INPUT_MODE} == "image" ]];     then
+        #~ echo "DO_ALL.SH: INFO: 'image' mode, so deleting saved image indices:  train_inds_image, test_inds_image"
+        rm ${DATA_DIR}/train_inds_image  > /dev/null 2>&1
+        rm ${DATA_DIR}/test_inds_image   > /dev/null 2>&1
+        #~ echo "DO_ALL.SH: INFO: recursively deleting files (tiles)           matching this pattern:  '*.png'               <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as there can be up to millions of tiles"
+        find ${DATA_DIR} -type f -name *.png                                            -delete
+    fi
     
-      if [[ ${INPUT_MODE} == "image" ]];     then
-          #~ echo "DO_ALL.SH: INFO: 'image' mode, so deleting saved image indices:  train_inds_image, test_inds_image"
-          rm ${DATA_DIR}/train_inds_image  > /dev/null 2>&1
-          rm ${DATA_DIR}/test_inds_image   > /dev/null 2>&1
-          #~ echo "DO_ALL.SH: INFO: recursively deleting files (tiles)           matching this pattern:  '*.png'               <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as there can be up to millions of tiles"
-          find ${DATA_DIR} -type f -name *.png                                            -delete
-      fi
-      
-      if [[ ${INPUT_MODE} == "rna" ]];       then
-          #~ echo "DO_ALL.SH: INFO: 'image' mode, so deleting saved rna indices:  train_inds_rna, test_inds_rna"
-          rm ${DATA_DIR}/train_inds_rna    > /dev/null 2>&1
-          rm ${DATA_DIR}/test_inds_rna     > /dev/null 2>&1
-      fi
-
+    if [[ ${INPUT_MODE} == "rna" ]];       then
+        #~ echo "DO_ALL.SH: INFO: 'image' mode, so deleting saved rna indices:  train_inds_rna, test_inds_rna"
+        rm ${DATA_DIR}/train_inds_rna    > /dev/null 2>&1
+        rm ${DATA_DIR}/test_inds_rna     > /dev/null 2>&1
     fi
 
-fi
     
     #tree ${DATA_DIR}
     cd ${BASE_DIR}
