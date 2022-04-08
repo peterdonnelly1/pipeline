@@ -293,14 +293,14 @@ if [[ ${SKIP_TILING} == "False" ]];  then
     find ${DATA_DIR} -type f -name "*.tar"                     -delete
     #~ echo "DO_ALL.SH: INFO: recursively deleting residual                  '.gz'  files"
     find ${DATA_DIR} -type f -name "*.gz"                      -delete
-    #~ echo "DO_ALL.SH: INFO: recursively deleting                           '.fqln'            files created in earlier runs"
-    find ${DATA_DIR} -type l -name "*.spcn"                    -delete
     #~ echo "DO_ALL.SH: INFO: recursively deleting                           '.spcn'            files created in earlier runs"
+    find ${DATA_DIR} -type l -name "*.spcn"                    -delete
+    #~ echo "DO_ALL.SH: INFO: recursively deleting                           '.fqln'            files created in earlier runs"
     find ${DATA_DIR} -type l -name "*.fqln"                    -delete
     #~ echo "DO_ALL.SH: INFO: recursively deleting                           'entire_patch.npy' files created in earlier runs"
     find ${DATA_DIR} -type f -name "entire_patch.npy"          -delete 
-
 fi
+
 
 if [[ ${SKIP_RNA_PREPROCESSING} != 'True' ]]; then
   #~ echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '${RNA_NUMPY_FILENAME}'"

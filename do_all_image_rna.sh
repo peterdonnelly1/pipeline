@@ -29,7 +29,7 @@ rm classi/modes/classify/train.pth    > /dev/null 2>&1                          
                                                                                                            #    -m image_rna flag means (i) generate feature vectors for multimodal training (ii) use the TRAINING indices that were used for training (we want every feature vector we can get our hands on)
 
 
-rm logs/model_image_rna.pt            > /dev/null 2>&1                                                     # delete existing trained multimode model,   if same exists
+#~ rm logs/model_image_rna.pt            > /dev/null 2>&1                                                     # delete existing trained multimode model,   if same exists
 #~ rm classi/modes/classify/train.pth    > /dev/null 2>&1                                                     # delete existing         input     dataset, if same exists
 #~ ./do_all.sh   -d stad  -i image_rna                -c UNIMODE_CASE                                         # train  multimode model, using concatenation of feature vectors generated in the image and rna seq test runs above as inputs
 
