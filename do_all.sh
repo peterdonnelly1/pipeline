@@ -333,7 +333,7 @@ if [[ ${SKIP_TILING} == "False" ]];
   #~ fi    
 
 
-  if [[ ${MULTIMODE} != 'image_rna' ]];     then
+  if [[ ${MULTIMODE} != 'image_rna' ]];    then
   
     if [[ ${INPUT_MODE} == "image" ]];     then
         #~ echo "DO_ALL.SH: INFO: 'image' mode, so deleting saved image indices:  train_inds_image, test_inds_image"
@@ -349,6 +349,7 @@ if [[ ${SKIP_TILING} == "False" ]];
         rm ${DATA_DIR}/test_inds_rna     > /dev/null 2>&1
     fi
 
+  fi
     
     #tree ${DATA_DIR}
     cd ${BASE_DIR}
