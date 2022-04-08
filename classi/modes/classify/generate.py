@@ -571,7 +571,7 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
   
               global_image_rna_files_processed+=1
   
-              if DEBUG>0:
+              if DEBUG>99:
                 print ( f"{WHITE}GENERATE:       INFO: global_image_rna_files_processed = {MIKADO}{global_image_rna_files_processed}{RESET}",  flush=True )
                 print ( f"{DIM_WHITE}GENERATE:       INFO: n_samples                  = {CYAN}{n_samples}{RESET}",                             flush=True )
 
