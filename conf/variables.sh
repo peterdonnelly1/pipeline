@@ -51,7 +51,6 @@ if [[ ${INPUT_MODE} == "image" ]]; then
   FINAL_TEST_BATCH_SIZE=2                                                                                  # number of batches of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated). Don't make it too large because it's passed through as a single super-batch.
 else
   FINAL_TEST_BATCH_SIZE=141                                                                                # (rna mode doesn't need this because the entire batch can easily be accommodated)
-  exit
 fi
 
 # 'pre-sets' for the five processing modes
