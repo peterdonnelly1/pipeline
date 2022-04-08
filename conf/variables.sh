@@ -49,10 +49,8 @@ ENCODER_ACTIVATION="none"                                                       
 
 if [[ ${INPUT_MODE} == "image" ]]; then
   FINAL_TEST_BATCH_SIZE=2                                                                                  # number of batches of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated). Don't make it too large because it's passed through as a single super-batch.
-elif [[ ${INPUT_MODE} == "rna" ]]; then
-  FINAL_TEST_BATCH_SIZE=141                                                                                # (rna mode doesn't need this because the entire batch can easily be accommodated)
 else
-  echo -e "${RED}DO_ALL.SH: FATAL: VARIABLES.SH: INFO: no such input mode as ${INPUT_MODE}${RESET}"
+  FINAL_TEST_BATCH_SIZE=141                                                                                # (rna mode doesn't need this because the entire batch can easily be accommodated)
   exit
 fi
 
