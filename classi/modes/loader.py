@@ -92,10 +92,10 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
         # always load the test dataset ... (and if we are in just_test mode, that's all we need)
         which_dataset      = 'dataset_image_test'      
         dataset_image_test = cfg.get_dataset( args, which_dataset, gpu )
-        # equates via cfg.get_dataset to: dataset = GTExV6Dataset( cfg, which_dataset, args ), i.e. make an object of class GTExV6Dataset using it's __init__() constructor
+        # equates via cfg.get_dataset to: dataset = classifyDataset( cfg, which_dataset, args ), i.e. make an object of class classifyDataset using it's __init__() constructor
         # and dataset_image_test.images = data_image_test['images'] etc.; noting that 'data_image_test' is a tensor: see dataset() where data = torch.load(f"data/classify/{which_dataset}.pth"
         
-        if DEBUG>8  :    
+        if DEBUG>0  :    
           print( f"LOADER:         INFO:        dataset {CYAN}{which_dataset}{RESET} now loaded" )      
   
         test_inds = list(range(len( dataset_image_test )  )   )
@@ -115,7 +115,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
           # equates via cfg.get_dataset to: dataset = GTExV6Dataset( cfg, which_dataset, args ), i.e. make an object of class GTExV6Dataset using it's __init__() constructor
           # so  dataset.images = data['images'] etc.; noting that 'dataset' is a tensor:  see dataset() where data = torch.load(f"data/classify/{which_dataset}.pth"
     
-          if DEBUG>8:    
+          if DEBUG>0:    
             print( f"LOADER:         IINFO:        dataset {CYAN}{which_dataset}{RESET} now loaded" )     
                 
           train_inds = list(range(len( dataset )  )   )  
