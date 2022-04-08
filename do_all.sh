@@ -279,9 +279,7 @@ fi
 
 
 
-if [[ ${SKIP_TILING} == "False" ]]; 
-  
-  then
+if [[ ${SKIP_TILING} == "False" ]];  then
     #~ echo "=====> DELETING All PRE-PROCEESSING FILES AND LEAVING JUST SVS AND UQ FILES"
     #~ echo "DO_ALL.SH: INFO: deleting all empty subdirectories under '${DATA_DIR}'"
     find ${DATA_DIR} -type d -empty -delete
@@ -302,57 +300,61 @@ if [[ ${SKIP_TILING} == "False" ]];
     #~ echo "DO_ALL.SH: INFO: recursively deleting                           'entire_patch.npy' files created in earlier runs"
     find ${DATA_DIR} -type f -name "entire_patch.npy"          -delete 
 
-    if [[ ${SKIP_RNA_PREPROCESSING} != 'True' ]]; then
-      #~ echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '${RNA_NUMPY_FILENAME}'"
-      find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}       -delete
-    fi
-    #~ echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '*${RNA_FILE_REDUCED_SUFFIX}'"
-    #~ find ${DATA_DIR} -type f -name *${RNA_FILE_REDUCED_SUFFIX} -delete
-    if [[ ${SKIP_RNA_PREPROCESSING} != 'True' ]]; then
-      #~ echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '${CLASS_NUMPY_FILENAME}'"
-      find ${DATA_DIR} -type f -name ${CLASS_NUMPY_FILENAME}     -delete
-    fi
-    
-    if [[ ${INPUT_MODE} == 'image' ]]; then
-        #~ echo "DO_ALL.SH: INFO: image       mode, so recursively deleting existing image     embedding files ('${EMBEDDING_FILE_SUFFIX_IMAGE}')"
-        find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_IMAGE}      -delete
-    elif [[ ${INPUT_MODE} == 'rna' ]]; then
-        #~ echo "DO_ALL.SH: INFO: rna         mode, so recursively deleting existing rna       embedding files ('${EMBEDDING_FILE_SUFFIX_RNA}')"
-        find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_RNA}        -delete
-    elif [[ ${INPUT_MODE} == "image_rna" ]]; then
-        #~ echo "DO_ALL.SH: INFO: 'image_rna' mode, so recursively deleting existing image_rna embedding files ('${EMBEDDING_FILE_SUFFIX_IMAGE_RNA}')"
-        find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_IMAGE_RNA}  -delete
-    fi
-    
+fi
 
-  #~ if [[ ${MULTIMODE} != 'image_rna' ]]; then
-      #~ # echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${RNA_NUMPY_FILENAME}'"
-      #~ # find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}          -delete
-      #~ echo "DO_ALL.SH: INFO: recursively deleting files (tiles)  matching this pattern:  '*.png'                           <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as there can be up to millions of tiles"
-      #~ find ${DATA_DIR} -type f -name *.png                       -delete
-  #~ fi    
+if [[ ${SKIP_RNA_PREPROCESSING} != 'True' ]]; then
+  #~ echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '${RNA_NUMPY_FILENAME}'"
+  find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}       -delete
+fi
+
+#~ echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '*${RNA_FILE_REDUCED_SUFFIX}'"
+#~ find ${DATA_DIR} -type f -name *${RNA_FILE_REDUCED_SUFFIX} -delete
+if [[ ${SKIP_RNA_PREPROCESSING} != 'True' ]]; then
+  #~ echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '${CLASS_NUMPY_FILENAME}'"
+  find ${DATA_DIR} -type f -name ${CLASS_NUMPY_FILENAME}     -delete
+fi
 
 
-  if [[ ${MULTIMODE} != 'image_rna' ]];    then
-  
-    if [[ ${INPUT_MODE} == "image" ]];     then
-        #~ echo "DO_ALL.SH: INFO: 'image' mode, so deleting saved image indices:  train_inds_image, test_inds_image"
-        rm ${DATA_DIR}/train_inds_image  > /dev/null 2>&1
-        rm ${DATA_DIR}/test_inds_image   > /dev/null 2>&1
-        #~ echo "DO_ALL.SH: INFO: recursively deleting files (tiles)           matching this pattern:  '*.png'               <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as there can be up to millions of tiles"
-        find ${DATA_DIR} -type f -name *.png                                            -delete
-    fi
-    
-    if [[ ${INPUT_MODE} == "rna" ]];       then
-        #~ echo "DO_ALL.SH: INFO: 'image' mode, so deleting saved rna indices:  train_inds_rna, test_inds_rna"
-        rm ${DATA_DIR}/train_inds_rna    > /dev/null 2>&1
-        rm ${DATA_DIR}/test_inds_rna     > /dev/null 2>&1
-    fi
+if [[ ${INPUT_MODE} == 'image' ]]; then
+    #~ echo "DO_ALL.SH: INFO: image       mode, so recursively deleting existing image     embedding files ('${EMBEDDING_FILE_SUFFIX_IMAGE}')"
+    find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_IMAGE}      -delete
+elif [[ ${INPUT_MODE} == 'rna' ]]; then
+    #~ echo "DO_ALL.SH: INFO: rna         mode, so recursively deleting existing rna       embedding files ('${EMBEDDING_FILE_SUFFIX_RNA}')"
+    find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_RNA}        -delete
+elif [[ ${INPUT_MODE} == "image_rna" ]]; then
+    #~ echo "DO_ALL.SH: INFO: 'image_rna' mode, so recursively deleting existing image_rna embedding files ('${EMBEDDING_FILE_SUFFIX_IMAGE_RNA}')"
+    find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_IMAGE_RNA}  -delete
+fi
 
+
+#~ if [[ ${MULTIMODE} != 'image_rna' ]]; then
+    #~ # echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${RNA_NUMPY_FILENAME}'"
+    #~ # find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}          -delete
+    #~ echo "DO_ALL.SH: INFO: recursively deleting files (tiles)  matching this pattern:  '*.png'                           <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as there can be up to millions of tiles"
+    #~ find ${DATA_DIR} -type f -name *.png                       -delete
+#~ fi    
+
+
+if [[ ${MULTIMODE} != 'image_rna' ]];    then
+
+  if [[ ${INPUT_MODE} == "image" ]];     then
+      #~ echo "DO_ALL.SH: INFO: 'image' mode, so deleting saved image indices:  train_inds_image, test_inds_image"
+      rm ${DATA_DIR}/train_inds_image  > /dev/null 2>&1
+      rm ${DATA_DIR}/test_inds_image   > /dev/null 2>&1
+      #~ echo "DO_ALL.SH: INFO: recursively deleting files (tiles)           matching this pattern:  '*.png'               <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as there can be up to millions of tiles"
+      find ${DATA_DIR} -type f -name *.png                                            -delete
   fi
-    
-    #tree ${DATA_DIR}
-    cd ${BASE_DIR}
+  
+  if [[ ${INPUT_MODE} == "rna" ]];       then
+      #~ echo "DO_ALL.SH: INFO: 'image' mode, so deleting saved rna indices:  train_inds_rna, test_inds_rna"
+      rm ${DATA_DIR}/train_inds_rna    > /dev/null 2>&1
+      rm ${DATA_DIR}/test_inds_rna     > /dev/null 2>&1
+  fi
+
+fi
+  
+  #tree ${DATA_DIR}
+  cd ${BASE_DIR}
 
     
 echo "=====> STEP 2 OF 3: PRE-PROCESS TRUTH VALUES (TRUE SUBTYPES) AND IF APPLICABLE, ALSO (i) REMOVE ROWS (RNA EXPRESSION DATA) FROM FPKM-UQ FILES THAT DO NOT CORRESPOND TO TARGET GENE LIST (ii) EXTRACT RNA-SEQ GENE EXPRESSION INFORMATION AND SAVE AS NUMPY FILES"
@@ -392,7 +394,7 @@ echo "=====> STEP 2 OF 3: PRE-PROCESS TRUTH VALUES (TRUE SUBTYPES) AND IF APPLIC
     else
       echo -e "${ORANGE}DO_ALL.SH: ${CYAN}SKIP_RNA_PREPROCESSING${RESET}${ORANGE} flag is set, so ${CYAN}process_classes${RESET}${ORANGE}      will not be called${RESET}"    
     fi
-fi
+
 
 echo "=====> STEP 3 OF 3: RUNNING THE NETWORK (PYTORCH DATASET WILL BE GENERATED AND TILING WILL BE PERFORMED IF IMAGE MODE, UNLESS EITHER SUPPRESSED BY USER OPTION)"
 sleep ${SLEEP_TIME}
