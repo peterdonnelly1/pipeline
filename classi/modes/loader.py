@@ -544,9 +544,9 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
 
 
       if use_autoencoder_output=='True':
-        sampler     = SubsetRandomSampler( test_inds )                                                     # tiles need to be drawn at random because we want at many different parts of the image represented in the autoencoder output
+        sampler     = SubsetRandomSampler( test_inds )                                                     # for autoencoder output (only):tiles need to be drawn at random because we want as many different parts of the image as possible represented in the autoencoder output
       else:
-        sampler     = SequentialSampler( test_inds )                                                     # tiles need to be drawn at random because we want at many different parts of the image represented in the autoencoder output
+        sampler     = SequentialSampler  ( test_inds )
         
       
       test_loader = DataLoader(

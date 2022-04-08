@@ -1255,10 +1255,10 @@ def generate_rna_dataset ( args, class_names, target, cases_required, highest_cl
 
   # (i) convert the genes component to torch format
   
-  # If we are in autoencoder mode, ignore the 'genes_new' we just created; and instead substitute the saved feature file (result of a previous autoencoder run)
+  # If we are in autoencoder mode, ignore the 'genes_new' we just created; and instead substitute the saved feature file (the result of a previous autoencoder run)
   if use_autoencoder_output=='True':                                                                       # then we already have them in Torch format, in the ae feature file, which we now load
 
-    fpath = '%s/ae_output_features.pt' % args.log_dir
+    fpath = '%s/ae_output_features.pt' % args.log_dir                                                      # this MUST exist
     if DEBUG>0:
       print( f"{BRIGHT_GREEN}GENERATE:       INFO:  about to load autoencoder generated feature file from {MAGENTA}{fpath}{RESET}", flush=True )
     try:
