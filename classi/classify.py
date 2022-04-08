@@ -645,7 +645,7 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
       n_tiles[0] = supergrid_size**2 * batch_size[0]
       print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set, therefore '{CYAN}N_TILES{RESET}{ORANGE}' has been set to '{CYAN}SUPERGRID_SIZE^2 * BATCH_SIZE{RESET}{ORANGE}' ({MIKADO}{supergrid_size} * {supergrid_size} * {batch_size} =  {n_tiles}{RESET} {ORANGE}) for this job{RESET}" )          
     else:
-      print( f"{ORANGE}CLASSI:         INFO:   user argument  'MULTIMODE' = '{CHARTREUSE}{multimode}{RESET}{ORANGE}'. Embeddings will be generated.{RESET}"   )      
+      print( f"{BOLD}{CHARTREUSE}CLASSI:         INFO:   user argument  '{CYAN}MULTIMODE'{RESET}{BOLD}{CHARTREUSE} = '{multimode}'. Embeddings will be generated.{RESET}"   )      
   else:
     if ( input_mode=='image' ) &  ( pretrain!='True' ):
       if not tile_size_max**0.5 == int(tile_size_max**0.5):
@@ -1256,7 +1256,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
 
 
     if input_mode=='image_rna':
-      print( f"{ORANGE}CLASSI:         INFO:   input = '{CHARTREUSE}{input_mode}{RESET}{ORANGE}'. Concatentated image_rna embeddings will be generated.{RESET}"  )
+      print( f"{BOLD}{CHARTREUSE}CLASSI:         INFO:   input = '{BOLD}{CYAN}{input_mode}{RESET}{BOLD}{CHARTREUSE}'. Concatentated image_rna embeddings will be generated.{RESET}"  )
 
 
     if clustering!='NONE':
@@ -1822,7 +1822,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
     if (just_test=='True') & (multimode=="image_rna"):
 
       if DEBUG>0:
-        print( f"{CHARTREUSE}\r\033[7BCLASSI:         INFO:      test(): {BOLD}about to generate and save embeddings for all test samples{RESET}", flush=True )
+        print( f"{BOLD}{CHARTREUSE}\r\033[7BCLASSI:         INFO:      test(): about to generate and save embeddings for all test samples{RESET}", flush=True )
 
       model.eval()                                                                                         # set model to evaluation mode
 
