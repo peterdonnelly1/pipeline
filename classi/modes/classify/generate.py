@@ -575,9 +575,9 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
                 print ( f"{WHITE}GENERATE:       INFO: global_image_rna_files_processed = {MIKADO}{global_image_rna_files_processed}{RESET}",  flush=True )
                 print ( f"{DIM_WHITE}GENERATE:       INFO: n_samples                  = {CYAN}{n_samples}{RESET}",                             flush=True )
 
+    return ( n_genes, n_samples, batch_size )
 
-
-          
+  
   if ( input_mode=='rna' ):
        
 
@@ -919,7 +919,7 @@ def generate_rna_dataset ( args, class_names, target, cases_required, highest_cl
               else:
                 pass
       
-            if DEBUG>2:
+            if DEBUG>0:
               print( f"GENERATE:       INFO:                            rna_file_link_id =  {MAGENTA}{rna_file_link_id}{RESET}" )
               print( f"GENERATE:       INFO:                          rna_file_link_name = '{MAGENTA}{rna_file_link_name}{RESET}'" )
               print( f"GENERATE:       INFO:                                        fqln = '{MAGENTA}{fqln}{RESET}'" )
@@ -1046,28 +1046,28 @@ def generate_rna_dataset ( args, class_names, target, cases_required, highest_cl
             rna_labels_new[rna_files_processed] =  label[0]
             #rna_labels_new[rna_files_processed] =  random.randint(0,5)                        ################### swap truth labels to random numbers for testing purposes
             
-            if DEBUG>0:
-              print ( f"{CHARTREUSE}GENERATE:       INFO:        rna_labels_new[{MIKADO}{rna_files_processed}{RESET}]  = {CYAN}{label[0]}{RESET}",                                      flush=True )
+            if DEBUG>777:
+              print ( f"{DIM_WHITE}GENERATE:       INFO:        rna_labels_new[{MIKADO}{rna_files_processed}{RESET}]  = {CYAN}{label[0]}{RESET}", flush=True )
           
           
-            fnames_new [rna_files_processed  ]  =  rna_file_link_id                                        # link to folder from which that this rna sample belongs to - passed in as a parameter
-          
-            if DEBUG>888:
-              print ( f"{DIM_WHITE}GENERATE:       INFO:        rna_file_link_id = {MIKADO}{rna_file_link_id}{RESET}",                                                                  flush=True )
-              print ( f"{DIM_WHITE}GENERATE:       INFO:        fnames_new[{MIKADO}{rna_files_processed}{RESET}{DIM_WHITE}]    = {MIKADO}{fnames_new [rna_files_processed  ]}{RESET}",  flush=True )
-            
-            
-            gnames_new [rna_files_processed]  =  443                                                       # Any old number. We don't currently use these
+            fnames_new [rna_files_processed  ]  =  rna_file_link_id                               # link to folder from which that this rna sample belongs to - passed in as a parameter
           
             if DEBUG>888:
-              print ( f"{WHITE}GENERATE:       INFO:                  fnames_new = {MIKADO}{fnames_new}{RESET}",                                                                        flush=True )
+              print ( f"{DIM_WHITE}GENERATE:       INFO:        rna_file_link_id = {MIKADO}{rna_file_link_id}{RESET}",                          flush=True )
+              print ( f"{DIM_WHITE}GENERATE:       INFO:        fnames_new[{MIKADO}{rna_files_processed}{RESET}{DIM_WHITE}]    = {MIKADO}{fnames_new [rna_files_processed  ]}{RESET}", flush=True )
+            
+            
+            gnames_new [rna_files_processed]  =  443                                              # Any old number. We don't currently use these
+          
+            if DEBUG>888:
+              print ( f"{WHITE}GENERATE:       INFO:                  fnames_new = {MIKADO}{fnames_new}{RESET}",  flush=True )
               time.sleep(.4)  
 
             rna_files_processed+=1
 
             if DEBUG>88:
-              print ( f"{WHITE}GENERATE:       INFO: rna_files_processed = {MIKADO}{rna_files_processed}{RESET}",                                                                       flush=True )
-              print ( f"{DIM_WHITE}GENERATE:       INFO: cases_required                  = {CYAN}{cases_required}{RESET}",                                                              flush=True )
+              print ( f"{WHITE}GENERATE:       INFO: rna_files_processed = {MIKADO}{rna_files_processed}{RESET}",  flush=True )
+              print ( f"{DIM_WHITE}GENERATE:       INFO: cases_required                  = {CYAN}{cases_required}{RESET}",               flush=True )
  
     if  rna_files_processed>=cases_required:
       break
