@@ -330,8 +330,8 @@ if [[ ${SKIP_TILING} == "False" ]];
       #~ find ${DATA_DIR} -type f -name *.png                       -delete
   #~ fi    
 
-    
-    if [[ ${INPUT_MODE} == "image" ]]  &&  [[ ${MULTIMODE} != 'image_rna' ]];    ; then
+
+    if [[ ${INPUT_MODE} == "image" ]]  &&  [[ ${MULTIMODE} != 'image_rna' ]];     then
         #~ echo "DO_ALL.SH: INFO: 'image' mode, so deleting saved image indices:  train_inds_image, test_inds_image"
         rm ${DATA_DIR}/train_inds_image  > /dev/null 2>&1
         rm ${DATA_DIR}/test_inds_image   > /dev/null 2>&1
