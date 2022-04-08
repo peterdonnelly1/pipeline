@@ -30,8 +30,8 @@ rm classi/modes/classify/train.pth    > /dev/null 2>&1                          
 
 
 rm logs/model_image_rna.pt            > /dev/null 2>&1                                                     # delete existing trained multimode model,   if same exists
-rm classi/modes/classify/train.pth    > /dev/null 2>&1                                                     # delete existing         input     dataset, if same exists
-./do_all.sh   -d stad  -i image_rna                -c UNIMODE_CASE                                         # train  multimode model, using concatenation of feature vectors generated in the image and rna seq test runs above as inputs
+#~ rm classi/modes/classify/train.pth    > /dev/null 2>&1                                                     # delete existing         input     dataset, if same exists
+#~ ./do_all.sh   -d stad  -i image_rna                -c UNIMODE_CASE                                         # train  multimode model, using concatenation of feature vectors generated in the image and rna seq test runs above as inputs
 
 #~ # Don't do this run, even though it might seem like a good idea.
 #~ # There is no way to ensure image_rna test embeddings would correspond 1:1 with their associated image embeddings, thus it's very likely high that such an image_rna embedding test set would be heavily polluted with image_rna training examples
