@@ -49,7 +49,7 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
   use_unfiltered_data          = args.use_unfiltered_data
 
   
-  # skip generation case for rna (only). Even though we won't generate the pytorch files, we still need to open the existing .pth file to determine n_samples, n_genes; and possibly also modify batch_size
+  # 'skip generation' option for rna (only). Even though we won't generate the pytorch files, we still need to open the existing .pth file to determine n_samples, n_genes; and possibly also modify batch_size
 
   if  (input_mode=='rna') & ( args.skip_generation=='True' ) & ( args.cases == 'ALL_ELIGIBLE_CASES') :    
 

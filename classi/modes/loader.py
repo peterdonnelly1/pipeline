@@ -158,7 +158,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
 
         else:
 
-          if use_autoencoder_output!='True':                                                               # default case (unimode 'just_test' to create patches)
+          if use_autoencoder_output!='True':                                                               # Not using the autoencoder is the default case (unimode 'just_test' to create patches)
 
             split      = math.floor(len(indices) * (1 - pct_test))                                   
             train_inds = indices[:split]
@@ -169,8 +169,8 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
               print( f"LOADER:         INFO:    test_inds                   = \n{CARRIBEAN_GREEN}{test_inds}{RESET}"  )
        
           else:                                                                                            # autoencoding as a prelude to clustering 
-                                                                                                           # when using an autoencoder, we want to be able to process every tile in test mode, in particular so that we have as many tiles as possible to use when clustering
-            test_inds  = indices                                                                           # (we never use ALL_ELIGIBLE_CASES for the multimode scenario; only for unimode and clustering, so this is safe)
+
+            test_inds  = indices                                                                           # when using an autoencoder, we want to be able to process every tile in test mode, in particular so that we have as many tiles as possible to use when clustering
 
             if DEBUG>44:
               print( f"LOADER:         INFO:    test_inds                   = \n{BITTER_SWEET}{test_inds}{RESET}"  )                                                                                      
@@ -226,7 +226,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
         which_dataset = 'dataset_rna_train'      
         dataset       = cfg.get_dataset( args, which_dataset, gpu )
         # equates via cfg.get_dataset to: dataset = GTExV6Dataset( cfg, which_dataset, args ), i.e. make an object of class GTExV6Dataset using it's __init__() constructor
-        # and dataset_rna_train.rnas = dataset_rna_train['rnas'] etc.; noting that 'dataset_rna_train' is a tensor:  see dataset() where data = torch.load(f"data/dlbcl_rna/{which_dataset}.pth"
+        # and dataset_rna_train.rna = dataset_rna_train['rna'] etc.; noting that 'dataset_rna_train' is a tensor:  see dataset() where data = torch.load(f"data/dlbcl_rna/{which_dataset}.pth"
         
         if DEBUG>8:    
           print( f"LOADER:         INFO:    dataset {CYAN}{which_dataset}{RESET} now loaded" )      
@@ -250,7 +250,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
 
         else:
 
-          if use_autoencoder_output!='True':                                                               # default case (unimode 'just_test' to create patches)
+          if use_autoencoder_output!='True':                                                               # Not using the autoencoder is the default case (unimode 'just_test' to create patches)
 
             split      = math.floor(len(indices) * (1 - pct_test))                                   
             train_inds = indices[:split]
@@ -261,9 +261,8 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
               print( f"LOADER:         INFO:    test_inds                   = \n{CARRIBEAN_GREEN}{test_inds}{RESET}"  )
        
           else:                                                                                            # autoencoding as a prelude to clustering 
-                                                                                                           # when using an autoencoder, we want to be able to process every tile in test mode, in particular so that we have as many tiles as possible to use when clustering
-            test_inds  = indices                                                                           # (we never use ALL_ELIGIBLE_CASES for the multimode scenario; only for unimode and clustering, so this is safe)
 
+            test_inds  = indices                                                                           # when using an autoencoder, we want to be able to process every tile in test mode, in particular so that we have as many tiles as possible to use when clustering
             if DEBUG>44:
               print( f"LOADER:         INFO:    test_inds                   = \n{BITTER_SWEET}{test_inds}{RESET}"  )                                                                                      
             
@@ -544,7 +543,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
 
 
       if use_autoencoder_output=='True':
-        sampler     = SubsetRandomSampler( test_inds )                                                     # for autoencoder output (only):tiles need to be drawn at random because we want as many different parts of the image as possible represented in the autoencoder output
+        sampler     = SubsetRandomSampler( test_inds )                                                     # for autoencoder output (only), tiles need to be drawn at random because we want as many different parts of the image as possible represented in the autoencoder output
       else:
         sampler     = SequentialSampler  ( test_inds )
         

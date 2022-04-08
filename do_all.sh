@@ -322,7 +322,16 @@ if [[ ${SKIP_TILING} == "False" ]];
         find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_IMAGE_RNA}  -delete
     fi
     
-    if [[ ${INPUT_MODE} == "image" ]]; then
+
+  #~ if [[ ${MULTIMODE} != 'image_rna' ]]; then
+      #~ # echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${RNA_NUMPY_FILENAME}'"
+      #~ # find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}          -delete
+      #~ echo "DO_ALL.SH: INFO: recursively deleting files (tiles)  matching this pattern:  '*.png'                           <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as there can be up to millions of tiles"
+      #~ find ${DATA_DIR} -type f -name *.png                       -delete
+  #~ fi    
+
+    
+    if [[ ${INPUT_MODE} == "image" ]]  &&  [[ ${MULTIMODE} != 'image_rna' ]];    ; then
         #~ echo "DO_ALL.SH: INFO: 'image' mode, so deleting saved image indices:  train_inds_image, test_inds_image"
         rm ${DATA_DIR}/train_inds_image  > /dev/null 2>&1
         rm ${DATA_DIR}/test_inds_image   > /dev/null 2>&1

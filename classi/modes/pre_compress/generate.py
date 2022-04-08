@@ -1177,7 +1177,7 @@ def generate( args, class_names, n_samples, highest_class_number, multimode_case
       print( f"P_C_GENERATE:   INFO:    Torch dictionary saved to {MAGENTA}{fqn}{RESET}")
 
 
-    fqn =  f"{args.base_dir}/{args.application_dir}/modes/{args.mode}/dataset_rna_test.pth"                               # same dataset for both training in the case of pre_compress. We want to use the optimised model to compress every sample
+    fqn =  f"{args.base_dir}/{args.application_dir}/modes/{args.mode}/dataset_rna_test.pth"                               # same dataset for both training and test modes in the case of pre_compress. We want to use the optimised model to compress every sample
 
     torch.save({
         'genes':      genes_new,
