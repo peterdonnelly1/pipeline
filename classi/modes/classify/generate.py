@@ -296,8 +296,8 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
 
   if ( input_mode=='image_rna' ):
 
-    if DEBUG>2:
-      print( f"{CARRIBEAN_GREEN}GENERATE:       NOTE:  input_mode is '{CYAN}{input_mode}{RESET}{CARRIBEAN_GREEN}', so image and other data will not be generated{RESET}" )  
+    if DEBUG>0:
+      print( f"{CHARTREUSE}GENERATE:       NOTE:  input_mode is '{CYAN}{input_mode}{RESET}{CHARTREUSE}', so image and other data will not be generated{RESET}" )  
     
       
     # (3A) preliminary step: create concatenated image+rna embeddings
@@ -371,7 +371,7 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
     if use_autoencoder_output=='False':
    
       if DEBUG>0:
-        print ( f"GENERATE:       INFO:  about to determine length of an image_rna embedding"      )
+        print ( f"{CHARTREUSE}GENERATE:       INFO:  about to determine length of an image_rna embedding{RESET}"      )
     
       found_one=False
       for dir_path, dirs, files in os.walk( data_dir ):                                                    # each iteration takes us to a new directory under data_dir
@@ -421,22 +421,20 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
 
     # need to know required_number_of_image_rna_files in advance to be able to create numpy array to hold them. Determine using this rule: one concatenated image_rna file (___image_rna.npy) will be created for every existing IMAGE embedding file in a directory that has both an image embedding file (___image.npy)and an rna embedding file (___rna.npy)         
     if DEBUG>0:
-      print ( f"{ORANGE}GENERATE:       INFO:   dirs_which_have_matched_image_rna_files         =  {BITTER_SWEET}{dirs_which_have_matched_image_rna_files}{RESET}",  flush=True )
-      print ( f"{ORANGE}GENERATE:       INFO:   n_tiles                                         =  {BITTER_SWEET}{n_tiles}{RESET}",                                  flush=True )
+      print ( f"{CHARTREUSE}GENERATE:       INFO:   dirs_which_have_matched_image_rna_files         =  {MIKADO}{dirs_which_have_matched_image_rna_files}{RESET}",  flush=True )
+      print ( f"{CHARTREUSE}GENERATE:       INFO:   n_tiles                                         =  {MIKADO}{n_tiles}{RESET}",                                  flush=True )
     required_number_of_image_rna_files = dirs_which_have_matched_image_rna_files * n_tiles
     if DEBUG>0:
-      print ( f"{ORANGE}GENERATE:       INFO:   (hence) required_number_of_image_rna_files      =  {BITTER_SWEET}{required_number_of_image_rna_files}{RESET}",  flush=True )
+      print ( f"{CHARTREUSE}GENERATE:       INFO:   (hence) required_number_of_image_rna_files      =  {MIKADO}{required_number_of_image_rna_files}{RESET}",       flush=True )
 
 
-    if ( input_mode=='image_rna' ):
-
-      global_image_rna_files_processed =  0                                                                                         # global count of genes processed
-      
-      if use_autoencoder_output=='False':
-        genes_new      = np.zeros( ( required_number_of_image_rna_files, 1, n_genes                ), dtype=np.float64 )
-      fnames_new       = np.zeros( ( required_number_of_image_rna_files                            ), dtype=np.int64   )              
-      gnames_new       = np.zeros( ( required_number_of_image_rna_files                            ), dtype=np.uint8   )            # was gene names                                               NOT USED
-      rna_labels_new   = np.zeros( ( required_number_of_image_rna_files,                           ), dtype=np.int_    )            # rna_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training
+    global_image_rna_files_processed =  0                                                                                         # global count of genes processed
+    
+    if use_autoencoder_output=='False':
+      genes_new      = np.zeros( ( required_number_of_image_rna_files, 1, n_genes                ), dtype=np.float64 )
+    fnames_new       = np.zeros( ( required_number_of_image_rna_files                            ), dtype=np.int64   )              
+    gnames_new       = np.zeros( ( required_number_of_image_rna_files                            ), dtype=np.uint8   )            # was gene names                                               NOT USED
+    rna_labels_new   = np.zeros( ( required_number_of_image_rna_files,                           ), dtype=np.int_    )            # rna_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training
 
 
 
@@ -448,7 +446,7 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
             
     for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration takes us to a new directory under data_dir
  
-      if DEBUG>9:  
+      if DEBUG>0:  
         print( f"{DIM_WHITE}GENERATE:       INFO:   now processing case (directory) {CYAN}{os.path.basename(dir_path)}{RESET}" )
         
       if not (dir_path==data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data

@@ -1249,7 +1249,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
                                                   low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform  
                                                )
 
-      if DEBUG>2:
+      if DEBUG>0:
         print( f"CLASSI:         INFO:    n_genes     (calculated)           = {MIKADO}{n_genes:,}{RESET}",     flush=True     )
         print( f"CLASSI:         INFO:    n_samples   (determined)           = {MIKADO}{n_samples:,}{RESET}",   flush=True     )
         print( f"CLASSI:         INFO:    batch_size  (determined)           = {MIKADO}{batch_size:,}{RESET}",  flush=True     )
