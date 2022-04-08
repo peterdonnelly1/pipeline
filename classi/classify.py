@@ -623,8 +623,8 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
       n_epochs=1
     if args.just_test=='True':
       if ( input_mode=='image' ):
-        print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set. {CYAN}N_TESTS ('-Z'){RESET}{ORANGE} ({MIKADO}{args.n_tests}{RESET}{ORANGE}) is greater than {CYAN}N_SAMPLES{RESET}{ORANGE} ({MIKADO}{args.n_samples[0]}{RESET}{ORANGE}). Changing {CYAN}N_TESTS{RESET}{ORANGE} to {MIKADO}{args.n_samples[0]}",  flush=True        ) 
         if args.n_tests > args.n_samples[0]:      
+          print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set. {CYAN}N_TESTS ('-Z'){RESET}{ORANGE} ({MIKADO}{args.n_tests}{RESET}{ORANGE}) is greater than {CYAN}N_SAMPLES{RESET}{ORANGE} ({MIKADO}{args.n_samples[0]}{RESET}{ORANGE}). Changing {CYAN}N_TESTS{RESET}{ORANGE} to {MIKADO}{args.n_samples[0]}",  flush=True        ) 
           args.n_tests = args.n_samples[0]
           n_tests      = args.n_samples[0]
     if ( multimode!='image_rna' ) & ( input_mode!='image_rna' ):
@@ -973,7 +973,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
       true_classes                                =  np.zeros     ( ( n_samples            ),     dtype=int         )            # same, but for rna 
       rna_case_id                                 =  np.zeros     ( ( n_samples            ),     dtype=int         )            # same, but for rna 
 
-      if DEBUG>0:
+      if DEBUG>9:
         print ( f"\n\n" )
         print ( f"CLASSI:         INFO:      test(): args.n_tests                     = {PALE_GREEN}{args.n_tests}{RESET}"                  )
         print ( f"CLASSI:         INFO:      test(): n_classes                        = {PALE_GREEN}{n_classes}{RESET}"                     )

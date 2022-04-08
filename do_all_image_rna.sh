@@ -19,7 +19,7 @@ EMBEDDING_FILE_SUFFIX_IMAGE_RNA="___image_rna.npy"
 rm logs/model_image.pt                > /dev/null 2>&1                                                     # delete existing trained image model,       if same exists
 rm classi/modes/classify/train.pth    > /dev/null 2>&1                                                     # delete existing         input dataset,     if same exists
 ./do_all.sh   -d stad  -i image                    -c UNIMODE_CASE  -v True                                # train image      model against unimode training cases      <<<< NOTE: -v ('divide_classes') option causes the cases to be divided into UNIMODE_CASE____MATCHED and MULTIMODE____TEST. Do this once only.
-./do_all.sh   -d stad  -i image      -m image_rna  -c UNIMODE_CASE                     -j True             # test  image      model against held out unimode cases   
+./do_all.sh   -d stad  -i image      -m image_rna  -c UNIMODE_CASE  -X True -s True -g True -j True        # test  image      model against held out unimode cases   
                                                                                                            #    -m image_rna flag means (i) generate feature vectors for multimodal training (ii) use the TRAINING indices that were used for training (we want every feature vector we can get our hands on)
 
 rm logs/model_rna.pt                  > /dev/null 2>&1                                                     # delete existing trained rna seq model,     if same exists
