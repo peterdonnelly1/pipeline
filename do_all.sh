@@ -343,6 +343,7 @@ if [[ ${SKIP_TILING} == "False" ]];
         #~ echo "DO_ALL.SH: INFO: 'image' mode, so deleting saved rna indices:  train_inds_rna, test_inds_rna"
         rm ${DATA_DIR}/train_inds_rna    > /dev/null 2>&1
         rm ${DATA_DIR}/test_inds_rna     > /dev/null 2>&1
+    fi
 
 fi
     
