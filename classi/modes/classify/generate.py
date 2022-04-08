@@ -919,7 +919,7 @@ def generate_rna_dataset ( args, class_names, target, cases_required, highest_cl
               else:
                 pass
       
-            if DEBUG>0:
+            if DEBUG>2:
               print( f"GENERATE:       INFO:                            rna_file_link_id =  {MAGENTA}{rna_file_link_id}{RESET}" )
               print( f"GENERATE:       INFO:                          rna_file_link_name = '{MAGENTA}{rna_file_link_name}{RESET}'" )
               print( f"GENERATE:       INFO:                                        fqln = '{MAGENTA}{fqln}{RESET}'" )

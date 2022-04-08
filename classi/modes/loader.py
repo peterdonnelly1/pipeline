@@ -178,7 +178,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
 
 
 
-    if input_mode=='rna':
+    else:   # rna, image_rna
 
       if args.cases!='ALL_ELIGIBLE_CASES':   # catering for OTHER than 'ALL_ELIGIBLE_CASES'. There are separate database files for training and testing. 
       
