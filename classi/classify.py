@@ -1862,15 +1862,18 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         batch_fnames_npy = batch_fnames.numpy()                                                            # batch_fnames was set up during dataset generation: it contains a link to the SVS file corresponding to the tile it was extracted from - refer to generate() for details
 
         if DEBUG>0:
-          fq_link       = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"                                    # convert the saved integer to the matching file name
-          save_path     =   os.path.dirname(os.readlink(fq_link))                 
-          print( f"CLASSI:         INFO:      test(): (global count {MIKADO}{embedding_count:6d}{RESET}) saving {MIKADO}{batch_fnames_npy.shape[0]}{RESET} embeddings associated with case {MAGENTA}{save_path}{RESET}",                        flush=True )
-          
-                  
-        if DEBUG>0:
           np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
           print ( f"CLASSI:         INFO:      test(): for embeddings: batch_fnames_npy.shape  = {batch_fnames_npy.shape}", flush=True )        
           print ( f"CLASSI:         INFO:      test(): for embeddings: batch_fnames_npy        = {batch_fnames_npy}",       flush=True )
+
+
+        if DEBUG>0:
+          fq_link       = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"                                    # convert the saved integer to the matching file name
+          save_path     =   os.path.dirname(os.readlink(fq_link))                 
+          print( f"CLASSI:         INFO:      test(): fq_link = {MIKADO}{fq_link}{RESET}",                                                                                                                                 flush=True )
+          print( f"CLASSI:         INFO:      test(): (global count {MIKADO}{embedding_count:6d}{RESET}) saving {MIKADO}{batch_fnames_npy.shape[0]}{RESET} embeddings associated with case {MAGENTA}{save_path}{RESET}",   flush=True )
+
+                  
   
         # save each embedding in its associated case directory using a randomly generated name
         if just_test=='True':                                                                              #  in test mode we are pushing inputs through the optimised model, which was saved during training mode
