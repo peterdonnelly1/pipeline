@@ -1862,17 +1862,13 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
 
         if DEBUG>0:
           np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-          print ( f"CLASSI:         INFO:      test(): for embeddings: batch_fnames_npy.shape  = {batch_fnames_npy.shape}", flush=True )        
-          print ( f"CLASSI:         INFO:      test(): for embeddings: batch_fnames_npy        = {batch_fnames_npy}",       flush=True )
+          print ( f"CLASSI:         INFO:      test(): for embeddings: batch_fnames_npy.shape  = {batch_fnames_npy.shape}",       flush=True )        
+          print ( f"CLASSI:         INFO:      test(): for embeddings: batch_fnames_npy        = {batch_fnames_npy}",             flush=True )
 
 
         if DEBUG>0:
           fq_link       = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"                                    # convert the saved integer to the matching file name
-          save_path     =   os.path.dirname(os.readlink(fq_link))
-          fqn           = f"{save_path}/{fq_link}"
-          print( f"CLASSI:         INFO:      test(): batch_fnames_npy[0] = {MAGENTA}{fq_link}{RESET}",                                                                                                                                 flush=True )
-          print( f"CLASSI:         INFO:      test(): corresponding fqn   = {MAGENTA}{fqn}{RESET}",   flush=True )
-
+          print( f"CLASSI:         INFO:      test(): e.g. batch_fnames_npy[0]                 = {MAGENTA}{fq_link}{RESET}",      flush=True )
                   
   
         # save each embedding in its associated case directory using a randomly generated name
@@ -1885,16 +1881,16 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
               if DEBUG>2:
                 np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
                 print ( f"CLASSI:         INFO:      test(): for embeddings: batch_fnames_npy[{MIKADO}{n}{RESET}]   = {PINK}{batch_fnames_npy[n]}{RESET}",              flush=True )
-                print ( f"CLASSI:         INFO:      test(): for embeddings: fq_link                = {PINK}{fq_link}{RESET}",                          flush=True )
+                print ( f"CLASSI:         INFO:      test(): for embeddings: fq_link                = {PINK}{fq_link}{RESET}",                                          flush=True )
               save_path     =  os.path.dirname(os.readlink(fq_link))
               if DEBUG>8:
                 np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-                print ( f"CLASSI:         INFO:      test(): for embeddings: save_path              = {PINK}{save_path}{RESET}",              flush=True )
+                print ( f"CLASSI:         INFO:      test(): for embeddings: save_path              = {PINK}{save_path}{RESET}",                                        flush=True )
               random_name   = f"_{randint(10000000, 99999999)}_image_rna_matched___image"
               save_fqn      = f"{save_path}/{random_name}"
               if DEBUG>8:
                 np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-                print ( f"CLASSI:         INFO:      test(): for embeddings: save_fqn               = {PINK}{save_fqn}{RESET}",              flush=True )
+                print ( f"CLASSI:         INFO:      test(): for embeddings: save_fqn               = {PINK}{save_fqn}{RESET}",                                         flush=True )
               np.save( save_fqn, embedding.cpu().numpy()[n] )
   
             if ( args.input_mode=='rna' ):
@@ -1902,16 +1898,16 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
               if DEBUG>2:
                 np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
                 print ( f"CLASSI:         INFO:      test(): for embeddings: batch_fnames_npy[{MIKADO}{n}{RESET}]   = {PINK}{batch_fnames_npy[n]}{RESET}",              flush=True )
-                print ( f"CLASSI:         INFO:      test(): for embeddings: fq_link                = {BLEU}{fq_link}{RESET}",                          flush=True )
+                print ( f"CLASSI:         INFO:      test(): for embeddings: fq_link                = {BLEU}{fq_link}{RESET}",                                          flush=True )
               save_path     =   os.readlink(fq_link)                                                       # link is to the case directory for rna_seq (for tiles, it's to the patch file within the case directory)
               if DEBUG>2:
                 np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-                print ( f"CLASSI:         INFO:      test(): for embeddings: save_path              = {BLEU}{save_path}{RESET}",              flush=True )
+                print ( f"CLASSI:         INFO:      test(): for embeddings: save_path              = {BLEU}{save_path}{RESET}",                                        flush=True )
               random_name   = f"_image_rna_matched___rna"
               save_fqn      = f"{save_path}/{random_name}"
               if DEBUG>2:
                 np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-                print ( f"CLASSI:         INFO:      test(): for embeddings: save_fqn               = {BLEU}{save_fqn}{RESET}",              flush=True )
+                print ( f"CLASSI:         INFO:      test(): for embeddings: save_fqn               = {BLEU}{save_fqn}{RESET}",                                         flush=True )
               np.save( save_fqn, embedding.cpu().numpy()[n] )
 
             
