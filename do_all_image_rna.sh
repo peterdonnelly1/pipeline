@@ -16,17 +16,20 @@ EMBEDDING_FILE_SUFFIX_IMAGE_RNA="___image_rna.npy"
 #~ source conf/variables.sh ${DATASET}
 
 rm logs/model_image.pt                > /dev/null 2>&1                                                     # delete existing trained image model,       if same exists
-rm classi/modes/classify/train.pth   > /dev/null 2>&1                                                    # delete existing         input dataset,     if same exists
+rm classi/modes/classify/train.pth    > /dev/null 2>&1                                                     # delete existing         input dataset,     if same exists
 ./do_all.sh      -d stad  -i image                    -c UNIMODE_CASE  -v True                             # train image      model against unimode training cases      <<<< NOTE: -v ('divide_classes') option causes the cases to be divided into UNIMODE_CASE____MATCHED and MULTIMODE____TEST. Do this once only.
-./just_test.sh   -d stad  -i image      -m image_rna  -c UNIMODE_CASE                                      # test  image      model against held out unimode cases   -m image_rna flag means generate feature vectors for multimodal training
+./just_test.sh   -d stad  -i image      -m image_rna  -c UNIMODE_CASE                                      # test  image      model against held out unimode cases   
+                                                                                                           #    -m image_rna flag means (i) generate feature vectors for multimodal training (ii) use the TRAINING indices that were used for training (we want every feature vector we can get our hands on)
 
 rm logs/model_rna.pt                  > /dev/null 2>&1                                                     # delete existing trained rna seq model,     if same exists
-rm classi/modes/classify/train.pth   > /dev/null 2>&1                                                    # delete existing         input   dataset,   if same exists
+rm classi/modes/classify/train.pth    > /dev/null 2>&1                                                     # delete existing         input   dataset,   if same exists
 ./do_all.sh      -d stad  -i rna                      -c UNIMODE_CASE                                      # train  rna seq   model against unimode training cases
-./just_test.sh   -d stad  -i rna        -m image_rna  -c UNIMODE_CASE                                      # test   rna seq   model against held out unimode cases   -m image_rna flag means generate feature vectors for multimodal training
+./just_test.sh   -d stad  -i rna        -m image_rna  -c UNIMODE_CASE                                      # test   rna seq   model against held out unimode cases 
+                                                                                                           #    -m image_rna flag means (i) generate feature vectors for multimodal training (ii) use the TRAINING indices that were used for training (we want every feature vector we can get our hands on)
+
 
 rm logs/model_image_rna.pt            > /dev/null 2>&1                                                     # delete existing trained multimode model,   if same exists
-rm classi/modes/classify/train.pth   > /dev/null 2>&1                                                    # delete existing         input     dataset, if same exists
+rm classi/modes/classify/train.pth    > /dev/null 2>&1                                                     # delete existing         input     dataset, if same exists
 ./do_all.sh      -d stad  -i image_rna                -c UNIMODE_CASE                                      # train  multimode model, using concatenation of feature vectors generated in the image and rna seq test runs above as inputs
 
 #~ # Don't do this run, even though it might seem like a good idea.
@@ -39,14 +42,14 @@ rm classi/modes/classify/train.pth   > /dev/null 2>&1                           
 # Generate image embeddings using optimised model
 echo "DO_ALL.SH: INFO: recursively deleting files matching this pattern:  '${EMBEDDING_FILE_SUFFIX_IMAGE}'"
 find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_IMAGE}           -delete                           # delete any existing image feature files
-./just_test.sh   -d stad  -i image      -m image_rna  -c MULTIMODE____TEST                                 # generate image feature files from reserved multimode test set using trained image model
+./just_test.sh   -d stad  -i image      -m image_rna  -c MULTIMODE____TEST                                 # generate image feature files from the (reserved) multimode test set using trained image model
 
 # Generate rna embeddings using optimised model
 echo "DO_ALL.SH: INFO: recursively deleting files matching this pattern:  '${EMBEDDING_FILE_SUFFIX_RNA}'"
 find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_RNA}             -delete                           # delete any existing rna seq feature files
-./just_test.sh   -d stad  -i rna        -m image_rna  -c MULTIMODE____TEST                                 # generate image feature files from reserved multimode test set using trained rna seq model
+./just_test.sh   -d stad  -i rna        -m image_rna  -c MULTIMODE____TEST                                 # generate image feature files from the (reserved) multimode test set using trained rna seq model
 
 # Process matched image+rna emmbeddings
 echo "DO_ALL.SH: INFO: recursively deleting files matching this pattern:  '${EMBEDDING_FILE_SUFFIX_IMAGE_RNA}'"
 find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_IMAGE_RNA}       -delete                           # delete any existing multimode feature files
-./just_test.sh   -d stad  -i image_rna  -m image_rna  -c MULTIMODE____TEST                                 # classify reserved multimode test cases trained multimode model
+./just_test.sh   -d stad  -i image_rna  -m image_rna  -c MULTIMODE____TEST                                 # classify the (reserved) multimode test cases trained multimode model

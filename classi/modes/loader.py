@@ -315,7 +315,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
             pickle.dump(test_inds, f)
 
   
-      # 3B For 'image' TEST mode and 'rna' TEST mode retrieve and use the TRAINING indices that were used during unimodal training
+      # 3B If the multimode flag is set, then, for 'image' TEST mode and 'rna' TEST mode retrieve and use the TRAINING indices that were used during unimodal training.  (We want to generate as many feature vectors as possible for use in training the image+rna model)
               
       elif just_test=='True':                                                                              # test mode     
         
@@ -327,11 +327,11 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
           if args.input_mode == 'image':
             fqn = f"{args.data_dir}/train_inds_image"
             if DEBUG>6:
-              print ( f"LOADER:         INFO:     about to load train_inds from = {MAGENTA}{fqn}{RESET}"         )
+              print ( f"LOADER:         INFO:     about to load train_inds from = {MAGENTA}{fqn}{RESET}"          )
             with open(fqn, 'rb') as f:
               test_inds = pickle.load(f)
               if DEBUG>6:
-                  print ( f"LOADER:         INFO:     test_inds              = {PINK}{test_inds}{RESET}"         )
+                  print ( f"LOADER:         INFO:     test_inds              = {PINK}{test_inds}{RESET}"          )
                   
           elif args.input_mode == 'rna':
             fqn = f"{args.data_dir}/train_inds_rna"

@@ -575,7 +575,7 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
       sys.exit(0) 
  
   if  ( just_test=='True' ) & ( use_autoencoder_output=='True' ):
-    print( f"{ORANGE}CLASSI:         INFO:  flag USE_AUTOENCODER_OUTPUT' isn't compatible with flag 'JUST_TEST' ... will disable test mode and continues{RESET}" )
+    print( f"{ORANGE}CLASSI:         INFO:  flag USE_AUTOENCODER_OUTPUT' isn't compatible with flag 'JUST_TEST' ... will disable test mode and continue{RESET}" )
     args.just_test=False
 
   
@@ -1674,8 +1674,8 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
 
 
 #        if (just_test=='True') & (multimode=='image_rna'):                                                 # skip testing in Test mode if multimode is True 
-        if (just_test=='True') & (multimode=='image_rnaxxx'):                                                 # skip testing in Test mode if multimode is True 
-          pass  
+        if (just_test=='True') & (multimode=='image_rnaxxx'):                                               # skip testing in Test mode if multimode is True 
+          pass  # <---- This will never happen
             
         # DO TESTING
         else:  
@@ -1773,7 +1773,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
     if final_test_batch_size>0:
     
       if ( ( args.just_test!='True') &  (args.input_mode!='image_rna') )   |   ( (args.just_test=='True')  &  (args.input_mode=='image_rna') & (args.multimode=='image_rna')      ):
-           
+      #       ------------------ unimode training -------------------              ------------------------------------ multimode testing ------------------------------------                                                       
       
         if DEBUG>0:
           print ( "\033[8B" )        
@@ -1873,7 +1873,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
           print ( f"CLASSI:         INFO:      test(): for embeddings: batch_fnames_npy        = {batch_fnames_npy}",       flush=True )
   
         # save each embedding in its associated case directory using a randomly generated name
-        if just_test=='True':                                                                               #  in test mode we are pushing inputs through the optimised model, which was saved during training mode
+        if just_test=='True':                                                                              #  in test mode we are pushing inputs through the optimised model, which was saved during training mode
 
           for n in range( 0, batch_fnames_npy.shape[0] ):                                                    
   
