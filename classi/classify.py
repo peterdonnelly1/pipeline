@@ -1869,7 +1869,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         if DEBUG>0:
           fq_link       = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"                                    # convert the saved integer to the matching file name
           save_path     =   os.path.dirname(os.readlink(fq_link))
-          fqn           = f"{save_path}/{fq_link}",               flush=True 
+          fqn           = f"{save_path}/{fq_link}"
           print( f"CLASSI:         INFO:      test(): batch_fnames_npy[0] = {MAGENTA}{fq_link}{RESET}",                                                                                                                                 flush=True )
           print( f"CLASSI:         INFO:      test(): corresponding fqn   = {MAGENTA}{fqn}{RESET}",   flush=True )
 
