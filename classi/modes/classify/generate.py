@@ -446,7 +446,7 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
             
     for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration takes us to a new directory under data_dir
  
-      if DEBUG>0:  
+      if DEBUG>2:  
         print( f"{DIM_WHITE}GENERATE:       INFO:   now processing case (directory) {CYAN}{os.path.basename(dir_path)}{RESET}" )
         
       if not (dir_path==data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
@@ -565,13 +565,13 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
               
               gnames_new [global_image_rna_files_processed]  =  781                                        # Any old number. We don't currently use these
             
-              if DEBUG>888:
+              if DEBUG>0:
                 print ( f"{WHITE}GENERATE:       INFO:                  fnames_new = {MIKADO}{fnames_new}{RESET}",  flush=True )
                 time.sleep(.4)  
   
               global_image_rna_files_processed+=1
   
-              if DEBUG>9:
+              if DEBUG>0:
                 print ( f"{WHITE}GENERATE:       INFO: global_image_rna_files_processed = {MIKADO}{global_image_rna_files_processed}{RESET}",  flush=True )
                 print ( f"{DIM_WHITE}GENERATE:       INFO: n_samples                  = {CYAN}{n_samples}{RESET}",                             flush=True )
 
@@ -933,10 +933,10 @@ def generate_rna_dataset ( args, class_names, target, cases_required, highest_cl
             # ~ fqln = f"{args.data_dir}/{rna_file_link_name}.fqln"                                            # fully qualified link name
             try:
               os.symlink( fqcd, fqln)                                                                      # make a link from fqln to fqcd
-              if DEBUG>0:
+              if DEBUG>2:
                 print ( f"GENERATE:       INFO:       softlink (fqln) {MAGENTA}{fqln}{RESET} \r\033[93C and target (fqcd) = {MAGENTA}{fqcd}{RESET}" )
             except Exception as e:
-              if DEBUG>0:
+              if DEBUG>2:
                 print ( f"{ORANGE}GENERATE:       INFO:       softlink (fqln) {MAGENTA}{fqln}{RESET}{ORANGE} \r\033[93C to target (fqcd) = {MAGENTA}{fqcd}{RESET}{ORANGE} \r\033[185C already exists, which may well be fine and intended{RESET}" )
 
 
