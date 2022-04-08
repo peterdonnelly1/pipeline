@@ -480,7 +480,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
           print( "LOADER:         INFO:   413:   single GPU case" ) 
     
         test_loader = DataLoader(
-          dataset if args.cases=='ALL_ELIGIBLE_CASES' else dataset_rna_test if input_mode=='rna' else dataset_image_test,
+          dataset if args.cases=='ALL_ELIGIBLE_CASES' else dataset_rna_test if input_mode=='rna' else dataset_rna_test if input_mode=='image_rna' else dataset_image_test,
           batch_size   = batch_size,
           num_workers  = num_workers,
           sampler      = SubsetRandomSampler( test_inds ),              
@@ -507,7 +507,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
           print ( f"LOADER:         INFO:       rank                = {MIKADO}{rank}{RESET}"                )
           print ( f"LOADER:         INFO:       num_workers         = {MIKADO}{num_workers}{RESET}"         )
         test_loader = torch.utils.data.DataLoader(
-          dataset if args.cases=='ALL_ELIGIBLE_CASES' else dataset_rna_test if input_mode=='rna' else dataset_image_test,
+          dataset if args.cases=='ALL_ELIGIBLE_CASES' else dataset_rna_test if input_mode=='rna' else dataset_rna_test if input_mode=='image_rna'  else dataset_image_test,
           batch_size       = batch_size,
           num_workers      = num_workers,
           shuffle          = False,
@@ -571,7 +571,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
 
     num_workers            =  num_workers
     final_test_loader = DataLoader(
-      dataset if args.cases=='ALL_ELIGIBLE_CASES' else dataset_rna_test if input_mode=='rna' else dataset_image_test,
+      dataset if args.cases=='ALL_ELIGIBLE_CASES' else dataset_rna_test if input_mode=='rna' else dataset_rna_test if input_mode=='image_rna'  else dataset_image_test,
       batch_size  = final_batch_size,
       num_workers = num_workers,
       sampler     = SubsetRandomSampler( test_inds ),
