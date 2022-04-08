@@ -1822,7 +1822,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
     if (just_test=='True') & (multimode=="image_rna"):
 
       if DEBUG>0:
-        print( f"\r\033[7BCLASSI:         INFO:      test(): {BOLD}about to generate and save embeddings for all test samples{RESET}", flush=True )
+        print( f"{CHARTREAUSE}\r\033[7BCLASSI:         INFO:      test(): {BOLD}about to generate and save embeddings for all test samples{RESET}", flush=True )
 
       model.eval()                                                                                         # set model to evaluation mode
 
