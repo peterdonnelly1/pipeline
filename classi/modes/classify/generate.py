@@ -921,7 +921,7 @@ def generate_rna_dataset ( args, class_names, target, cases_required, highest_cl
               else:
                 pass
       
-            if DEBUG>5:
+            if DEBUG>0:
               print( f"GENERATE:       INFO:                            rna_file_link_id =  {MAGENTA}{rna_file_link_id}{RESET}" )
               print( f"GENERATE:       INFO:                          rna_file_link_name = '{MAGENTA}{rna_file_link_name}{RESET}'" )
               print( f"GENERATE:       INFO:                                        fqln = '{MAGENTA}{fqln}{RESET}'" )
@@ -935,10 +935,10 @@ def generate_rna_dataset ( args, class_names, target, cases_required, highest_cl
             # ~ fqln = f"{args.data_dir}/{rna_file_link_name}.fqln"                                            # fully qualified link name
             try:
               os.symlink( fqcd, fqln)                                                                      # make a link from fqln to fqcd
-              if DEBUG>55:
+              if DEBUG>0:
                 print ( f"GENERATE:       INFO:       softlink (fqln) {MAGENTA}{fqln}{RESET} \r\033[93C and target (fqcd) = {MAGENTA}{fqcd}{RESET}" )
             except Exception as e:
-              if DEBUG>55:
+              if DEBUG>0:
                 print ( f"{ORANGE}GENERATE:       INFO:       softlink (fqln) {MAGENTA}{fqln}{RESET}{ORANGE} \r\033[93C to target (fqcd) = {MAGENTA}{fqcd}{RESET}{ORANGE} \r\033[185C already exists, which may well be fine and intended{RESET}" )
 
 
