@@ -41,16 +41,16 @@ rm classi/modes/classify/train.pth    > /dev/null 2>&1                          
 
 
 # Generate image embeddings using optimised model
-echo "DO_ALL.SH: INFO: recursively deleting files matching this pattern:  '${EMBEDDING_FILE_SUFFIX_IMAGE}'"
-find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_IMAGE}           -delete                           # delete any existing image feature files
-./do_all.sh   -d stad  -i image      -m image_rna  -c MULTIMODE____TEST                -j True             # generate image feature files from the (reserved) multimode test set using trained image model
+#~ echo "DO_ALL.SH: INFO: recursively deleting files matching this pattern:  '${EMBEDDING_FILE_SUFFIX_IMAGE}'"
+#~ find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_IMAGE}           -delete                           # delete any existing image feature files
+#~ ./do_all.sh   -d stad  -i image      -m image_rna  -c MULTIMODE____TEST                -j True             # generate image feature files from the (reserved) multimode test set using trained image model
 
 # Generate rna embeddings using optimised model
-echo "DO_ALL.SH: INFO: recursively deleting files matching this pattern:  '${EMBEDDING_FILE_SUFFIX_RNA}'"
-find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_RNA}             -delete                           # delete any existing rna seq feature files
-./do_all.sh   -d stad  -i rna        -m image_rna  -c MULTIMODE____TEST                -j True             # generate image feature files from the (reserved) multimode test set using trained rna seq model
+#~ echo "DO_ALL.SH: INFO: recursively deleting files matching this pattern:  '${EMBEDDING_FILE_SUFFIX_RNA}'"
+#~ find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_RNA}             -delete                           # delete any existing rna seq feature files
+#~ ./do_all.sh   -d stad  -i rna        -m image_rna  -c MULTIMODE____TEST                -j True             # generate image feature files from the (reserved) multimode test set using trained rna seq model
 
 # Process matched image+rna emmbeddings
-echo "DO_ALL.SH: INFO: recursively deleting files matching this pattern:  '${EMBEDDING_FILE_SUFFIX_IMAGE_RNA}'"
-find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_IMAGE_RNA}       -delete                           # delete any existing multimode feature files
-./do_all.sh   -d stad  -i image_rna  -m image_rna  -c MULTIMODE____TEST                -j True             # classify the (reserved) multimode test cases trained multimode model
+#~ echo "DO_ALL.SH: INFO: recursively deleting files matching this pattern:  '${EMBEDDING_FILE_SUFFIX_IMAGE_RNA}'"
+#~ find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_IMAGE_RNA}       -delete                           # delete any existing multimode feature files
+#~ ./do_all.sh   -d stad  -i image_rna  -m image_rna  -c MULTIMODE____TEST                -j True             # classify the (reserved) multimode test cases trained multimode model

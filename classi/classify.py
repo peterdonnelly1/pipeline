@@ -645,7 +645,7 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
       n_tiles[0] = supergrid_size**2 * batch_size[0]
       print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set, therefore '{CYAN}N_TILES{RESET}{ORANGE}' has been set to '{CYAN}SUPERGRID_SIZE^2 * BATCH_SIZE{RESET}{ORANGE}' ({MIKADO}{supergrid_size} * {supergrid_size} * {batch_size} =  {n_tiles}{RESET} {ORANGE}) for this job{RESET}" )          
     else:
-      print( f"{BOLD}{CHARTREUSE}CLASSI:         INFO:   user argument  '{CYAN}MULTIMODE'{RESET}{BOLD}{CHARTREUSE} = '{multimode}'. Embeddings will be generated.{RESET}"   )      
+      print( f"{BOLD}{CHARTREUSE}CLASSI:         INFO:   user argument  '{BOLD}{CYAN}MULTIMODE'{RESET}{BOLD}{CHARTREUSE} = '{multimode}'. Embeddings will be generated.{RESET}"   )      
   else:
     if ( input_mode=='image' ) &  ( pretrain!='True' ):
       if not tile_size_max**0.5 == int(tile_size_max**0.5):
