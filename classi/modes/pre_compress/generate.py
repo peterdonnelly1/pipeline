@@ -1711,7 +1711,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
   fqn =  f"{args.base_dir}/{args.application_dir}/modes/{args.mode}/dataset_{target}.pth"
   
   if DEBUG>8:  
-    print( f"P_C_GENERATE:   INFO:    {PINK}now saving to Torch dictionary (this takes a little time){RESET}{CLEAR_LINE}")
+    print( f"P_C_GENERATE:   INFO:    {PINK}now saving as Torch dictionary (this takes a little time){RESET}{CLEAR_LINE}")
   
   torch.save({
       'images':     images_new,

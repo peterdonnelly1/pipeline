@@ -65,7 +65,7 @@ CLASS_COLOURS="darkorange       lime      olive      firebrick     dodgerblue   
 
 
 AE_ADD_NOISE="False"
-BATCH_SIZE="47"
+BATCH_SIZE="42"
 BATCH_SIZE_TEST="36"
 CASES="ALL_ELIGIBLE_CASES"                                                                                 # DON'T CHANGE THIS DEFAULT. OTHER VALUES GENERATE AND LEAVE FLAGS IN PLACE WHICH CAN CAUSE CONFUSION IF FORGOTTEN ABOUT!
 CLUSTERING="NONE"                                                                                          # Supported: 'otsne' (opentsne), 'sktsne' (sklearn t-sne), 'hdbscan', 'dbscan', 'NONE'

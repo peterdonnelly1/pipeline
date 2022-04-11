@@ -82,7 +82,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
 
     # 2 Fetch dataset(s)
     
-    if DEBUG>2:
+    if DEBUG>0:
       print( f"{RESET}LOADER:         INFO:    about to load dataset(s)" )
 
     if input_mode=='image':
@@ -95,7 +95,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
         # equates via cfg.get_dataset to: dataset = classifyDataset( cfg, which_dataset, args ), i.e. make an object of class classifyDataset using it's __init__() constructor
         # and dataset_image_test.images = data_image_test['images'] etc.; noting that 'data_image_test' is a tensor: see dataset() where data = torch.load(f"data/classify/{which_dataset}.pth"
         
-        if DEBUG>0  :    
+        if DEBUG>2:    
           print( f"LOADER:         INFO:        dataset {CYAN}{which_dataset}{RESET} now loaded" )      
   
         test_inds = list(range(len( dataset_image_test )  )   )
@@ -112,7 +112,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
             
           which_dataset = 'dataset_image_train'
           dataset       = cfg.get_dataset( args, which_dataset, gpu )
-          # equates via cfg.get_dataset to: dataset = GTExV6Dataset( cfg, which_dataset, args ), i.e. make an object of class GTExV6Dataset using it's __init__() constructor
+          # equates via cfg.get_dataset to: dataset = classifyDataset( cfg, which_dataset, args ), i.e. make an object of class classifyDataset using it's __init__() constructor
           # so  dataset.images = data['images'] etc.; noting that 'dataset' is a tensor:  see dataset() where data = torch.load(f"data/classify/{which_dataset}.pth"
     
           if DEBUG>0:    
@@ -137,7 +137,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
         # and dataset_image_train.images = dataset_image_train['images'] etc.; noting that 'dataset_image_train' is a tensor:  see dataset() where data = torch.load(f"data/classify/{which_dataset}.pth"
         
         if DEBUG>8:    
-          print( f"LOADER:         INFO:    ddataset {CYAN}{which_dataset}{RESET} now loaded" )      
+          print( f"LOADER:         INFO:    dataset {CYAN}{which_dataset}{RESET} now loaded" )      
 
         indices = list(range( len( dataset )  )   )
 
@@ -178,60 +178,57 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
 
 
 
-    else:   # rna, image_rna
+    else:   # handles 'rna' and 'image_rna' input types
 
-      if args.cases!='ALL_ELIGIBLE_CASES':   # catering for OTHER than 'ALL_ELIGIBLE_CASES'. There are separate database files for training and testing. 
+      if args.cases!='ALL_ELIGIBLE_CASES':                                                                 # catering for OTHER than 'ALL_ELIGIBLE_CASES'. There are separate database files for training and testing. 
       
         # always load the test dataset ... (and if we are in just_test mode, that's all we need)
-        which_dataset = 'dataset_rna_test'      
-        dataset_rna_test = cfg.get_dataset( args, which_dataset, gpu )
-        # equates via cfg.get_dataset to: dataset = GTExV6Dataset( cfg, which_dataset, args ), i.e. make an object of class GTExV6Dataset using it's __init__() constructor
-        # and dataset_rna_test.rnas = data_rna_test['rnas'] etc.; noting that 'data_rna_test' is a tensor: see dataset() where data = torch.load(f"data/dlbcl_rna/{which_dataset}.pth"
+        if   args.input_mode == 'rna':
+          dataset_rna_test       = cfg.get_dataset( args, 'dataset_rna_test',       gpu )
+          test_inds = list(range(len( dataset_rna_test )  )   )
+        elif args.input_mode == 'image_rna':
+          dataset_image_rna_test = cfg.get_dataset( args, 'dataset_image_rna_test', gpu )
+          test_inds = list(range(len( dataset_image_rna_test )  )   )
+        # equates via cfg.get_dataset to: dataset = classifyDataset( cfg, which_dataset, args ), i.e. make an object of class classifyDataset using it's __init__() constructor
+        # and dataset_rna_test.rna = data_rna_test['rna'] etc.; noting that 'data_rna_test' is a tensor: see dataset() where data = torch.load(f"data/classi/{which_dataset}.pth"
         
-        if DEBUG>8  :    
-          print( f"LOADER:         INFO:        dataset {CYAN}{which_dataset}{RESET} now loaded" )      
-  
-        test_inds = list(range(len( dataset_rna_test )  )   )
-
-        if DEBUG>2:
+        if DEBUG>0:
           print( f"LOADER:         INFO:    test_inds  = \n{MIKADO}{test_inds}{RESET}" ) 
                   
         if just_test!='True':                                                                              # in training mode, it's critical that both the training and test sets are shuffled
           random.shuffle( test_inds )
         
         
-        # ... but load the training dataset only if we're in training mode
+        # ... load the training dataset as well IFF we're in training mode
         if just_test!='True':
-            
-          which_dataset = 'dataset_rna_train'
-          dataset       = cfg.get_dataset( args, which_dataset, gpu )
-          # equates via cfg.get_dataset to: dataset = GTExV6Dataset( cfg, which_dataset, args ), i.e. make an object of class GTExV6Dataset using it's __init__() constructor
-          # so  dataset.rnas = data['rnas'] etc.; noting that 'dataset' is a tensor:  see dataset() where data = torch.load(f"data/dlbcl_rna/{which_dataset}.pth"
-    
-          if DEBUG>8:    
-            print( f"LOADER:         INFO:        dataset {CYAN}{which_dataset}{RESET} now loaded" )     
-                
-          train_inds = list(range(len( dataset )  )   )  
+          if   args.input_mode == 'rna':
+            dataset    = cfg.get_dataset( args, 'dataset_rna_train',        gpu )
+            train_inds = list(range(len( dataset )  )   )
+          elif args.input_mode == 'image_rna':
+            dataset    = cfg.get_dataset( args, 'dataset_image_rna_train',  gpu )
+            train_inds = list(range(len( dataset )  )   )
+          # equates via cfg.get_dataset to: dataset = classifyDataset( cfg, which_dataset, args ), i.e. make an object of class classifyDataset using it's __init__() constructor
+          # so  dataset.rna = data['rna'] etc.; noting that 'dataset' is a tensor:  see dataset() where data = torch.load(f"data/classi/{which_dataset}.pth"
 
-          if DEBUG>2:
+          if DEBUG>0:
             print( f"LOADER:         INFO:    train_inds  = \n{MIKADO}{train_inds}{RESET}"                 )
             
           random.shuffle(train_inds)                                                                       # in training mode, it's critical that both the training and test sets are shuffled
             
       
 
-      else:     # catering for ALL_ELIGIBLE_CASES.  Different _indices_ (out of dataset_rna_train) for training and testing.
+      else:     # catering for ALL_ELIGIBLE_CASES.  Different _indices_ (always drawn from dataset_rna_train) for training and testing.
 
-
-        which_dataset = 'dataset_rna_train'      
-        dataset       = cfg.get_dataset( args, which_dataset, gpu )
-        # equates via cfg.get_dataset to: dataset = GTExV6Dataset( cfg, which_dataset, args ), i.e. make an object of class GTExV6Dataset using it's __init__() constructor
-        # and dataset_rna_train.rna = dataset_rna_train['rna'] etc.; noting that 'dataset_rna_train' is a tensor:  see dataset() where data = torch.load(f"data/dlbcl_rna/{which_dataset}.pth"
+        if   args.input_mode == 'rna':
+          dataset = cfg.get_dataset( args, 'dataset_rna_train',            gpu )
+          indices = list(range( len( dataset)  )   )
+        elif args.input_mode == 'image_rna':
+          dataset = cfg.get_dataset( args, 'dataset_image_rna_train',      gpu )
+          indices = list(range( len( dataset)  )   )
+        # equates via cfg.get_dataset to: dataset = classifyDataset( cfg, which_dataset, args ), i.e. make an object of class classifyDataset using it's __init__() constructor
+        # and dataset_rna_train.rna = dataset_rna_train['rna'] etc.; noting that 'dataset_rna_train' is a tensor:  see dataset() where data = torch.load(f"data/classi/{which_dataset}.pth"
         
-        if DEBUG>8:    
-          print( f"LOADER:         INFO:    dataset {CYAN}{which_dataset}{RESET} now loaded" )      
 
-        indices = list(range( len( dataset )  )   )
 
         if DEBUG>44:
           print( f"LOADER:         INFO:    indices                         = \n{MIKADO}{indices}{RESET}"      )
@@ -314,7 +311,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
             pickle.dump(test_inds, f)
 
   
-      # 3B If the multimode flag is set, then, for 'image' TEST mode and 'rna' TEST mode retrieve and use the TRAINING indices that were used during unimodal training.  (We want to generate as many feature vectors as possible for use in training the image+rna model)
+      # 3B If the multimode flag is set, then, for 'image' TEST mode and 'rna' TEST mode (but NOT 'image_rna' TEST mode) retrieve and use the TRAINING indices that were used during unimodal training.  (We want to generate as many feature vectors as possible for use in training the image+rna model)
               
       elif just_test=='True':                                                                              # test mode     
         
@@ -480,7 +477,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
           print( "LOADER:         INFO:   413:   single GPU case" ) 
     
         test_loader = DataLoader(
-          dataset if args.cases=='ALL_ELIGIBLE_CASES' else dataset_rna_test if input_mode=='rna' else dataset_rna_test if input_mode=='image_rna' else dataset_image_test,
+          dataset if args.cases=='ALL_ELIGIBLE_CASES' else dataset_rna_test if input_mode=='rna' else dataset_image_rna_test if input_mode=='image_rna' else dataset_image_test,
           batch_size   = batch_size,
           num_workers  = num_workers,
           sampler      = SubsetRandomSampler( test_inds ),              
@@ -507,7 +504,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
           print ( f"LOADER:         INFO:       rank                = {MIKADO}{rank}{RESET}"                )
           print ( f"LOADER:         INFO:       num_workers         = {MIKADO}{num_workers}{RESET}"         )
         test_loader = torch.utils.data.DataLoader(
-          dataset if args.cases=='ALL_ELIGIBLE_CASES' else dataset_rna_test if input_mode=='rna' else dataset_rna_test if input_mode=='image_rna'  else dataset_image_test,
+          dataset if args.cases=='ALL_ELIGIBLE_CASES' else dataset_rna_test if input_mode=='rna' else dataset_image_rna_test if input_mode=='image_rna'  else dataset_image_test,
           batch_size       = batch_size,
           num_workers      = num_workers,
           shuffle          = False,
@@ -530,18 +527,23 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
         dataset     = dataset_image_test      
         sampler     = SequentialSampler  ( test_inds )                                                     # tiles need to be drawn sequentially because we are analysing a 2D contiguous square patch of tiles 
       elif args.input_mode=='rna':
-        if mode=='pre_compress':
-          if DEBUG>0:
-            print( "LOADER:         INFO:   about to create and return test loader for the dedicated test mode: (pre_compress / rna / 'just_test')" ) 
-          which_dataset = 'dataset_rna_test'      
-          dataset_rna_test = cfg.get_dataset( args, which_dataset, gpu )
-          dataset = dataset_rna_test
-          sampler = SubsetRandomSampler( test_inds )                                                     
+        if mode=='pre_compress':                                                                                                                         # TODO: DELETE ONCE PRE_COMPRESS HAS BEEN INTEGRATED
+          if DEBUG>0:                                                                                                                                    # TODO: DELETE ONCE PRE_COMPRESS HAS BEEN INTEGRATED
+            print( "LOADER:         INFO:   about to create and return test loader for the dedicated test mode: (pre_compress / rna / 'just_test')" )    # TODO: DELETE ONCE PRE_COMPRESS HAS BEEN INTEGRATED
+          which_dataset = 'dataset_rna_test'                                                                                                             # TODO: DELETE ONCE PRE_COMPRESS HAS BEEN INTEGRATED
+          dataset_rna_test = cfg.get_dataset( args, which_dataset, gpu )                                                                                 # TODO: DELETE ONCE PRE_COMPRESS HAS BEEN INTEGRATED
+          dataset = dataset_rna_test                                                                                                                     # TODO: DELETE ONCE PRE_COMPRESS HAS BEEN INTEGRATED
+          sampler = SubsetRandomSampler( test_inds )                                                                                                     # TODO: DELETE ONCE PRE_COMPRESS HAS BEEN INTEGRATED
         else:
           if DEBUG>0:
             print( "LOADER:         INFO:   about to create and return test loader for the dedicated test mode: (rna / 'just_test')" ) 
           dataset = dataset_rna_test
-          sampler     = SubsetRandomSampler( test_inds )           
+          sampler     = SubsetRandomSampler( test_inds ) 
+      elif args.input_mode=='image_rna':
+        if DEBUG>0:
+          print( "LOADER:         INFO:   about to create and return test loader for the dedicated test mode: (image_rna / 'just_test')" ) 
+        dataset = dataset_image_rna_test
+        sampler     = SubsetRandomSampler( test_inds )   
 
 
       if use_autoencoder_output=='True':
@@ -571,7 +573,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
 
     num_workers            =  num_workers
     final_test_loader = DataLoader(
-      dataset if args.cases=='ALL_ELIGIBLE_CASES' else dataset_rna_test if input_mode=='rna' else dataset_rna_test if input_mode=='image_rna'  else dataset_image_test,
+      dataset if args.cases=='ALL_ELIGIBLE_CASES' else dataset_rna_test if input_mode=='rna' else dataset_image_rna_test if input_mode=='image_rna'  else dataset_image_test,
       batch_size  = final_batch_size,
       num_workers = num_workers,
       sampler     = SubsetRandomSampler( test_inds ),

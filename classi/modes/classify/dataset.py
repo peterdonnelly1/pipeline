@@ -32,18 +32,15 @@ class classifyDataset( Dataset ):
         fqn = f"{args.base_dir}/{args.application_dir}/modes/{args.mode}/{which_dataset}.pth"
 
         if DEBUG>0:
-          print( f"DATASET:        INFO:  loading {CYAN}{which_dataset}{RESET} dataset from {MAGENTA}{fqn}{RESET}{CLEAR_LINE}" )
+          print( f"DATASET:        INFO:  loading {CYAN}{which_dataset:18s}{RESET} dataset from {MAGENTA}{fqn}{RESET}{CLEAR_LINE}" )
         try:
           data             = torch.load(fqn)
         except Exception as e:
-          print ( f"{RED}LOADER:         FATAL:    could not open file  {MAGENTA}{fqn}{RESET}{RED} - it probably doesn't exist. Cannot continue without a valid Pytorch dataset file to use for training"  )
-          print ( f"{RED}LOADER:         FATAL:    explanation: did you use a shell script or python user argument which suppresses tiling or dataset generation? {RESET}" )                
-          print ( f"{RED}LOADER:         FATAL:        e.g. the script '{CYAN}only_run.sh{RESET}{RED}',                  suppresses tile generation{RESET}" )                 
-          print ( f"{RED}LOADER:         FATAL:        e.g. the script '{CYAN}just_test_dont_tile.sh{RESET}{RED}',       suppresses tile generation{RESET}" )                 
-          print ( f"{RED}LOADER:         FATAL:        e.g. the script '{CYAN}generate_and_run.sh{RESET}{RED}',          suppresses tile generation{RESET}" )                 
-          print ( f"{RED}LOADER:         FATAL:        e.g. the option '{CYAN}--skip_tiling     = 'True'{RESET}{RED}'    suppresses tile generation if invoked by any shell script{RESET}" )                 
-          print ( f"{RED}LOADER:         FATAL:        e.g. the option '{CYAN}--skip_generation = 'True'{RESET}{RED}'    suppresses dataset generation even if tiles have been generated{RESET}" )                 
-          print ( f"{RED}LOADER:         FATAL:    halting now...{RESET}" )
+          print ( f"{RED}DATASET:        FATAL:    could not open file  {MAGENTA}{fqn}{RESET}{RED} - it probably doesn't exist. Cannot continue without a valid Pytorch dataset file to use for training"  )
+          print ( f"{RED}DATASET:        FATAL:    explanation: did you use a shell script option or python user argument which suppresses tiling or dataset generation? {RESET}" )                
+          print ( f"{RED}DATASET:        FATAL:        e.g. the option '{CYAN}-s True{RESET}{RED}' (python '{CYAN}--skip_tiling     = 'True'{RESET}{RED})'    suppresses tile generation{RESET}" )                 
+          print ( f"{RED}DATASET:        FATAL:        e.g. the option '{CYAN}-g True{RESET}{RED}' (python '{CYAN}--skip_tiling     = 'True'{RESET}{RED})'    ssuppresses dataset generation even if tiles exit{RESET}" )                 
+          print ( f"{RED}DATASET:        FATAL:    halting now...{RESET}" )
           sys.exit(0)
 
         #torch.set_num_threads(threads)

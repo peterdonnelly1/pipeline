@@ -79,7 +79,7 @@ class DENSE(nn.Module):
           
         #output = self.encode( x.view(-1, self.input_dim), gpu, encoder_activation )
 
-        if DEBUG>9:
+        if DEBUG>2:
           print ( f"{CLEAR_LINE}DENSE:          INFO:     forward(): output.shape    = {MIKADO}{output.shape}{RESET}" )
           print ( f"{CLEAR_LINE}{CHARTREUSE}DENSE:          INFO:     forward(): embedding.shape = {MIKADO}{embedding.shape}{RESET}" )
           

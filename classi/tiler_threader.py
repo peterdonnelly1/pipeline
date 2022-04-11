@@ -48,10 +48,11 @@ def tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_nor
 
   # DON'T USE args.n_tiles since it is the job level array of numbers of tiles. Rather, used the passed in parameter 'n_tiles' which is the value for this run
   just_test    = args.just_test
+  multimode    = args.multimode
   just_profile  =args.just_profile
 
-  if just_test=='True':
-    print( f"{ORANGE}TILER_THREADER: INFO: CAUTION! 'just_test' flag is set. To produce a 2D contiguous output, ALL tiles will be used including background & degenerate tiles (tile statistics are valid, but will show all tiles as 'ok'){RESET}" )         
+  if ( ( just_test=='True')  & ( multimode!='True' ) ):
+    print( f"{ORANGE}TILER_THREADER: INFO: CAUTION! 'just_test' flag is set (and multimode flag not set). To produce a 2D contiguous output, ALL tiles will be used including background & degenerate tiles (tile statistics are valid, but will show all tiles as 'ok'){RESET}" )         
 
   if just_profile=='True':
     print( f"{ORANGE}TILER_THREADER: INFO: CAUTION! 'just_profile' flag is set. Will display slide/tile profiles and then exit{RESET}" )
@@ -62,8 +63,8 @@ def tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_nor
   tasks = []
 
 
-  if just_test=='True':
-    print( f"{ORANGE}TILER_THREADER: INFO: CAUTION! 'just_test' flag is set. Only one process will be used (to ensure the same tiles aren't selected more than one time){RESET}" )     
+  if ( ( just_test=='True')  & ( multimode!='image_rna' ) ):
+    print( f"{ORANGE}TILER_THREADER: INFO: CAUTION! 'just_test' flag is set (and multimode flag not set). Only one process will be used (to ensure the same tiles aren't selected more than one time){RESET}" )     
     task=executor.submit( tiler_scheduler, args, r_norm, flag, count, n_tiles, tile_size, batch_size, stain_norm, norm_method, 0, 1)
     tasks.append(task)
   else:
@@ -82,7 +83,7 @@ def tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_nor
   wait( tasks, return_when=ALL_COMPLETED )
 
   
-  if just_test!='True':
+  if ( ( just_test!='True')  | ( multimode=='image_rna' ) ):                                               # training mode or multimode test mode
     results = [ tasks[x].result() for x in range(0, num_cpus) ]
     if sum(results)==0:
       print ( f"{RED}TILER_THREADER:  FATAL:  no tiles at all were successfully processed{RESET}" )
@@ -91,8 +92,7 @@ def tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_nor
       print ( f"{RED}TILER_THREADER:  FATAL:                  e.g. '{CYAN}./do_all.sh -d <cancer type code> -i image ... {CHARTREUSE}-r True{RESET}{RED}'{RESET}\n\n" )
       time.sleep(10)                                    
       sys.exit(0)   
-
-  else:
+  else:                                                                                                    # test mode
     results = tasks[0].result()
     if results==0:
       print ( f"{RED}TILER_THREADER:  FATAL:  no tiles at all were successfully processed{RESET}" )
@@ -106,7 +106,7 @@ def tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_nor
 
   if DEBUG>0:
     print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row+num_cpus};{start_column+3}f{CLEAR_LINE}ALL THREADS HAVE FINISHED{RESET}{CLEAR_LINE}{RESTORE_CURSOR}", flush=True, end=""  )                     
-    print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row+num_cpus+1};{start_column+3}f{CLEAR_LINE}total slides processed     = {MIKADO}{sum(results) if just_test!='True' else results}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}", flush=True, end=""  )                  
+    print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row+num_cpus+1};{start_column+3}f{CLEAR_LINE}total slides processed     = {MIKADO}{sum(results) if ( ( just_test!='True' ) | ( multimode=='image_rna' ) ) else results}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}", flush=True, end=""  )                  
     print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row+num_cpus+2};{start_column+3}f{CLEAR_LINE}slides handled per process = {MIKADO}{results}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}", flush=True, end=""  )                  
  
         

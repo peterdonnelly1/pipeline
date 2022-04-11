@@ -72,21 +72,22 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
   stain_normalization_target_set  = False
   
   # DON'T USE args.n_tiles or args.tile_size, since it is the JOB level list of numbers of tiles. Here we are just using one value of n_tiles, passed in as the parameter above  
-  just_profile           = args.just_profile                                                                # display an analysis of image tiles then exit
-  just_test              = args.just_test                                                                   # if set, suppress tile quality filters (i.e. accept every tile)
+  just_profile           = args.just_profile                                                               # display an analysis of image tiles then exit
+  just_test              = args.just_test                                                                  # if set, suppress tile quality filters (i.e. accept every tile)
+  multimode              = args.multimode                                                                  # if set, suppress tile quality filters (i.e. accept every tile)
   data_dir               = args.data_dir
   log_dir                = args.log_dir
-  rand_tiles             = args.rand_tiles                                                                  # select tiles at random coordinates from image. Done AFTER other quality filtering
+  rand_tiles             = args.rand_tiles                                                                 # select tiles at random coordinates from image. Done AFTER other quality filtering
   zoom_out_prob          = args.zoom_out_prob
   zoom_out_mags          = args.zoom_out_mags
-  greyness               = args.greyness                                                                    # Used to filter out images with very low information value
-  min_uniques            = args.min_uniques                                                                 # tile must have at least this many unique values or it will be assumed to be degenerate
-  min_tile_sd            = args.min_tile_sd                                                                 # Used to cull slides with a very reduced greyscale palette such as background tiles 
-  points_to_sample       = args.points_to_sample                                                            # In support of culling slides using 'min_tile_sd', how many points to sample on a tile when making determination
+  greyness               = args.greyness                                                                   # Used to filter out images with very low information value
+  min_uniques            = args.min_uniques                                                                # tile must have at least this many unique values or it will be assumed to be degenerate
+  min_tile_sd            = args.min_tile_sd                                                                # Used to cull slides with a very reduced greyscale palette such as background tiles 
+  points_to_sample       = args.points_to_sample                                                           # In support of culling slides using 'min_tile_sd', how many points to sample on a tile when making determination
   supergrid_size         = args.supergrid_size
   scattergram            = args.scattergram
     
-  if just_test=='True':
+  if ( ( just_test=='True')  & ( multimode!='image_rna' ) ):  
     greyness=60
     min_uniques=100
     min_tile_sd=3
@@ -95,7 +96,7 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
 
   if not just_profile=='True':
     if (DEBUG>2):
-      if not just_test=='True':      
+      if ( ( just_test!='True' ) | ( multimode=='image_rna') ):      
         print ( f"process:slide: {BB}{my_thread}) {f:66s}{RESET} ", flush=True, end="" )
       else:
         print ( f"TILER:            INFO: process:slide                 = {CYAN}{my_thread:2d}{RESET}:{f:66s} ", flush=True         )
@@ -177,8 +178,8 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
              
   if openslide.PROPERTY_NAME_MPP_X           in oslide.properties:                                         # microns per pixel the image was scanned at
     if (DEBUG>0):
-      print(f"\r{DULL_WHITE}TILER:          INFO:   scan microns/pixel (X)  = {DULL_WHITE}property {BB}PROPERTY_NAME_MPP_X{RESET} = {MIKADO}{float(oslide.properties[ openslide.PROPERTY_NAME_MPP_X]):6.2f}{RESET}", flush=True )                
-  elif "XResolution" in oslide.properties:                                                               # for TIFF format images (apparently)  https://openslide.org/docs/properties/
+      print(f"\r{DULL_WHITE}                         microns/pixel = {BB}PROPERTY_NAME_MPP_X{RESET} = {MIKADO}{float(oslide.properties[ openslide.PROPERTY_NAME_MPP_X]):6.2f}{RESET}", flush=True )                
+  elif "XResolution" in oslide.properties:                                                                 # for TIFF format images (apparently)  https://openslide.org/docs/properties/
     mag = 10.0 / float(oslide.properties["XResolution"]);
     if (DEBUG>2):
       print(f"\r{DULL_WHITE}TILER:          INFO:   XResolution       = {DULL_WHITE}property {BB}XResolution{RESET} = {MIKADO}{float(oslide.properties['XResolution']):6.2f}{RESET}",                              flush=True )
@@ -213,7 +214,7 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
 
   # (2a) [test mode] look for the best possible patch (of the requested size) to use
      
-  if just_test=='True':
+  if ( ( just_test=='True')  & ( multimode!='image_rna' ) ):
 
     samples      = args.patch_points_to_sample
     high_uniques = 0
@@ -229,17 +230,18 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
         print( f"\033[1m\033[mTILER:            INFO:  coordinates of tile in slide with best contrast: x={x_start:7d} y={y_start:7d} and highest number of unique RGB values = {high_uniques:5d}\033[m" )
 
     if DEBUG>2:
-      print( f"{ORANGE}TILER:          INFO: CAUTION! 'just_test' flag is set. (Super-)patch origin will be set to the following coordinates, chosen for good contrast: x={CYAN}{x_start}{RESET}{ORANGE}, y={CYAN}{y_start}{RESET}" )  
+      print( f"{ORANGE}TILER:          INFO: CAUTION! 'just_test' flag is set (and multimode flag is not). (Super-)patch origin will be set to the following coordinates, chosen for good contrast: x={CYAN}{x_start}{RESET}{ORANGE}, y={CYAN}{y_start}{RESET}" )  
   
   
-  # (2b) Set up parameters for selection of tiles (for training mode: random; for test mode: 2D contiguous patch taking into account the supergrid setting
+  # (2b) Set up parameters for selection of tiles (for training mode and multimode: random; for test mode: 2D contiguous patch taking into account the supergrid setting
   
-  if (just_test=="False") | (args.multimode=='True'):
+  if ( ( just_test!='True' ) | ( multimode=='image_rna' ) ):
     x_start=0
     y_start=0
     x_span=range(x_start, width, tile_width)                                                               # steps of tile_width
     y_span=range(y_start, width, tile_width)                                                               # steps of tile_width
     
+
   else:                                                                                                    # test mode (for patching)
     tiles_to_get = int(batch_size**0.5)                                                                    # length of one side of the patch, in number of tiles (the patch is square, and the  batch_size is chosen to be precisely equal to the n_tiles for test mode) 
     tile_height  = tile_width
@@ -250,7 +252,7 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
     
     
   if DEBUG>18:
-    if just_test=='True':
+    if ( ( just_test=='True')  & ( multimode!='image_rna' ) ):  
       supergrid_side = int(supergrid_size*batch_size**0.5)
       print( f"{WHITE}TILER:          INFO:    supergrid       (user parameter) = {MIKADO}{supergrid_size}{RESET}" )  
       print( f"{WHITE}TILER:          INFO:    tiles per batch (user parameter) = {MIKADO}{batch_size}{RESET}" )
@@ -270,7 +272,7 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
 
   # (2c) [test mode] extract and save a copy of the entire un-tiled patch, for later use in the Tensorboard scattergram display
   
-  if just_test=='True':
+  if ( ( just_test=='True')  & ( multimode!='image_rna' ) ):  
             
     patch       = oslide.read_region((x_start, y_start), level, (patch_width, patch_height))               # matplotlibs' native format is PIL RGBA
     
@@ -305,10 +307,10 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
     
           tiles_considered_count+=1
               
-          if   ( just_test=='True'  )  & ( tiles_processed==n_tiles*(supergrid_size**2) ):
+          if   ( ( just_test=='True' ) & ( multimode!='image_rna' ) ) & ( tiles_processed==n_tiles*(supergrid_size**2) ):
             break_now=True
             break
-          elif ( just_test=='False' )  & ( tiles_processed==n_tiles  ):
+          elif ( ( just_test!='True' ) | ( multimode=='image_rna') )  & ( tiles_processed==n_tiles  ):
             break_now=True
             break            
               
@@ -319,7 +321,7 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
                   print(f'\n{ORANGE}TILER: WARNING: not enough tiles in this slide to meet the quality criteria. (At coords {CYAN}{x},{y}{RESET}) with {CYAN}{tiles_processed}{RESET}) -- skipping {CYAN}{fqn}{RESET}', flush=True)
                   already_displayed=True
               else:
-                if just_test==False:
+                if ( ( just_test!='True' ) | ( multimode=='image_rna') ):
                   print(f'\n{ORANGE}TILER: WARNING: not enough tiles in slide to meet the quality criteria. (At coords {CYAN}{x},{y}{RESET}) with {CYAN}{tiles_processed}{RESET}) -- skipping {CYAN}{fqn}{RESET}', flush=True)
                   return FAIL
               
@@ -347,7 +349,7 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
               multiplier = 1
 
             if DEBUG>0:
-              print( f'\r\033[{start_row+my_thread};77f\033[1Kzoom out =      {AMETHYST if multiplier==1 else MIKADO if multiplier==2 else CARRIBEAN_GREEN if 2<multiplier<=4 else BITTER_SWEET if 5<multiplier<=8 else CHARTREUSE if 5<multiplier<=8 else CAMEL }\033[{3*int(math.log2(multiplier))}C{multiplier:<12d}   {RESET}' )
+              print( f'\r\033[{start_row+my_thread};77fzoom out =      {AMETHYST if multiplier==1 else MIKADO if multiplier==2 else CARRIBEAN_GREEN if 2<multiplier<=4 else BITTER_SWEET if 5<multiplier<=8 else CHARTREUSE if 5<multiplier<=8 else CAMEL }\033[{3*int(math.log2(multiplier))}C{multiplier:<12d}   {RESET}' )
 
             if DEBUG>0:
                 print  (f"\
@@ -360,10 +362,10 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
 \r\033[{start_row-2};{start_column+80}fbackground\
 ", flush=True, end="" )
 
-            if just_test=='True':
-
+            if ( ( just_test=='True')  & ( multimode!='image_rna' ) ):  
+              
               if ( rand_tiles=='True'):
-                  print ( f"{RED}TILER: INFO:  {CYAN}just_test=='True'{RESET} but user argument {CYAN}rand_tiles=='True'{RESET}. {CYAN}rand_tiles=='False'{RESET} probably should be changed to {CYAN}'False'{RESET}{RED}" )
+                  print ( f"{RED}TILER: INFO:  {CYAN}( just_test=='True')  & ( multimode!='image_rna' ){RESET} but user argument {CYAN}rand_tiles=='True'{RESET}. {CYAN}rand_tiles=='False'{RESET} probably should be changed to {CYAN}'False'{RESET}{RED}" )
      
               if objective_power==20:
 
@@ -400,7 +402,7 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
             else:
               
               if ( rand_tiles=='False'):
-                  print ( f"{RED}TILER: INFO:  {CYAN}just_test=='False'{RESET} but user argument {CYAN}rand_tiles=='False'{RESET}. {CYAN}rand_tiles=='False'{RESET} probably should be changed to {CYAN}'True'{RESET}{RED}" )
+                  print ( f"{RED}TILER: INFO:  {CYAN}( just_test!='True')  | ( multimode=='True' ){RESET} but user argument {CYAN}rand_tiles=='False'{RESET}. {CYAN}rand_tiles=='False'{RESET} probably should be changed to {CYAN}'True'{RESET}{RED}" )
               
               if objective_power==20:
                     
@@ -480,7 +482,7 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
             if IsDegenerate:
               degenerate_image_count+=1
 
-            if ( IsBackground | IsDegenerate | IsLowContrast ) & ( just_test=='False' ):                   # If 'just_test' = True, all tiles must be accepted
+            if ( IsBackground | IsDegenerate | IsLowContrast ) & ( ( just_test!='True' ) | ( multimode=='True') ):                   # If 'just_test' = True, all tiles must be accepted
               if (DEBUG>999):
                 print ( "TILER: INFO:               skipping this tile" ) 
               pass
@@ -553,7 +555,7 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
           else:
             if (DEBUG>0):
               pass
-              if just_test=='False':
+              if ( ( just_test!='True' ) | ( multimode=='True') ):
                 pass
                 # ~ time.sleep(0.2)
                 # ~ print ( f"{SAVE_CURSOR}\033[{my_thread+67-num_cpus};{start_column}f", end="" )
@@ -686,7 +688,7 @@ def stain_normalization( norm_method, tile ):
 # ------------------------------------------------------------------------------
 def check_background( args, tile ):
 
-  tile_grey     = tile.convert('L')                                                            # make a greyscale copy of the image
+  tile_grey     = tile.convert('L')                                                                        # make a greyscale copy of the image
   np_tile_grey  = np.array(tile_grey)
   tile_PIL      = Image.fromarray( np_tile_grey )
   

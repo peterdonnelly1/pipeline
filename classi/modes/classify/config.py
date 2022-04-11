@@ -44,7 +44,7 @@ class classifyConfig(Config):
     def get_image_net( self, args, input_mode, nn_type_img, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, nn_dense_dropout_1, nn_dense_dropout_2, tile_size ):
 
       if DEBUG>0:
-        print( f"CONFIG:          INFO:     at {CYAN}get_image_net(){RESET}:   nn_type_img  = {CYAN}{nn_type_img}{RESET}" )
+        print( f"CONFIG:         INFO:     at {CYAN}get_image_net(){RESET}:   nn_type_img  = {CYAN}{nn_type_img}{RESET}" )
 
       if   nn_type_img=='LENET5':
         return LENET5         ( self, args, n_classes, tile_size )

@@ -603,7 +603,7 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
 
   if ( args.cases=='MULTIMODE____TEST' ):                                                                           
     if DEBUG>0:
-      print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}args.cases{RESET}{ORANGE}' = {MAGENTA}{args.cases}{RESET}{ORANGE}! Therefore '{CYAN}N_SAMPLES{RESET}{ORANGE}' (currently {MIKADO}{n_samples[0]}{RESET}{ORANGE}) will be changed to the value of '{CYAN}CASES_RESERVED_FOR_IMAGE_RNA{RESET}{ORANGE} ({MIKADO}{args.cases_reserved_for_image_rna}{RESET}{ORANGE})" ) 
+      print( f"{CHARTREUSE}CLASSI:         INFO:  '{CYAN}args.cases{RESET}{CHARTREUSE}' = {MAGENTA}{args.cases}{RESET}{CHARTREUSE}' Therefore '{CYAN}N_SAMPLES{RESET}{CHARTREUSE}' (currently {MIKADO}{n_samples[0]}{RESET}{CHARTREUSE}) will be changed to the value of '{CYAN}CASES_RESERVED_FOR_IMAGE_RNA{RESET}{CHARTREUSE} ({MIKADO}{args.cases_reserved_for_image_rna}{RESET}{CHARTREUSE}){RESET}" ) 
     args.n_samples[0] = cases_reserved_for_image_rna
     n_samples         = args.n_samples
   
@@ -621,12 +621,11 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
     if n_epochs>1:
       print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set, so n_epochs (currently {MIKADO}{n_epochs}{RESET}{ORANGE}) has been set to {MIKADO}1{RESET}{ORANGE} for this run{RESET}" ) 
       n_epochs=1
-    if args.just_test=='True':
-      if ( input_mode=='image' ):
-        if args.n_tests > args.n_samples[0]:      
-          print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set. {CYAN}N_TESTS ('-Z'){RESET}{ORANGE} ({MIKADO}{args.n_tests}{RESET}{ORANGE}) is greater than {CYAN}N_SAMPLES{RESET}{ORANGE} ({MIKADO}{args.n_samples[0]}{RESET}{ORANGE}). Changing {CYAN}N_TESTS{RESET}{ORANGE} to {MIKADO}{args.n_samples[0]}",  flush=True        ) 
-          args.n_tests = args.n_samples[0]
-          n_tests      = args.n_samples[0]
+    if ( input_mode=='image' ):
+      if args.n_tests > args.n_samples[0]:      
+        print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set. {CYAN}N_TESTS ('-Z'){RESET}{ORANGE} ({MIKADO}{args.n_tests}{RESET}{ORANGE}) is greater than {CYAN}N_SAMPLES{RESET}{ORANGE} ({MIKADO}{args.n_samples[0]}{RESET}{ORANGE}). Changing {CYAN}N_TESTS{RESET}{ORANGE} to {MIKADO}{args.n_samples[0]}",  flush=True        ) 
+        args.n_tests = args.n_samples[0]
+        n_tests      = args.n_samples[0]
     if ( multimode!='image_rna' ) & ( input_mode!='image_rna' ):
       print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set. Only one thread will be used for processing to ensure patch tiles will be processed in the correct sequence{RESET}" )
       if len(args.hidden_layer_neurons)>1:
@@ -857,6 +856,7 @@ f"\
       
       if just_test=='False':                                                                      
         multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count =  segment_cases( pct_test )  # boils down to setting flags in the directories of certain cases, esp. 'MULTIMODE_CASE_FLAG'
+        time.sleep(5)
       else:
         print( f"{RED}CLASSI:         FATAL: user option  {CYAN}-v ('args.cases'){RESET}{RED} is not allowed in test mode ({CYAN}JUST_TEST=True{RESET}, {CYAN}--just_test 'True'{RESET}){RED}{RESET}" )
         print( f"{RED}CLASSI:         FATAL: explanation:  it will resegment the cases, meaning there is every chance cases you've trained on will end up in the test set{RESET}" )
@@ -904,7 +904,7 @@ f"\
 
 
     if input_mode=='image':
-      descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases[0:20]:_<23s}_{nn_type_img:_<9s}_{nn_optimizer:_<8s}_e_{args.n_epochs:03d}_N_{n_samples:04d}\
+      descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases[0:10]:_<23s}_{nn_type_img:_<9s}_{nn_optimizer:_<8s}_e_{args.n_epochs:03d}_N_{n_samples:04d}\
 _hicls_{n_classes:02d}_bat_{batch_size:03d}_test_{int(100*pct_test):02d}_lr_{lr:09.6f}_tiles_{n_tiles:04d}_tlsz_{tile_size:03d}__mags_{mags}__probs_{prob:_<30s}"
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}  Tiles/Slide={n_tiles:d}   Tile size={tile_size:d}x{tile_size:d}\n\
@@ -1053,7 +1053,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
     # (1) set up Tensorboard
     
     if DEBUG>1:    
-      print( "CLASSI:         INFO: \033[1m3 about to set up Tensorboard\033[m" )
+      print( "CLASSI:         INFO: \033[1m1 about to set up Tensorboard\033[m" )
     
     writer = SummaryWriter(comment=f'_{randint(100, 999)}_{descriptor}' )
 
@@ -1065,7 +1065,8 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
 
     # (2) Potentially schedule and run tiler threads
     
-    if (input_mode=='image') & (multimode!='image_rna'):
+    # ~ if (input_mode=='image') & (multimode!='image_rna'):
+    if (input_mode=='image'):
       
       if skip_tiling=='False':
                   
@@ -1250,7 +1251,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
                                                )
 
       if DEBUG>0:
-        print( f"CLASSI:         INFO:    n_genes     (calculated)           = {MIKADO}{n_genes:,}{RESET}",     flush=True     )
+        print( f"CLASSI:         INFO:    n_genes/embed length (calculated)  = {MIKADO}{n_genes:,}{RESET}",     flush=True     )
         print( f"CLASSI:         INFO:    n_samples   (determined)           = {MIKADO}{n_samples:,}{RESET}",   flush=True     )
         print( f"CLASSI:         INFO:    batch_size  (determined)           = {MIKADO}{batch_size:,}{RESET}",  flush=True     )
 
@@ -1365,7 +1366,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
 
 
 
-    #(5) Load network
+    #(5) Load neural network
 
     if DEBUG>1:                                                                                                        
       print( f"CLASSI:         INFO: {BOLD}5 about to load network {MIKADO}{nn_type_img}{RESET}{BOLD} and {MIKADO}{nn_type_rna}{RESET}" )
@@ -3811,7 +3812,7 @@ def segment_cases( pct_test ):
     multimode_case_test_count    = 0
     
     if DEBUG>0:
-      print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():    about to randomly designate {CYAN}CASES_RESERVED_FOR_IMAGE_RNA{RESET} = {ARYLIDE}{args.cases_reserved_for_image_rna}{RESET}{DULL_WHITE} cases flagged as '{ARYLIDE}HAS_BOTH{RESET}{DULL_WHITE}' to be exclusively reserved as {ARYLIDE}MULTIMODE____TEST{RESET}{DULL_WHITE} cases",  flush=True )
+      print ( f"{BOLD}{CHARTREUSE}CLASSI:         INFO:    segment_cases():    about to randomly designate {CYAN}CASES_RESERVED_FOR_IMAGE_RNA{RESET}{BOLD}{CHARTREUSE}={ARYLIDE}{args.cases_reserved_for_image_rna}{RESET}{BOLD}{CHARTREUSE} cases flagged as '{ARYLIDE}HAS_BOTH{RESET}{BOLD}{CHARTREUSE}' to be exclusively reserved as {ARYLIDE}MULTIMODE____TEST{RESET}{BOLD}{CHARTREUSE} cases",  flush=True )
    
     while True:
       
@@ -4037,7 +4038,7 @@ def segment_cases( pct_test ):
     cases_to_designate = int(pct_test * unimode_case_image_count)
         
     if DEBUG>0:
-      print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():    about to randomly re-designate int({CYAN}PCT_TEST{RESET}{DULL_WHITE} {MIKADO}{pct_test*100:4.2f}%{RESET}{DULL_WHITE} * {CYAN}unimode_case_image_count{RESET}{DULL_WHITE} {MIKADO}{unimode_case_image_count}{RESET}{DULL_WHITE}) = {MIKADO}{cases_to_designate} {ARYLIDE}UNIMODE_CASE____IMAGE{RESET}{DULL_WHITE} cases as reserved image test cases by placing the flag {ARYLIDE}UNIMODE_CASE____IMAGE_TEST{RESET}{DULL_WHITE} in their case directories",  flush=True )
+      print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():    about to randomly re-designate int({CYAN}PCT_TEST{RESET}{DULL_WHITE} {MIKADO}{pct_test*100:4.2f}%{RESET}{DULL_WHITE} * {CYAN}unimode_case_image_count{RESET}{DULL_WHITE} {MIKADO}{unimode_case_image_count}{RESET}{DULL_WHITE}) = {MIKADO}{cases_to_designate} {ARYLIDE}UNIMODE_CASE____IMAGE{RESET}{DULL_WHITE} cases as reserved image test cases by placing the flag {ARYLIDE}UNIMODE_CASE____IMAGE_TEST{RESET}{DULL_WHITE}",  flush=True )
     
     directories_considered_count   = 0
     unimode_case_image_test_count  = 0
@@ -4094,7 +4095,7 @@ def segment_cases( pct_test ):
     cases_to_designate = int(pct_test * unimode_case_rna_count)
         
     if DEBUG>0:
-      print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():    about to randomly re-designate int({CYAN}PCT_TEST{RESET}{DULL_WHITE} {MIKADO}{pct_test*100:4.2f}%{RESET}{DULL_WHITE} * {CYAN}unimode_case_rna_count{RESET}{DULL_WHITE}   {MIKADO}{unimode_case_rna_count}{RESET}{DULL_WHITE}) = {MIKADO}{cases_to_designate} {ARYLIDE}UNIMODE_CASE____RNA{RESET}{DULL_WHITE}   cases as reserved rna   test cases by placing the flag {ARYLIDE}UNIMODE_CASE____RNA_TEST{RESET}{DULL_WHITE}   in their case directories",  flush=True )
+      print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():    about to randomly re-designate int({CYAN}PCT_TEST{RESET}{DULL_WHITE} {MIKADO}{pct_test*100:4.2f}%{RESET}{DULL_WHITE} * {CYAN}unimode_case_rna_count{RESET}{DULL_WHITE}   {MIKADO}{unimode_case_rna_count}{RESET}{DULL_WHITE}) = {MIKADO}{cases_to_designate} {ARYLIDE}UNIMODE_CASE____RNA{RESET}{DULL_WHITE}   cases as reserved rna   test cases by placing the flag {ARYLIDE}UNIMODE_CASE____RNA_TEST{RESET}{DULL_WHITE}",  flush=True )
     
     directories_considered_count   = 0
     unimode_case_rna_test_count    = 0
@@ -4144,17 +4145,17 @@ def segment_cases( pct_test ):
     
 
     if DEBUG>0:
-        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():    flags placed:{RESET}",                                                                            flush=True )
-        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():      HAS_IMAGE ................................. = {MIKADO}{has_image_count}{RESET}",                  flush=True )
-        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():      HAS_RNA ................................... = {MIKADO}{has_rna_count}{RESET}",                  flush=True )
-        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():      HAS_BOTH .................................. = {MIKADO}{matched_image_rna_count}{RESET}",        flush=True )
-        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():      MULTIMODE____TEST . . . . . . . . . . . . . = {MIKADO}{multimode_case_test_count}{RESET}",      flush=True )
-        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():      UNIMODE_CASE____MATCHED . . . . . . . . . . = {MIKADO}{unimode_case_matched_count}{RESET}",     flush=True )
-        print ( f"{DULL_WHITE}CLASSI:          INFO:    segment_cases():      UNIMODE_CASE  . . . . . . . . . . . . . . . = {MIKADO}{unimode_case_unmatched_count}{RESET}",   flush=True )
-        print ( f"{DULL_WHITE}CLASSI:          INFO:    segment_cases():      UNIMODE_CASE____IMAGE . . . . . . . . . . . = {MIKADO}{unimode_case_image_count}{RESET}",       flush=True )
-        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():      UNIMODE_CASE____IMAGE_TEST  . . . . . . . . = {MIKADO}{unimode_case_image_test_count}{RESET}",  flush=True )
-        print ( f"{DULL_WHITE}CLASSI:          INFO:    segment_cases():      UNIMODE_CASE____RNA . . . . . . . . . . . . = {MIKADO}{unimode_case_rna_count}{RESET}",         flush=True )
-        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():      UNIMODE_CASE____RNA_TEST  . . . . . . . . . = {MIKADO}{unimode_case_rna_test_count}{RESET}",    flush=True )
+        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():    these flags have been placed:{RESET}",                                                            flush=True )
+        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():        HAS_IMAGE ................................. = {MIKADO}{has_image_count}{RESET}",                flush=True )
+        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():        HAS_RNA ................................... = {MIKADO}{has_rna_count}{RESET}",                  flush=True )
+        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():        HAS_BOTH .................................. = {MIKADO}{matched_image_rna_count}{RESET}",        flush=True )
+        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():        MULTIMODE____TEST . . . . . . . . . . . . . = {MIKADO}{multimode_case_test_count}{RESET}",      flush=True )
+        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():        UNIMODE_CASE____MATCHED . . . . . . . . . . = {MIKADO}{unimode_case_matched_count}{RESET}",     flush=True )
+        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():        UNIMODE_CASE  . . . . . . . . . . . . . . . = {MIKADO}{unimode_case_unmatched_count}{RESET}",   flush=True )
+        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():        UNIMODE_CASE____IMAGE . . . . . . . . . . . = {MIKADO}{unimode_case_image_count}{RESET}",       flush=True )
+        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():        UNIMODE_CASE____IMAGE_TEST  . . . . . . . . = {MIKADO}{unimode_case_image_test_count}{RESET}",  flush=True )
+        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():        UNIMODE_CASE____RNA . . . . . . . . . . . . = {MIKADO}{unimode_case_rna_count}{RESET}",         flush=True )
+        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():        UNIMODE_CASE____RNA_TEST  . . . . . . . . . = {MIKADO}{unimode_case_rna_test_count}{RESET}",    flush=True )
 
     
     return multimode_case_test_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case_image_count, unimode_case_image_test_count, unimode_case_rna_count, unimode_case_rna_test_count

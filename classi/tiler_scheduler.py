@@ -38,6 +38,7 @@ def tiler_scheduler( args, r_norm, flag, count, n_tiles, tile_size, batch_size, 
   rna_file_reduced_suffix = args.rna_file_reduced_suffix
   rna_file_suffix         = args.rna_file_suffix  
   just_test               = args.just_test
+  multimode               = args.multimode
   n_samples               = args.n_samples
   
   
@@ -51,10 +52,13 @@ def tiler_scheduler( args, r_norm, flag, count, n_tiles, tile_size, batch_size, 
   slides_processed     = 0
   dirs_which_have_flag = 0
   
-  if just_test!='True':
-    my_quota           = -(count//-num_cpus)                                                               # how many slides each process has to handle
-    my_expanded_quota  = int (1.3 * my_quota)                                                              # because some threads will be "luckier" than others in coming across slides with the correct flag
-  else:
+  if ( ( just_test!='True' ) | ( multimode=='image_rna') ):                                                # training mode or multimode test mode
+    my_quota           = -(count//-num_cpus)                                                               #   how many slides each process has to handle
+    if count>10:
+      my_expanded_quota  = int (1.3 * my_quota)                                                            #   because some threads will be "luckier" than others in coming across slides with the correct flag
+    else:
+      my_expanded_quota  = int (3.  * my_quota)                                                            #   because some threads will be "luckier" than others in coming across slides with the correct flag
+  else:                                                                                                    # test mode
     my_quota           = count
     my_expanded_quota  = my_quota
   
@@ -98,7 +102,7 @@ def tiler_scheduler( args, r_norm, flag, count, n_tiles, tile_size, batch_size, 
                 result = tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, my_thread )
                 if result==SUCCESS:
                   slides_processed+=1
-                  if (just_test=='True') & (my_thread==0):
+                  if ( ( just_test=='True' ) & ( multimode!='image_rna') )  & (my_thread==0):
                     print ( f"{SAVE_CURSOR}\r\033[300C\033[13B{RESET}{CARRIBEAN_GREEN}{slides_processed}/{my_quota}{RESET}{RESTORE_CURSOR}{CLEAR_LINE}", flush=True ) 
                   else:
                     print ( f"{SAVE_CURSOR}\r\033[300C\033[{my_thread}B{RESET}{CARRIBEAN_GREEN}{slides_processed}/{my_quota}{RESET}{RESTORE_CURSOR}{CLEAR_LINE}", flush=True )                           
@@ -116,7 +120,7 @@ def tiler_scheduler( args, r_norm, flag, count, n_tiles, tile_size, batch_size, 
                 result = tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, my_thread )
                 if result==SUCCESS:
                   slides_processed+=1
-                  if (just_test=='True') & (my_thread==0):
+                  if ( ( just_test=='True' ) & ( multimode!='image_rna') )  & (my_thread==0):
                     print ( f"{SAVE_CURSOR}\r\033[300C\033[13B{RESET}{CARRIBEAN_GREEN}{slides_processed}/{my_quota}{RESET}{RESTORE_CURSOR}{CLEAR_LINE}", flush=True ) 
                   else:
                     print ( f"{SAVE_CURSOR}\r\033[300C\033[{my_thread}B{RESET}{CARRIBEAN_GREEN}{slides_processed}/{my_quota}{RESET}{RESTORE_CURSOR}{CLEAR_LINE}", flush=True )                           

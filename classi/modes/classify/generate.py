@@ -25,7 +25,7 @@ np.set_printoptions( linewidth=240 )
 
 from constants  import *
 
-DEBUG   = 2
+DEBUG   = 1
 
 rows=26
 cols=26
@@ -90,9 +90,8 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
 
   if  (input_mode=='rna') & ( args.skip_generation=='True' ) & ( args.cases != 'ALL_ELIGIBLE_CASES') : 
       print ( f"{BOLD}{ORANGE}GENERATE:       INFO:  {CYAN}-X{RESET} flag (SKIP_GENERATION) is ony allowed if {CYAN}CASES='ALL_ELIGIBLE_CASES'{RESET}. {BOLD}{ORANGE}It will be ignored, and the dataset will be regenerated{RESET}" )  
-  
 
-  class_counts = np.zeros( highest_class_number+1, dtype=np.int )
+    
 
   if DEBUG>6:
     print( "GENERATE:       INFO:   \
@@ -187,14 +186,15 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
         
         if DEBUG>0:
           print ( f"{CLEAR_LINE}{WHITE}GENERATE:       INFO: (just_test) about to generate {CYAN}{target}{RESET} dataset:", flush=True )
-          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",  flush=True )
-          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) n_tiles (this run)................................................................. = {MIKADO}{n_tiles}{RESET}",                flush=True )
-          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) cases_required .................................................................... = {MIKADO}{cases_required}{RESET}",         flush=True )
+          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) case_designation_flag-------------------------------------------------------------- = {MIKADO}{case_designation_flag}{RESET}",  flush=True )
+          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) n_tiles (this run)----------------------------------------------------------------- = {MIKADO}{n_tiles}{RESET}",                flush=True )
+          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) cases_required -------------------------------------------------------------------- = {MIKADO}{cases_required}{RESET}",         flush=True )
   
+        class_counts = np.zeros( highest_class_number+1, dtype=np.int )
         global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tile_size, class_counts )
 
         if DEBUG>0:
-          print ( f"{DULL_WHITE}GENERATE:       INFO:    global_tiles_processed (this run).................................................. = {MIKADO}{global_tiles_processed}{RESET}{CLEAR_LINE}", flush=True )
+          print ( f"{DULL_WHITE}GENERATE:       INFO:    global_tiles_processed (this run)-------------------------------------------------- = {MIKADO}{global_tiles_processed}{RESET}{CLEAR_LINE}", flush=True )
 
 
       elif args.cases == 'MULTIMODE____TEST':
@@ -205,14 +205,15 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
         
         if DEBUG>0:
           print ( f"{CLEAR_LINE}{WHITE}GENERATE:       INFO: (just_test) about to generate {CYAN}{target}{RESET} dataset:", flush=True )
-          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",  flush=True )
-          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) n_tiles (this run)................................................................. = {MIKADO}{n_tiles}{RESET}",                flush=True )
-          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) cases_required .................................................................... = {MIKADO}{cases_required}{RESET}",         flush=True )
-  
+          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) case_designation_flag. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  = {MIKADO}{case_designation_flag}{RESET}",  flush=True )
+          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) n_tiles (this run). . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . = {MIKADO}{n_tiles}{RESET}",                flush=True )
+          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) cases_required . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  = {MIKADO}{cases_required}{RESET}",         flush=True )
+        
+        class_counts = np.zeros( highest_class_number+1, dtype=np.int )        
         global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tile_size, class_counts )
 
         if DEBUG>0:
-          print ( f"{DULL_WHITE}GENERATE:       INFO:    global_tiles_processed  (this run)................................................. = {MIKADO}{global_tiles_processed}{RESET}{CLEAR_LINE}", flush=True )
+          print ( f"{DULL_WHITE}GENERATE:       INFO:    global_tiles_processed  (this run). . . . . . . . . . . . . . . . . . . . . . . . . = {MIKADO}{global_tiles_processed}{RESET}{CLEAR_LINE}", flush=True )
 
 
     else:
@@ -246,17 +247,19 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
             case_designation_flag =  'UNIMODE_CASE____IMAGE_TEST'
             if DEBUG>0:
               print ( f"{CLEAR_LINE}{WHITE}GENERATE:       INFO:  about to generate {CYAN}{target}{RESET} dataset:", flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",                    flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) n_samples (this run)............................................................... = {MIKADO}{n_samples}{RESET}",                                flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) n_tiles   (this run)............................................................... = {MIKADO}{n_tiles}{RESET}",                                  flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}",                                 flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) cases_required (test cases = n_samples - training_cases) .......................... = {MIKADO}{cases_required}{RESET}",                           flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) hence tiles required for in-training testing = test cases * n_tiles ) ............ = {MIKADO}{cases_required * n_tiles}{RESET}",                 flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) case_designation_flag-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  .. = {MIKADO}{case_designation_flag}{RESET}",                    flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) n_samples (this run)-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -   = {MIKADO}{n_samples}{RESET}",                                flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) n_tiles   (this run)-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -   = {MIKADO}{n_tiles}{RESET}",                                  flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) pct_test  (this run)-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -   = {MIKADO}{pct_test}{RESET}",                                 flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) cases_required (test cases = n_samples - training_cases) -  -  -  -  -  -  -  -  .. = {MIKADO}{cases_required}{RESET}",                           flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) hence tiles required for in-training testing = test cases * n_tiles ) -  -  -  -   = {MIKADO}{cases_required * n_tiles}{RESET}",                 flush=True )
+
     
+          class_counts = np.zeros( highest_class_number+1, dtype=np.int )        
           global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tile_size, class_counts )
 
         if DEBUG>0:
-          print ( f"{DULL_WHITE}GENERATE:       INFO:    global_tiles_processed  (this run)................................................. = {MIKADO}{global_tiles_processed}{RESET}{CLEAR_LINE}", flush=True )
+          print ( f"{DULL_WHITE}GENERATE:       INFO:    global_tiles_processed  (this run)-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  . = {MIKADO}{global_tiles_processed}{RESET}{CLEAR_LINE}", flush=True )
 
 
         # (2Ba) case_designation_flag for training set = args.cases
@@ -276,6 +279,7 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
           print ( f"{DULL_WHITE}GENERATE:       INFO:    cases_required (this run).......................................................... = {MIKADO}{n_samples}{RESET}{CLEAR_LINE}",              flush=True )
           print ( f"{DULL_WHITE}GENERATE:       INFO:    pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}{CLEAR_LINE}",               flush=True )
   
+        class_counts = np.zeros( highest_class_number+1, dtype=np.int )        
         global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tile_size, class_counts )
 
         if DEBUG>0:
@@ -283,8 +287,6 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
 
     return ( SUCCESS, SUCCESS, SUCCESS )
     
-
-
 
 
 
@@ -306,8 +308,12 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
     dirs_which_dont_have_matched_image_rna_files = 0
     designated_case_count                        = 0    
     
+    found_count=0
+        
     for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration takes us to a new directory under the dataset directory
   
+      # (i) find qualifying cases ( these are: 'has_matched_image_rna_data && designated_case_flag' )
+      
       if DEBUG>888:  
         print( f"{DIM_WHITE}GENERATE:       INFO:   now processing case (directory) {CYAN}{os.path.basename(dir_path)}{RESET}" )
   
@@ -341,23 +347,41 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
             if DEBUG>6:
               print ( f"{PALE_RED}GENERATE:       INFO:   case  {RESET}{CYAN}{dir_path}{RESET}{PALE_RED} \r\033[103C is NOT a designated case \r\033[150C ({CYAN}case = {MAGENTA}{args.cases}{RESET}{PALE_RED})",  flush=True )
 
-
-                  
+        
+        #  (ii) make the concatenated embedding
+        
         if has_matched_image_rna_data & designated_case_flag:
           
           for f in sorted( files ):
             
             if f.endswith( args.embedding_file_suffix_image ):
+              found_count+=1
               if DEBUG>6:
                 print ( f"{DIM_WHITE}GENERATE:       INFO:   image embedding file        =  {ARYLIDE}{f}{RESET}",  flush=True )
-              image_embedding = np.load ( f"{dir_path}/{f}" )
-              rna_embedding   = np.load ( f"{dir_path}/_image_rna_matched___rna.npy" )
+              try:
+                fqn = f"{dir_path}/{f}"
+                image_embedding = np.load ( fqn )
+              except Exception as e:
+                print ( f"{RED}GENERATE:       FATAL: {e} {RESET}" )
+                print ( f"{RED}GENERATE:       FATAL: Explanation: each case must have both an image and an rna embedding. This case ({MAGENTA}{fqn}{RESET}{RED}) does not have an image embedding{RESET}" )
+                print ( f"{RED}GENERATE:       FATAL: Cannot continue ... halting now{RESET}" )
+                sys.exit(0)
+
+              try:
+                fqn = f"{dir_path}/{f}"
+                rna_embedding   = np.load ( fqn )
+              except Exception as e:
+                print ( f"{RED}GENERATE:       FATAL: {e} {RESET}" )
+                print ( f"{RED}GENERATE:       FATAL: Explanation: each case must have both an image and an rna embedding. This case ({MAGENTA}{fqn}{RESET}{RED}) does not have an rna   embedding{RESET}" )
+                print ( f"{RED}GENERATE:       FATAL: Cannot continue ... halting now{RESET}" )
+                sys.exit(0)
               #rna_embedding = np.zeros_like( rna_embedding )                                              # force rna-seq portion of the concatenated embedding to zero for testing purposes
               if DEBUG>6:
                 print ( f"{DIM_WHITE}GENERATE:       INFO:   image_embedding.shape       =  {ARYLIDE}{image_embedding.shape}{RESET}",  flush=True )
-                print ( f"{DIM_WHITE}GENERATE:       INFO:   rna_embedding.shape         =  {BLEU}{rna_embedding.shape}{RESET}",  flush=True )
+                print ( f"{DIM_WHITE}GENERATE:       INFO:   rna_embedding.shape         =  {BLEU}{rna_embedding.shape}{RESET}",       flush=True )
               
-              image_rna_embedding = np.concatenate( (image_embedding, rna_embedding ), axis=0)
+              image_rna_embedding = np.concatenate( ( image_embedding, rna_embedding ), axis=0 )
+              n_genes             = image_rna_embedding.shape[0]                                           # this will be done for every embedding but that's fine
               if DEBUG>6:
                 print ( f"{DIM_WHITE}GENERATE:       INFO:   image_rna_embedding.shape   =  {BITTER_SWEET}{image_rna_embedding.shape}{RESET}",  flush=True )
               random_name   = f"_{random.randint(10000000, 99999999)}_image_rna_matched___image_rna"
@@ -365,67 +389,37 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
               if DEBUG>6:
                 print ( f"{DIM_WHITE}GENERATE:       INFO:   saving concatenated embedding {BITTER_SWEET}{save_fqn}{RESET}",  flush=True )
               np.save ( save_fqn, image_rna_embedding )
-              
+ 
+  
+    if found_count==0:
+      print ( f"{RED}GENERATE:       FATAL: No qualifying cases were found{RESET}" )
+      print ( f"{RED}GENERATE:       FATAL:   The test for qualification is this: the case must be flagged as '{CYAN}MULTIMODE____TEST{RESET}{RED}' and it must contain a file named '{MAGENTA}image_rna_matched___rna.npy{RESET}{RED}'{RESET}" )
+      print ( f"{RED}GENERATE:       FATAL:   (further information: if a case contains '{MAGENTA}image_rna_matched___rna.npy'{RESET}{RED} it is assumed that it also contains the multiple associated matched image files {MAGENTA}'_XXXXXXX_image_rna_matched___image.npy{RESET}{RED}'){RESET}" )
+      print ( f"{RED}GENERATE:       FATAL: Cannot continue ... halting now{RESET}" )
+      sys.exit(0)
 
-    # (3B) determine 'n_genes' (sic) by looking at an (any) image_rna file, (so that it doesn't have to be manually entered as a user parameter)
-    if use_autoencoder_output=='False':
-   
-      if DEBUG>0:
-        print ( f"{CHARTREUSE}GENERATE:       INFO:  about to determine length of an image_rna embedding{RESET}"      )
-    
-      found_one=False
-      for dir_path, dirs, files in os.walk( data_dir ):                                                    # each iteration takes us to a new directory under data_dir
-        if not (dir_path==data_dir):                                                                       # the top level directory is  skipped because it only contains sub-directories, not data
-          
-          if check_mapping_file( args, dir_path ) == True:
-          
-            for f in sorted(files):                                                                        # examine every file in the current directory
-              if found_one==True:
-                break
-              if  ( f.endswith( args.embedding_file_suffix_image_rna  ) ):
-                if DEBUG>999:
-                  print (f)     
-                image_rna_file      = os.path.join(dir_path, f )
-                try:
-                  image_rna = np.load( image_rna_file )
-                  n_genes=image_rna.shape[0]
-                  found_one=True
-                  if DEBUG>0:
-                    print ( f"GENERATE:       INFO:  image_rna.shape      =  '{MIKADO}{image_rna.shape}{RESET}' "      )
-                  if DEBUG>0:
-                    print ( f"GENERATE:       INFO:  n_genes (determined)  = {MIKADO}{n_genes}{RESET}"        )
-                except Exception as e:
-                    print ( f"{RED}GENERATE: FATAL: '{e}'{RESET}" )
-                    print ( f"{PALE_RED}GENERATE: FATAL: Explanation: a required image_rna embedding file doesn't exist. (Probably no image_rna files exist){RESET}" )                 
-                    print ( f"{PALE_RED}GENERATE: FATAL:              did you change to image_rna mode from another input mode but neglect to run '{CYAN}./do_all.sh{RESET}{PALE_RED}' to generate the image_rna files the network needs for image_rna mode ? {RESET}" )
-                    print ( f"{PALE_RED}GENERATE: FATAL:              if so, run '{CYAN}./do_all.sh -d <cancer type code> -i image_rna{RESET}{PALE_RED}' to generate the image_rna files{RESET}" )                 
-                    print ( f"{PALE_RED}GENERATE: FATAL:              halting now ...{RESET}" )                 
-                    sys.exit(0)
+    if found_count<10:
+      print ( f"{ORANGE}GENERATE:       FATAL: Fewer than 10 qualifying cases were found{RESET}" )
+      print ( f"{ORANGE}GENERATE:       FATAL: Continuing, but this does not bode well{RESET}" )
 
-      if found_one==False:                  
-        print ( f"{RED}GENERATE:          FATAL: No image_rna embedding files exist in the dataset directory ({MAGENTA}{data_dir}{RESET}{RED})"                                                                          )                 
-        print ( f"{PALE_RED}GENERATE:                 Possible explanations:{RESET}"                                                                                                                       )
-        print ( f"{PALE_RED}GENERATE:                   (1) Did you change to {CYAN}image_rna{RESET}{PALE_RED} mode from another input mode but neglect to regenerate the files input requiPALE_RED for {CYAN}image_rna{RESET}{PALE_RED} mode ?" )
-        print ( f"{PALE_RED}GENERATE:                 Possible remedies:{RESET}"                                                                                                                       )
-        print ( f"{PALE_RED}GENERATE:                       (A) (easist, but regenerates everything) run '{CYAN}./do_all_image_rna.sh.sh  -d <cancer_type_code>{RESET}{PALE_RED}" )
-        print ( f"{PALE_RED}GENERATE:                       (B) (faster) run '{CYAN}./do_all.sh     -d <cancer_type_code> -i rna{RESET}{PALE_RED}' to train the rna model'" )                 
-        print ( f"{PALE_RED}GENERATE:                               then run '{CYAN}./just_test.sh  -d <cancer_type_code> -i rna  -m image_rna <cancer_type_code> image_rna{RESET}{PALE_RED}' to generate the rna embedding files'" )                 
-        print ( f"{PALE_RED}GENERATE:                               then run '{CYAN}./do_all.sh     -d <cancer_type_code> -i image_rna{RESET}{PALE_RED}' to generate the image_rna embedding files. " )                 
-        print ( f"{PALE_RED}GENERATE:               Halting now{RESET}" )                 
-        sys.exit(0)
-    
-                
+    n_samples = designated_case_count
+
+    if DEBUG>0:
+      print ( f"{CHARTREUSE}GENERATE:       INFO:   length of image_embedding                       =  {MIKADO}{image_embedding.shape[0]}{RESET}",  flush=True )    
+      print ( f"{CHARTREUSE}GENERATE:       INFO:   length of rna_embedding                         =  {MIKADO}{rna_embedding.shape[0]}{RESET}",    flush=True )    
+      print ( f"{CHARTREUSE}GENERATE:       INFO:   length of concatenated embeddings               =  {MIKADO}{n_genes}{RESET}",                flush=True )    
+      print ( f"{CHARTREUSE}GENERATE:       INFO:   n_samples                                       =  {MIKADO}{n_samples}{RESET}",              flush=True )    
 
 
-    # (3C) set up numpy data structures to accumulate image_rna data as it is processed 
+
+    # (3B) set up numpy data structures to accumulate image_rna data as it is processed 
 
     # need to know required_number_of_image_rna_files in advance to be able to create numpy array to hold them. Determine using this rule: one concatenated image_rna file (___image_rna.npy) will be created for every existing IMAGE embedding file in a directory that has both an image embedding file (___image.npy)and an rna embedding file (___rna.npy)         
+
+    required_number_of_image_rna_files = n_samples * n_tiles
+
     if DEBUG>0:
-      print ( f"{CHARTREUSE}GENERATE:       INFO:   dirs_which_have_matched_image_rna_files         =  {MIKADO}{dirs_which_have_matched_image_rna_files}{RESET}",  flush=True )
-      print ( f"{CHARTREUSE}GENERATE:       INFO:   n_tiles                                         =  {MIKADO}{n_tiles}{RESET}",                                  flush=True )
-    required_number_of_image_rna_files = dirs_which_have_matched_image_rna_files * n_tiles
-    if DEBUG>0:
-      print ( f"{CHARTREUSE}GENERATE:       INFO:   (hence) required_number_of_image_rna_files      =  {MIKADO}{required_number_of_image_rna_files}{RESET}",       flush=True )
+      print ( f"{CHARTREUSE}GENERATE:       INFO:   (hence) required_number_of_image_rna_files      =  {MIKADO}{required_number_of_image_rna_files}{RESET}",   flush=True )
 
 
     global_image_rna_files_processed =  0                                                                                         # global count of genes processed
@@ -438,9 +432,7 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
 
 
 
-    # (3D) process image_rna data
-    
-    # process image_rna data
+    # (3C) process image_rna data and install in numpy data structures
     
     symlinks_created               = 0
             
@@ -450,50 +442,7 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
         print( f"{DIM_WHITE}GENERATE:       INFO:   now processing case (directory) {CYAN}{os.path.basename(dir_path)}{RESET}" )
         
       if not (dir_path==data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
-        
-        # ~ designated_multimode_case_flag_found=False
-        # ~ try:
-          # ~ fqn = f"{dir_path}/MULTIMODE____TEST"        
-          # ~ f = open( fqn, 'r' )
-          # ~ designated_multimode_case_flag_found=True
-          # ~ if DEBUG>6:
-            # ~ print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C is a {BITTER_SWEET}designated multimode{RESET}{PALE_GREEN} case  \r\033[160C (count= {designated_multimode_case_flag_count+1}{RESET}{PALE_GREEN})",  flush=True )
-          # ~ designated_multimode_case_flag_count+=1
-        # ~ except Exception:
-          # ~ pass
   
-                  
-        # ~ if has_matched_image_rna_data:        
-  
-          # ~ # (3Di) Make and store a  softlink based on an integer reference to the case id for later use so that DENSE will later know where to save the rna-seq embeddings (if this option is enabled)
-          
-          # ~ for f in sorted( files ):  
-              
-            # ~ if  f.endswith( args.embedding_file_suffix_image_rna ):
-              
-              # ~ image_rna_file_link_id   = random.randint(1000000, 9999999)                                    # generate random string to use for the softlink to the file name (can't have strings in tensors)
-              # ~ image_rna_file_link_name = f"{image_rna_file_link_id:d}"
-        
-              # ~ fqcd = f"{dir_path}"                                                                           # fully qualified case directory
-              # ~ fqln = f"{args.data_dir}/{image_rna_file_link_name}.fqln"                                      # fully qualified link name
-              # ~ try:
-                # ~ os.symlink( fqcd, fqln)                                                                      # make a link from fqln to fqcd
-                # ~ symlinks_created +=1
-                # ~ if DEBUG>88:
-                  # ~ print ( f"GENERATE:          ALL GOOD:          softlink (fqln) = {MIKADO}{fqln}{RESET} \r\033[100C and target (fqcd) = {MIKADO}{fqcd}{RESET}" )
-              # ~ except Exception as e:
-                # ~ print ( f"{RED}GENERATE:       EXCEPTION RAISED:  softlink (fqln) = {MIKADO}{fqln}{RESET} \r\033[100C and target (fqcd) = {MIKADO}{fqcd}{RESET}" )
-                
-              # ~ if DEBUG>0:
-                # ~ print( f"GENERATE:       INFO:                      image_rna_file_link_id =  {MAGENTA}{image_rna_file_link_id}{RESET}" )
-                # ~ print( f"GENERATE:       INFO:                    image_rna_file_link_name = '{MAGENTA}{image_rna_file_link_name}{RESET}'" )
-                # ~ print (f"GENERATE:       INFO: fully qualified file name of case directory = '{MAGENTA}{fqcd}{RESET}'" )        
-                # ~ print (f"GENERATE:       INFO:            symlink for referencing the fqcd = '{MAGENTA}{fqln}{RESET}'" )
-                # ~ print (f"GENERATE:       INFO:                     symlinks created so far = '{MAGENTA}{symlinks_created}{RESET}'" )
-  
-  
-          # (3Dii) Process the rna-seq file
-          
           for f in sorted( files ):              
   
             if  f.endswith( args.embedding_file_suffix_image_rna  ):
@@ -505,7 +454,7 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
               if DEBUG>8:
                 print ( f"{DIM_WHITE}GENERATE:       INFO:  file                         = {BLEU}{f}{RESET}", flush=True )
               
-              if use_autoencoder_output=='False':                                                            # skip gene processing (but do labels and gnames) if we're using autoencoder output 
+              if use_autoencoder_output=='False':                                                          # skip gene processing (but do labels and gnames) if we're using autoencoder output 
             
                 try:
                   image_rna_embedding = np.load( image_rna_file )
@@ -540,20 +489,18 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
                 if DEBUG>0:
                   print ( f"{label[0]},", end=', ', flush=True )
               except Exception as e:
-                print ( f"{RED}CLASSI:           FATAL: '{e}'{RESET}" )
-                print ( f"{PALE_RED}CLASSI:           FATAL:  explanation: expected a numpy file named {MAGENTA}{args.class_numpy_file_name}{RESET}{PALE_RED} containing the current sample's class number in this location: {MAGENTA}{label_file}{RESET}{PALE_RED}{RESET}" )
-                print ( f"{PALE_RED}CLASSI:           FATAL:  remedy 1: probably no {MAGENTA}{args.class_numpy_file_name}{RESET}{PALE_RED} files exist. Use '{CYAN}./do_all.sh rna <cancer code> {RESET}{PALE_RED}' to regenerate them{RESET}" ) 
-                print ( f"{PALE_RED}CLASSI:           FATAL:  remedy 2: if that doesn't work, use '{CYAN}./do_all.sh rna <cancer code> regen{RESET}{PALE_RED}'. This will regenerate every file in the working dataset from respective sources (note: it can take a long time so try remedy one first){RESET}" )                                    
-                print ( f"{PALE_RED}CLASSI:           FATAL:  remedy 3: this error can also occur if the user specified mapping file (currently filename: '{CYAN}{args.mapping_file_name}{RESET}{PALE_RED}') doesn't exist in '{CYAN}{args.global_data}{RESET}{PALE_RED}', because without it, no class files can be generated'{RESET}" )                                    
-                print ( f"{PALE_RED}CLASSI:           FATAL:  cannot continue - halting now{RESET}" )                 
+                print ( f"{RED}GENERATE:       FATAL: '{e}'{RESET}" )
+                print ( f"{PALE_RED}GENERATE:       FATAL:  explanation: expected a numpy file named {MAGENTA}{args.class_numpy_file_name}{RESET}{PALE_RED} containing the current sample's class number in this location: {MAGENTA}{label_file}{RESET}{PALE_RED}{RESET}" )
+                print ( f"{PALE_RED}GENERATE:       FATAL:  remedy 1: probably no {MAGENTA}{args.class_numpy_file_name}{RESET}{PALE_RED} files exist. Use '{CYAN}./do_all.sh rna <cancer code> {RESET}{PALE_RED}' to regenerate them{RESET}" ) 
+                print ( f"{PALE_RED}GENERATE:       FATAL:  remedy 2: if that doesn't work, use '{CYAN}./do_all.sh rna <cancer code> regen{RESET}{PALE_RED}'. This will regenerate every file in the working dataset from respective sources (note: it can take a long time so try remedy one first){RESET}" )                                    
+                print ( f"{PALE_RED}GENERATE:       FATAL:  remedy 3: this error can also occur if the user specified mapping file (currently filename: '{CYAN}{args.mapping_file_name}{RESET}{PALE_RED}') doesn't exist in '{CYAN}{args.global_data}{RESET}{PALE_RED}', because without it, no class files can be generated'{RESET}" )                                    
+                print ( f"{PALE_RED}GENERATE:       FATAL:  cannot continue - halting now{RESET}" )                 
                 sys.exit(0)     
                 
               rna_labels_new[global_image_rna_files_processed] =  label[0]
-  
               
               if DEBUG>6:
                 print ( f"{DIM_WHITE}GENERATE:       INFO:         label[0][{MIKADO}{global_image_rna_files_processed}{RESET}]  = {CYAN}{label[0]}{RESET}", flush=True )
-            
             
              # fnames_new [global_image_rna_files_processed  ]  =  image_rna_file_link_id                  # link to folder from which that this image_rna_embedding sample belongs to - passed in as a parameter
               fnames_new [global_image_rna_files_processed  ]  =  777   
@@ -563,9 +510,9 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
                 print ( f"{DIM_WHITE}GENERATE:       INFO:        fnames_new[{MIKADO}{global_image_rna_files_processed}{RESET}{DIM_WHITE}]    = {MIKADO}{fnames_new [global_image_rna_files_processed  ]}{RESET}", flush=True )
               
               
-              gnames_new [global_image_rna_files_processed]  =  781                                        # Any old number. We don't currently use these
+              gnames_new [global_image_rna_files_processed]  =  781                                        # any old number. We don't currently use these
             
-              if DEBUG>0:
+              if DEBUG>9:
                 print ( f"{WHITE}GENERATE:       INFO:                  fnames_new = {MIKADO}{fnames_new}{RESET}",  flush=True )
                 time.sleep(.4)  
   
@@ -575,7 +522,56 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
                 print ( f"{WHITE}GENERATE:       INFO: global_image_rna_files_processed = {MIKADO}{global_image_rna_files_processed}{RESET}",  flush=True )
                 print ( f"{DIM_WHITE}GENERATE:       INFO: n_samples                  = {CYAN}{n_samples}{RESET}",                             flush=True )
 
+
+    # (3D) split into training and test datasets; convert to torch format; save as '.pth' files for subsequent loading by loader/dataset functions
+    
+    embeddings_available        = len(genes_new)
+    test_embeddings_needed      = int( embeddings_available * pct_test )
+    training_embeddings_needed  = embeddings_available - test_embeddings_needed 
+
+    print ("\n")
+    
+    for target in [ 'image_rna_train', 'image_rna_test' ]:
+
+      if DEBUG>0:  
+        print( f"{CHARTREUSE}GENERATE:       INFO:  target                  = {MIKADO}{target}{RESET}",                                                                                  flush=True )
+        print( f"{CHARTREUSE}GENERATE:       INFO:    embeddings_available  = {MIKADO}{embeddings_available}{RESET}",                                                                    flush=True )
+        print( f"{CHARTREUSE}GENERATE:       INFO:    embeddings_needed     = {PINK}{training_embeddings_needed if target=='rna_train' else  test_embeddings_needed}{RESET}",         flush=True )
+        
+      lo = 0                           if target=='image_rna_train' else training_embeddings_needed        # START at 0                            for training cases;  START at 'training_embeddings_needed' for test cases
+      hi = training_embeddings_needed  if target=='image_rna_train' else embeddings_available              # END   at 'training_embeddings_needed' for training cases;  END   at (all the rest go to test cases)
+
+      if DEBUG>0:  
+        print( f"{CHARTREUSE}GENERATE:       INFO:    lo ({target})         = {PINK}{lo}{RESET}",                                                                                      flush=True )
+        print( f"{CHARTREUSE}GENERATE:       INFO:    hi ({target})         = {PINK}{hi}{RESET}",                                                                                      flush=True )
+
+
+      genes_new_save       = torch.Tensor( genes_new [lo:hi]  )
+      fnames_new_save      = torch.Tensor( fnames_new[lo:hi]  ) 
+      fnames_new_save.requires_grad_    ( False )        
+      gnames_new_save      = torch.Tensor( gnames_new[lo:hi]  ) 
+      gnames_new_save.requires_grad_    ( False )        
+      rna_labels_new_save  = torch.Tensor(rna_labels_new[lo:hi])                                           # have to explicity cast as long in torch. Tensor does not automatically pick up type from the numpy array. 
+      rna_labels_new_save.requires_grad_( False )                                                               # labels aren't allowed gradients
+  
+      fqn =  f"{args.base_dir}/{args.application_dir}/modes/{args.mode}/dataset_{target}.pth"
+      
+      if DEBUG>0:  
+        print( f"{BOLD}{CHARTREUSE}GENERATE:       INFO:  now saving {CYAN}dataset_{target:7s}{BOLD}{CHARTREUSE} as Torch dictionary{RESET}")
+        
+      torch.save({
+          'genes':      genes_new_save,
+          'fnames':     fnames_new_save,
+          'gnames':     gnames_new_save, 
+          'rna_labels': rna_labels_new_save,           
+      }, fqn )
+  
+
+ 
     return ( n_genes, n_samples, batch_size )
+
+
+
 
   
   if ( input_mode=='rna' ):
@@ -593,7 +589,7 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
       for dir_path, dirs, files in os.walk( data_dir ):                                                    # each iteration takes us to a new directory under data_dir
         if not (dir_path==data_dir):                                                                       # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
           
-          if check_mapping_file( args, dir_path ) == True:
+          if check_mapping_file( args, dir_path ) == True:                                                 # doesn't currently do anything becaue custom mapping files not implemented
           
             for f in sorted(files):                                                                        # examine every file in the current directory
               if found_one==True:
@@ -663,14 +659,15 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
         
         if DEBUG>0:
           print ( f"{CLEAR_LINE}{WHITE}GENERATE:       INFO: (just_test) {CYAN}args.cases{RESET} = {MIKADO}{args.cases}{RESET}", flush=True )
-          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) about to generate ................................................................. {CYAN}{target}{RESET}{DULL_WHITE} dataset", flush=True )
-          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",  flush=True )
-          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) cases_required .................................................................... = {MIKADO}{cases_required}{RESET}",         flush=True )
+          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) about to generate .-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-. {CYAN}{target}{RESET}{DULL_WHITE} dataset", flush=True )
+          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) case_designation_flag.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- = {MIKADO}{case_designation_flag}{RESET}",  flush=True )
+          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) cases_required .-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- = {MIKADO}{cases_required}{RESET}",         flush=True )
 
+        class_counts = np.zeros( highest_class_number+1, dtype=np.int )        
         global_rna_files_processed, n_genes = generate_rna_dataset ( args, class_names, target, cases_required, highest_class_number, case_designation_flag, n_genes, low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform, use_autoencoder_output, class_counts )
   
         if DEBUG>9:
-          print ( f"{DULL_WHITE}GENERATE:       INFO:    global_rna_files_processed  (this run)................................................. = {MIKADO}{global_rna_files_processed}{RESET}{CLEAR_LINE}", flush=True )
+          print ( f"{DULL_WHITE}GENERATE:       INFO:    global_rna_files_processed  (this run).-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-. = {MIKADO}{global_rna_files_processed}{RESET}{CLEAR_LINE}", flush=True )
 
       elif args.cases == 'MULTIMODE____TEST':
 
@@ -680,13 +677,14 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
         
         if DEBUG>0:
           print ( f"{CLEAR_LINE}{WHITE}GENERATE:       INFO: (just_test) about to generate {CYAN}{target}{RESET} dataset:", flush=True )
-          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",  flush=True )
-          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) cases_required .................................................................... = {MIKADO}{cases_required}{RESET}",         flush=True )
+          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) case_designation_flag .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . .. = {MIKADO}{case_designation_flag}{RESET}",  flush=True )
+          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) cases_required  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . .. = {MIKADO}{cases_required}{RESET}",         flush=True )
 
+        class_counts = np.zeros( highest_class_number+1, dtype=np.int )        
         global_rna_files_processed, n_genes = generate_rna_dataset ( args, class_names, target, cases_required, highest_class_number, case_designation_flag, n_genes, low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform, use_autoencoder_output, class_counts )
   
         if DEBUG>0:
-          print ( f"GENERATE:       INFO:    rna files processed  (this run)................................................. = {MIKADO}{global_rna_files_processed}{RESET}{CLEAR_LINE}", flush=True )
+          print ( f"GENERATE:       INFO:    rna files processed  (this run) .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . . = {MIKADO}{global_rna_files_processed}{RESET}{CLEAR_LINE}", flush=True )
 
 
     else:
@@ -724,7 +722,7 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO:    (rna_test)    pct_test  (this run)............................................................. = {MIKADO}{pct_test}{RESET}",                                 flush=True )
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO:    (rna_test)    therefore cases_required (test cases = n_samples - training_cases) .............. = {MIKADO}{cases_required}{RESET}",                           flush=True )
   
-  
+          class_counts = np.zeros( highest_class_number+1, dtype=np.int )          
           global_rna_files_processed, n_genes = generate_rna_dataset ( args, class_names, target, cases_required, highest_class_number, case_designation_flag, n_genes, low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform, use_autoencoder_output, class_counts )
     
           if DEBUG>0:
@@ -749,6 +747,7 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
           print ( f"{DULL_WHITE}GENERATE:       INFO:    pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}{CLEAR_LINE}",               flush=True )
 
 
+        class_counts = np.zeros( highest_class_number+1, dtype=np.int )        
         global_rna_files_processed, n_genes = generate_rna_dataset ( args, class_names, target, cases_required, highest_class_number, case_designation_flag, n_genes, low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform, use_autoencoder_output, class_counts )
 
         if DEBUG>0:
@@ -835,11 +834,11 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
 def generate_rna_dataset ( args, class_names, target, cases_required, highest_class_number, case_designation_flag, n_genes, low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform, use_autoencoder_output, class_counts  ):
   
   if use_autoencoder_output=='False':
-    genes_new      = np.zeros( ( cases_required, 1, n_genes                ), dtype=np.float64 )
-  fnames_new       = np.zeros( ( cases_required                            ), dtype=np.int64   )              
-  gnames_new       = np.zeros( ( cases_required                            ), dtype=np.uint8   )                # was gene names                                               NOT USED
-  rna_files_processed =  0                                                                          # count of rna files processed
-  rna_labels_new   = np.zeros( ( cases_required,                           ), dtype=np.int_    )                # rna_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training
+    genes_new           = np.zeros( ( cases_required, 1, n_genes   ), dtype=np.float64 )
+  fnames_new          = np.zeros( ( cases_required               ), dtype=np.int64   )              
+  gnames_new          = np.zeros( ( cases_required               ), dtype=np.uint8   )        # was gene names                                               NOT USED
+  rna_labels_new      = np.zeros( ( cases_required,              ), dtype=np.int_    )        # rna_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training
+  rna_files_processed =  0                                                                                 # count of rna files processed
 
 
   if DEBUG>2:
@@ -851,7 +850,7 @@ def generate_rna_dataset ( args, class_names, target, cases_required, highest_cl
   global_cases_processed  = 0
   directories_processed   = 0
   sufficient_cases_found  = False
-  
+
   
   # (6A) select and process applicable cases (case_designation_flag)
 
@@ -1033,12 +1032,12 @@ def generate_rna_dataset ( args, class_names, target, cases_required, highest_cl
                   print ( f"{PALE_ORANGE}GENERATE:       INFO:    {MAGENTA}{os.path.basename(os.path.normpath(dir_path))}{RESET}{PALE_ORANGE} \r\033[66C <<< this case's class label (subtype) ({MIKADO}{label[0]:2d}{RESET}{PALE_ORANGE}) is greater than {CYAN}HIGHEST_CLASS_NUMBER{RESET}{PALE_ORANGE} ({MIKADO}{highest_class_number:2d}{RESET}{PALE_ORANGE}) so it won't be used {RESET}")
                 break
             except Exception as e:
-              print ( f"{RED}CLASSI:         FATAL: '{e}'{RESET}" )
-              print ( f"{RED}CLASSI:         FATAL:  explanation: expected a numpy file named {MAGENTA}{args.class_numpy_file_name}{RESET}{RED} containing the current sample's class number in this location: {MAGENTA}{label_file}{RESET}{RED}{RESET}" )
-              print ( f"{RED}CLASSI:         FATAL:  remedy 1: probably no {MAGENTA}{args.class_numpy_file_name}{RESET}{RED} files exist. Use '{CYAN}./do_all.sh rna <cancer code> {RESET}{RED}' to regenerate them{RESET}" ) 
-              print ( f"{RED}CLASSI:         FATAL:  remedy 2: if that doesn't work, use '{CYAN}./do_all.sh rna <cancer code> -r True{RESET}{RED}'. This will regenerate every file in the working dataset from respective sources (note: it can take a long time so try remedy one first){RESET}" )                                    
-              print ( f"{RED}CLASSI:         FATAL:  remedy 3: this error can also occur if the user specified mapping file (currently filename: '{CYAN}{args.mapping_file_name}{RESET}{RED}') doesn't exist in '{CYAN}{args.global_data}{RESET}{RED}', because without it, no class files can be generated'{RESET}" )                                    
-              print ( f"{RED}CLASSI:         FATAL:  cannot continue - halting now{RESET}" )                 
+              print ( f"{RED}GENERATE:       FATAL: '{e}'{RESET}" )
+              print ( f"{RED}GENERATE:       FATAL:  explanation: expected a numpy file named {MAGENTA}{args.class_numpy_file_name}{RESET}{RED} containing the current sample's class number in this location: {MAGENTA}{label_file}{RESET}{RED}{RESET}" )
+              print ( f"{RED}GENERATE:       FATAL:  remedy 1: probably no {MAGENTA}{args.class_numpy_file_name}{RESET}{RED} files exist. Use '{CYAN}./do_all.sh rna <cancer code> {RESET}{RED}' to regenerate them{RESET}" ) 
+              print ( f"{RED}GENERATE:       FATAL:  remedy 2: if that doesn't work, use '{CYAN}./do_all.sh rna <cancer code> -r True{RESET}{RED}'. This will regenerate every file in the working dataset from respective sources (note: it can take a long time so try remedy one first){RESET}" )                                    
+              print ( f"{RED}GENERATE:       FATAL:  remedy 3: this error can also occur if the user specified mapping file (currently filename: '{CYAN}{args.mapping_file_name}{RESET}{RED}') doesn't exist in '{CYAN}{args.global_data}{RESET}{RED}', because without it, no class files can be generated'{RESET}" )                                    
+              print ( f"{RED}GENERATE:       FATAL:  cannot continue - halting now{RESET}" )                 
               sys.exit(0)     
 
 
@@ -1323,12 +1322,12 @@ def generate_rna_dataset ( args, class_names, target, cases_required, highest_cl
     
     
 
-  # (5B) save torch tensors as '.pth' file for subsequent loading by loader/dataset functions
+  # (6D) save torch tensors as '.pth' file for subsequent loading by loader/dataset functions
 
   fqn =  f"{args.base_dir}/{args.application_dir}/modes/{args.mode}/dataset_{target}.pth"
   
   if DEBUG>2:  
-    print( f"GENERATE:       INFO:  {WHITE}now saving to Torch dictionary (this takes a little time){RESET}{CLEAR_LINE}")
+    print( f"GENERATE:       INFO:  {WHITE}now saving as Torch dictionary (this takes a little time in the case of images){RESET}{CLEAR_LINE}")
     
   torch.save({
       'genes':      genes_new,
@@ -1359,9 +1358,9 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
   img_labels_new  = np.zeros( ( tiles_required,                          ), dtype=np.int_    )              # img_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
 
   if DEBUG>0:
-    print( f"GENERATE:       INFO:     images_new.shape               = {PINK}{images_new.shape}{RESET}",             flush=True       ) 
-    print( f"GENERATE:       INFO:     img_labels_new.shape           = {PINK}{img_labels_new.shape}{RESET}",         flush=True       ) 
-    print( f"GENERATE:       INFO:     fnames_new.shape               = {PINK}{fnames_new.shape}{RESET}",             flush=True       )
+    print( f"{CLEAR_LINE}GENERATE:       INFO:     images_new.shape               = {PINK}{images_new.shape}{RESET}",             flush=True       ) 
+    print( f"{CLEAR_LINE}GENERATE:       INFO:     img_labels_new.shape           = {PINK}{img_labels_new.shape}{RESET}",         flush=True       ) 
+    print( f"{CLEAR_LINE}GENERATE:       INFO:     fnames_new.shape               = {PINK}{fnames_new.shape}{RESET}",             flush=True       )
 
 
   global_tiles_processed  = 0
@@ -1382,7 +1381,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
       try:
         fqn = f"{dir_path}/SLIDE_TILED"        
         f = open( fqn, 'r' )
-        if DEBUG>4:
+        if DEBUG>2:
           print ( f"{PALE_GREEN}GENERATE:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_GREEN}' \r\033[130C has been tiled{RESET}{CLEAR_LINE}",  flush=True )
         if case_designation_flag=='ALL_ELIGIBLE_CASES':
           use_this_case_flag=True
@@ -1576,20 +1575,21 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
         break
 
   if sufficient_cases_found!=True:
+    
     if args.just_test=='True':
-      print( f"{RED}GENERATE:       WARNG:   (test mode) the number of cases found and processed ({MIKADO}{directories_processed}{RESET}{RED}) is less than the number required ({MIKADO}{cases_required}{RESET}{RED})",  flush=True        ) 
-      print( f"{RED}GENERATE:       WARNG:   (test mode)   possible explanation: if you set '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{RED}' to a number less than the number of classes actually present in the dataset, none of the '{CYAN}{args.cases}{RESET}{RED}' cases belonging to the classes you removed will be available to be used",  flush=True        )
-      print( f"{RED}GENERATE:       WARNG:   (test mode)   not halting, but this will likely cause problems",  flush=True      )
+      print( f"{CLEAR_LINE}{RED}GENERATE:       WARNG:   (test mode) the number of cases found and processed ({MIKADO}{directories_processed}{RESET}{RED}) is less than the number required ({MIKADO}{cases_required}{RESET}{RED})",  flush=True        ) 
+      print( f"{CLEAR_LINE}{RED}GENERATE:       WARNG:   (test mode)   possible explanation: if you set '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{RED}' to a number less than the number of classes actually present in the dataset, none of the '{CYAN}{args.cases}{RESET}{RED}' cases belonging to the classes you removed will be available to be used",  flush=True        )
+      print( f"{CLEAR_LINE}{RED}GENERATE:       WARNG:   (test mode)   not halting, but this will likely cause problems",  flush=True      )
       time.sleep(4)
     else:
-      print( f"{ORANGE}GENERATE:       WARNG:   (training mode) the number of cases found and processed ({MIKADO}{directories_processed}{RESET}{ORANGE}) is less than the number  required ({MIKADO}{cases_required}{RESET}{ORANGE})",  flush=True        ) 
-      print( f"{ORANGE}GENERATE:       WARNG:   (training mode)   possible explanation: if you set '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{ORANGE}' to a number less than the number of classes actually present in the dataset, none of the '{CYAN}{args.cases}{RESET}{ORANGE}' cases belonging to the classes you removed will be available to be used",  flush=True        )
-      print( f"{ORANGE}GENERATE:       WARNG:   (training mode) not halting, but this might cause problems",  flush=True      )
+      print( f"{CLEAR_LINE}{ORANGE}GENERATE:       WARNG:   (training mode) the number of cases found and processed ({MIKADO}{directories_processed}{RESET}{ORANGE}) is less than the number  required ({MIKADO}{cases_required}{RESET}{ORANGE})",  flush=True        ) 
+      print( f"{CLEAR_LINE}{ORANGE}GENERATE:       WARNG:   (training mode)   one possible explanation: if you set '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{ORANGE}' to a number less than the number of classes actually present in the dataset, none of the '{CYAN}{args.cases}{RESET}{ORANGE}' cases belonging to the classes you removed will be available to be used",  flush=True        )
+      print( f"{CLEAR_LINE}{ORANGE}GENERATE:       WARNG:   (training mode)   not halting, but this might cause problems",  flush=True      )
   
 
   
   if DEBUG>0:
-    print( f"{ASPARAGUS}GENERATE:       INFO:   directories_processed = {MIKADO}{directories_processed:<4d}{RESET}",  flush=True        )   
+    print( f"{CLEAR_LINE}{ASPARAGUS}GENERATE:       INFO:   directories_processed = {MIKADO}{directories_processed:<4d}{RESET}",  flush=True        )   
 
   if DEBUG>2:
     print( f"\n{RESET}GENERATE:       INFO:     images_new.shape               = {MIKADO}{images_new.shape}{RESET}",             flush=True       ) 
@@ -1600,7 +1600,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
 
 
   if DEBUG>0:
-    print( f"GENERATE:       INFO:    tiles drawn from each of the {MIKADO}{highest_class_number}{RESET} cancer types = {MIKADO}{class_counts}{RESET}",             flush=True       )
+    print( f"{CLEAR_LINE}GENERATE:       INFO:    tiles drawn from each of the {MIKADO}{highest_class_number}{RESET} cancer types = {MIKADO}{class_counts}{RESET}",             flush=True       )
 
 
 
@@ -1650,7 +1650,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
   fqn =  f"{args.base_dir}/{args.application_dir}/modes/{args.mode}/dataset_{target}.pth"
   
   if DEBUG>8:  
-    print( f"GENERATE:       INFO:    {PINK}now saving to Torch dictionary (this takes a little time){RESET}{CLEAR_LINE}")
+    print( f"GENERATE:       INFO:    {PINK}now saving as Torch dictionary (this can take some time in the case of images){RESET}{CLEAR_LINE}")
   
   torch.save({
       'images':     images_new,

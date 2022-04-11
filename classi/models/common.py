@@ -6,7 +6,7 @@ from   torch import nn
 
 from constants  import *
 
-DEBUG   = 1
+DEBUG   = 2
 
 # ------------------------------------------------------------------------------
 
@@ -25,16 +25,16 @@ class COMMON( nn.Module ):
     
     self.cfg  = cfg
     
-    if ( input_mode=='image_rna' ) | ( input_mode=='image' ):
+    if ( input_mode=='image' ):
       
       if DEBUG>1:
-        print ( f"COMMON:     INFO       about to call model for image net{RESET}", flush=True )      # get_image_net method is in config. Will try to call init on the selected model (e.g. TTVAE) with these parameters 
+        print ( f"COMMON:     INFO       about to call model for image processing{RESET}", flush=True )                 # get_image_net method is in config. Will try to call init on the selected model (e.g. TTVAE) with these parameters 
       self.image_net  = cfg.get_image_net( args, input_mode, nn_type_img, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, nn_dense_dropout_1, nn_dense_dropout_2, tile_size )            # METHOD:   get_image_net will return DCGANAE128(self) so self.image_net = self.DCGANAE128
 
     if ( input_mode=='image_rna' ) | ( input_mode=='rna' ):
       
       if DEBUG>1:
-        print ( f"COMMON:     INFO        about to call model for genes net{RESET}", flush=True )      # get_image_net method is in config. Will try to call init on the selected model (e.g. TTVAE) with these parameters 
+        print ( f"COMMON:         INFO    about to call model for genes/embeddings processing{RESET}", flush=True )      # get_image_net method is in config. Will try to call init on the selected model (e.g. TTVAE) with these parameters 
       self.genes_net  = cfg.get_genes_net( args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, nn_dense_dropout_1, nn_dense_dropout_2             )            # METHOD:   get_genes_net will return DENSE(self)   so model.genes_net = get_genes_net(...)
 
     self.latent_dim = latent_dim                                                       #                                                                                                  model.latent_dim               = latent_dim        (as passed in)

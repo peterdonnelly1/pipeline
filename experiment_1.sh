@@ -18,7 +18,7 @@ while getopts H:L:o:R:7: option                                                 
     in
     H) HIDDEN_LAYER_NEURONS=${OPTARG};;                                                                    
     L) LEARNING_RATE=${OPTARG};;                                                                           
-    o) N_EPOCHS=${OPTARG};;                                                                                # Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Can only omit cases from the top (e.g. 'normal' has the highest class number for 'stad' - see conf/variables). Currently only implemented for unimode/image (not implemented for rna_seq)
+    o) N_EPOCHS=${OPTARG};;
     R) REPEAT=${OPTARG};; 
     7) NN_DENSE_DROPOUT_1=${OPTARG};; 
     esac
