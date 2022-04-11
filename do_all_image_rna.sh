@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # exit if any command fails
-# set -e
+set -e
 set -x
 
 export MKL_DEBUG_CPU_TYPE=5

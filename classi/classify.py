@@ -227,7 +227,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   colour_map                    = args.colour_map
   input_mode                    = args.input_mode
   multimode                     = args.multimode
-  mode                       = args.mode
+  mode                          = args.mode
   nn_type_img                   = args.nn_type_img
   nn_type_rna                   = args.nn_type_rna
   use_same_seed                 = args.use_same_seed
@@ -325,6 +325,12 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   global class_colors
 
   multimode_case_count = unimode_case_matched_count = unimode_case_unmatched_count = unimode_case____image_count = unimode_case____image_test_count = unimode_case____rna_count = unimode_case____rna_test_count = 0
+
+
+  if ( any(i>1. for i in pct_test) ) | ( any(i<0. for i in pct_test) ) :
+    print ( f"{RED}CLASSI:        FATAL:  {CYAN}pct_test{RESET}{RED} must be between 0.0 and 1.0{RESET}" )                                        
+    print ( f"{RED}CLASSI:        FATAL:  cannot continue - halting now{RESET}" )                 
+    sys.exit(0)   
 
   # extract subtype names from the applicable master clinical data spreadsheet
   

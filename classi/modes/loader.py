@@ -28,7 +28,8 @@ DEBUG=1
 
 def get_config( dataset, lr, batch_size ):
   
-    """Return configuration object based on dataset string.
+    """
+    Return configuration object based on dataset string.
     """
 
     SUPPORTED_MODES = [ 'gtexv6', 'classify', 'pre_compress', 'analyse_data', 'mnist']
@@ -38,11 +39,11 @@ def get_config( dataset, lr, batch_size ):
 
     if   dataset == 'gtexv6':
         return GTExV6Config( )
-    elif dataset == 'classify':                                                                            # PGD NEW
-        return classifyConfig       ( lr,  batch_size )
-    elif dataset == 'pre_compress':                                                                        # PGD SUPPORT ADDED 200713
+    elif dataset == 'classify':
+        return classifyConfig     ( lr,  batch_size )
+    elif dataset == 'pre_compress':
         return pre_compressConfig ( lr,  batch_size )
-    elif dataset == 'analyse_data':                                                                        # PGD SUPPORT ADDED 200721
+    elif dataset == 'analyse_data':
         return pre_compressConfig ( lr,  batch_size )                                                      # uses the pre_compress() config file
     elif dataset == 'mnist':
         return MnistConfig()
@@ -55,7 +56,8 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
     
     #os.system("taskset -p 0xffffffff %d" % os.getpid())
       
-    """Create and return dataset(s) and data loaders for train and test datasets as appropriate
+    """
+    Create and return dataset(s) and data loaders for train and test datasets as appropriate
     """
     
     input_mode             = args.input_mode
@@ -69,21 +71,15 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
     
     # 1 Preparation
 
-    if DEBUG>2:
-      print( f"LOADER:         INFO:    pct_test  = {MIKADO}{pct_test}{RESET}" )
-           
-    if pct_test is not None and pct_test > 1.0:
-        raise ValueError('`pct_test` should be  <= 1.')
-
     if just_test=='True':
-      pct_test=1.0                                                                                         # in test mode, all tiles are test tiles
+      pct_test=1.0                                                                                         # In test mode, all tiles are test tiles, by definition.  Let's make sure.
       
 
 
     # 2 Fetch dataset(s)
     
     if DEBUG>0:
-      print( f"{RESET}LOADER:         INFO:    about to load dataset(s)" )
+      print( f"{RESET}LOADER:         INFO:    about to load applicable dataset(s)" )
 
     if input_mode=='image':
 
@@ -112,8 +108,6 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
             
           which_dataset = 'dataset_image_train'
           dataset       = cfg.get_dataset( args, which_dataset, gpu )
-          # equates via cfg.get_dataset to: dataset = classifyDataset( cfg, which_dataset, args ), i.e. make an object of class classifyDataset using it's __init__() constructor
-          # so  dataset.images = data['images'] etc.; noting that 'dataset' is a tensor:  see dataset() where data = torch.load(f"data/classify/{which_dataset}.pth"
     
           if DEBUG>0:    
             print( f"LOADER:         IINFO:        dataset {CYAN}{which_dataset}{RESET} now loaded" )     
@@ -125,16 +119,12 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
             
           random.shuffle(train_inds)                                                                       # in training mode, it's critical that both the training and test sets are shuffled
             
-      
 
-      else:     # catering for ALL_ELIGIBLE_CASES.  Different _indices_ (out of dataset_image_train) for training and testing. Not very useful since training and test tiles could derive from the same slides.
-
+      else:     # catering for ALL_ELIGIBLE_CASES.  Different _indices_ (but all drawn from dataset_image_train) are used for training and testing. Not very useful for image training, since training and test tiles could derive from the same slides.
 
         which_dataset = 'dataset_image_train'      
         # ~ dataset       = cfg.get_dataset( args, which_dataset, writer, gpu )                            # 21-09-23  removed introduced error caused by the presence of 'writer' parameter
         dataset       = cfg.get_dataset( args, which_dataset, gpu )
-        # equates via cfg.get_dataset to: dataset = GTExV6Dataset( cfg, which_dataset, args ), i.e. make an object of class GTExV6Dataset using it's __init__() constructor
-        # and dataset_image_train.images = dataset_image_train['images'] etc.; noting that 'dataset_image_train' is a tensor:  see dataset() where data = torch.load(f"data/classify/{which_dataset}.pth"
         
         if DEBUG>8:    
           print( f"LOADER:         INFO:    dataset {CYAN}{which_dataset}{RESET} now loaded" )      
@@ -156,7 +146,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
             print( f"LOADER:         INFO:    train_inds  ( after shuffle ) = \n{MIKADO}{train_inds}{RESET}" )
             print( f"LOADER:         INFO:    test_inds   ( after shuffle ) = \n{MIKADO}{test_inds}{RESET}"  )
 
-        else:
+        else:                                                                                              # test mode / ALL_ELIGIBLE_CASES
 
           if use_autoencoder_output!='True':                                                               # Not using the autoencoder is the default case (unimode 'just_test' to create patches)
 
@@ -217,7 +207,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
             
       
 
-      else:     # catering for ALL_ELIGIBLE_CASES.  Different _indices_ (always drawn from dataset_rna_train) for training and testing.
+      else:     # catering for ALL_ELIGIBLE_CASES.  Different indices (but always drawn from dataset_rna_train) for training and testing.
 
         if   args.input_mode == 'rna':
           dataset = cfg.get_dataset( args, 'dataset_rna_train',            gpu )
@@ -259,16 +249,16 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
        
           else:                                                                                            # autoencoding as a prelude to clustering 
 
-            test_inds  = indices                                                                           # when using an autoencoder, we want to be able to process every tile in test mode, in particular so that we have as many tiles as possible to use when clustering
+            test_inds  = indices                                                                           # when using an autoencoder, we want to be able to process every example in test mode, in particular so that we have as many examples as possible to use when clustering
             if DEBUG>44:
               print( f"LOADER:         INFO:    test_inds                   = \n{BITTER_SWEET}{test_inds}{RESET}"  )                                                                                      
-            
+
 
 
     
   
 
-    # 3 maybe save indices used during training for later use in test mode (so that the same held-out samples will be used for testing in either case)
+    # 3A maybe save indices used during training for later use in 'image_rna' test mode (see comment 3B for an explanation)
     
     if args.cases=='UNIMODE_CASE____MATCHED':
     
@@ -281,7 +271,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
             print ( f"LOADER:         INFO:     (unmodified) train_inds              = {PINK}{train_inds}{RESET}"               )
           fqn = f"{args.data_dir}/train_inds_image"
           if DEBUG>99:
-                print ( f"LOADER:         INFO:     about to save train_inds to = {MAGENTA}{fqn}{RESET} for later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"         )
+                print ( f"LOADER:         INFO:     about to save train_inds to = {MAGENTA}{fqn}{RESET} for later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"      )
           with open(fqn, 'wb') as f:
             pickle.dump( train_inds, f )
   
@@ -298,7 +288,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
             print ( f"LOADER:         INFO:     (unmodified) train_inds              = {PINK}{train_inds}{RESET}"               )
           fqn = f"{args.data_dir}/train_inds_rna"
           if DEBUG>99:
-            print ( f"LOADER:         INFO:     about to save train_inds to: {MAGENTA}{fqn}{RESET} for later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"         )
+            print ( f"LOADER:         INFO:     about to save train_inds to: {MAGENTA}{fqn}{RESET} for later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"          )
           with open(fqn, 'wb') as f:
             pickle.dump(train_inds, f)
   
@@ -306,12 +296,13 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
             print ( f"LOADER:         INFO:     (unmodified) test_inds              = {BLEU}{test_inds}{RESET}"               )
           fqn = f"{args.data_dir}/test_inds_rna"
           if DEBUG>99:
-            print ( f"LOADER:         INFO:     about to save test_inds  to: {MAGENTA}{fqn}{RESET} for later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"         )
+            print ( f"LOADER:         INFO:     about to save test_inds  to: {MAGENTA}{fqn}{RESET} for later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"          )
           with open(fqn, 'wb') as f:
             pickle.dump(test_inds, f)
 
   
-      # 3B If the multimode flag is set, then, for 'image' TEST mode and 'rna' TEST mode (but NOT 'image_rna' TEST mode) retrieve and use the TRAINING indices that were used during unimodal training.  (We want to generate as many feature vectors as possible for use in training the image+rna model)
+      # 3B If the multimode flag is set, then, for 'image' TEST mode and 'rna' TEST mode (but NOT 'image_rna' TEST mode) retrieve and use the TRAINING indices that were used during unimodal training.  
+      #    We want to generate as many feature vectors as possible to train the image+rna model
               
       elif just_test=='True':                                                                              # test mode     
         
@@ -435,7 +426,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
       if args.ddp=='False':   # Single GPU <-- Main case
 
         if DEBUG>2:
-          print( "LOADER:         INFO:   374: about to create and return train loader - single GPU case" )
+          print( "LOADER:         INFO:   about to create and return train loader - single GPU case" )
                 
         train_loader   = DataLoader(
           dataset,
@@ -466,7 +457,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
           )
   
   
-      # 5B test_loader for the *training* phase: i.e. ./do_all -d stad -i image. We already have a loader for the training indices; here we define a loader for the test indices: testing during the training phase
+      # 5B test_loader for the *training* phase: i.e. ./do_all -d stad -i image. We already have a loader for the training indices; here we define a loader for the test indices: that is, testing during the training phase
 
       if DEBUG>2:
         print( "LOADER:         INFO:   408: about to create and return test  loader (the one that's used in the training phase after each epoch for validation testing)" )
@@ -485,8 +476,6 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
           pin_memory   = pin_memory                                                                        # Move loaded and processed tensors into CUDA pinned memory. See: http://pytorch.org/docs/master/notes/cuda.html
           )
           
-      
-      
       else:
 
         if DEBUG>2:
@@ -563,15 +552,14 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
         
 
 
-    if args.input_mode=='image':
+    if args.input_mode   == 'image':
       final_batch_size =   (final_test_batch_size*batch_size) if (final_test_batch_size*batch_size)<len(test_inds) else batch_size
-    elif args.input_mode=='rna':
+    elif args.input_mode == 'rna':
       final_batch_size  =  len(test_inds)
-    elif args.input_mode=='image_rna':
+    elif args.input_mode == 'image_rna':
       final_batch_size  =  len(test_inds)
 
 
-    num_workers            =  num_workers
     final_test_loader = DataLoader(
       dataset if args.cases=='ALL_ELIGIBLE_CASES' else dataset_rna_test if input_mode=='rna' else dataset_image_rna_test if input_mode=='image_rna'  else dataset_image_test,
       batch_size  = final_batch_size,
