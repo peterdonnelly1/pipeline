@@ -166,21 +166,13 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
               print( f"LOADER:         INFO:    test_inds                   = \n{BITTER_SWEET}{test_inds}{RESET}"  )                                                                                      
             
 
-
-
-    else:   # handles 'rna' and 'image_rna' input types
+    elif input_mode=='rna':
 
       if args.cases!='ALL_ELIGIBLE_CASES':                                                                 # catering for OTHER than 'ALL_ELIGIBLE_CASES'. There are separate database files for training and testing. 
       
         # always load the test dataset ... (and if we are in just_test mode, that's all we need)
-        if   args.input_mode == 'rna':
-          dataset_rna_test       = cfg.get_dataset( args, 'dataset_rna_test',       gpu )
-          test_inds = list(range(len( dataset_rna_test )  )   )
-        elif args.input_mode == 'image_rna':
-          dataset_image_rna_test = cfg.get_dataset( args, 'dataset_image_rna_test', gpu )
-          test_inds = list(range(len( dataset_image_rna_test )  )   )
-        # equates via cfg.get_dataset to: dataset = classifyDataset( cfg, which_dataset, args ), i.e. make an object of class classifyDataset using it's __init__() constructor
-        # and dataset_rna_test.rna = data_rna_test['rna'] etc.; noting that 'data_rna_test' is a tensor: see dataset() where data = torch.load(f"data/classi/{which_dataset}.pth"
+        dataset_rna_test       = cfg.get_dataset( args, 'dataset_rna_test',       gpu )
+        test_inds = list(range(len( dataset_rna_test )  )   )
         
         if DEBUG>0:
           print( f"LOADER:         INFO:    test_inds  = \n{MIKADO}{test_inds}{RESET}" ) 
@@ -191,14 +183,8 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
         
         # ... load the training dataset as well IFF we're in training mode
         if just_test!='True':
-          if   args.input_mode == 'rna':
-            dataset    = cfg.get_dataset( args, 'dataset_rna_train',        gpu )
-            train_inds = list(range(len( dataset )  )   )
-          elif args.input_mode == 'image_rna':
-            dataset    = cfg.get_dataset( args, 'dataset_image_rna_train',  gpu )
-            train_inds = list(range(len( dataset )  )   )
-          # equates via cfg.get_dataset to: dataset = classifyDataset( cfg, which_dataset, args ), i.e. make an object of class classifyDataset using it's __init__() constructor
-          # so  dataset.rna = data['rna'] etc.; noting that 'dataset' is a tensor:  see dataset() where data = torch.load(f"data/classi/{which_dataset}.pth"
+          dataset    = cfg.get_dataset( args, 'dataset_rna_train',        gpu )
+          train_inds = list(range(len( dataset )  )   )
 
           if DEBUG>0:
             print( f"LOADER:         INFO:    train_inds  = \n{MIKADO}{train_inds}{RESET}"                 )
@@ -209,19 +195,78 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
 
       else:     # catering for ALL_ELIGIBLE_CASES.  Different indices (but always drawn from dataset_rna_train) for training and testing.
 
-        if   args.input_mode == 'rna':
-          dataset = cfg.get_dataset( args, 'dataset_rna_train',            gpu )
-          indices = list(range( len( dataset)  )   )
-        elif args.input_mode == 'image_rna':
-          dataset = cfg.get_dataset( args, 'dataset_image_rna_train',      gpu )
-          indices = list(range( len( dataset)  )   )
-        # equates via cfg.get_dataset to: dataset = classifyDataset( cfg, which_dataset, args ), i.e. make an object of class classifyDataset using it's __init__() constructor
-        # and dataset_rna_train.rna = dataset_rna_train['rna'] etc.; noting that 'dataset_rna_train' is a tensor:  see dataset() where data = torch.load(f"data/classi/{which_dataset}.pth"
+        dataset = cfg.get_dataset( args, 'dataset_rna_train',            gpu )
+        indices = list(range( len( dataset)  )   )
+        
+        if DEBUG>44:
+          print( f"LOADER:         INFO:    indices                         = \n{MIKADO}{indices}{RESET}"      )
+
+        if just_test!='True':                                                                              # in training mode, it's critical that both the training and test sets are shuffled ...
+
+          random.shuffle( indices )                                                                        # ... (in test mode, we only use the test indices, and they must not be shuffled as we have to recreate the patches for visualization on Tensorboard)
+           
+          split      = math.floor(len(indices) * (1 - pct_test))                                   
+          train_inds = indices[:split]
+          test_inds  = indices[split:]
+          
+          if DEBUG>44:
+            print( f"LOADER:         INFO:    train_inds  ( after shuffle ) = \n{MIKADO}{train_inds}{RESET}" )
+            print( f"LOADER:         INFO:    test_inds   ( after shuffle ) = \n{MIKADO}{test_inds}{RESET}"  )
+
+        else:
+
+          if use_autoencoder_output!='True':                                                               # Not using the autoencoder is the default case (unimode 'just_test' to create patches)
+
+            split      = math.floor(len(indices) * (1 - pct_test))                                   
+            train_inds = indices[:split]
+            test_inds  = indices[split:]
+  
+            if DEBUG>44:
+              print( f"LOADER:         INFO:    train_inds                  = \n{CARRIBEAN_GREEN}{train_inds}{RESET}" )
+              print( f"LOADER:         INFO:    test_inds                   = \n{CARRIBEAN_GREEN}{test_inds}{RESET}"  )
+       
+          else:                                                                                            # autoencoding as a prelude to clustering 
+
+            test_inds  = indices                                                                           # when using an autoencoder, we want to be able to process every example in test mode, in particular so that we have as many examples as possible to use when clustering
+            if DEBUG>44:
+              print( f"LOADER:         INFO:    test_inds                   = \n{BITTER_SWEET}{test_inds}{RESET}"  )                                                                                      
+
+
+    elif input_mode=='image_rna':
+
+      if args.cases!='ALL_ELIGIBLE_CASES':                                                                 # catering for OTHER than 'ALL_ELIGIBLE_CASES'. There are separate database files for training and testing. 
+      
+        # always load the test dataset ... (and if we are in just_test mode, that's all we need)
+        dataset_image_rna_test = cfg.get_dataset( args, 'dataset_image_rna_test', gpu )
+        test_inds = list(range(len( dataset_image_rna_test )  )   )
+        
+        if DEBUG>0:
+          print( f"LOADER:         INFO:    test_inds  = \n{MIKADO}{test_inds}{RESET}" ) 
+                  
+        if just_test!='True':                                                                              # in training mode, it's critical that both the training and test sets are shuffled
+          random.shuffle( test_inds )
+        
+        
+        # ... load the training dataset as well IFF we're in training mode
+          dataset    = cfg.get_dataset( args, 'dataset_image_rna_train',  gpu )
+          train_inds = list(range(len( dataset )  )   )
+
+          if DEBUG>0:
+            print( f"LOADER:         INFO:    train_inds  = \n{MIKADO}{train_inds}{RESET}"                 )
+            
+          random.shuffle(train_inds)                                                                       # in training mode, it's critical that both the training and test sets are shuffled
+            
+      
+
+      else:     # catering for ALL_ELIGIBLE_CASES.  Different indices (but always drawn from dataset_rna_train) for training and testing.
+
+        dataset = cfg.get_dataset( args, 'dataset_image_rna_train',      gpu )
+        indices = list(range( len( dataset)  )   )
         
 
 
         if DEBUG>44:
-          print( f"LOADER:         INFO:    indices                         = \n{MIKADO}{indices}{RESET}"      )
+          print( f"LOADER:         INFO:    indices                         = \n{MIKADO}{indices}{RESET}"   )
 
         if just_test!='True':                                                                              # in training mode, it's critical that both the training and test sets are shuffled ...
 
