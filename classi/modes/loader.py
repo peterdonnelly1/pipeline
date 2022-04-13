@@ -65,9 +65,14 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
     final_test_batch_size  = args.final_test_batch_size
     just_test              = args.just_test
     use_autoencoder_output = args.use_autoencoder_output
-    mode                = args.mode
+    mode                   = args.mode
+    nn_type_img            = args.nn_type_img
+    nn_type_rna            = args.nn_type_rna
 
-
+    we_are_autoencoding=False
+    if ( (input_mode=='image') &  ('AE' in nn_type_img[0]) )  |  ( (input_mode=='rna') & ('AE' in nn_type_rna[0]) ):
+      we_are_autoencoding=True
+      
     
     # 1 Preparation
 
@@ -561,13 +566,14 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
         dataset     = dataset_image_test      
         sampler     = SequentialSampler  ( test_inds )                                                     # tiles need to be drawn sequentially because we are analysing a 2D contiguous square patch of tiles 
       elif args.input_mode=='rna':
-        if mode=='pre_compress':                                                                                                                         # TODO: DELETE ONCE PRE_COMPRESS HAS BEEN INTEGRATED
-          if DEBUG>0:                                                                                                                                    # TODO: DELETE ONCE PRE_COMPRESS HAS BEEN INTEGRATED
-            print( "LOADER:         INFO:   about to create and return test loader for the dedicated test mode: (pre_compress / rna / 'just_test')" )    # TODO: DELETE ONCE PRE_COMPRESS HAS BEEN INTEGRATED
-          which_dataset = 'dataset_rna_test'                                                                                                             # TODO: DELETE ONCE PRE_COMPRESS HAS BEEN INTEGRATED
-          dataset_rna_test = cfg.get_dataset( args, which_dataset, gpu )                                                                                 # TODO: DELETE ONCE PRE_COMPRESS HAS BEEN INTEGRATED
-          dataset = dataset_rna_test                                                                                                                     # TODO: DELETE ONCE PRE_COMPRESS HAS BEEN INTEGRATED
-          sampler = SubsetRandomSampler( test_inds )                                                                                                     # TODO: DELETE ONCE PRE_COMPRESS HAS BEEN INTEGRATED
+        if we_are_autoencoding:                                                                                                                          
+          if DEBUG>0:
+            print( f"{BOLD}{CHARTREUSE}LOADER:         INFO:   about to create and return loader for the dedicated test mode{RESET}" )
+            print( f"{BOLD}{CHARTREUSE}LOADER:         NOTE:   autoencoder working is enabled {RESET}" )
+          which_dataset = 'dataset_rna_test'
+          dataset_rna_test = cfg.get_dataset( args, which_dataset, gpu )
+          dataset = dataset_rna_test
+          sampler = SubsetRandomSampler( test_inds )
         else:
           if DEBUG>0:
             print( "LOADER:         INFO:   about to create and return test loader for the dedicated test mode: (rna / 'just_test')" ) 

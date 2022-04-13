@@ -25,7 +25,7 @@ np.set_printoptions( linewidth=240 )
 
 from constants  import *
 
-DEBUG   = 1
+DEBUG   = 2
 
 rows=26
 cols=26
@@ -35,7 +35,7 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
               unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, tile_size, low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform ):
 
   # DON'T USE args.n_samples or batch_size or args.n_tiles or args.gene_data_norm or args.tile_size or args.highest_class_number or args.low_expression_threshold or args.cutoff_percentile since these are job-level lists. Here we are just using one value of each, passed in as the parameters above
-  n_tests                      = args.n_tests
+  just_test                    = args.just_test
   data_dir                     = args.data_dir
   input_mode                   = args.input_mode
   pretrain                     = args.pretrain
@@ -53,8 +53,11 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
 
   if  (input_mode=='rna') & ( args.skip_generation=='True' ) & ( args.cases == 'ALL_ELIGIBLE_CASES') :    
 
-    
-    fqn =  f"{args.base_dir}/{args.application_dir}/modes/{args.mode}/dataset_rna_train.pth"
+    if just_test!='True':
+      fqn =  f"{args.base_dir}/{args.application_dir}/modes/{args.mode}/dataset_rna_train.pth"
+    else:
+      fqn =  f"{args.base_dir}/{args.application_dir}/modes/{args.mode}/dataset_rna_test.pth"
+
     if DEBUG>0:
       print( f"{BOLD}{ORANGE}GENERATE:       INFO:  {CYAN}-g{RESET}{BOLD}{ORANGE} flag ({CYAN}SKIP_GENERATION{RESET}{BOLD}{ORANGE}) is set so loading pre-existing pytorch dataset (which MUST exist): {RESET}{MAGENTA}modes/{args.mode}/dataset_rna_train.pth{RESET}",  flush=True )
     try:
@@ -582,7 +585,7 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
     if use_autoencoder_output=='False':
   
       # To determine n_genes, (so that it doesn't have to be manually specified), need to examine just ONE of the rna files   
-      if DEBUG>2:
+      if DEBUG>0:
         print ( f"GENERATE:       INFO:  about to determine value of 'n_genes'"      )
     
       found_one=False
@@ -685,6 +688,23 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
   
         if DEBUG>0:
           print ( f"GENERATE:       INFO:    rna files processed  (this run) .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . . = {MIKADO}{global_rna_files_processed}{RESET}{CLEAR_LINE}", flush=True )
+
+      elif args.cases == 'ALL_ELIGIBLE_CASES':
+
+        target                = 'rna_test'
+        cases_required        = n_samples
+        case_designation_flag = args.cases
+        
+        if DEBUG>0:
+          print ( f"{CLEAR_LINE}{WHITE}GENERATE:       INFO: (just_test) about to generate {CYAN}{target}{RESET} dataset:", flush=True )
+          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) case_designation_flag +  .  +  .  +  .  +  .  +  .  +  .  +  .  +  .  +  .  +  . .. = {MIKADO}{case_designation_flag}{RESET}",  flush=True )
+          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) cases_required  +  .  +  .  +  .  +  .  +  .  +  .  +  .  +  .  +  .  +  .  +  . .. = {MIKADO}{cases_required}{RESET}",         flush=True )
+
+        class_counts = np.zeros( highest_class_number+1, dtype=np.int )        
+        global_rna_files_processed, n_genes = generate_rna_dataset ( args, class_names, target, cases_required, highest_class_number, case_designation_flag, n_genes, low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform, use_autoencoder_output, class_counts )
+  
+        if DEBUG>0:
+          print ( f"GENERATE:       INFO:    rna files processed  (this run) +  .  +  .  +  .  +  .  +  .  +  .  +  .  +  . . = {MIKADO}{global_rna_files_processed}{RESET}{CLEAR_LINE}", flush=True )
 
 
     else:

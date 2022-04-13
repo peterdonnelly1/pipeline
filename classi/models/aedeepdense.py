@@ -91,7 +91,7 @@ class AEDEEPDENSE( nn.Module) :
   """
 
 
-  def __init__( self, cfg, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2  ):
+  def __init__( self, cfg, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, nn_dense_dropout_1, nn_dense_dropout_2   ):
     
     if DEBUG>99:
       print ( f"AEDEEPDENSE:    INFO:    at {MIKADO} __init__(){RESET}" )
@@ -99,9 +99,9 @@ class AEDEEPDENSE( nn.Module) :
     super(AEDEEPDENSE, self).__init__()
 
     hidden_layer_encoder_topology =  args.hidden_layer_encoder_topology
-    
-    n_input                       = cfg.N_GENES
-    self.n_input                  = cfg.N_GENES
+
+    n_input                       = n_genes
+    self.n_input                  = n_genes
     self.pre_latent_topology      = [n_input]  + (hidden_layer_encoder_topology       if hidden_layer_encoder_topology else [])  # layer before the output (latent layer)
     self.post_latent_topology     = (hidden_layer_encoder_topology[::-1] + [n_input]  if hidden_layer_encoder_topology else [])  # layer after output
     if DEBUG>0:

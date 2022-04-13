@@ -1,5 +1,5 @@
 """============================================================================
-Configuration for the DLBC data set with LENET  
+Configuration
 ============================================================================"""
 
 import sys
@@ -8,7 +8,9 @@ import numpy as np
 import torch
 from   torchvision.utils import save_image
 
-from   models import LENET5, AELINEAR, AEDENSE, VGG, VGGNN, INCEPT3, DENSE, DEEPDENSE, CONV1D, DCGANAE128, AEDCECCAE_3, AEDCECCAE_5, AEVGG16
+from   models import LENET5, VGG, VGGNN, INCEPT3, DENSE, DEEPDENSE, CONV1D                                 # supported conventional networks
+from   models import AELINEAR, AEDENSE, AEDENSEPOSITIVE, AEDEEPDENSE, DCGANAE128, TTVAE                    # supported non-convolutional autoencoders  (for 1D data like RNA-Seq vectors )
+from   models import AEVGG16, AE3LAYERCONV2D, AEDCECCAE_3, AEDCECCAE_5                                     # supported convolutional encoders          (for 2D data like images )
 from   models.vggnn import vgg11_bn, vgg13_bn, vgg16_bn, vgg19_bn, make_layers, configs
 #from   models.incept3 import incept3
 from modes.classify.dataset import classifyDataset
@@ -76,11 +78,8 @@ class classifyConfig(Config):
 
     def get_genes_net( self, args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, nn_dense_dropout_1, nn_dense_dropout_2  ):
       
-      if DEBUG>2:
-        print( "CONFIG:         INFO:     at \033[35;1m get_genes_net()\033[m:   nn_type_rna  = \033[36;1m{:}\033[m".format( nn_type_rna ) )
-
-      if DEBUG>9:
-        print( "CONFIG:         INFO:     at \033[35;1m get_genes_net()\033[m:   nn_type_rna  = \033[36;1m{:}\033[m".format( nn_type_rna ) )
+      if DEBUG>0:
+        print( f"CONFIG:         INFO:     at get_genes_net: {CYAN}nn_type_rna={MIKADO}{nn_type_rna}{RESET}", flush=True  )
 
       if nn_type_rna=='DENSE':
         return DENSE           ( self, args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, nn_dense_dropout_1, nn_dense_dropout_2 )
@@ -101,10 +100,11 @@ class classifyConfig(Config):
       elif nn_type_rna=='AEDEEPDENSE':
         return AEDEEPDENSE     ( self, args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, nn_dense_dropout_1, nn_dense_dropout_2 )
       elif nn_type_rna=='TTVAE':
-        return TTVAE           ( self, args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, nn_dense_dropout_1, nn_dense_dropout_2 )  
+        return TTVAE           ( self, args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, nn_dense_dropout_1, nn_dense_dropout_2   )
+
       else:
-        print( f"{BOLD}{RED}CONFIG:              FATAL:  Sorry, there is no neural network model available for {CYAN}rna{RESET}{RED} processing named: '{CYAN}{nn_type_rna}{RESET}{RED}' ... halting now.{RESET}" )        
-        exit(0)
+        print( f"{BOLD}{RED}CONFIG:         FATAL: sorry, there is no neural network model available for {CYAN}rna{RESET}{RED} processing named: '{MIKADO}{nn_type_rna}{RESET}{RED}' ... halting now.{RESET}" )        
+        sys.exit(0)
 # ------------------------------------------------------------------------------
 
     def get_dataset( self, args, which_dataset, gpu ):

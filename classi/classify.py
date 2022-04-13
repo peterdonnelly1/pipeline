@@ -49,6 +49,7 @@ from   torch.utils.tensorboard      import SummaryWriter
 from   torchvision                  import datasets, transforms
 
 from modes                          import loader
+from models.ttvae                   import vae_loss
 from modes.classify.config          import classifyConfig
 from modes.classify.generate        import generate
 from   models                       import COMMON
@@ -268,7 +269,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   probs_matrix_interpolation    = args.probs_matrix_interpolation
   max_consecutive_losses        = args.max_consecutive_losses
   target_tile_coords            = args.target_tile_coords
-  
   base_dir                      = args.base_dir
   application_dir               = args.application_dir
   data_dir                      = args.data_dir
@@ -283,7 +283,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   save_model_name               = args.save_model_name
   save_model_every              = args.save_model_every
   supergrid_size                = args.supergrid_size
-  
   minimum_job_size              = args.minimum_job_size
   box_plot                      = args.box_plot
   box_plot_show                 = args.box_plot_show
@@ -292,8 +291,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   remove_unexpressed_genes      = args.remove_unexpressed_genes
   encoder_activation            = args.encoder_activation
   hidden_layer_neurons          = args.hidden_layer_neurons
-  embedding_dimensions                = args.embedding_dimensions
-  
+  embedding_dimensions          = args.embedding_dimensions
   use_autoencoder_output        = args.use_autoencoder_output  
   ae_add_noise                  = args.ae_add_noise  
   clustering                    = args.clustering  
@@ -302,7 +300,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   momentum                      = args.momentum  
   epsilon                       = args.epsilon
   min_cluster_size              = args.min_cluster_size
-  
   names_column                  = args.names_column
   case_column                   = args.case_column
   class_column                  = args.class_column
@@ -326,10 +323,31 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
   multimode_case_count = unimode_case_matched_count = unimode_case_unmatched_count = unimode_case____image_count = unimode_case____image_test_count = unimode_case____rna_count = unimode_case____rna_test_count = 0
 
+  if (just_test!='True'):
+    if any(i >= 1.  for i in pct_test):
+      print ( f"{BOLD}{RED}CLASSI:       FATAL: in training mode, but {CYAN}pct_test>={MIKADO}{pct_test}{RESET}{BOLD}{RED}, which would result in there being no examples for training.{RESET}",        flush=True  )                                        
+      print ( f"{BOLD}{RED}CLASSI:       FATAL: cannot continue - halting now{RESET}" )                 
+      sys.exit(0)
+    if any(i >= 0.9 for i in pct_test):
+      print ( f"{BOLD}{ORANGE}CLASSI:         WARNG: in training mode, and {CYAN}pct_test={MIKADO}{pct_test}{RESET}{BOLD}{ORANGE}. One of more of these values are greater than or equal to 0.9 which seems unusual.{RESET}",        flush=True  )                                        
+      print ( f"{BOLD}{ORANGE}CLASSI:         WARNG: proceeding, but be aware that for such values, fewer than 10% of the examples will be used for training{RESET}",             flush=True  )
+      time.sleep(5)       
+  
+  we_are_autoencoding=False
+  if ( (input_mode=='image') &  ('AE' in nn_type_img[0]) )  |  ( (input_mode=='rna') & ('AE' in nn_type_rna[0]) ):
+    we_are_autoencoding=True
+
+  allowable_input_modes = [ 'image', 'rna', 'image_rna' ]
+  
+  if not ( args.input_mode in allowable_input_modes ):
+    print ( f"{RED}CLASSI:        FATAL:  input_mode={CYAN}{args.input_mode}{RESET}{RED} is not recognised{RESET}",        flush=True  )                                        
+    print ( f"{RED}CLASSI:        FATAL:  these are the recognised input modes are {CYAN}{allowable_input_modes}{RESET}",  flush=True  )                 
+    print ( f"{RED}CLASSI:        FATAL:  cannot continue - halting now{RESET}" )                 
+    sys.exit(0)       
 
   if ( any(i>1. for i in pct_test) ) | ( any(i<0. for i in pct_test) ) :
-    print ( f"{RED}CLASSI:        FATAL:  {CYAN}pct_test{RESET}{RED} must be between 0.0 and 1.0{RESET}" )                                        
-    print ( f"{RED}CLASSI:        FATAL:  cannot continue - halting now{RESET}" )                 
+    print ( f"{RED}CLASSI:        FATAL:  {CYAN}pct_test{RESET}{RED} must be between 0.0 and 1.0{RESET}",                 flush=True )                                        
+    print ( f"{RED}CLASSI:        FATAL:  cannot continue - halting now{RESET}",                                          flush=True )                 
     sys.exit(0)   
 
   # extract subtype names from the applicable master clinical data spreadsheet
@@ -550,17 +568,18 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
       print( f"{RED}CLASSI:         FATAL: the {CYAN}PRETRAIN{RESET}{RED} option ({CYAN}-p True{RESET}{RED}) corresponding to python argument {CYAN}--pretrain True{RESET}{RED} is not supported in test mode (because it makes no sense){RESET}", flush=True)
       print( f"{RED}CLASSI:         FATAL: ... halting now{RESET}" )
       sys.exit(0)
-    if args.cases=='ALL_ELIGIBLE_CASES':
-      print( f"{RED}CLASSI:         FATAL: in test mode '{RESET}{CYAN}-c ALL_ELIGIBLE_CASES{RESET}{RED}' is not supported{RESET}" )
-      print( f"{RED}CLASSI:         FATAL:   explanation:  The '{CYAN}CASES{RESET}{RED}' subset '{CYAN}ALL_ELIGIBLE_CASES{RESET}{RED}' includes examples used to train the model that is about to be deployed. Therefore, the results would be meaningless{RESET}" )
-      print( f"{RED}CLASSI:         FATAL:   explanation:  in test mode the following case subsets are supported: ''{CYAN}UNIMODE_CASE{RESET}{RED}', '{CYAN}MULTIMODE____TEST{RESET}{RED}'" )
-      print( f"{RED}CLASSI:         FATAL:   ... halting now{RESET}" )
-      sys.exit(0)
-    elif  not ( ( args.cases=='UNIMODE_CASE' ) | ( args.cases=='MULTIMODE____TEST' )  ):
-      print( f"{RED}CLASSI:         FATAL: unknown case subset: {CYAN}-c ('cases')  {RESET}{RED} = '{CYAN}{args.cases}{RESET}{RED}'{RESET}" )
-      print( f"{RED}CLASSI:         FATAL:   ... halting now{RESET}" )
-      sys.exit(0)
-
+    if we_are_autoencoding != True:                                                                        # it's ok to use ALL_ELIGIBLE_CASES in test mode if we are generating embeddings, but not otherwise
+      if args.cases=='ALL_ELIGIBLE_CASES':
+        print( f"{RED}CLASSI:         FATAL: in test mode '{RESET}{CYAN}-c ALL_ELIGIBLE_CASES{RESET}{RED}' is not supported{RESET}" )
+        print( f"{RED}CLASSI:         FATAL:   explanation:  The '{CYAN}CASES{RESET}{RED}' subset '{CYAN}ALL_ELIGIBLE_CASES{RESET}{RED}' includes examples used to train the model that is about to be deployed. Therefore, the results would be meaningless{RESET}" )
+        print( f"{RED}CLASSI:         FATAL:   explanation:  in test mode the following case subsets are supported: ''{CYAN}UNIMODE_CASE{RESET}{RED}', '{CYAN}MULTIMODE____TEST{RESET}{RED}'" )
+        print( f"{RED}CLASSI:         FATAL:   ... halting now{RESET}" )
+        sys.exit(0)
+      elif  not ( ( args.cases=='UNIMODE_CASE' ) | ( args.cases=='MULTIMODE____TEST' )  ):
+        print( f"{RED}CLASSI:         FATAL: unknown case subset: {CYAN}-c ('cases')  {RESET}{RED} = '{CYAN}{args.cases}{RESET}{RED}'{RESET}" )
+        print( f"{RED}CLASSI:         FATAL:   ... halting now{RESET}" )
+        sys.exit(0)
+  
       
 
   if  ( args.cases!='ALL_ELIGIBLE_CASES' ) & ( args.divide_cases == 'False' ):
@@ -981,9 +1000,9 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
 
       if DEBUG>9:
         print ( f"\n\n" )
-        print ( f"CLASSI:         INFO:      test(): args.n_tests                     = {PALE_GREEN}{args.n_tests}{RESET}"                  )
-        print ( f"CLASSI:         INFO:      test(): n_classes                        = {PALE_GREEN}{n_classes}{RESET}"                     )
-        print ( f"CLASSI:         INFO:      test(): probabilities_matrix.shape       = {PALE_GREEN}{probabilities_matrix.shape}{RESET}"    )                                    
+        print ( f"CLASSI:         INFO:      test: args.n_tests                     = {PALE_GREEN}{args.n_tests}{RESET}"                  )
+        print ( f"CLASSI:         INFO:      test: n_classes                        = {PALE_GREEN}{n_classes}{RESET}"                     )
+        print ( f"CLASSI:         INFO:      test: probabilities_matrix.shape       = {PALE_GREEN}{probabilities_matrix.shape}{RESET}"    )                                    
 
 
     if DEBUG>0:
@@ -1343,24 +1362,13 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
 
       
 
-    # ~ elif clustering=='plotly_play':
-      # ~ plotly_play ( args, pct_test)
-      # ~ writer.close()        
-      # ~ hours   = round( (time.time() - start_time) / 3600,  1   )
-      # ~ minutes = round( (time.time() - start_time) /   60,  1   )
-      # ~ seconds = round( (time.time() - start_time)       ,  0   )
-      # ~ print( f'CLASSI:           INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
-      # ~ sys.exit(0)
-      
-      
-      
     # (4) Load experiment config.  (NOTE: Almost all configurable parameters are now provided via user arguments rather than this config file)
     
     if DEBUG>1:    
       print( f"CLASSI:         INFO: {BOLD}4 about to load experiment config{RESET}" )
-    cfg = loader.get_config( mode, lr, batch_size )                                                     #################################################################### change to just args at some point
-    classifyConfig.MAKE_GREY          = make_grey_pct                                                    # modify config class variable to take into account user preference
-    classifyConfig.JITTER             = jitter                                                               # modify config class variable to take into account user preference
+    cfg = loader.get_config( mode, lr, batch_size )                                                        #################################################################### change to just using args at some point
+    classifyConfig.MAKE_GREY          = make_grey_pct                                                      # modify config class variable to take into account user preference
+    classifyConfig.JITTER             = jitter                                                             # modify config class variable to take into account user preference
 #          if args.input_mode=='rna':  pplog.log_config(cfg) 
 
     # ~ pplog.log_section('Loading script arguments.')
@@ -1422,9 +1430,8 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         model.load_state_dict(torch.load(fqn))       
       except Exception as e:
         print ( f"{RED}CLASSI:         FATAL:  error when trying to load model {MAGENTA}'{fqn}'{RESET}", flush=True)    
-        print ( f"{RED}CLASSI:         FATAL:    reported error was: '{e}'{RESET}", flush=True)
         if args.input_mode == 'image':
-          print ( f"{RED}CLASSI:         FATAL:    explanation 1: this is a test run. ({CYAN}JUST_TEST==TRUE{RESET}{RED} (shell) or {CYAN}'just_test'=='True'{RESET}{RED} (python user argument). Did you forget to train a model ?{RESET}", flush=True)
+          print ( f"{RED}CLASSI:         FATAL:    explanation 1: this is a test run. ({CYAN}JUST_TEST==TRUE{RESET}{RED} (shell) or {CYAN}--just_test=='True'{RESET}{RED} (python user argument). Did you forget to train a model ?{RESET}", flush=True)
           print ( f"{RED}CLASSI:         FATAL:    explanation 2: perhaps you're using a different tile size ({CYAN}'TILE_SIZE'{RESET}{RED})than than the saved model uses{RESET}", flush=True)
         if args.input_mode == 'rna':
           print ( f"{RED}CLASSI:         FATAL:    explanation: this is a test run. ({CYAN}JUST_TEST==TRUE{RESET}{RED} (shell) or {CYAN}'just_test'=='True'{RESET}{RED} (python user argument). Did you forget to train a model ?{RESET}", flush=True)
@@ -1534,7 +1541,8 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
       if DEBUG>1:
         print( "CLASSI:         INFO:   \033[3mL-BFGS optimizer selected and configured\033[m" )
     else:
-      print( "CLASSI:         FATAL:    Optimizer '{:}' not supported".format( nn_optimizer ) )
+      print( f"{BOLD}{RED}CLASSI:         FATAL: optimizer '{MIKADO}{nn_optimizer}{RESET}{BOLD}{RED}' not supported", flush=True )
+      print( f"{BOLD}{RED}CLASSI:         FATAL: can't continue ... halting now{RESET}" )
       sys.exit(0)
  
  
@@ -1543,14 +1551,44 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
          
     # (10) Select Loss function
     
-    if DEBUG>1:
-      print( f"CLASSI:         INFO: {BOLD}9 about to select CrossEntropyLoss function{RESET}" )  
-    loss_function = torch.nn.CrossEntropyLoss()
+    loss_type=''
     
-    if DEBUG>1:
-      print( "CLASSI:         INFO:   \033[3mCross Entropy loss function selected\033[m" )  
-    
-    
+    if  ( input_mode!='image' ) & ( nn_type_rna in [ 'AELINEAR', 'AEDENSE', 'AEDENSEPOSITIVE', 'DCGANAE128' ] ):
+ 
+      loss_function = torch.nn.MSELoss()
+      loss_type     = 'mse'                                                                         
+      # ~ ae_loss2 = functional.mse_loss( x2r, x2.squeeze())    
+
+    elif  ( input_mode!='image' ) & ( nn_type_rna in [ 'TTVAE' ] ):
+
+      if DEBUG>0:
+        print ( f"CLASSI:         INFO:      train: x2 [0:12,0:12] = {MIKADO}{x2[0:12,0:12]}{RESET}" ) 
+        print ( f"CLASSI:         INFO:      train: x2r[0:12,0:12] = {MIKADO}{x2r[0:12,0:12]}{RESET}" )
+
+      bce_loss       = False
+      loss_reduction = 'sum'
+      loss_function = torch.nn.BCELoss() if bce_loss else torch.nn.MSELoss()  
+      # ~ loss_function = BCELoss( reduction=loss_reduction ).cuda(gpu) if bce_loss else MSELoss( reduction=loss_reduction ).cuda(gpu)      # Have to use Binary cross entropy loss for TTVAE (and VAEs generally)
+      ae_loss2, reconstruction_loss, kl_loss = vae_loss( x2r, x2, mean, logvar, loss_fn, epoch, kl_warm_up=0, beta=1. )
+      del mean
+      del logvar      
+      
+    elif ( input_mode=='image')  & ( nn_type_img in [ 'AE3LAYERCONV2D', 'AEDCECCAE_3', 'AEDCECCAE_5', 'AEVGG16' ] ):
+
+      loss_function = torch.nn.MSELoss()
+      loss_type     = 'mse'                                                                                                                                                 
+      # ~ ae_loss2 = functional.mse_loss( x2r, x2.squeeze())
+      
+    else:
+      
+      loss_function = torch.nn.CrossEntropyLoss()
+      
+    if DEBUG>0:
+      print( f"CLASSI:         INFO:   loss function = {CYAN}{loss_function}{RESET}" )  
+        
+        
+        
+        
 #    show,  via Tensorboard, what the samples look like
 #    images, labels = next(iter(train_loader))                                                              # PGD 200129 -
 #    images = images.to(device)
@@ -1609,7 +1647,30 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
     test_genes_loss_sum_ave_last           = 99999 
     test_lowest_genes_loss_observed        = 99999      
     test_lowest_genes_loss_observed_epoch  = 0 
-  
+
+
+    # (12) Prep for embeddings accumulation (Autoencoder only) 
+      
+    if (just_test=='True') & (we_are_autoencoding==True):
+      
+      if DEBUG>10:
+        print( f"CLASSI:         INFO:        batch_size     =  {MAGENTA}{batch_size}{RESET}",                       flush=True )
+        print( f"CLASSI:         INFO:        embedding_dimensions =  {MAGENTA}{embedding_dimensions}{RESET}",       flush=True )
+                                                                                            
+      embeddings_accum = torch.zeros( [ 0, embedding_dimensions ],  requires_grad=False,  dtype=torch.float )
+      
+      if DEBUG>10:
+        print( f"CLASSI:         INFO:        embeddings_accum.size  =  {MAGENTA}{embeddings_accum.size() }{RESET}",  flush=True )
+                  
+      labels_accum     = torch.zeros( [ 0                       ],  requires_grad=False,  dtype=torch.int64 ) 
+
+    else:
+      embeddings_accum = 0
+      labels_accum     = 0
+
+
+
+    # (13) Main loop
 
     for epoch in range(1, n_epochs+1):
   
@@ -1628,7 +1689,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         else:
     
           train_loss_images_sum_ave, train_loss_genes_sum_ave, train_l1_loss_sum_ave, train_total_loss_sum_ave =\
-                                                                                                       train ( args, epoch, train_loader, model, optimizer, loss_function, writer, train_loss_min, batch_size )
+                                                                                                       train ( args, epoch, train_loader, model, optimizer, loss_function, loss_type, writer, train_loss_min, batch_size )
     
           if train_total_loss_sum_ave < train_lowest_total_loss_observed:
             train_lowest_total_loss_observed       = train_total_loss_sum_ave
@@ -1648,7 +1709,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
             if ( input_mode=='image' ):
               print ( f"\
   \r\033[1C{CLEAR_LINE}{DULL_WHITE}\
-  \r\033[27Ctrain():\
+  \r\033[27Ctrain:\
   \r\033[49Closs_images={train_loss_images_sum_ave:5.2f}\
   \r\033[120CBATCH AVE OVER EPOCH={PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{train_total_loss_sum_ave:9.4f}{DULL_WHITE}\
   \r\033[250Cmin loss: {train_lowest_total_loss_observed:>6.2f} at epoch {train_lowest_total_loss_observed_epoch:<2d}"
@@ -1656,7 +1717,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
             elif ( input_mode=='rna' ):
               print ( f"\
   \r\033[1C{CLEAR_LINE}{DULL_WHITE}\
-  \r\033[27Ctrain():\
+  \r\033[27Ctrain:\
   \r\033[73Closs_rna={train_loss_genes_sum_ave:5.2f}\
   \r\033[120CBATCH AVE OVER EPOCH={PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{train_total_loss_sum_ave:9.4f}{DULL_WHITE}\
   \r\033[250Cmin loss: {train_lowest_total_loss_observed:>6.2f} at epoch {train_lowest_total_loss_observed_epoch:<2d}"
@@ -1677,9 +1738,6 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
           train_total_loss_sum_ave_last = train_total_loss_sum_ave
   
 
-
-
-
 #        if (just_test=='True') & (multimode=='image_rna'):                                                 # skip testing in Test mode if multimode is True 
         if (just_test=='True') & (multimode=='image_rnaxxx'):                                               # skip testing in Test mode if multimode is True 
           pass  # <---- This will never happen
@@ -1689,7 +1747,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
     
           show_all_test_examples=False
           test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min, embedding     =\
-                        test ( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
+                        test ( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loader,  model,  tile_size, loss_function, loss_type, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
                                                                                       test_loss_min, show_all_test_examples, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours)
   
           global_correct_prediction_count += correct_predictions
@@ -1710,7 +1768,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
             print ( f"\
   \033[5A\
   \r\033[1C\033[2K{DULL_WHITE}\
-  \r\033[27Ctest():\
+  \r\033[27Ctest:\
   \r\033[49Closs_images={CARRIBEAN_GREEN}{test_loss_images_sum_ave:5.2f}{DULL_WHITE}\
   \r\033[120CBATCH AVE OVER EPOCH={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:9.4f}{DULL_WHITE}\
   \r\033[250Cmin loss: {test_lowest_total_loss_observed*100/batch_size:6.2f} at {WHITE}epoch {test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE}\
@@ -1721,7 +1779,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
             print ( f"\
   \033[5A\
   \r\033[1C\033[2K{DULL_WHITE}\
-  \r\033[27Ctest():\
+  \r\033[27Ctest:\
   \r\033[73Closs_rna={BITTER_SWEET}{test_loss_genes_sum_ave:5.2f}{DULL_WHITE}\
   \r\033[120CBATCH AVE OVER EPOCH={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:9.4f}{DULL_WHITE}\
   \r\033[250Cmin loss: {test_lowest_total_loss_observed*100/batch_size:6.2f} at {WHITE}epoch {test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} \
@@ -1769,10 +1827,27 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
           else:
             print ( "\033[8A", end='' )       
   
-      #  ^^^  RUN FINISHES HERE ^^^
+      #  ^^^^^^^^  THE MAIN LOOP FINISHES HERE ^^^^^^^^
 
 
 
+
+    if loss_type=='mse':
+
+    # None of the following code is applicable to an Autoencoder, so we close up and end
+  
+      writer.close()        
+    
+      hours   = round( (time.time() - start_time) / 3600,  1   )
+      minutes = round( (time.time() - start_time) /   60,  1   )
+      seconds = round( (time.time() - start_time)       ,  0   )
+      #pplog.log_section('Job complete in {:} mins'.format( minutes ) )
+      
+      print( f'\n\n\n\nCLASSI:          INFO: Job complete {BOLD}{CHARTREUSE}(Autoencoder ending).{RESET} The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
+                
+      #pplog.log_section('Model saved.')
+      
+      sys.exit()
   
   
     # (C)  MAYBE CLASSIFY FINAL_TEST_BATCH_SIZE TEST SAMPLES USING THE BEST MODEL SAVED DURING THIS RUN
@@ -1784,9 +1859,9 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
       
         if DEBUG>0:
           print ( "\033[8B" )        
-          print ( f"CLASSI:         INFO:      test(): {BOLD}about to classify {MIKADO}{final_test_batch_size}{RESET}{BOLD} test samples through the best model this run produced"        )
+          print ( f"CLASSI:         INFO:      test: {BOLD}about to classify {MIKADO}{final_test_batch_size}{RESET}{BOLD} test samples through the best model this run produced"        )
         
-        pplog.log ( f"\nCLASSI:         INFO:  test(): about to classify {final_test_batch_size} test samples through the best model this run produced"                                 )
+        pplog.log ( f"\nCLASSI:         INFO:  test: about to classify {final_test_batch_size} test samples through the best model this run produced"                                 )
 
 
         if args.input_mode == 'image':
@@ -1812,14 +1887,14 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         show_all_test_examples=True
         
         if DEBUG>1:
-          print ( f"CLASSI:         INFO:      test(): final_test_batch_size = {MIKADO}{final_test_batch_size}{RESET}" )
+          print ( f"CLASSI:         INFO:      test: final_test_batch_size = {MIKADO}{final_test_batch_size}{RESET}" )
           
-        # note that we pass 'final_test_loader' to test()
+        # note that we pass 'final_test_loader' to test
         test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min, embedding     =\
-                          test ( cfg, args, parameters, epoch, final_test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
+                          test ( cfg, args, parameters, embeddings_accum, labels_accum, epoch, final_test_loader,  model,  tile_size, loss_function, loss_type, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
                                                                                                            test_loss_min, show_all_test_examples, final_test_batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours )    
     
-      job_level_classifications_matrix               += run_level_classifications_matrix                     # accumulate for the job level stats. Has to be just after call to 'test()'    
+      job_level_classifications_matrix               += run_level_classifications_matrix                     # accumulate for the job level stats. Has to be just after call to 'test'    
 
 
 
@@ -1829,7 +1904,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
     if (just_test=='True') & (multimode=="image_rna"):
 
       if DEBUG>0:
-        print( f"{BOLD}{CHARTREUSE}\r\033[7BCLASSI:         INFO:      test(): about to generate and save embeddings for all test samples{RESET}", flush=True )
+        print( f"{BOLD}{CHARTREUSE}\r\033[7BCLASSI:         INFO:      test: about to generate and save embeddings for all test samples{RESET}", flush=True )
 
       model.eval()                                                                                         # set model to evaluation mode
 
@@ -1842,15 +1917,15 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         image_labels = image_labels.to(device)
 
         if DEBUG>2:
-          print( f"\nCLASSI:         INFO:      test(): embeddings: embedding_count         = {MIKADO}{embedding_count+1}{RESET}",              flush=True )
-          print( f"CLASSI:         INFO:      test(): embeddings: batch count             = {MIKADO}{i+1}{RESET}",                        flush=True )
+          print( f"\nCLASSI:         INFO:      test: embeddings: embedding_count         = {MIKADO}{embedding_count+1}{RESET}",              flush=True )
+          print( f"CLASSI:         INFO:      test: embeddings: batch count             = {MIKADO}{i+1}{RESET}",                        flush=True )
           if args.input_mode=='image': 
-            print( f"CLASSI:         INFO:      test(): embeddings: batch_images size       = {BLEU}{batch_images.size()}{RESET}                                                     {MAGENTA}<<<<< Note: don't use dropout in test runs{RESET}", flush=True)
+            print( f"CLASSI:         INFO:      test: embeddings: batch_images size       = {BLEU}{batch_images.size()}{RESET}                                                     {MAGENTA}<<<<< Note: don't use dropout in test runs{RESET}", flush=True)
           if ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
-            print( f"CLASSI:         INFO:      test(): embeddings: batch_genes size        = {BLEU}{batch_genes.size()}{RESET}                                                     {MAGENTA}<<<<< Note: don't use dropout in test runs{RESET}", flush=True)
-          print( f"CLASSI:         INFO:      test(): embeddings: batch_fnames size       = {BLEU}{batch_fnames.size()}{RESET}",          flush=True)
+            print( f"CLASSI:         INFO:      test: embeddings: batch_genes size        = {BLEU}{batch_genes.size()}{RESET}                                                     {MAGENTA}<<<<< Note: don't use dropout in test runs{RESET}", flush=True)
+          print( f"CLASSI:         INFO:      test: embeddings: batch_fnames size       = {BLEU}{batch_fnames.size()}{RESET}",          flush=True)
         if DEBUG>888:
-          print( f"CLASSI:         INFO:      test(): embeddings: batch_fnames            = {PURPLE}{batch_fnames.cpu().numpy()}{RESET}", flush=True )
+          print( f"CLASSI:         INFO:      test: embeddings: batch_fnames            = {PURPLE}{batch_fnames.cpu().numpy()}{RESET}", flush=True )
 
         gpu                = 0
         encoder_activation = 0
@@ -1860,22 +1935,22 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
           with torch.no_grad(): 
             y1_hat, y2_hat, embedding = model.forward( [ 0,            batch_genes  , batch_fnames], gpu, encoder_activation )            # y2_hat = rna outputs
-                        
+                # ~ x2r, mean, logvar = model.forward( args, x2, args.input_mode,                    gpu, encoder_activation )
 
         if DEBUG>2:
-          print( f"CLASSI:         INFO:      test(): embeddings: returned embedding size = {ARYLIDE}{embedding.size()}{RESET}",          flush=True )
+          print( f"CLASSI:         INFO:      test: embeddings: returned embedding size = {ARYLIDE}{embedding.size()}{RESET}",          flush=True )
   
         batch_fnames_npy = batch_fnames.numpy()                                                            # batch_fnames was set up during dataset generation: it contains a link to the SVS file corresponding to the tile it was extracted from - refer to generate() for details
 
         if DEBUG>2:
           np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-          print ( f"CLASSI:         INFO:      test(): embeddings: batch_fnames_npy.shape  = {batch_fnames_npy.shape}",       flush=True )        
-          print ( f"CLASSI:         INFO:      test(): embeddings: batch_fnames_npy        = {batch_fnames_npy}",             flush=True )
+          print ( f"CLASSI:         INFO:      test: embeddings: batch_fnames_npy.shape  = {batch_fnames_npy.shape}",       flush=True )        
+          print ( f"CLASSI:         INFO:      test: embeddings: batch_fnames_npy        = {batch_fnames_npy}",             flush=True )
 
 
         if DEBUG>2:
           fq_link       = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"                                    # convert the saved integer to the matching file name
-          print( f"CLASSI:         INFO:      test(): e.g. batch_fnames_npy[0]                 = {MAGENTA}{fq_link}{RESET}",      flush=True )
+          print( f"CLASSI:         INFO:      test: e.g. batch_fnames_npy[0]                 = {MAGENTA}{fq_link}{RESET}",      flush=True )
                   
   
         # batch will only sometimes be complete
@@ -1891,46 +1966,46 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
               fq_link       = f"{args.data_dir}/{batch_fnames_npy[n]}.fqln"                                # where to save the embedding (which case directory to save it to)
               if DEBUG>2:
                 np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-                print ( f"CLASSI:         INFO:      test(): embeddings:   batch_fnames_npy[{MIKADO}{n}{RESET}]   = {PINK}{batch_fnames_npy[n]}{RESET}",              flush=True )
-                print ( f"CLASSI:         INFO:      test(): embeddings:   fq_link                = {PINK}{fq_link}{RESET}",                                          flush=True )
+                print ( f"CLASSI:         INFO:      test: embeddings:   batch_fnames_npy[{MIKADO}{n}{RESET}]   = {PINK}{batch_fnames_npy[n]}{RESET}",              flush=True )
+                print ( f"CLASSI:         INFO:      test: embeddings:   fq_link                = {PINK}{fq_link}{RESET}",                                          flush=True )
               save_path     =  os.path.dirname(os.readlink(fq_link))
               if DEBUG>2:
                 np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-                print ( f"CLASSI:         INFO:      test(): embeddings:   save_path              = {PINK}{save_path}{RESET}",                                        flush=True )
+                print ( f"CLASSI:         INFO:      test: embeddings:   save_path              = {PINK}{save_path}{RESET}",                                        flush=True )
               random_name   = f"_{randint(10000000, 99999999)}_image_rna_matched___image"
               save_fqn      = f"{save_path}/{random_name}"
               if DEBUG>8:
                 np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-                print ( f"CLASSI:         INFO:      test(): embeddings:   save_fqn               = {PINK}{save_fqn}{RESET}",                                         flush=True )
+                print ( f"CLASSI:         INFO:      test: embeddings:   save_fqn               = {PINK}{save_fqn}{RESET}",                                         flush=True )
               np.save( save_fqn, embedding.cpu().numpy()[n] )
   
             if ( args.input_mode=='rna' ):
               fq_link       = f"{args.data_dir}/{batch_fnames_npy[n]}.fqln"
               if DEBUG>2:
                 np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-                print ( f"CLASSI:         INFO:      test(): embeddings:   batch_fnames_npy[{MIKADO}{n}{RESET}]   = {PINK}{batch_fnames_npy[n]}{RESET}",              flush=True )
-                print ( f"CLASSI:         INFO:      test(): embeddings:   fq_link                = {BLEU}{fq_link}{RESET}",                                          flush=True )
+                print ( f"CLASSI:         INFO:      test: embeddings:   batch_fnames_npy[{MIKADO}{n}{RESET}]   = {PINK}{batch_fnames_npy[n]}{RESET}",              flush=True )
+                print ( f"CLASSI:         INFO:      test: embeddings:   fq_link                = {BLEU}{fq_link}{RESET}",                                          flush=True )
               save_path     =   os.readlink(fq_link)                                                       # link is to the case directory for rna_seq (for tiles, it's to the patch file within the case directory)
               if DEBUG>2:
                 np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-                print ( f"CLASSI:         INFO:      test(): embeddings:   save_path              = {BLEU}{save_path}{RESET}",                                        flush=True )
+                print ( f"CLASSI:         INFO:      test: embeddings:   save_path              = {BLEU}{save_path}{RESET}",                                        flush=True )
               random_name   = f"_image_rna_matched___rna"
               save_fqn      = f"{save_path}/{random_name}"
               if DEBUG>2:
                 np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-                print ( f"CLASSI:         INFO:      test(): embeddings:   save_fqn               = {BLEU}{save_fqn}{RESET}",                                         flush=True )
+                print ( f"CLASSI:         INFO:      test: embeddings:   save_fqn               = {BLEU}{save_fqn}{RESET}",                                         flush=True )
               np.save( save_fqn, embedding.cpu().numpy()[n] )
 
             
         
           if DEBUG>88:
             np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-            print ( f"CLASSI:         INFO:      test(): embeddings: embedding [{MIKADO}{n},0:10{RESET}]     = {PINK}{embedding.cpu().numpy()[n,0:10]}{RESET}",  flush=True )
-            print ( f"CLASSI:         INFO:      test(): embeddings: fq_link [{MIKADO}{n}{RESET}]            = {PINK}{fq_link}{RESET}",                          flush=True )
-            print ( f"CLASSI:         INFO:      test(): embeddings: random name [{MIKADO}{n}{RESET}]        = {PINK}{ranndom_name}{RESET}",                     flush=True )
-           #print ( f"CLASSI:         INFO:      test(): embeddings: points to                               = {PINK}{os.readlink(fq_link)}{RESET}",             flush=True )
-            print ( f"CLASSI:         INFO:      test(): embeddings: save path                               = {BLEU}{save_path}{RESET}",                        flush=True )
-            print ( f"CLASSI:         INFO:      test(): embeddings: save fqn                                = {BLEU}{save_fqn}{RESET}",                         flush=True )
+            print ( f"CLASSI:         INFO:      test: embeddings: embedding [{MIKADO}{n},0:10{RESET}]     = {PINK}{embedding.cpu().numpy()[n,0:10]}{RESET}",  flush=True )
+            print ( f"CLASSI:         INFO:      test: embeddings: fq_link [{MIKADO}{n}{RESET}]            = {PINK}{fq_link}{RESET}",                          flush=True )
+            print ( f"CLASSI:         INFO:      test: embeddings: random name [{MIKADO}{n}{RESET}]        = {PINK}{ranndom_name}{RESET}",                     flush=True )
+           #print ( f"CLASSI:         INFO:      test: embeddings: points to                               = {PINK}{os.readlink(fq_link)}{RESET}",             flush=True )
+            print ( f"CLASSI:         INFO:      test: embeddings: save path                               = {BLEU}{save_path}{RESET}",                        flush=True )
+            print ( f"CLASSI:         INFO:      test: embeddings: save fqn                                = {BLEU}{save_fqn}{RESET}",                         flush=True )
     
           embedding_count+=1
 
@@ -2956,12 +3031,12 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
   #pplog.log_section('Model saved.')
   
 
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
-def train(args, epoch, train_loader, model, optimizer, loss_function, writer, train_loss_min, batch_size  ):
+def train( args, epoch, train_loader, model, optimizer, loss_function, loss_type, writer, train_loss_min, batch_size  ):
 
     """
-    Train model and update parameters in batches of the whole training set
+    Train Model for one epoch (= every training example in however many batches are necessary to process every example)
     """
     
     model.train()                                                                                          # set model to training mode
@@ -2973,14 +3048,14 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
 
 
     if DEBUG>9:
-      print( "CLASSI:         INFO:     train(): about to enumerate over dataset" )
+      print( "CLASSI:         INFO:     train: about to enumerate over dataset" )
     
     for i, ( batch_images, batch_genes, image_labels, rna_labels, batch_fnames ) in enumerate( train_loader ):
         
         if DEBUG>88:
-          print( f"CLASSI:         INFO:     train(): len(batch_images) = \033[33;1m{len(batch_images)}\033[m" )
-          print( f"CLASSI:         INFO:     train(): len(image_labels) = \033[33;1m{len(image_labels)}\033[m" )
-          print( f"CLASSI:         INFO:     train(): len(rna_labels)   = \033[33;1m{len(rna_labels)}\033[m" )
+          print( f"CLASSI:         INFO:     train: len(batch_images) = \033[33;1m{len(batch_images)}\033[m" )
+          print( f"CLASSI:         INFO:     train: len(image_labels) = \033[33;1m{len(image_labels)}\033[m" )
+          print( f"CLASSI:         INFO:     train: len(rna_labels)   = \033[33;1m{len(rna_labels)}\033[m" )
         if DEBUG>888:
           print ( "\033[6B" )
           print( f"{ image_labels.cpu().detach().numpy()},  ", flush=True, end="" )
@@ -2988,7 +3063,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
           print ( "\033[6A" )
                             
         if DEBUG>888:
-          print( f"CLASSI:         INFO:     train(): about to call {CYAN}optimizer.zero_grad(){RESET}" )
+          print( f"CLASSI:         INFO:     train: about to call {CYAN}optimizer.zero_grad(){RESET}" )
 
         # from: https://stackoverflow.com/questions/44732217/why-do-we-need-to-explicitly-call-zero-grad
         # We explicitly need to call zero_grad() because, after loss.backward() (when gradients are computed), we need to use optimizer.step() to proceed gradient descent. More specifically, the gradients are not automatically zeroed because these two operations, loss.backward() and optimizer.step(), are separated, and optimizer.step() requires the just computed gradients.
@@ -3000,15 +3075,15 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
         rna_labels   = rna_labels.to   ( device )                                                          # send to GPU
 
         if DEBUG>99:
-          print ( f"CLASSI:         INFO:     train(): batch_images[0]                    = {MIKADO}\n{batch_images[0] }{RESET}", flush=True   )
+          print ( f"CLASSI:         INFO:     train: batch_images[0]                    = {MIKADO}\n{batch_images[0] }{RESET}", flush=True   )
 
         if DEBUG>99:
-          print ( f"CLASSI:         INFO:     train(): type(batch_images)                 = {MIKADO}{type(batch_images)}{RESET}",  flush=True  )
-          print ( f"CLASSI:         INFO:     train(): batch_images.size()                = {MIKADO}{batch_images.size()}{RESET}", flush=True  )
+          print ( f"CLASSI:         INFO:     train: type(batch_images)                 = {MIKADO}{type(batch_images)}{RESET}",  flush=True  )
+          print ( f"CLASSI:         INFO:     train: batch_images.size()                = {MIKADO}{batch_images.size()}{RESET}", flush=True  )
 
 
         if DEBUG>2:
-          print( f"CLASSI:         INFO:      train(): about to call {MAGENTA}model.forward(){RESET}" )
+          print( f"CLASSI:         INFO:      train: about to call {MAGENTA}model.forward(){RESET}" )
 
         gpu                = 0                                                                             # to maintain compatability with NN_MODE=pre_compress
         encoder_activation = 0                                                                             # to maintain compatability with NN_MODE=pre_compress
@@ -3017,7 +3092,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
           y1_hat, y2_hat, embedding = model.forward( [ batch_images, 0          ,  batch_fnames] , gpu, encoder_activation  )          # perform a step. y1_hat = image outputs; y2_hat = rna outputs
         elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
           if DEBUG>9:
-            print ( f"CLASSI:         INFO:     train(): batch_genes.size()                = {batch_genes.size}" )
+            print ( f"CLASSI:         INFO:     train: batch_genes.size()                = {batch_genes.size}" )
           y1_hat, y2_hat, embedding = model.forward( [0,             batch_genes,  batch_fnames],  gpu, encoder_activation )           # perform a step. y1_hat = image outputs; y2_hat = rna outputs
 
 
@@ -3029,30 +3104,35 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
             y1_hat_numpy       = (y1_hat       .cpu() .data) .numpy()
             batch_fnames_npy   = (batch_fnames .cpu() .data) .numpy()
             random_pick        = random.randint( 0, y1_hat_numpy.shape[0]-1 )
-            print ( f"CLASSI:         INFO:      test():        fq_link            [{random_pick:3d}]      (Truth)         = {MIKADO}{args.data_dir}/{batch_fnames_npy[random_pick]}.fqln{RESET}"     )            
-            print ( f"CLASSI:         INFO:      test():        image_labels_numpy [{random_pick:3d}]      {GREEN}(Truth){RESET}         = {MIKADO}{image_labels_numpy[random_pick]}{RESET}"     )            
-            print ( f"CLASSI:         INFO:      test():        y1_hat_numpy       [{random_pick:3d}]      {ORANGE}(Predictions){RESET}   = {MIKADO}{y1_hat_numpy[random_pick]}{RESET}"     )
-            print ( f"CLASSI:         INFO:      test():        predicted class    [{random_pick:3d}]                      = {RED if image_labels_numpy[random_pick]!=np.argmax(y1_hat_numpy[random_pick]) else GREEN}{np.argmax(y1_hat_numpy[random_pick])}{RESET}"     )
+            print ( f"CLASSI:         INFO:      test:        fq_link            [{random_pick:3d}]      (Truth)         = {MIKADO}{args.data_dir}/{batch_fnames_npy[random_pick]}.fqln{RESET}"     )            
+            print ( f"CLASSI:         INFO:      test:        image_labels_numpy [{random_pick:3d}]      {GREEN}(Truth){RESET}         = {MIKADO}{image_labels_numpy[random_pick]}{RESET}"     )            
+            print ( f"CLASSI:         INFO:      test:        y1_hat_numpy       [{random_pick:3d}]      {ORANGE}(Predictions){RESET}   = {MIKADO}{y1_hat_numpy[random_pick]}{RESET}"     )
+            print ( f"CLASSI:         INFO:      test:        predicted class    [{random_pick:3d}]                      = {RED if image_labels_numpy[random_pick]!=np.argmax(y1_hat_numpy[random_pick]) else GREEN}{np.argmax(y1_hat_numpy[random_pick])}{RESET}"     )
 
             
           loss_images       = loss_function( y1_hat, image_labels )
           loss_images_value = loss_images.item()                                                           # use .item() to extract value from tensor: don't create multiple new tensors each of which will have gradient histories
           
           if DEBUG>2:
-            print ( f"CLASSI:         INFO:      test(): {MAGENTA}loss_images{RESET} (for this mini-batch)  = {PURPLE}{loss_images_value:6.3f}{RESET}" )
+            print ( f"CLASSI:         INFO:      test: {MAGENTA}loss_images{RESET} (for this mini-batch)  = {PURPLE}{loss_images_value:6.3f}{RESET}" )
             # ~ time.sleep(.25)
         
         if (args.input_mode=='rna') | (args.input_mode=='image_rna'):
           if DEBUG>9:
             np.set_printoptions(formatter={'int': lambda x:   "{:>4d}".format(x)})
             rna_labels_numpy = (rna_labels.cpu().data).numpy()
-            print ( "CLASSI:         INFO:      test():       rna_labels_numpy                = \n{:}".format( image_labels_numpy  ) )
+            print ( "CLASSI:         INFO:      test:       rna_labels_numpy                = \n{:}".format( image_labels_numpy  ) )
           if DEBUG>9:
             np.set_printoptions(formatter={'float': lambda x: "{:>10.2f}".format(x)})
             y2_hat_numpy = (y2_hat.cpu().data).numpy()
-            print ( "CLASSI:         INFO:      test():       y2_hat_numpy                      = \n{:}".format( y2_hat_numpy) )
-          loss_genes        = loss_function( y2_hat, rna_labels )
-          loss_genes_value  = loss_genes.item()                                                            # use .item() to extract value from tensor: don't create multiple new tensors each of which will have gradient histories
+            print ( "CLASSI:         INFO:      test:       y2_hat_numpy                      = \n{:}".format( y2_hat_numpy) )
+
+          if loss_type == 'mse':                                                                           # autoencoders use mean squared error. The function needs to be provided with both the input and the output to calculate mse 
+            loss_genes        = loss_function( y2_hat, batch_genes.squeeze() )            
+          else:
+            loss_genes        = loss_function( y2_hat, rna_labels            )
+        
+          loss_genes_value  = loss_genes.item()                                                              # use .item() to extract value from tensor: don't create multiple new tensors each of which will have gradient histories
 
         # ~ l1_loss          = l1_penalty(model, args.l1_coef)
         l1_loss           = 0
@@ -3067,7 +3147,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
         if DEBUG>0:
           if ( args.input_mode=='image' ):
             print ( f"\
-\033[2K\r\033[27C{DULL_WHITE}train():\
+\033[2K\r\033[27C{DULL_WHITE}train:\
 \r\033[40Cn={i+1:>3d}{CLEAR_LINE}\
 \r\033[49Closs_images={ loss_images_value:5.2f}\
 \r\033[120CBATCH AVE LOSS      =\r\033[\
@@ -3075,7 +3155,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
             print ( "\033[2A" )
           elif (args.input_mode=='rna') | (args.input_mode=='image_rna'):
             print ( f"\
-\033[2K\r\033[27C{DULL_WHITE}train():\
+\033[2K\r\033[27C{DULL_WHITE}train:\
 \r\033[40Cn={i+1:>3d}{CLEAR_LINE}\
 \r\033[73Closs_rna={loss_genes_value:5.2f}\
 \r\033[120CBATCH AVE LOSS      =\r\033[\
@@ -3112,8 +3192,14 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
         torch.cuda.empty_cache()
 
         if DEBUG>99:
-          print ( "CLASSI:         INFO:      train():       type(loss_images_sum)                      = {:}".format( type(loss_images_sum)       ) )
+          print ( "CLASSI:         INFO:      train:       type(loss_images_sum)                      = {:}".format( type(loss_images_sum)       ) )
           
+    
+    #    ^^^^^^^^^  epoch complete  ^^^^^^^^^^^^^^^
+    
+    
+    
+    
     loss_images_sum_ave = loss_images_sum / (i+1)                                                          # average batch loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
     loss_genes_sum_ave  = loss_genes_sum  / (i+1)                                                          # average genes loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
     l1_loss_sum_ave     = l1_loss_sum     / (i+1)                                                          # average l1    loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
@@ -3136,10 +3222,11 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
 
 
 # ------------------------------------------------------------------------------
-def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
+def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loader,  model,  tile_size, loss_function, loss_type, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
                                                                                                         test_loss_min, show_all_test_examples, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours ): 
 
-    """Test model by pushing one or more held-out batches through the network
+    """
+    Test model by pushing one or more held-out batches through the network
     """
 
     global class_colors 
@@ -3160,8 +3247,8 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
       
     for i, ( batch_images, batch_genes, image_labels, rna_labels, batch_fnames ) in  enumerate( test_loader ):
   
-        if DEBUG>88:
-          print( f"{MIKADO}CLASSI:         INFO:      test(): top of test, and i={i}{RESET}" ) 
+        if DEBUG>10:
+          print( f"CLASSI:         INFO:      test: top of test, and i={MIKADO}{i}{RESET}" ) 
         
         batch_images = batch_images.to(device)
         batch_genes  = batch_genes .to(device)
@@ -3171,235 +3258,282 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
         gpu                = 0                                                                             # not used, but necessary to to maintain compatability with NN_MODE=pre_compress
         encoder_activation = 0                                                                             # not used, but necessary to to maintain compatability with NN_MODE=pre_compress
 
-        if DEBUG>2:
-          print( f"CLASSI:         INFO:      test(): about to call {COQUELICOT}model.forward(){RESET}" )
+        if DEBUG>10:
+          print( f"CLASSI:         INFO:      test: about to call {COQUELICOT}model.forward(){RESET}" )
 
         if args.input_mode=='image':
           with torch.no_grad():                                                                            # don't need gradients for testing
             y1_hat, y2_hat, embedding = model.forward( [ batch_images, 0            , batch_fnames], gpu, encoder_activation  )          # perform a step. y1_hat = image outputs; y2_hat = rna outputs
 
-          if DEBUG>2:
+          if DEBUG>0:
             np.set_printoptions(formatter={'float': lambda x:   "{:>6.2f}".format(x)})
             image_labels_numpy = (image_labels .cpu() .data) .numpy()
             y1_hat_numpy       = (y1_hat       .cpu() .data) .numpy()
             batch_fnames_npy   = (batch_fnames .cpu() .data) .numpy()
             random_pick        = random.randint( 0, y1_hat_numpy.shape[0]-1 )
-            print ( f"CLASSI:         INFO:      test():        fq_link            [{random_pick:3d}]      (Truth)         = {MIKADO}{args.data_dir}/{batch_fnames_npy[random_pick]}.fqln{RESET}"     )            
-            print ( f"CLASSI:         INFO:      test():        image_labels_numpy [{random_pick:3d}]      {GREEN}(Truth){RESET}         = {MIKADO}{image_labels_numpy[random_pick]}{RESET}"     )            
-            print ( f"CLASSI:         INFO:      test():        y1_hat_numpy       [{random_pick:3d}]      {ORANGE}(Predictions){RESET}   = {MIKADO}{y1_hat_numpy[random_pick]}{RESET}"     )
-            print ( f"CLASSI:         INFO:      test():        predicted class    [{random_pick:3d}]                      = {RED if image_labels_numpy[random_pick]!=np.argmax(y1_hat_numpy[random_pick]) else GREEN}{np.argmax(y1_hat_numpy[random_pick])}{RESET}"     )
-
+            print ( f"CLASSI:         INFO:      test:        fq_link            [{random_pick:3d}]      (Truth)         = {MIKADO}{args.data_dir}/{batch_fnames_npy[random_pick]}.fqln{RESET}"     )            
+            print ( f"CLASSI:         INFO:      test:        image_labels_numpy [{random_pick:3d}]      {GREEN}(Truth){RESET}         = {MIKADO}{image_labels_numpy[random_pick]}{RESET}"     )            
+            print ( f"CLASSI:         INFO:      test:        y1_hat_numpy       [{random_pick:3d}]      {ORANGE}(Predictions){RESET}   = {MIKADO}{y1_hat_numpy[random_pick]}{RESET}"     )
+            print ( f"CLASSI:         INFO:      test:        predicted class    [{random_pick:3d}]                      = {RED if image_labels_numpy[random_pick]!=np.argmax(y1_hat_numpy[random_pick]) else GREEN}{np.argmax(y1_hat_numpy[random_pick])}{RESET}"     )
 
         elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
+
+          if DEBUG>99:
+            print ( f"CLASSI:         INFO:       train: batch_genes.size() = {MIKADO}{batch_genes.size()}{RESET}" )
+            
           with torch.no_grad():                                                                            # don't need gradients for testing
             y1_hat, y2_hat, embedding = model.forward( [ 0,            batch_genes  , batch_fnames], gpu, encoder_activation )
-          
+
+
+          if loss_type=='mse':
+            
+            if args.just_test=='True':                                                                       # In test mode (only), the embeddings are the reduced dimensionality features that we want to save for use with NN models
+              
+              if DEBUG>2:   
+                print( f"CLASSI:         INFO:     about to push x2 through the autoencoder to obtain the reduced dimensionality features using the best model generated by the last training run{RESET}" )
+  
+              embeddings  = model.encode  ( batch_genes, args.input_mode, gpu, encoder_activation )             
+  
+              if DEBUG>10:
+                print( f"CLASSI:         INFO:          embeddings_accum.size                   = {CARRIBEAN_GREEN}{embeddings_accum.size()}{RESET}", flush=True )
+                
+              if DEBUG>99:
+                print( f"CLASSI:         INFO:        sanity check: embeddings_accum.size     = {AMETHYST}{embeddings_accum.size()}{RESET}",          flush=True )
+                print( f"CLASSI:         INFO:        sanity check: labels_accum    .size     = {AMETHYST}{labels_accum.size()}{RESET}",              flush=True )
+                print( f"CLASSI:         INFO:        sanity check: embeddings      .size     = {AMETHYST}{embeddings.size()}{RESET}",                flush=True )
+                print( f"CLASSI:         INFO:        sanity check: embeddings      .dtype    = {AMETHYST}{embeddings.dtype}{RESET}",                 flush=True )
+                print( f"CLASSI:         INFO:        sanity check: image_labels    .size     = {AMETHYST}{image_labels.size()}{RESET}",              flush=True )
+                print( f"CLASSI:         INFO:        sanity check: image_labels    .dtype    = {AMETHYST}{image_labels.dtype}{RESET}",               flush=True )
+                
+              embeddings_accum = torch.cat( (embeddings_accum, embeddings.cpu().squeeze()   ), dim=0, out=None ) 
+
+              if DEBUG>99:
+                print( f"CLASSI:         INFO:        sanity check: embeddings_accum.size     = {ASPARAGUS}{embeddings_accum.size()}{RESET}",         flush=True )
+                print( f"CLASSI:         INFO:        sanity check: labels_accum    .size     = {ASPARAGUS}{labels_accum.size()}{RESET}",             flush=True )
+                print( f"CLASSI:         INFO:        sanity check: embeddings      .size     = {ASPARAGUS}{embeddings.size()}{RESET}",               flush=True )
+                print( f"CLASSI:         INFO:        sanity check: embeddings      .dtype    = {ASPARAGUS}{embeddings.dtype}{RESET}",                flush=True )
+                print( f"CLASSI:         INFO:        sanity check: image_labels    .size     = {ASPARAGUS}{image_labels.size()}{RESET}",             flush=True )
+                print( f"CLASSI:         INFO:        sanity check: image_labels    .dtype    = {ASPARAGUS}{image_labels.dtype}{RESET}",              flush=True )
+
+
+              if args.input_mode=="image":
+                labels_accum     = torch.cat( (labels_accum,     image_labels.cpu() ), dim=0, out=None )
+              if args.input_mode=="rna":
+                if DEBUG>99:
+                  print( f"CLASSI:         INFO:       sanity check: labels_accum.size   = {AMETHYST}{labels_accum.size()}{RESET}",          flush=True )
+                labels_accum     = torch.cat( (labels_accum,     rna_labels  .cpu() ), dim=0, out=None ) 
+                if DEBUG>2: 
+                  print( f"CLASSI:         INFO:       sanity check: labels_accum.size   = {ASPARAGUS}{labels_accum.size()}{RESET}",         flush=True )
+ 
+
+
         image_labels_values   =   image_labels.cpu().detach().numpy()
         rna_labels_values     =   rna_labels  .cpu().detach().numpy()
         batch_fnames_npy      =   batch_fnames.cpu().detach().numpy()        
 
 
 
+        if loss_type!='mse':    
 
-        # move to a separate function ----------------------------------------------------------------------------------------------
-        if   ( args.input_mode=='image' ):
-          
-          preds, p_full_softmax_matrix, p_highest, p_2nd_highest, p_true_class = analyse_probs( y1_hat, image_labels_values )          
-          
-        if ( args.input_mode=='image' ) & ( args.just_test=='True' ):
-          
-          if args.scattergram=='True':
-            if DEBUG>2:
-                print ( f"CLASSI:         INFO:      test():         global_batch_count {DIM_WHITE}(super-patch number){RESET} = {global_batch_count+1:5d}  {DIM_WHITE}({((global_batch_count+1)/(args.supergrid_size**2)):04.2f}){RESET}" )
-                      
-          if global_batch_count%(args.supergrid_size**2)==0:                                               # establish grid arrays on the FIRST batch of each grid
-            grid_images                = batch_images.cpu().numpy()
-            grid_labels                = image_labels.cpu().numpy()
-            grid_preds                 = preds
-            grid_p_highest             = p_highest
-            grid_p_2nd_highest         = p_2nd_highest
-            grid_p_true_class          = p_true_class
-            grid_p_full_softmax_matrix = p_full_softmax_matrix 
-
-            if DEBUG>88:
-              print ( f"CLASSI:         INFO:      test():             batch_images.shape                      = {BLEU}{batch_images.shape}{RESET}"                  )
-              print ( f"CLASSI:         INFO:      test():             grid_images.shape                       = {BLEU}{grid_images.shape}{RESET}"                   )
-              print ( f"CLASSI:         INFO:      test():             image_labels.shape                      = {BLEU}{image_labels.shape}{RESET}"                  )            
-              print ( f"CLASSI:         INFO:      test():             grid_labels.shape                       = {BLEU}{grid_labels.shape}{RESET}"                   )
-              print ( f"CLASSI:         INFO:      test():             preds.shape                             = {BLEU}{preds.shape}{RESET}"                         )
-              print ( f"CLASSI:         INFO:      test():             grid_preds.shape                        = {BLEU}{grid_preds.shape}{RESET}"                    )
-              print ( f"CLASSI:         INFO:      test():             p_highest.shape                         = {BLEU}{p_highest.shape}{RESET}"                     )            
-              print ( f"CLASSI:         INFO:      test():             grid_p_highest.shape                    = {BLEU}{grid_p_highest.shape}{RESET}"                )            
-              print ( f"CLASSI:         INFO:      test():             p_2nd_highest.shape                     = {BLEU}{p_2nd_highest.shape}{RESET}"                 )
-              print ( f"CLASSI:         INFO:      test():             grid_p_2nd_highest.shape                = {BLEU}{grid_p_2nd_highest.shape}{RESET}"            )
-              print ( f"CLASSI:         INFO:      test():             p_full_softmax_matrix.shape             = {BLEU}{p_full_softmax_matrix.shape}{RESET}"         )                                    
-              print ( f"CLASSI:         INFO:      test():             grid_p_full_softmax_matrix.shape        = {BLEU}{grid_p_full_softmax_matrix.shape}{RESET}"    )
-                      
-          else:                                                                                            # ... accumulate for subsequent batches in the same grid 
-            grid_images                = np.append( grid_images,                batch_images.cpu().numpy(), axis=0 )
-            grid_labels                = np.append( grid_labels,                image_labels.cpu().numpy(), axis=0 )
-            grid_preds                 = np.append( grid_preds,                 preds,                      axis=0 )
-            grid_p_highest             = np.append( grid_p_highest,             p_highest,                  axis=0 )
-            grid_p_2nd_highest         = np.append( grid_p_2nd_highest,         p_2nd_highest,              axis=0 )
-            grid_p_true_class          = np.append( grid_p_true_class,          p_true_class,               axis=0 )
-            grid_p_full_softmax_matrix = np.append( grid_p_full_softmax_matrix, p_full_softmax_matrix,      axis=0 )
+          # move to a separate function ----------------------------------------------------------------------------------------------
+          if   ( args.input_mode=='image' ):
+            
+            preds, p_full_softmax_matrix, p_highest, p_2nd_highest, p_true_class = analyse_probs( y1_hat, image_labels_values )          
+            
+          if ( args.input_mode=='image' ) & ( args.just_test=='True' ):
+            
+            if args.scattergram=='True':
+              if DEBUG>2:
+                  print ( f"CLASSI:         INFO:      test:         global_batch_count {DIM_WHITE}(super-patch number){RESET} = {global_batch_count+1:5d}  {DIM_WHITE}({((global_batch_count+1)/(args.supergrid_size**2)):04.2f}){RESET}" )
+                        
+            if global_batch_count%(args.supergrid_size**2)==0:                                               # establish grid arrays on the FIRST batch of each grid
+              grid_images                = batch_images.cpu().numpy()
+              grid_labels                = image_labels.cpu().numpy()
+              grid_preds                 = preds
+              grid_p_highest             = p_highest
+              grid_p_2nd_highest         = p_2nd_highest
+              grid_p_true_class          = p_true_class
+              grid_p_full_softmax_matrix = p_full_softmax_matrix 
   
-            if DEBUG>88:
-              print ( f"CLASSI:         INFO:      test():             grid_images.shape                       = {MIKADO}{grid_images.shape}{RESET}"                 )
-              print ( f"CLASSI:         INFO:      test():             grid_labels.shape                       = {MIKADO}{grid_labels.shape}{RESET}"                 )
-              print ( f"CLASSI:         INFO:      test():             grid_preds.shape                        = {MIKADO}{grid_preds.shape}{RESET}"                  )
-              print ( f"CLASSI:         INFO:      test():             grid_p_highest.shape                    = {MIKADO}{grid_p_highest.shape}{RESET}"              )            
-              print ( f"CLASSI:         INFO:      test():             grid_p_2nd_highest.shape                = {MIKADO}{grid_p_2nd_highest.shape}{RESET}"          )
-              print ( f"CLASSI:         INFO:      test():             grid_p_true_class.shape                 = {MIKADO}{grid_p_true_class.shape}{RESET}"           )
-              print ( f"CLASSI:         INFO:      test():             grid_p_full_softmax_matrix.shape        = {MIKADO}{grid_p_full_softmax_matrix.shape}{RESET}"  )
-
-            if DEBUG>88:
-              np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
-              print ( f"CLASSI:         INFO:      test():             grid_p_full_softmax_matrix              = \n{CHARTREUSE}{grid_p_full_softmax_matrix}{RESET}"  ) 
-
-            if global_batch_count%(args.supergrid_size**2)==(args.supergrid_size**2)-1:                    # if it is the last batch in the grid (super-patch)
+              if DEBUG>0:
+                print ( f"CLASSI:         INFO:      test:             batch_images.shape                      = {BLEU}{batch_images.shape}{RESET}"                  )
+                print ( f"CLASSI:         INFO:      test:             grid_images.shape                       = {BLEU}{grid_images.shape}{RESET}"                   )
+                print ( f"CLASSI:         INFO:      test:             image_labels.shape                      = {BLEU}{image_labels.shape}{RESET}"                  )            
+                print ( f"CLASSI:         INFO:      test:             grid_labels.shape                       = {BLEU}{grid_labels.shape}{RESET}"                   )
+                print ( f"CLASSI:         INFO:      test:             preds.shape                             = {BLEU}{preds.shape}{RESET}"                         )
+                print ( f"CLASSI:         INFO:      test:             grid_preds.shape                        = {BLEU}{grid_preds.shape}{RESET}"                    )
+                print ( f"CLASSI:         INFO:      test:             p_highest.shape                         = {BLEU}{p_highest.shape}{RESET}"                     )            
+                print ( f"CLASSI:         INFO:      test:             grid_p_highest.shape                    = {BLEU}{grid_p_highest.shape}{RESET}"                )            
+                print ( f"CLASSI:         INFO:      test:             p_2nd_highest.shape                     = {BLEU}{p_2nd_highest.shape}{RESET}"                 )
+                print ( f"CLASSI:         INFO:      test:             grid_p_2nd_highest.shape                = {BLEU}{grid_p_2nd_highest.shape}{RESET}"            )
+                print ( f"CLASSI:         INFO:      test:             p_full_softmax_matrix.shape             = {BLEU}{p_full_softmax_matrix.shape}{RESET}"         )                                    
+                print ( f"CLASSI:         INFO:      test:             grid_p_full_softmax_matrix.shape        = {BLEU}{grid_p_full_softmax_matrix.shape}{RESET}"    )
+                        
+            else:                                                                                            # ... accumulate for subsequent batches in the same grid 
+              grid_images                = np.append( grid_images,                batch_images.cpu().numpy(), axis=0 )
+              grid_labels                = np.append( grid_labels,                image_labels.cpu().numpy(), axis=0 )
+              grid_preds                 = np.append( grid_preds,                 preds,                      axis=0 )
+              grid_p_highest             = np.append( grid_p_highest,             p_highest,                  axis=0 )
+              grid_p_2nd_highest         = np.append( grid_p_2nd_highest,         p_2nd_highest,              axis=0 )
+              grid_p_true_class          = np.append( grid_p_true_class,          p_true_class,               axis=0 )
+              grid_p_full_softmax_matrix = np.append( grid_p_full_softmax_matrix, p_full_softmax_matrix,      axis=0 )
+    
+              if DEBUG>88:
+                print ( f"CLASSI:         INFO:      test:             grid_images.shape                       = {MIKADO}{grid_images.shape}{RESET}"                 )
+                print ( f"CLASSI:         INFO:      test:             grid_labels.shape                       = {MIKADO}{grid_labels.shape}{RESET}"                 )
+                print ( f"CLASSI:         INFO:      test:             grid_preds.shape                        = {MIKADO}{grid_preds.shape}{RESET}"                  )
+                print ( f"CLASSI:         INFO:      test:             grid_p_highest.shape                    = {MIKADO}{grid_p_highest.shape}{RESET}"              )            
+                print ( f"CLASSI:         INFO:      test:             grid_p_2nd_highest.shape                = {MIKADO}{grid_p_2nd_highest.shape}{RESET}"          )
+                print ( f"CLASSI:         INFO:      test:             grid_p_true_class.shape                 = {MIKADO}{grid_p_true_class.shape}{RESET}"           )
+                print ( f"CLASSI:         INFO:      test:             grid_p_full_softmax_matrix.shape        = {MIKADO}{grid_p_full_softmax_matrix.shape}{RESET}"  )
   
-              index  = int(i/(args.supergrid_size**2))         # the entry we will update. (Because we aren't accumulating on every i'th batch, but rather on every  args.supergrid_size**2-1'th batch  (one time per grid))
-
-              if DEBUG>5:
-                np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
-                print ( f"CLASSI:         INFO:      test():             index                           =  {MAGENTA}{index}{RESET}"  )
-
-              patches_true_classes[index] =  image_labels.cpu().detach().numpy()[0]                        # all tiles in a patch belong to the same case, so we can chose any of them
-              patches_case_id     [index] =  batch_fnames_npy[0]                                           # all tiles in a patch belong to the same case, so we can chose any of them
-
               if DEBUG>88:
                 np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
-                print ( f"CLASSI:         INFO:      test():             patches_case_id                 =  {MAGENTA}{patches_case_id}{RESET}{CLEAR_LINE}"  )
-                print ( f"CLASSI:         INFO:      test():             patches_case_id[index]          =  {MAGENTA}{patches_case_id[index]}{RESET}{CLEAR_LINE}"  )
+                print ( f"CLASSI:         INFO:      test:             grid_p_full_softmax_matrix              = \n{CHARTREUSE}{grid_p_full_softmax_matrix}{RESET}"  ) 
   
-              grid_tile_probabs_totals_by_class = np.transpose(np.expand_dims( grid_p_full_softmax_matrix.sum( axis=0 ), axis=1 ))         # this is where we sum the totals across all tiles
-              binary_matrix = np.zeros_like(grid_p_full_softmax_matrix)                                                                    # new matrix same shape as grid_p_full_softmax_matrix, with all values set to zero
-              binary_matrix[ np.arange( len(grid_p_full_softmax_matrix)), grid_p_full_softmax_matrix.argmax(1) ] = 1                       # set the max value in each row to 1, all others zero
-  
-              if DEBUG>8:
-                print ( f"CLASSI:         INFO:      test():         binary_matrix         = \n{CHARTREUSE}{binary_matrix}{RESET}"  )              
-  
-              grid_tile_winners_totals_by_class        = np.transpose(np.expand_dims( binary_matrix.sum( axis=0 ), axis=1 ))               # same, but 'winner take all' at the tile level
-  
-              if DEBUG>8:
-                np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
-                print ( f"CLASSI:         INFO:      test():         grid_tile_probabs_totals_by_class                     =    {CHARTREUSE}{grid_tile_probabs_totals_by_class}{RESET}"  )
-                print ( f"CLASSI:         INFO:      test():         grid_tile_winners_totals_by_class                     =    {CHARTREUSE}{grid_tile_winners_totals_by_class}{RESET}"  )
-                           
-              aggregate_tile_probabilities_matrix[index] = grid_tile_probabs_totals_by_class
-              aggregate_tile_level_winners_matrix[index] = grid_tile_winners_totals_by_class + random.uniform( 0.001, 0.01)   # necessary to make all the tile totals unique when we go looking for them later. ugly but necessary
-  
-              if DEBUG>8:
-                np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
-                print ( f"CLASSI:         INFO:      test():         aggregate_tile_probabilities_matrix                = \n{CHARTREUSE}{aggregate_tile_probabilities_matrix}{RESET}"  ) 
-
-          if DEBUG>5:
-            np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
-            print ( f"CLASSI:         INFO:      test():             global_batch_count              = {CHARTREUSE}{global_batch_count}{RESET}"  ) 
-            print ( f"CLASSI:         INFO:      test():             args.supergrid_size**2          =  {CHARTREUSE}{args.supergrid_size**2}{RESET}"  ) 
-
-          global_batch_count+=1
-        
-          if DEBUG>999:
-              print ( f"CLASSI:         INFO:      test():             global_batch_count%(args.supergrid_size**2)                       = {global_batch_count%(args.supergrid_size**2)}"  )
-          
-          if global_batch_count%(args.supergrid_size**2)==0:
-            if args.input_mode=='image':
-              print("")
-              
-              if args.annotated_tiles=='True':
-                
-                fig=plot_classes_preds(args, model, tile_size, grid_images, grid_labels, 0,  grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_full_softmax_matrix, class_names, class_colours )
-                writer.add_figure('1 annotated tiles', fig, epoch)
-                plt.close(fig)
-
-              batch_fnames_npy = batch_fnames.numpy()                                                      # batch_fnames was set up during dataset generation: it contains a link to the SVS file corresponding to the tile it was extracted from - refer to generate() for details
-              
-              if DEBUG>99:
-                np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-                print ( f"CLASSI:         INFO:      test():       batch_fnames_npy.shape      = {batch_fnames_npy.shape:}" )        
-                print ( f"CLASSI:         INFO:      test():       batch_fnames_npy            = {batch_fnames_npy:}"       )
+              if global_batch_count%(args.supergrid_size**2)==(args.supergrid_size**2)-1:                    # if it is the last batch in the grid (super-patch)
     
-              fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
-              
-              if DEBUG>28:
-                np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-                print ( f"CLASSI:         INFO:      test():       fq_link                     = {PINK}{fq_link:}{RESET}"                )
-                print ( f"CLASSI:         INFO:      test():       file fq_link points to      = {PINK}{os.readlink(fq_link)}{RESET}"    )
-              
-              try:
-                background_image = np.load(f"{fq_link}")
-              except Exception as e:
-                print ( f"{RED}CLASSI:         FATAL:  '{e}'{RESET}" )
-                print ( f"{RED}CLASSI:         FATAL:     explanation: a required {MAGENTA}entire_patch.npy{RESET}{RED} file doesn't exist. (Probably none exist). These contain the background images used for the scattergram. {RESET}" )                
-                print ( f"{RED}CLASSI:         FATAL:     if you used {CYAN}./just_test_dont_tile.sh{RESET}{RED} without first running {CYAN}./just_test.sh{RESET}{RED}' then tiling and patch generation will have been skipped ({CYAN}--skip_tiling = {MIKADO}'True'{RESET}{RED} in that script{RESET}{RED}){RESET}" )
-                print ( f"{RED}CLASSI:         FATAL:     if so, run '{CYAN}./just_test.sh -d <cancer type code> -i <INPUT_MODE>{RESET}{RED}' at least one time so that these files will be generated{RESET}" )                 
-                print ( f"{RED}CLASSI:         FATAL:     halting now ...{RESET}" )                 
-                sys.exit(0)              
-
-              
-              if DEBUG>0:
-                print ( f"CLASSI:         INFO:      test():        background_image.shape = {background_image.shape}" )
-                
-              if args.scattergram=='True':
-                
-                plot_scatter(args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, p_full_softmax_matrix, show_patch_images='True')
-                # ~ plot_scatter(args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, p_full_softmax_matrix, show_patch_images='False')
-
-              if (args.probs_matrix=='True') & (args.multimode!='image_rna'):
-                
-                # ~ # without interpolation
-                # ~ matrix_types = [ 'margin_1st_2nd', 'confidence_RIGHTS', 'p_std_dev' ]
-                # ~ for n, matrix_type in enumerate(matrix_types):
-                  # ~ plot_matrix (matrix_type, args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_p_full_softmax_matrix, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, 'none' )    # always display without probs_matrix_interpolation 
-                # with  interpolation
-                matrix_types = [ 'probs_true' ]
-                for n, matrix_type in enumerate(matrix_types): 
-                  plot_matrix (matrix_type, args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_p_full_softmax_matrix, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, args.probs_matrix_interpolation )
-          # move to a separate function ----------------------------------------------------------------------------------------------
-         
-
-
-
-
-
-
-
-
-
-
-        # move to a separate function ----------------------------------------------------------------------------------------------
-        if ( args.input_mode=='rna' ) & ( args.just_test=='True' ):
+                index  = int(i/(args.supergrid_size**2))         # the entry we will update. (Because we aren't accumulating on every i'th batch, but rather on every  args.supergrid_size**2-1'th batch  (one time per grid))
+  
+                if DEBUG>5:
+                  np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
+                  print ( f"CLASSI:         INFO:      test:             index                           =  {MAGENTA}{index}{RESET}"  )
+  
+                patches_true_classes[index] =  image_labels.cpu().detach().numpy()[0]                        # all tiles in a patch belong to the same case, so we can chose any of them
+                patches_case_id     [index] =  batch_fnames_npy[0]                                           # all tiles in a patch belong to the same case, so we can chose any of them
+  
+                if DEBUG>88:
+                  np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
+                  print ( f"CLASSI:         INFO:      test:             patches_case_id                 =  {MAGENTA}{patches_case_id}{RESET}{CLEAR_LINE}"  )
+                  print ( f"CLASSI:         INFO:      test:             patches_case_id[index]          =  {MAGENTA}{patches_case_id[index]}{RESET}{CLEAR_LINE}"  )
+    
+                grid_tile_probabs_totals_by_class = np.transpose(np.expand_dims( grid_p_full_softmax_matrix.sum( axis=0 ), axis=1 ))         # this is where we sum the totals across all tiles
+                binary_matrix = np.zeros_like(grid_p_full_softmax_matrix)                                                                    # new matrix same shape as grid_p_full_softmax_matrix, with all values set to zero
+                binary_matrix[ np.arange( len(grid_p_full_softmax_matrix)), grid_p_full_softmax_matrix.argmax(1) ] = 1                       # set the max value in each row to 1, all others zero
+    
+                if DEBUG>8:
+                  print ( f"CLASSI:         INFO:      test:         binary_matrix         = \n{CHARTREUSE}{binary_matrix}{RESET}"  )              
+    
+                grid_tile_winners_totals_by_class        = np.transpose(np.expand_dims( binary_matrix.sum( axis=0 ), axis=1 ))               # same, but 'winner take all' at the tile level
+    
+                if DEBUG>8:
+                  np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
+                  print ( f"CLASSI:         INFO:      test:         grid_tile_probabs_totals_by_class                     =    {CHARTREUSE}{grid_tile_probabs_totals_by_class}{RESET}"  )
+                  print ( f"CLASSI:         INFO:      test:         grid_tile_winners_totals_by_class                     =    {CHARTREUSE}{grid_tile_winners_totals_by_class}{RESET}"  )
+                             
+                aggregate_tile_probabilities_matrix[index] = grid_tile_probabs_totals_by_class
+                aggregate_tile_level_winners_matrix[index] = grid_tile_winners_totals_by_class + random.uniform( 0.001, 0.01)   # necessary to make all the tile totals unique when we go looking for them later. ugly but necessary
+    
+                if DEBUG>8:
+                  np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
+                  print ( f"CLASSI:         INFO:      test:         aggregate_tile_probabilities_matrix                = \n{CHARTREUSE}{aggregate_tile_probabilities_matrix}{RESET}"  ) 
+  
+            if DEBUG>5:
+              np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
+              print ( f"CLASSI:         INFO:      test:             global_batch_count              = {CHARTREUSE}{global_batch_count}{RESET}"  ) 
+              print ( f"CLASSI:         INFO:      test:             args.supergrid_size**2          =  {CHARTREUSE}{args.supergrid_size**2}{RESET}"  ) 
+  
+            global_batch_count+=1
           
-          preds, p_full_softmax_matrix, p_highest, p_2nd_highest, p_true_class = analyse_probs( y2_hat, rna_labels_values )
+            if DEBUG>999:
+                print ( f"CLASSI:         INFO:      test:             global_batch_count%(args.supergrid_size**2)                       = {global_batch_count%(args.supergrid_size**2)}"  )
+            
+            if global_batch_count%(args.supergrid_size**2)==0:
+              if args.input_mode=='image':
+                print("")
+                
+                if args.annotated_tiles=='True':
+                  
+                  fig=plot_classes_preds(args, model, tile_size, grid_images, grid_labels, 0,  grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_full_softmax_matrix, class_names, class_colours )
+                  writer.add_figure('1 annotated tiles', fig, epoch)
+                  plt.close(fig)
+  
+                batch_fnames_npy = batch_fnames.numpy()                                                      # batch_fnames was set up during dataset generation: it contains a link to the SVS file corresponding to the tile it was extracted from - refer to generate() for details
+                
+                if DEBUG>99:
+                  np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
+                  print ( f"CLASSI:         INFO:      test:       batch_fnames_npy.shape      = {batch_fnames_npy.shape:}" )        
+                  print ( f"CLASSI:         INFO:      test:       batch_fnames_npy            = {batch_fnames_npy:}"       )
       
-          batch_index_lo = i*batch_size
-          batch_index_hi = batch_index_lo + batch_size
-                                
-          if DEBUG>88:
-            print ( f"\n\n" )
-            print ( f"CLASSI:         INFO:      test(): batch                            = {BLEU}{i+1}{RESET}"                           )
-            print ( f"CLASSI:         INFO:      test(): count                            = {BLEU}{(i+1)*batch_size}{RESET}"              ) 
-            print ( f"CLASSI:         INFO:      test(): probabilities_matrix.shape       = {BLEU}{probabilities_matrix.shape}{RESET}"    )                                    
-            print ( f"CLASSI:         INFO:      test(): p_full_softmax_matrix.shape      = {BLEU}{p_full_softmax_matrix.shape}{RESET}"   )                                    
-            print ( f"CLASSI:         INFO:      test(): batch_index_lo                   = {BLEU}{batch_index_lo}{RESET}"                )                                    
-            print ( f"CLASSI:         INFO:      test(): batch_index_hi                   = {BLEU}{batch_index_hi}{RESET}"                )                                    
-          
-          probabilities_matrix [batch_index_lo:batch_index_hi] = p_full_softmax_matrix # + random.uniform( 0.001, 0.01)                      # 'p_full_softmax_matrix' contains probs for an entire mini-batch; 'probabilities_matrix' has enough room for all cases
-          true_classes         [batch_index_lo:batch_index_hi] = rna_labels_values
-          rna_case_id          [batch_index_lo:batch_index_hi] = batch_fnames_npy[0:batch_size]
+                fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
+                
+                if DEBUG>28:
+                  np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
+                  print ( f"CLASSI:         INFO:      test:       fq_link                     = {PINK}{fq_link:}{RESET}"                )
+                  print ( f"CLASSI:         INFO:      test:       file fq_link points to      = {PINK}{os.readlink(fq_link)}{RESET}"    )
+                
+                try:
+                  background_image = np.load(f"{fq_link}")
+                except Exception as e:
+                  print ( f"{RED}CLASSI:         FATAL:  '{e}'{RESET}" )
+                  print ( f"{RED}CLASSI:         FATAL:     explanation: a required {MAGENTA}entire_patch.npy{RESET}{RED} file doesn't exist. (Probably none exist). These contain the background images used for the scattergram. {RESET}" )                
+                  print ( f"{RED}CLASSI:         FATAL:     if you used {CYAN}./just_test_dont_tile.sh{RESET}{RED} without first running {CYAN}./just_test.sh{RESET}{RED}' then tiling and patch generation will have been skipped ({CYAN}--skip_tiling = {MIKADO}'True'{RESET}{RED} in that script{RESET}{RED}){RESET}" )
+                  print ( f"{RED}CLASSI:         FATAL:     if so, run '{CYAN}./just_test.sh -d <cancer type code> -i <INPUT_MODE>{RESET}{RED}' at least one time so that these files will be generated{RESET}" )                 
+                  print ( f"{RED}CLASSI:         FATAL:     halting now ...{RESET}" )                 
+                  sys.exit(0)              
+  
+                
+                if DEBUG>0:
+                  print ( f"CLASSI:         INFO:      test:        background_image.shape = {background_image.shape}" )
+                  
+                if args.scattergram=='True':
+                  
+                  plot_scatter(args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, p_full_softmax_matrix, show_patch_images='True')
+                  # ~ plot_scatter(args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, p_full_softmax_matrix, show_patch_images='False')
+  
+                if (args.probs_matrix=='True') & (args.multimode!='image_rna'):
+                  
+                  # ~ # without interpolation
+                  # ~ matrix_types = [ 'margin_1st_2nd', 'confidence_RIGHTS', 'p_std_dev' ]
+                  # ~ for n, matrix_type in enumerate(matrix_types):
+                    # ~ plot_matrix (matrix_type, args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_p_full_softmax_matrix, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, 'none' )    # always display without probs_matrix_interpolation 
+                  # with  interpolation
+                  matrix_types = [ 'probs_true' ]
+                  for n, matrix_type in enumerate(matrix_types): 
+                    plot_matrix (matrix_type, args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_p_full_softmax_matrix, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, args.probs_matrix_interpolation )
+            # move to a separate function ----------------------------------------------------------------------------------------------
+           
+  
+  
+  
 
-          if DEBUG>55:
-            show_last=16
-            np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})       
-            print ( f"CLASSI:         INFO:      test(): last {AMETHYST}{show_last}{RESET} entries in probabilities_matrix[{MIKADO}{batch_index_lo}{RESET}:{MIKADO}{batch_index_hi}{RESET}]     = \n{AMETHYST}{probabilities_matrix [args.n_samples[0]-show_last:args.n_samples[0]]}{RESET}"                       ) 
-            np.set_printoptions(formatter={'int': lambda x: "{:^7d}".format(x)})   
-            print ( f"CLASSI:         INFO:      test(): true_classes                       [{MIKADO}{batch_index_lo}{RESET}:{MIKADO}{batch_index_hi}{RESET}] =   {AMETHYST}{true_classes         [batch_index_lo          :batch_index_hi]}{RESET}"        )           
-            print ( f"CLASSI:         INFO:      test(): rna_case_id                        [{MIKADO}{batch_index_lo}{RESET}:{MIKADO}{batch_index_hi}{RESET}] =   {AMETHYST}{rna_case_id          [batch_index_lo          :batch_index_hi]}{RESET}"        )   
 
-         # move to a separate function ----------------------------------------------------------------------------------------------
 
+
+
+        if loss_type!='mse':        
+
+          # move to a separate function ----------------------------------------------------------------------------------------------
+          if ( args.input_mode=='rna' ) & ( args.just_test=='True' ):
+            
+            preds, p_full_softmax_matrix, p_highest, p_2nd_highest, p_true_class = analyse_probs( y2_hat, rna_labels_values )
+        
+            batch_index_lo = i*batch_size
+            batch_index_hi = batch_index_lo + batch_size
+                                  
+            if DEBUG>88:
+              print ( f"\n\n" )
+              print ( f"CLASSI:         INFO:      test: batch                            = {BLEU}{i+1}{RESET}"                           )
+              print ( f"CLASSI:         INFO:      test: count                            = {BLEU}{(i+1)*batch_size}{RESET}"              ) 
+              print ( f"CLASSI:         INFO:      test: probabilities_matrix.shape       = {BLEU}{probabilities_matrix.shape}{RESET}"    )                                    
+              print ( f"CLASSI:         INFO:      test: p_full_softmax_matrix.shape      = {BLEU}{p_full_softmax_matrix.shape}{RESET}"   )                                    
+              print ( f"CLASSI:         INFO:      test: batch_index_lo                   = {BLEU}{batch_index_lo}{RESET}"                )                                    
+              print ( f"CLASSI:         INFO:      test: batch_index_hi                   = {BLEU}{batch_index_hi}{RESET}"                )                                    
+            
+            probabilities_matrix [batch_index_lo:batch_index_hi] = p_full_softmax_matrix # + random.uniform( 0.001, 0.01)                      # 'p_full_softmax_matrix' contains probs for an entire mini-batch; 'probabilities_matrix' has enough room for all cases
+            true_classes         [batch_index_lo:batch_index_hi] = rna_labels_values
+            rna_case_id          [batch_index_lo:batch_index_hi] = batch_fnames_npy[0:batch_size]
+  
+            if DEBUG>55:
+              show_last=16
+              np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})       
+              print ( f"CLASSI:         INFO:      test: last {AMETHYST}{show_last}{RESET} entries in probabilities_matrix[{MIKADO}{batch_index_lo}{RESET}:{MIKADO}{batch_index_hi}{RESET}]     = \n{AMETHYST}{probabilities_matrix [args.n_samples[0]-show_last:args.n_samples[0]]}{RESET}"                       ) 
+              np.set_printoptions(formatter={'int': lambda x: "{:^7d}".format(x)})   
+              print ( f"CLASSI:         INFO:      test: true_classes                       [{MIKADO}{batch_index_lo}{RESET}:{MIKADO}{batch_index_hi}{RESET}] =   {AMETHYST}{true_classes         [batch_index_lo          :batch_index_hi]}{RESET}"        )           
+              print ( f"CLASSI:         INFO:      test: rna_case_id                        [{MIKADO}{batch_index_lo}{RESET}:{MIKADO}{batch_index_hi}{RESET}] =   {AMETHYST}{rna_case_id          [batch_index_lo          :batch_index_hi]}{RESET}"        )   
+  
+           # move to a separate function ----------------------------------------------------------------------------------------------
+  
         
 
 
@@ -3410,11 +3544,16 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
           loss_images_value = loss_images.item()                                                             # use .item() to extract value from tensor: don't create multiple new tensors each of which will have gradient histories
  
           if DEBUG>2:
-            print ( f"CLASSI:         INFO:      test(): {COQUELICOT}loss_images{RESET} (for this mini-batch)  = {PURPLE}{loss_images_value:6.3f}{RESET}" )
+            print ( f"CLASSI:         INFO:      test: {COQUELICOT}loss_images{RESET} (for this mini-batch)  = {PURPLE}{loss_images_value:6.3f}{RESET}" )
             time.sleep(.25)
              
         elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
-          loss_genes        = loss_function(y2_hat, rna_labels)
+
+          if loss_type == 'mse':                                                                           # autoencoders use mean squared error. The function needs to be provided with both the input and the output to calculate mse 
+            loss_genes        = loss_function( y2_hat, batch_genes.squeeze() )            
+          else:
+            loss_genes        = loss_function( y2_hat, rna_labels            )
+
           loss_genes_value  = loss_genes.item()                                                              # use .item() to extract value from tensor: don't create multiple new tensors each of which will have gradient histories
 
 
@@ -3429,17 +3568,16 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
 
 
         if DEBUG>0:
-
           if ( args.input_mode=='image' ):
             print ( f"\
-\033[2K\r\033[27Ctest():\
+\033[2K\r\033[27Ctest:\
 \r\033[40C{DULL_WHITE}n={i+1:>3d}{CLEAR_LINE}\
 \r\033[49Closs_images={loss_images_value:5.2f}\
 \r\033[120CBATCH AVE LOSS      =\r\033[{150+5*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}{RESET}" )
             print ( "\033[2A" )
           elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
             print ( f"\
-\033[2K\r\033[27Ctest():\
+\033[2K\r\033[27Ctest:\
 \r\033[40C{DULL_WHITE}n={i+1:>3d}{CLEAR_LINE}\
 \r\033[73Closs_rna={loss_genes_value:5.2f}\
 \r\033[120CBATCH AVE LOSS      =\r\033[{150+5*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}{RESET}" )
@@ -3459,148 +3597,152 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
           del loss_genes
         torch.cuda.empty_cache()
 
+    #    ^^^^^^^^^  epoch complete  ^^^^^^^^^^^^^^^
 
-    ### END OF "for i, ( batch_images, batch_genes, image_labels, rna_labels, batch_fnames ) in  enumerate( test_loader ):"
-    ### end of one epoch
-    
-    
-    
-    
 
-    if epoch % 1 == 0:                                                                                     # every ... epochs, do an analysis of the test results and display same
-      
-      if args.input_mode=='image':      
-        y1_hat_values             = y1_hat.cpu().detach().numpy()
-        y1_hat_values_max_indices = np.argmax( np.transpose(y1_hat_values), axis=0 )                       # indices of the highest values of y1_hat = highest probability class
 
-      elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):      
-        y2_hat_values             = y2_hat.cpu().detach().numpy()
-        y2_hat_values_max_indices = np.argmax( np.transpose(y2_hat_values), axis=0 )                       # indices of the highest values of y2_hat = highest probability class
     
-      
-      image_labels_values       = image_labels.cpu().detach().numpy()
-      rna_labels_values         =   rna_labels.cpu().detach().numpy()
-
-      torch.cuda.empty_cache()
-      
-      if DEBUG>2:
-        print ( "CLASSI:         INFO:      test():        y1_hat.shape                      = {:}".format( y1_hat.shape                     ) )
-        print ( "CLASSI:         INFO:      test():        y1_hat_values_max_indices.shape   = {:}".format( y1_hat_values_max_indices.shape  ) )
-        print ( "CLASSI:         INFO:      test():        image_labels_values.shape         = {:}".format( image_labels_values.shape        ) )
-        print ( "CLASSI:         INFO:      test():        rna_labels_values.shape           = {:}".format(   rna_labels_values.shape        ) )
-      
-      number_to_display= 9 if args.dataset=='tcl' else batch_size
-      np.set_printoptions(linewidth=10000)   
-      np.set_printoptions(edgeitems=10000)
-      np.set_printoptions(threshold=10000)      
+    if loss_type=='mse':
       print ( "" )
+
+    if loss_type == 'mse':
+                      
+      print ( "\n\n\n" )
       
-      if args.input_mode=='image':          
-        correct=np.sum( np.equal(y1_hat_values_max_indices, image_labels_values))
-      elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):         
-        correct=np.sum( np.equal(y2_hat_values_max_indices, rna_labels_values))
-            
-      pct=100*correct/batch_size if batch_size>0 else 0
-      global_pct = 100*(global_correct_prediction_count+correct) / (global_number_tested+batch_size) 
-      if show_all_test_examples==False:
-        print ( f"{CLEAR_LINE}                           test(): truth/prediction for first {MIKADO}{number_to_display}{RESET} examples from the most recent test batch \
-  ( number correct this batch: {correct}/{batch_size} \
-  = {MAGENTA if pct>=90 else BRIGHT_GREEN if pct>=80 else PALE_GREEN if pct>=70 else ORANGE if pct>=60 else WHITE if pct>=50 else DULL_WHITE}{pct:>3.0f}%{RESET} )  \
-  ( number correct overall: {global_correct_prediction_count+correct}/{global_number_tested+batch_size} \
-  = {MAGENTA if global_pct>=90 else BRIGHT_GREEN if global_pct>=80 else PALE_GREEN if global_pct>=70 else ORANGE if global_pct>=60 else WHITE if global_pct>=50 else DULL_WHITE}{global_pct:>3.0f}%{RESET} {DIM_WHITE}(number tested this run = epochs x test batches x batch size){RESET}" )
-      else:
-        run_level_total_correct.append( correct )
-        print ( f"{CLEAR_LINE}                           test(): truth/prediction for {MIKADO}{number_to_display}{RESET} test examples \
-  ( number correct  - all test examples - this run: {correct}/{batch_size} \
-  = {MAGENTA if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>3.0f}%{RESET} )  \
-  ( number correct  - all test examples - cumulative over all runs: {global_correct_prediction_count+correct}/{global_number_tested}  \
-  = {MAGENTA if global_pct>=90 else PALE_GREEN if global_pct>=80 else ORANGE if global_pct>=70 else GOLD if global_pct>=60 else WHITE if global_pct>=50 else MAGENTA}{global_pct:>3.0f}%{RESET} )" )
+    else:                                                                                                  # the following only make sense if we are classifying, so skip for autoencoders                  
 
-
-
+      if epoch % 1 == 0:                                                                                   # every ... epochs, do an analysis of the test results and display same
         
-      if args.input_mode=='image':   
-        labs   = image_labels_values       [0:number_to_display] 
-        preds  = y1_hat_values_max_indices [0:number_to_display]
-        delta  = np.abs(preds - labs)
-        if len(class_names)<10:
-          np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>1d}{RESET}"})
-        else:
-          np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>02d}{RESET}"})
-        print (  f"truth = {CLEAR_LINE}{labs}",  flush=True   )
-        print (  f"preds = {CLEAR_LINE}{preds}", flush=True   )
-        if len(class_names)<10:
-          GAP=' '
-          np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else BLACK}{x:>1d}{RESET}"}) 
-        else:
-           np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else BLACK}{x:>2d}{RESET}"})
-           GAP='  '
-        print (  f"{CLEAR_LINE}         ",  end='', flush=True  )        
-        for i in range( 0, len(delta) ):                                                                   # should have been able to do this with a fancy list comprehension but I couldn't get it to work
-          if delta[i]==0:                                                                                   
-            print (  f"{GREEN}\u2713{GAP}", end='', flush=True  )
-          else:
-            print (  f"{RED}\u2717{GAP}",   end='', flush=True  )          
-        print ( f"{RESET}" )
-
-      elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):   
-        labs   = rna_labels_values         [0:number_to_display]
-        preds  = y2_hat_values_max_indices [0:number_to_display]
-        delta  = np.abs(preds - labs)
-        if len(class_names)<10:
-          np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>1d}{RESET}"})
-          GAP=' '
-        else:
-          np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>02d}{RESET}"})
-          GAP='  '
-        print (  f"truth = {CLEAR_LINE}{labs}",  flush=True   )
-        print (  f"preds = {CLEAR_LINE}{preds}", flush=True   )
-        if len(class_names)<10:
-          np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else BLACK}{x:>1d}{RESET}"}) 
-        else:
-           np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else BLACK}{x:>2d}{RESET}"}) 
+        if args.input_mode=='image':      
+          y1_hat_values             = y1_hat.cpu().detach().numpy()
+          y1_hat_values_max_indices = np.argmax( np.transpose(y1_hat_values), axis=0 )                     # indices of the highest values of y1_hat = highest probability class
+  
+        elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):      
+          y2_hat_values             = y2_hat.cpu().detach().numpy()
+          y2_hat_values_max_indices = np.argmax( np.transpose(y2_hat_values), axis=0 )                     # indices of the highest values of y2_hat = highest probability class
+      
         
-        print (  f"{CLEAR_LINE}         ",  end='', flush=True  )        
-        for i in range( 0, len(delta) ):                                                                   # should have been able to do this with a fancy list comprehension but I couldn't get it to work
-          if delta[i]==0:                                                                                   
-            print (  f"{BRIGHT_GREEN}\u2713{GAP}", end='', flush=True  )
+        image_labels_values       = image_labels.cpu().detach().numpy()
+        rna_labels_values         =   rna_labels.cpu().detach().numpy()
+  
+        torch.cuda.empty_cache()
+        
+        if DEBUG>2:
+          print ( "CLASSI:         INFO:      test:        y1_hat.shape                      = {:}".format( y1_hat.shape                     ) )
+          print ( "CLASSI:         INFO:      test:        y1_hat_values_max_indices.shape   = {:}".format( y1_hat_values_max_indices.shape  ) )
+          print ( "CLASSI:         INFO:      test:        image_labels_values.shape         = {:}".format( image_labels_values.shape        ) )
+          print ( "CLASSI:         INFO:      test:        rna_labels_values.shape           = {:}".format(   rna_labels_values.shape        ) )
+        
+        number_to_display= 9 if args.dataset=='tcl' else batch_size
+        np.set_printoptions(linewidth=10000)   
+        np.set_printoptions(edgeitems=10000)
+        np.set_printoptions(threshold=10000)      
+        print ( "" )
+        
+        if args.input_mode=='image':          
+          correct=np.sum( np.equal(y1_hat_values_max_indices, image_labels_values) )
+        elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):         
+          correct=np.sum( np.equal(y2_hat_values_max_indices, rna_labels_values)   )
+              
+        pct=100*correct/batch_size if batch_size>0 else 0
+        global_pct = 100*(global_correct_prediction_count+correct) / (global_number_tested+batch_size) 
+        if show_all_test_examples==False:
+          print ( f"{CLEAR_LINE}                           test: truth/prediction for first {MIKADO}{number_to_display}{RESET} examples from the most recent test batch \
+    ( number correct this batch: {correct}/{batch_size} \
+    = {MAGENTA if pct>=90 else BRIGHT_GREEN if pct>=80 else PALE_GREEN if pct>=70 else ORANGE if pct>=60 else WHITE if pct>=50 else DULL_WHITE}{pct:>3.0f}%{RESET} )  \
+    ( number correct overall: {global_correct_prediction_count+correct}/{global_number_tested+batch_size} \
+    = {MAGENTA if global_pct>=90 else BRIGHT_GREEN if global_pct>=80 else PALE_GREEN if global_pct>=70 else ORANGE if global_pct>=60 else WHITE if global_pct>=50 else DULL_WHITE}{global_pct:>3.0f}%{RESET} {DIM_WHITE}(number tested this run = epochs x test batches x batch size){RESET}" )
+        else:
+          run_level_total_correct.append( correct )
+          print ( f"{CLEAR_LINE}                           test: truth/prediction for {MIKADO}{number_to_display}{RESET} test examples \
+    ( number correct  - all test examples - this run: {correct}/{batch_size} \
+    = {MAGENTA if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>3.0f}%{RESET} )  \
+    ( number correct  - all test examples - cumulative over all runs: {global_correct_prediction_count+correct}/{global_number_tested}  \
+    = {MAGENTA if global_pct>=90 else PALE_GREEN if global_pct>=80 else ORANGE if global_pct>=70 else GOLD if global_pct>=60 else WHITE if global_pct>=50 else MAGENTA}{global_pct:>3.0f}%{RESET} )" )
+  
+        if args.input_mode=='image':   
+          labs   = image_labels_values       [0:number_to_display] 
+          preds  = y1_hat_values_max_indices [0:number_to_display]
+          delta  = np.abs(preds - labs)
+          if len(class_names)<10:
+            np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>1d}{RESET}"})
           else:
-            print (  f"{RED}\u2717{GAP}",   end='', flush=True  )          
-        print ( f"{RESET}" )
-
-
-      # ~ if ( args.just_test!='True') | ( (args.just_test=='true')  &  (args.input_mode=='image_rna') & (args.multimode=='image_rna') ):
-       # grab test stats produced during training
-      for i in range(0, len(preds) ):
-        run_level_classifications_matrix[ labs[i], preds[i] ] +=1
-
-      if DEBUG>8:
-        print ( run_level_classifications_matrix, flush=True )
-        #time.sleep(3)
-
-      if DEBUG>9:
-        print ( "CLASSI:         INFO:      test():       y1_hat.shape                     = {:}".format( y1_hat_values.shape          ) )
-        np.set_printoptions(formatter={'float': lambda x: "{0:10.2e}".format(x)})
-        print (  "{:}".format( (np.transpose(y1_hat_values))[:,:number_to_display] )  )
-        np.set_printoptions(formatter={'float': lambda x: "{0:5.2f}".format(x)})
-
-      if DEBUG>2:
-        number_to_display=16  
-        print ( "CLASSI:         INFO:      test():       FIRST  GROUP BELOW: y1_hat"                                                                      ) 
-        print ( "CLASSI:         INFO:      test():       SECOND GROUP BELOW: y1_hat_values_max_indices (prediction)"                                      )
-        print ( "CLASSI:         INFO:      test():       THIRD  GROUP BELOW: image_labels_values (truth)"                                                 )
-        np.set_printoptions(formatter={'float': '{: >6.2f}'.format}        )
-        print ( f"{(np.transpose(y1_hat_values)) [:,:number_to_display] }" )
-        np.set_printoptions(formatter={'int': '{: >6d}'.format}            )
-        print ( " {:}".format( y1_hat_values_max_indices    [:number_to_display]        ) )
-        print ( " {:}".format( image_labels_values          [:number_to_display]        ) )
-
-
-      pplog.log(f"epoch = {epoch}" )
-      pplog.log(f"test(): truth/prediction for first {number_to_display} examples from the most recent test batch ( number correct this batch: {correct}/{batch_size} = {pct:>3.0f}%  )  ( number correct overall: {global_correct_prediction_count+correct}/{global_number_tested+batch_size} = {global_pct:>3.0f}% (number tested this run = epochs x test batches x batch size)" )
-      pplog.log(f"{CLEAR_LINE}        truth = {labs}" )
-      pplog.log(f"{CLEAR_LINE}        preds = {preds}")
-      pplog.log(f"{CLEAR_LINE}        delta = {delta}") 
+            np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>02d}{RESET}"})
+          print (  f"truth = {CLEAR_LINE}{labs}",  flush=True   )
+          print (  f"preds = {CLEAR_LINE}{preds}", flush=True   )
+          if len(class_names)<10:
+            GAP=' '
+            np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else BLACK}{x:>1d}{RESET}"}) 
+          else:
+             np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else BLACK}{x:>2d}{RESET}"})
+             GAP='  '
+          print (  f"{CLEAR_LINE}         ",  end='', flush=True  )        
+          for i in range( 0, len(delta) ):                                                                   # should have been able to do this with a fancy list comprehension but I couldn't get it to work
+            if delta[i]==0:                                                                                   
+              print (  f"{GREEN}\u2713{GAP}", end='', flush=True  )
+            else:
+              print (  f"{RED}\u2717{GAP}",   end='', flush=True  )          
+          print ( f"{RESET}" )
+  
+        elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):   
+          labs   = rna_labels_values         [0:number_to_display]
+          preds  = y2_hat_values_max_indices [0:number_to_display]
+          delta  = np.abs(preds - labs)
+          if len(class_names)<10:
+            np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>1d}{RESET}"})
+            GAP=' '
+          else:
+            np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>02d}{RESET}"})
+            GAP='  '
+          print (  f"truth = {CLEAR_LINE}{labs}",  flush=True   )
+          print (  f"preds = {CLEAR_LINE}{preds}", flush=True   )
+          if len(class_names)<10:
+            np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else BLACK}{x:>1d}{RESET}"}) 
+          else:
+             np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else BLACK}{x:>2d}{RESET}"}) 
+          
+          print (  f"{CLEAR_LINE}         ",  end='', flush=True  )        
+          for i in range( 0, len(delta) ):                                                                   # should have been able to do this with a fancy list comprehension but I couldn't get it to work
+            if delta[i]==0:                                                                                   
+              print (  f"{BRIGHT_GREEN}\u2713{GAP}", end='', flush=True  )
+            else:
+              print (  f"{RED}\u2717{GAP}",   end='', flush=True  )          
+          print ( f"{RESET}" )
+  
+  
+        # ~ if ( args.just_test!='True') | ( (args.just_test=='true')  &  (args.input_mode=='image_rna') & (args.multimode=='image_rna') ):
+         # grab test stats produced during training
+        for i in range(0, len(preds) ):
+          run_level_classifications_matrix[ labs[i], preds[i] ] +=1
+  
+        if DEBUG>8:
+          print ( run_level_classifications_matrix, flush=True )
+          #time.sleep(3)
+  
+        if DEBUG>9:
+          print ( "CLASSI:         INFO:      test:       y1_hat.shape                     = {:}".format( y1_hat_values.shape          ) )
+          np.set_printoptions(formatter={'float': lambda x: "{0:10.2e}".format(x)})
+          print (  "{:}".format( (np.transpose(y1_hat_values))[:,:number_to_display] )  )
+          np.set_printoptions(formatter={'float': lambda x: "{0:5.2f}".format(x)})
+  
+        if DEBUG>2:
+          number_to_display=16  
+          print ( "CLASSI:         INFO:      test:       FIRST  GROUP BELOW: y1_hat"                                                                      ) 
+          print ( "CLASSI:         INFO:      test:       SECOND GROUP BELOW: y1_hat_values_max_indices (prediction)"                                      )
+          print ( "CLASSI:         INFO:      test:       THIRD  GROUP BELOW: image_labels_values (truth)"                                                 )
+          np.set_printoptions(formatter={'float': '{: >6.2f}'.format}        )
+          print ( f"{(np.transpose(y1_hat_values)) [:,:number_to_display] }" )
+          np.set_printoptions(formatter={'int': '{: >6d}'.format}            )
+          print ( " {:}".format( y1_hat_values_max_indices    [:number_to_display]        ) )
+          print ( " {:}".format( image_labels_values          [:number_to_display]        ) )
+  
+  
+        pplog.log(f"epoch = {epoch}" )
+        pplog.log(f"test: truth/prediction for first {number_to_display} examples from the most recent test batch ( number correct this batch: {correct}/{batch_size} = {pct:>3.0f}%  )  ( number correct overall: {global_correct_prediction_count+correct}/{global_number_tested+batch_size} = {global_pct:>3.0f}% (number tested this run = epochs x test batches x batch size)" )
+        pplog.log(f"{CLEAR_LINE}        truth = {labs}" )
+        pplog.log(f"{CLEAR_LINE}        preds = {preds}")
+        pplog.log(f"{CLEAR_LINE}        delta = {delta}") 
+   
  
 
     if args.input_mode=='image':   
@@ -3616,14 +3758,15 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
     image_labels_values         = image_labels.cpu().detach().numpy()                                      # these are the true      classes corresponding to batch_images
 
 
-    if args.input_mode=='image':
-      correct_predictions              = np.sum( y1_hat_values_max_indices == image_labels_values )
-    elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
-      correct_predictions              = np.sum( y2_hat_values_max_indices == rna_labels_values )
-
-
-    pct_correct                 = correct_predictions / batch_size * 100
-
+    if loss_type != 'mse':                                                                                 # the following analysis only make sense if we are classifying, so skip for autoencoders 
+      if args.input_mode=='image':
+        correct_predictions              = np.sum( y1_hat_values_max_indices == image_labels_values )
+      elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
+        correct_predictions              = np.sum( y2_hat_values_max_indices == rna_labels_values )
+  
+  
+      pct_correct                 = correct_predictions / batch_size * 100
+  
     loss_images_sum_ave = loss_images_sum / (i+1)                                                          # average batch loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
     loss_genes_sum_ave  = loss_genes_sum  / (i+1)                                                          # average genes loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
     l1_loss_sum_ave     = l1_loss_sum     / (i+1)                                                          # average l1    loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
@@ -3632,32 +3775,41 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
     if total_loss_sum    <  test_loss_min:
        test_loss_min     =  total_loss_sum
 
-    if correct_predictions    >  max_correct_predictions:
-      max_correct_predictions =  correct_predictions
+    if loss_type != 'mse':                                                                                 # the following only make sense if we are classifying, so skip for autoencoders 
 
-    if pct_correct       >  max_percent_correct:
-      max_percent_correct    =  pct_correct
-                                                                         
-    writer.add_scalar( '1a_test_loss_ave',       total_loss_ave,          epoch )
-    writer.add_scalar( '1b_test_loss_ave_min',   test_loss_min/(i+1),     epoch )    
-    writer.add_scalar( '1c_num_correct',         correct_predictions,     epoch )
-    writer.add_scalar( '1d_num_correct_max',     max_correct_predictions, epoch )
-    writer.add_scalar( '1e_pct_correct',         pct_correct,             epoch ) 
-    writer.add_scalar( '1f_max_percent_correct', max_percent_correct,     epoch ) 
+      if correct_predictions    >  max_correct_predictions:
+        max_correct_predictions =  correct_predictions
   
+      if pct_correct       >  max_percent_correct:
+        max_percent_correct    =  pct_correct
+                                                                           
+      writer.add_scalar( '1a_test_loss_ave',       total_loss_ave,          epoch )
+      writer.add_scalar( '1b_test_loss_ave_min',   test_loss_min/(i+1),     epoch )    
+      writer.add_scalar( '1c_num_correct',         correct_predictions,     epoch )
+      writer.add_scalar( '1d_num_correct_max',     max_correct_predictions, epoch )
+      writer.add_scalar( '1e_pct_correct',         pct_correct,             epoch ) 
+      writer.add_scalar( '1f_max_percent_correct', max_percent_correct,     epoch ) 
+    
+    else:                                                                                                  # these two learning curves are relevant for autoencoders
+      writer.add_scalar( '1a_test_loss_ave',       total_loss_ave,          epoch )
+      writer.add_scalar( '1b_test_loss_ave_min',   test_loss_min/(i+1),     epoch )  
+      
+    
     if DEBUG>9:
-      print ( "CLASSI:         INFO:      test():             batch_images.shape                       = {:}".format( batch_images.shape ) )
-      print ( "CLASSI:         INFO:      test():             image_labels.shape                       = {:}".format( image_labels.shape ) )
+      print ( "CLASSI:         INFO:      test:             batch_images.shape                       = {:}".format( batch_images.shape ) )
+      print ( "CLASSI:         INFO:      test:             image_labels.shape                       = {:}".format( image_labels.shape ) )
       
 #    if not args.just_test=='True':
 #      if args.input_mode=='image':
 #        writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, tile_size, batch_images, image_labels, preds, p_highest, p_2nd_highest, p_full_softmax_matrix, class_names, class_colours), epoch)
-        
-    if args.just_test=='False':                                                                            # This call to plot_classes_preds() is for use by test() during training, and not for use in "just_test" mode (the latter needs support for supergrids)
-      if args.annotated_tiles=='True':
-        fig=plot_classes_preds(args, model, tile_size, batch_images.cpu().numpy(), image_labels.cpu().numpy(), batch_fnames.cpu().numpy(), preds, p_highest, p_2nd_highest, p_full_softmax_matrix, class_names, class_colours)
-        writer.add_figure('Predictions v Truth', fig, epoch)
-        plt.close(fig)
+
+    if loss_type != 'mse':                                                                                 # the following only make sense if we are classifying, so skip for autoencoders 
+  
+      if args.just_test=='False':                                                                          # This call to plot_classes_preds() is for use by test during training, and not for use in "just_test" mode (the latter needs support for supergrids)
+        if args.annotated_tiles=='True':
+          fig=plot_classes_preds(args, model, tile_size, batch_images.cpu().numpy(), image_labels.cpu().numpy(), batch_fnames.cpu().numpy(), preds, p_highest, p_2nd_highest, p_full_softmax_matrix, class_names, class_colours)
+          writer.add_figure('Predictions v Truth', fig, epoch)
+          plt.close(fig)
 
     if (args.input_mode=='image'):
       del batch_images
@@ -3670,7 +3822,13 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
 #        writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, tile_size, batch_images, image_labels, preds, p_highest, p_2nd_highest, p_full_softmax_matrix, class_names, class_colours), epoch)
 
     if args.multimode!="image_rna":
-      embedding=0
+      embedding               = 0
+
+    if loss_type == 'mse':                                                                                 # these weren't applicable for mean squared error
+      correct_predictions     = 0
+      max_correct_predictions = 0
+      max_percent_correct     = 0
+      
       
     return loss_images_sum_ave, loss_genes_sum_ave, l1_loss_sum_ave, total_loss_ave, correct_predictions, batch_size, max_correct_predictions, max_percent_correct, test_loss_min, embedding
 
@@ -4634,9 +4792,9 @@ def plot_classes_preds(args, model, tile_size, batch_images, image_labels, batch
           dir_name = os.path.dirname ( fq_name )
           
           if DEBUG>2:
-            print ( f"CLASSI:         INFO:      test():       file fq_link points to      = {MAGENTA}{fq_link}{RESET}"    )
-            print ( f"CLASSI:         INFO:      test():       fq_link                     = {MAGENTA}{fq_name}{RESET}"                 )
-            print ( f"CLASSI:         INFO:      test():       dir_name                    = {MAGENTA}{dir_name}{RESET}"                )
+            print ( f"CLASSI:         INFO:      test:       file fq_link points to      = {MAGENTA}{fq_link}{RESET}"    )
+            print ( f"CLASSI:         INFO:      test:       fq_link                     = {MAGENTA}{fq_name}{RESET}"                 )
+            print ( f"CLASSI:         INFO:      test:       dir_name                    = {MAGENTA}{dir_name}{RESET}"                )
             
                   
           ax = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[])            # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations

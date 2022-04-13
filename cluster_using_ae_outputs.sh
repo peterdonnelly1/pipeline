@@ -226,7 +226,7 @@ if [[ ${JUST_CLUSTER} != "True" ]]                                              
       
       ./do_all.sh  -n pre_compress   -d ${DATASET}                -i ${INPUT_MODE}      -S ${N_SAMPLES}               -o ${N_EPOCHS}          -f ${TILES_PER_IMAGE}    -T ${TILE_SIZE}       -b ${BATCH_SIZE}           \
                                      -1 ${PCT_TEST___TRAIN}       -s ${SKIP_TILING}     -X ${SKIP_RNA_PREPROCESSING}  -g ${SKIP_GENERATION}   -j False                 -a ${NN_TYPE_IMG}     -z ${NN_TYPE_RNA}          \
-                                     -E ${EMBEDDING_DIMENSIONS}   -A ${AE_ADD_NOISE}    -3 ${PEER_NOISE_PCT}          -4 ${MAKE_GREY_PCT}     -u False                 -v ${DIVIDE_CASES}
+                                     -E ${EMBEDDING_DIMENSIONS}   -A ${AE_ADD_NOISE}    -3 ${PEER_NOISE_PCT}          -4 ${MAKE_GREY_PCT}     -u False                 -v ${DIVIDE_CASES}    -r ${REGEN}
       
       sleep 0.2; echo -en "\007";
   

@@ -21,7 +21,7 @@ from   torch.nn import functional as F
 
 
 #from methylnet.plotter     import * 
-from torch.autograd        import Variable                                                                      # reinstate later
+from torch.autograd        import Variable                                                                 # reinstate later
 from sklearn.preprocessing import LabelEncoder
 #from pymethylprocess.visualizations import umap_embed, plotly_plot
 

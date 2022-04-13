@@ -63,7 +63,7 @@ class DENSE(nn.Module):
 
 # ------------------------------------------------------------------------------
 
-    def forward( self, x, gpu ):
+    def forward( self, x, gpu, encoder_activation ):
 
         if DEBUG>9:
           print ( f"\033[2KDENSE:          INFO:     forward(): x.shape = {MIKADO}{x.shape}{RESET}" )
@@ -83,6 +83,6 @@ class DENSE(nn.Module):
           print ( f"{CLEAR_LINE}DENSE:          INFO:     forward(): output.shape    = {MIKADO}{output.shape}{RESET}" )
           print ( f"{CLEAR_LINE}{CHARTREUSE}DENSE:          INFO:     forward(): embedding.shape = {MIKADO}{embedding.shape}{RESET}" )
           
-        return output, embedding
+        return output, embedding, 0
 
 
