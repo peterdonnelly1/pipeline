@@ -539,14 +539,14 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
       if DEBUG>0:  
         print( f"{CHARTREUSE}GENERATE:       INFO:  target                  = {MIKADO}{target}{RESET}",                                                                                  flush=True )
         print( f"{CHARTREUSE}GENERATE:       INFO:    embeddings_available  = {MIKADO}{embeddings_available}{RESET}",                                                                    flush=True )
-        print( f"{CHARTREUSE}GENERATE:       INFO:    embeddings_needed     = {PINK}{training_embeddings_needed if target=='rna_train' else  test_embeddings_needed}{RESET}",         flush=True )
+        print( f"{CHARTREUSE}GENERATE:       INFO:    embeddings_needed     = {PINK}{training_embeddings_needed if target=='rna_train' else  test_embeddings_needed}{RESET}",            flush=True )
         
       lo = 0                           if target=='image_rna_train' else training_embeddings_needed        # START at 0                            for training cases;  START at 'training_embeddings_needed' for test cases
       hi = training_embeddings_needed  if target=='image_rna_train' else embeddings_available              # END   at 'training_embeddings_needed' for training cases;  END   at (all the rest go to test cases)
 
       if DEBUG>0:  
-        print( f"{CHARTREUSE}GENERATE:       INFO:    lo ({target})         = {PINK}{lo}{RESET}",                                                                                      flush=True )
-        print( f"{CHARTREUSE}GENERATE:       INFO:    hi ({target})         = {PINK}{hi}{RESET}",                                                                                      flush=True )
+        print( f"{CHARTREUSE}GENERATE:       INFO:    lo ({target})   = {PINK}{lo}{RESET}",                                                                                              flush=True )
+        print( f"{CHARTREUSE}GENERATE:       INFO:    hi ({target})   = {PINK}{hi}{RESET}",                                                                                              flush=True )
 
 
       genes_new_save       = torch.Tensor( genes_new [lo:hi]  )
