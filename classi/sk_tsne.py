@@ -1,4 +1,5 @@
 import sys
+import time
 import torch
 import random
 import argparse
@@ -86,8 +87,21 @@ def sk_tsne( args, class_names, pct_test):
       sample_file = "../logs/images_new.npy" 
       label_file = "../logs/img_labels_new.npy"
       
-      samples      =  np.load( sample_file )
-      labels       =  np.load( label_file  )
+      try:
+        samples      =  np.load( sample_file )
+      except Exception as e:
+        print( f"{RED}CLASSI:         INFO:  could not load file:  {CYAN}{sample_file}{RESET}", flush=True)
+        print( f"{RED}CLASSI:         INFO:  can't continue --- halting{RESET}",         flush=True)
+        time.sleep(4)
+        sys.exit(0)
+              
+      try:
+        labels       =  np.load( label_file  )
+      except Exception as e:
+        print( f"{RED}CLASSI:         INFO:  could not load file: {CYAN}{sample_file}{RESET}", flush=True)
+        print( f"{RED}CLASSI:         INFO:  can't continue --- halting{RESET}",         flush=True)
+        time.sleep(4)
+        sys.exit(0)
       
       if DEBUG>0:
         print ( f"SK_TSNE:        INFO:  input                  = {MIKADO}{input_mode}{RESET}",                flush=True   ) 
@@ -99,8 +113,21 @@ def sk_tsne( args, class_names, pct_test):
       sample_file = "../logs/rna_new.npy" 
       label_file = "../logs/rna_labels_new.npy"
       
-      samples      =  np.load( sample_file )
-      labels       =  np.load( label_file  )
+      try:
+        samples      =  np.load( sample_file )
+      except Exception as e:
+        print( f"{RED}CLASSI:         INFO:  could not load file:  {CYAN}{sample_file}{RESET}", flush=True)
+        print( f"{RED}CLASSI:         INFO:  can't continue --- halting{RESET}",         flush=True)
+        time.sleep(4)
+        sys.exit(0)
+              
+      try:
+        labels       =  np.load( label_file  )
+      except Exception as e:
+        print( f"{RED}CLASSI:         INFO:  could not load file:  {CYAN}{sample_file}{RESET}", flush=True)
+        print( f"{RED}CLASSI:         INFO:  can't continue --- halting{RESET}",         flush=True)
+        time.sleep(4)
+        sys.exit(0)
       
       if DEBUG>0:
         print ( f"SK_TSNE:        INFO:  input                  = {MIKADO}{input_mode}{RESET}",                flush=True   ) 
