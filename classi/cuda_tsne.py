@@ -9,8 +9,8 @@ import matplotlib.pyplot as plt
 import matplotlib.colors
 
 import pandas as pd
-from sklearn.datasets import load_digits
-from sklearn.preprocessing import StandardScaler
+from sklearn.datasets        import load_digits
+from sklearn.preprocessing   import StandardScaler
 
 from sklearn.model_selection import train_test_split
 
@@ -78,8 +78,8 @@ def cuda_tsne( args, class_names, pct_test, super_title, output_file_name ):
     print ( f"{RED}CUDA_TSNE:       FATAL: halting now" )
     sys.exit(0)
 
-  samples  = dataset['embeddings'].cpu().numpy().squeeze()                                                 # eliminate empty dimensions
-  labels       = dataset['labels'    ].cpu().numpy().squeeze()                                             # eliminate empty dimensions
+  samples  = dataset['embeddings'].cpu().detach().numpy().squeeze()                                        # eliminate empty dimensions
+  labels   = dataset['labels'    ].cpu().detach().numpy().squeeze()                                        # eliminate empty dimensions
   
   if np.sum(samples)==0.0:
     print ( f"{RED}CUDA_TSNE:       FATAL: all samples are zero vectors - the input file was completely degenerate{RESET}", flush=True  )
@@ -192,7 +192,7 @@ def cuda_tsne( args, class_names, pct_test, super_title, output_file_name ):
           print ( f"CUDA_TSNE:       INFO:  subplot_index               = {MIKADO}{subplot_index}{RESET}"      ) 
     
           
-        embedding_train = TSNE(                                                                                             # create and configure TSNE object
+        embedding_train = TSNE(                                                                            # create and configure TSNE object
             n_components = n_components,
             n_iter       = n_iter,
             perplexity   = perplexity[subplot_index],

@@ -545,17 +545,17 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
       hi = training_embeddings_needed  if target=='image_rna_train' else embeddings_available              # END   at 'training_embeddings_needed' for training cases;  END   at (all the rest go to test cases)
 
       if DEBUG>0:  
-        print( f"{CHARTREUSE}GENERATE:       INFO:    lo ({target})   = {PINK}{lo}{RESET}",                                                                                              flush=True )
-        print( f"{CHARTREUSE}GENERATE:       INFO:    hi ({target})   = {PINK}{hi}{RESET}",                                                                                              flush=True )
+        print( f"{CHARTREUSE}GENERATE:       INFO:    lo ({CYAN}{target}{CHARTREUSE})   = {PINK}{lo}{RESET}",                                                                            flush=True )
+        print( f"{CHARTREUSE}GENERATE:       INFO:    hi ({CYAN}{target}{CHARTREUSE})   = {PINK}{hi}{RESET}",                                                                            flush=True )
 
 
       genes_new_save       = torch.Tensor( genes_new [lo:hi]  )
       fnames_new_save      = torch.Tensor( fnames_new[lo:hi]  ) 
-      fnames_new_save.requires_grad_    ( False )        
+      fnames_new_save.requires_grad_    ( False )                                                          # no gradients for fnames
       gnames_new_save      = torch.Tensor( gnames_new[lo:hi]  ) 
-      gnames_new_save.requires_grad_    ( False )        
+      gnames_new_save.requires_grad_    ( False )                                                          # no gradients for gnames
       rna_labels_new_save  = torch.Tensor(rna_labels_new[lo:hi])                                           # have to explicity cast as long in torch. Tensor does not automatically pick up type from the numpy array. 
-      rna_labels_new_save.requires_grad_( False )                                                               # labels aren't allowed gradients
+      rna_labels_new_save.requires_grad_( False )                                                          # no gradients for labels
   
       fqn =  f"{args.base_dir}/{args.application_dir}/modes/{args.mode}/dataset_{target}.pth"
       

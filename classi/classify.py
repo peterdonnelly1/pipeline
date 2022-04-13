@@ -390,7 +390,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     print( f"{BOLD}{ORANGE}CLASSI:         WARNG: config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{BOLD}{ORANGE}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{BOLD}{ORANGE}') = \
 {MIKADO}{highest_class_number}{RESET}{BOLD}{ORANGE}, but this is greater than the highest class (subtype) number in the dataset ({MIKADO}{len(subtype_names_as_list)-1}{RESET}{BOLD}{ORANGE}) (note that class (cancer subtype) numbers start at zero){RESET}", flush=True)
     print( f"{BOLD}{ORANGE}CLASSI:         WARNG: therefore the config setting will be ignored. Continuing ...{RESET}", flush=True)
-    time.sleep(4)
   
   if highest_class_number < 2:
     print( f"{BOLD}{RED}CLASSI:         FATAL: config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{BOLD}{RED}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{BOLD}{RED}') = \
@@ -599,9 +598,9 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
       print ( f"{RED}CLASSI:         INFO: halting now{RESET}" )      
       sys.exit(0) 
  
-  if  ( just_test=='True' ) & ( use_autoencoder_output=='True' ):
-    print( f"{ORANGE}CLASSI:         INFO:  flag USE_AUTOENCODER_OUTPUT' isn't compatible with flag 'JUST_TEST' ... will disable test mode and continue{RESET}" )
-    args.just_test=False
+  # ~ if  ( just_test=='True' ) & ( use_autoencoder_output=='True' ):
+    # ~ print( f"{ORANGE}CLASSI:         INFO:  flag USE_AUTOENCODER_OUTPUT' isn't compatible with flag 'JUST_TEST' ... will disable test mode and continue{RESET}" )
+    # ~ args.just_test=False
 
   
   # ~ if  (mode=='classify') & (args.clustering=='NONE'):
@@ -1287,9 +1286,8 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
 
     if clustering!='NONE':
        if args.input_mode == 'rna':
-        print ( f"{BOLD}{RED}CLASSI:         WARNG:  there are almost certainly not enough data points to do meaningful clustering on rna gene expression values{RESET}",   flush=True )
-        print ( f"{BOLD}{RED}CLASSI:         WARNG:  continuing, but don't be surprised if the clustering algorithm crashes{RESET}",                                         flush=True )
-        time.sleep(4)
+        print ( f"{BOLD}{ORANGE}CLASSI:         WARNG:  there are almost certainly not enough data points to do meaningful clustering on rna gene expression values{RESET}",   flush=True )
+        print ( f"{BOLD}{ORANGE}CLASSI:         WARNG:  continuing, but don't be surprised if the clustering algorithm crashes{RESET}",                                        flush=True )
      
     if clustering=='o_tsne':
       o_tsne   ( args, class_names, pct_test)
@@ -1746,7 +1744,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         else:  
     
           show_all_test_examples=False
-          test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min, embedding     =\
+          embeddings_accum, labels_accum, test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min, embedding     =\
                         test ( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loader,  model,  tile_size, loss_function, loss_type, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
                                                                                       test_loss_min, show_all_test_examples, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours)
   
@@ -1827,14 +1825,49 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
           else:
             print ( "\033[8A", end='' )       
   
-      #  ^^^^^^^^  THE MAIN LOOP FINISHES HERE ^^^^^^^^
+    #  ^^^^^^^^  THE MAIN LOOP FINISHES HERE ^^^^^^^^
 
 
 
+
+
+    # (A)  MAYBE SAVE THE AUTOENCODER GENERATED EMBEDDINGS (IF THIS WAS AN AUTOENCODER TEST RUN)
 
     if loss_type=='mse':
 
-    # None of the following code is applicable to an Autoencoder, so we close up and end
+      if args.just_test=='True':
+        
+        #  save embeddings to file
+        
+        fqn = f"{args.log_dir}/ae_output_features.pt"
+  
+        if DEBUG>0:
+          print( f"\n\n\n\n{CLEAR_LINE}{BOLD}{CHARTREUSE}CLASSI:         INFO:        about to save autoencoder generated embeddings and labels as torch dictionary to {MAGENTA}{fqn}{RESET}" )
+          print( f"{CLEAR_LINE}{BOLD}{CHARTREUSE}CLASSI:         INFO:        embeddings_accum              .size     = {CARRIBEAN_GREEN}{embeddings_accum.size() }{RESET}", flush=True )        
+          print( f"{CLEAR_LINE}{BOLD}{CHARTREUSE}CLASSI:         INFO:        labels_accum                  .size     = {CARRIBEAN_GREEN}{labels_accum.size() }{RESET}",     flush=True )    
+         
+        if args.input_mode=='image':
+            
+          try:          
+            torch.save({
+                'embeddings': embeddings_accum,
+                'labels':     labels_accum,
+            }, fqn )
+          except Exception as e:
+            print( f"{RED}CLASSI:         FATAL:  couldn't save embeddings to file '{MAGENTA}{fqn}{RESET}{RED}'{RESET}" )  
+            time.sleep(5)          
+        
+        if args.input_mode=='rna':            
+          torch.save({
+              'embeddings': embeddings_accum,
+              'labels':     labels_accum,
+          }, fqn )
+          
+        if DEBUG>0:
+          print( f"CLASSI:         INFO:        embeddings have been saved" )          
+
+
+      # This is all we have to do in the case of Autoencoding, so we close up and end
   
       writer.close()        
     
@@ -1848,7 +1881,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
       #pplog.log_section('Model saved.')
       
       sys.exit()
-  
+
   
     # (C)  MAYBE CLASSIFY FINAL_TEST_BATCH_SIZE TEST SAMPLES USING THE BEST MODEL SAVED DURING THIS RUN
   
@@ -1890,7 +1923,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
           print ( f"CLASSI:         INFO:      test: final_test_batch_size = {MIKADO}{final_test_batch_size}{RESET}" )
           
         # note that we pass 'final_test_loader' to test
-        test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min, embedding     =\
+        embeddings_accum, labels_accum, test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min, embedding     =\
                           test ( cfg, args, parameters, embeddings_accum, labels_accum, epoch, final_test_loader,  model,  tile_size, loss_function, loss_type, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
                                                                                                            test_loss_min, show_all_test_examples, final_test_batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours )    
     
@@ -3294,26 +3327,15 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
   
               embeddings  = model.encode  ( batch_genes, args.input_mode, gpu, encoder_activation )             
   
-              if DEBUG>10:
-                print( f"CLASSI:         INFO:          embeddings_accum.size                   = {CARRIBEAN_GREEN}{embeddings_accum.size()}{RESET}", flush=True )
-                
-              if DEBUG>99:
-                print( f"CLASSI:         INFO:        sanity check: embeddings_accum.size     = {AMETHYST}{embeddings_accum.size()}{RESET}",          flush=True )
-                print( f"CLASSI:         INFO:        sanity check: labels_accum    .size     = {AMETHYST}{labels_accum.size()}{RESET}",              flush=True )
-                print( f"CLASSI:         INFO:        sanity check: embeddings      .size     = {AMETHYST}{embeddings.size()}{RESET}",                flush=True )
-                print( f"CLASSI:         INFO:        sanity check: embeddings      .dtype    = {AMETHYST}{embeddings.dtype}{RESET}",                 flush=True )
-                print( f"CLASSI:         INFO:        sanity check: image_labels    .size     = {AMETHYST}{image_labels.size()}{RESET}",              flush=True )
-                print( f"CLASSI:         INFO:        sanity check: image_labels    .dtype    = {AMETHYST}{image_labels.dtype}{RESET}",               flush=True )
-                
               embeddings_accum = torch.cat( (embeddings_accum, embeddings.cpu().squeeze()   ), dim=0, out=None ) 
 
-              if DEBUG>99:
+              if DEBUG>0:
                 print( f"CLASSI:         INFO:        sanity check: embeddings_accum.size     = {ASPARAGUS}{embeddings_accum.size()}{RESET}",         flush=True )
                 print( f"CLASSI:         INFO:        sanity check: labels_accum    .size     = {ASPARAGUS}{labels_accum.size()}{RESET}",             flush=True )
                 print( f"CLASSI:         INFO:        sanity check: embeddings      .size     = {ASPARAGUS}{embeddings.size()}{RESET}",               flush=True )
                 print( f"CLASSI:         INFO:        sanity check: embeddings      .dtype    = {ASPARAGUS}{embeddings.dtype}{RESET}",                flush=True )
                 print( f"CLASSI:         INFO:        sanity check: image_labels    .size     = {ASPARAGUS}{image_labels.size()}{RESET}",             flush=True )
-                print( f"CLASSI:         INFO:        sanity check: image_labels    .dtype    = {ASPARAGUS}{image_labels.dtype}{RESET}",              flush=True )
+                print( f"CLASSI:         INFO:        sanity check: rna_labels      .dtype    = {ASPARAGUS}{rna_labels.dtype}{RESET}",              flush=True )
 
 
               if args.input_mode=="image":
@@ -3830,7 +3852,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
       max_percent_correct     = 0
       
       
-    return loss_images_sum_ave, loss_genes_sum_ave, l1_loss_sum_ave, total_loss_ave, correct_predictions, batch_size, max_correct_predictions, max_percent_correct, test_loss_min, embedding
+    return embeddings_accum, labels_accum, loss_images_sum_ave, loss_genes_sum_ave, l1_loss_sum_ave, total_loss_ave, correct_predictions, batch_size, max_correct_predictions, max_percent_correct, test_loss_min, embedding
 
 
 

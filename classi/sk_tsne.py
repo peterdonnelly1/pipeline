@@ -37,7 +37,12 @@ np.set_printoptions(edgeitems=100000)
 np.set_printoptions(linewidth=100000)
 
 def sk_tsne( args, class_names, pct_test):
-    
+
+
+  input_mode   = args.input_mode
+  
+  
+  
   n_components = 2
   n_iter       = args.n_iterations
   perplexity   = args.perplexity[0]                                                                        # only one value of perplexity allowed for sk_tsne runs (cf. cuda_tsnet, which provides for multiple values
@@ -52,50 +57,54 @@ def sk_tsne( args, class_names, pct_test):
     fqn = f"../logs/ae_output_features.pt"
       
     if DEBUG>0:
-      print( f"{BRIGHT_GREEN}SK_SPECTRAL:     INFO:  about to load autoencoder generated embeddings from input file '{MAGENTA}{fqn}{RESET}'", flush=True )
+      print( f"{BRIGHT_GREEN}SK_TSNE:        INFO:  about to load autoencoder generated embeddings from input file '{MAGENTA}{fqn}{RESET}'", flush=True )
     try:
       dataset  = torch.load( fqn )
       if DEBUG>0:
-        print( f"{BRIGHT_GREEN}SK_SPECTRAL:     INFO:  dataset successfully loaded{RESET}" ) 
+        print( f"{BRIGHT_GREEN}SK_TSNE:        INFO:  dataset successfully loaded{RESET}" ) 
     except Exception as e:
-      print ( f"{RED}SK_SPECTRAL:     ERROR:  could not load feature file. Did you remember to run the system with {CYAN}NN_MODE='pre_compress'{RESET}{RED} and an autoencoder such as {CYAN}'AEDENSE'{RESET}{RED} to generate the feature file? ... can't continue, so halting now [143]{RESET}" )
-      print ( f"{RED}SK_SPECTRAL:     ERROR:  the exception was: {CYAN}'{e}'{RESET}" )
-      print ( f"{RED}SK_SPECTRAL:     ERROR:  halting now" )
+      print ( f"{RED}SK_TSNE:        ERROR:  could not load feature file. Did you remember to run the system with {CYAN}NN_MODE='pre_compress'{RESET}{RED} and an autoencoder such as {CYAN}'AEDENSE'{RESET}{RED} to generate the feature file? ... can't continue, so halting now [143]{RESET}" )
+      print ( f"{RED}SK_TSNE:        ERROR:  the exception was: {CYAN}'{e}'{RESET}" )
+      print ( f"{RED}SK_TSNE:        ERROR:  halting now" )
       sys.exit(0)
   
-    samples_npy  = dataset['embeddings'].cpu().numpy().squeeze()                                           # eliminate empty dimensions
-    labels       = dataset['labels'    ].cpu().numpy().squeeze()                                           # eliminate empty dimensions
+    samples      = dataset['embeddings'].cpu().detach().numpy().squeeze()                                           # eliminate empty dimensions
+    labels       = dataset['labels'    ].cpu().detach().numpy().squeeze()                                           # eliminate empty dimensions
     
     if DEBUG>0:
-      print ( f"SK_SPECTRAL:     INFO:  (embeddings) samples_npy.shape     =  {MIKADO}{samples_npy.shape}{RESET}"      ) 
-      print ( f"SK_SPECTRAL:     INFO:  sanity check: np.sum(samples_npy)  =  {MIKADO}{np.sum(samples_npy):.2f}{RESET}"      ) 
+      print ( f"SK_TSNE:        INFO:  (embeddings) samples.shape     =  {MIKADO}{samples.shape}{RESET}"      ) 
+      print ( f"SK_TSNE:        INFO:  sanity check: np.sum(samples)  =  {MIKADO}{np.sum(samples):.2f}{RESET}"      ) 
     
-    if np.sum(samples_npy)==0.0:
-      print ( f"{RED}SK_SPECTRAL:     ERROR:  all samples_npy are zero vectors - the input file was completely degenerate{RESET}" )
-      print ( f"{RED}SK_SPECTRAL:     ERROR:  not halting, but might as well be{RESET}" )
+    if np.sum(samples)==0.0:
+      print ( f"{RED}SK_TSNE:        ERROR:  all samples are zero vectors - the input file was completely degenerate{RESET}" )
+      print ( f"{RED}SK_TSNE:        ERROR:  not halting, but might as well be{RESET}" )
  
   else:
-    
-    sample_file = "../logs/images_new.npy" 
-    label_file = "../logs/img_labels_new.npy"
-    
-    samples_npy  =  np.load( sample_file )
-    labels       =  np.load( label_file  )
   
-
-  if args.input_mode=='image':
-    
-    samples = samples_npy
-    
-    if DEBUG>0:
-      print ( f"SK_SPECTRAL:     INFO:  about to flatten channels and r,g,b dimensions"      ) 
-      print ( f"SK_SPECTRAL:     INFO:  (flattened) samples.shape          = {MIKADO}{samples.shape}{RESET}"      ) 
-
-  if args.input_mode=='rna': 
-    samples = samples_npy
+    if input_mode=='image':
   
-    if DEBUG>0:
-      print ( f"SK_SPECTRAL:     INFO:  samples.shape          = {MIKADO}{samples.shape}{RESET}"      ) 
+      sample_file = "../logs/images_new.npy" 
+      label_file = "../logs/img_labels_new.npy"
+      
+      samples      =  np.load( sample_file )
+      labels       =  np.load( label_file  )
+      
+      if DEBUG>0:
+        print ( f"SK_TSNE:        INFO:  input                  = {MIKADO}{input_mode}{RESET}",                flush=True   ) 
+        print ( f"SK_TSNE:        INFO:  about to flatten channels and r,g,b dimensions",                      flush=True   ) 
+        print ( f"SK_TSNE:        INFO:  (flattened) samples.shape          = {MIKADO}{samples.shape}{RESET}", flush=True   ) 
+  
+    if input_mode=='rna': 
+  
+      sample_file = "../logs/rna_new.npy" 
+      label_file = "../logs/rna_labels_new.npy"
+      
+      samples      =  np.load( sample_file )
+      labels       =  np.load( label_file  )
+      
+      if DEBUG>0:
+        print ( f"SK_TSNE:        INFO:  input                  = {MIKADO}{input_mode}{RESET}",                flush=True   ) 
+        print ( f"SK_TSNE:        INFO:  samples.shape          = {MIKADO}{samples.shape}{RESET}",             flush=True   ) 
 
 
 
@@ -103,7 +112,7 @@ def sk_tsne( args, class_names, pct_test):
 
   
   if DEBUG>0:
-    print( f"SK_TSNE:         INFO:  about to configure {CYAN}SKLEARN TSNE {RESET}object with: metric='{CYAN}{metric}{RESET}', n_iter={MIKADO}{n_iter}{RESET}, n_components={MIKADO}{n_components}{RESET}, perplexity={MIKADO}{perplexity}{RESET}, n_jobs={MIKADO}{n_jobs}{RESET}", flush=True )
+    print( f"SK_TSNE:        INFO:  about to configure {CYAN}SKLEARN TSNE {RESET}object with: metric='{CYAN}{metric}{RESET}', n_iter={MIKADO}{n_iter}{RESET}, n_components={MIKADO}{n_components}{RESET}, perplexity={MIKADO}{perplexity}{RESET}, n_jobs={MIKADO}{n_jobs}{RESET}", flush=True )
 
   if DEBUG>0:
     print( f"SK_TSNE:        INFO:  {CYAN}type(perplexity){RESET} ={MIKADO}{type(perplexity)}{RESET}", flush=True )
