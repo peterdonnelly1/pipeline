@@ -71,9 +71,9 @@ def cuda_tsne( args, class_names, pct_test, super_title, output_file_name ):
       print( f"{BRIGHT_GREEN}CUDA_TSNE:       INFO:  dataset successfully loaded{RESET}" ) 
   except Exception as e:
     if args.input_mode=='image':
-      print ( f"{RED}CUDA_TSNE:       FATAL: could not load embeddings file. Did you remember to run the system with {CYAN}NN_MODE='pre_compress'{RESET}{RED} and an autoencoder such as {CYAN}'AEVGG16'{RESET}{RED} to generate the embeddings file?[646]{RESET}" )
+      print ( f"{RED}CUDA_TSNE:       FATAL: could not load embeddings file. Did you remember to first run the system with an autoencoder such as {CYAN}'AEVGG16'{RESET}{RED} to generate an embeddings file?[646]{RESET}" )
     if args.input_mode=='rna':
-      print ( f"{RED}CUDA_TSNE:       FATAL: could not load embeddings file. Did you remember to run the system with {CYAN}NN_MODE='pre_compress'{RESET}{RED} and an autoencoder such as {CYAN}'AEDENSE'{RESET}{RED} to generate the embeddings file?[189]{RESET}" )
+      print ( f"{RED}CUDA_TSNE:       FATAL: could not load embeddings file. Did you remember to first run the system with an autoencoder such as {CYAN}'AEDENSE'{RESET}{RED} to generate an embeddings file?[189]{RESET}" )
     print ( f"{RED}CUDA_TSNE:       FATAL: the exception was: {CYAN}'{e}'{RESET}" )
     print ( f"{RED}CUDA_TSNE:       FATAL: halting now" )
     sys.exit(0)

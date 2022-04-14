@@ -598,10 +598,6 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
       print ( f"{RED}CLASSI:         INFO: halting now{RESET}" )      
       sys.exit(0) 
  
-  # ~ if  ( just_test=='True' ) & ( use_autoencoder_output=='True' ):
-    # ~ print( f"{ORANGE}CLASSI:         INFO:  flag USE_AUTOENCODER_OUTPUT' isn't compatible with flag 'JUST_TEST' ... will disable test mode and continue{RESET}" )
-    # ~ args.just_test=False
-
   
   # ~ if  (mode=='classify') & (args.clustering=='NONE'):
     # ~ if  'AE' in nn_type_img[0]:
@@ -614,10 +610,10 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
 
   if clustering=='NONE':
     if  ( use_autoencoder_output=='True' ):
-      if  ( input_mode=='image' ) &  ( 'AE' in nn_type_img[0] )==False:
+      if  ( input_mode=='image' ) and not  ( 'AE' in nn_type_img[0] ) :
         print( f"{RED}CLASSI:         FATAL: the network model must be an autoencoder if flag '{CYAN}USE_AUTOENCODER_OUTPUT{RESET}{RED}=='{MIKADO}{True}{RESET}{RED}' (you have NN_TYPE_IMG='{CYAN}{nn_type_img[0]}{RESET}{RED}', which is not an autoencoder) ... halting now{RESET}" )
         sys.exit(0)
-      if  ( input_mode=='image' ) &  ( 'AE' in nn_type_rna[0] )==False:
+      if  ( input_mode=='rna'   ) and not  ( 'AE' in nn_type_rna[0] ):
         print( f"{RED}CLASSI:         FATAL: the network model must be an autoencoder if flag '{CYAN}USE_AUTOENCODER_OUTPUT{RESET}{RED}=='{MIKADO}{True}{RESET}{RED}' (you have NN_TYPE_RNA='{CYAN}{nn_type_rna[0]}{RESET}{RED}', which is not an autoencoder) ... halting now{RESET}" )
         sys.exit(0)
     
