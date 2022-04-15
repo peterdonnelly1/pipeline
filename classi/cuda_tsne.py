@@ -366,7 +366,7 @@ def plot( num_subplots, subplot_index, grid_size, x, y, class_names, ax, title, 
     # Hide ticks and axis
     ax.set_xticks([]), ax.set_yticks([]), ax.axis("off")
 
-    fontsize=6 if (len(class_names)>2 and grid_size>1) else 10 if (len(class_names)>2 and grid_size>1) else 12
+    fontsize=6 if (len(class_names)>2 and grid_size>1) else 9 if (len(class_names)>2 and grid_size>1) else 12
     
     if draw_legend:
         legend_handles = [
@@ -384,7 +384,7 @@ def plot( num_subplots, subplot_index, grid_size, x, y, class_names, ax, title, 
             )
             for yi in classes
         ]
-        legend_kwargs_ = dict(loc="center left", bbox_to_anchor=( 0.95, 0.5), frameon=False, labelspacing=0 if (len(class_names)>2 and grid_size>1) else 1 if (len(class_names)>2 and grid_size>1) else 2, handletextpad=handletextpad )
+        legend_kwargs_ = dict(loc="center left", bbox_to_anchor=( 0.95, 0.5), frameon=False, labelspacing=0 if (len(class_names)>2 and grid_size>1) else 0 if len(class_names)>2 else 0.1, handletextpad=handletextpad )
         if legend_kwargs is not None:
             legend_kwargs_.update(legend_kwargs)
         ax.legend(handles=legend_handles, **legend_kwargs_, fontsize=fontsize )
