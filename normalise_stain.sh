@@ -105,7 +105,6 @@ PERPLEXITY="30."
 PRETRAIN="False"        
 SKIP_GENERATION="False"                                                                                    
 REGEN="False"
-RENDER_CLUSTERING="False"
 REPEAT=1                                                                                    
 SKIP_RNA_PREPROCESSING="False"
 SKIP_TILING="False"                                                                                        # supported: any of the sklearn metrics
