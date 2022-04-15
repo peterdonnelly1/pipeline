@@ -213,7 +213,7 @@ def plot(
     y,
     class_names,
     ax=None,
-    title=None,
+    title="i am title",
     draw_legend=True,
     draw_centers=False,
     draw_cluster_labels=False,
@@ -226,6 +226,7 @@ def plot(
 
     if ax is None:
         plt, ax = matplotlib.pyplot.subplots(figsize=(14,14))
+        plt.legend(["x*5" , "x*10"])
 
     if title is not None:
         ax.set_title(title)
@@ -306,6 +307,12 @@ def plot(
     # Hide ticks and axis
     ax.set_xticks([]), ax.set_yticks([]), ax.axis("off")
 
+    print ( classes)
+    print ( class_names )
+    
+    print ( type (class_names[0] ) )
+    print ( type (classes ) )
+    
     if draw_legend:
         legend_handles = [
             matplotlib.lines.Line2D(
@@ -317,15 +324,15 @@ def plot(
                 ms=10,
                 alpha=1,
                 linewidth=0,
-                label=yi,
+                label=class_names[yi],
                 markeredgecolor="k",
             )
             for yi in classes
         ]
-        legend_kwargs_ = dict(loc="center left", bbox_to_anchor=(1, 0.5), frameon=False, )
+        legend_kwargs_ = dict( loc="center left", bbox_to_anchor=(1, 0.5), frameon=False, )
         if legend_kwargs is not None:
-            legend_kwargs_.update(legend_kwargs)
-        ax.legend(handles=legend_handles, **legend_kwargs_)
+            legend_kwargs_.update( legend_kwargs )
+        ax.legend( handles=legend_handles, **legend_kwargs_, fontsize=7 if len(class_names)>2 else 12 )
 
 
   

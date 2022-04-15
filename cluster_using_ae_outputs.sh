@@ -71,7 +71,6 @@ CASES="ALL_ELIGIBLE_CASES"                                                      
 CLUSTERING="NONE"                                                                                          # Supported: 'otsne' (opentsne), 'sktsne' (sklearn t-sne), 'hdbscan', 'dbscan', 'NONE'
 DATASET="stad"
 DIVIDE_CASES="False"                                                                                       # 
-ENCODER_ACTIVATION="none"                                                                                  # (no getopts option) activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
 EPSILON="0.5"                                                                                         
 GENE_DATA_NORM="GAUSSIAN"                                                                                  # supported options are NONE JUST_SCALE GAUSSIAN 
 GENE_DATA_TRANSFORM="LOG2PLUS1"                                                                            # supported options are NONE LN LOG2 LOG2PLUS1 LOG10 LOG10PLUS1 RANKED

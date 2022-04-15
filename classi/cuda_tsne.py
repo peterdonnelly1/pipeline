@@ -300,8 +300,8 @@ def plot( num_subplots, subplot_index, x, y, class_names, ax, title, title_font_
       print ( f"CUDA_TSNE:       INFO: plot()  class_names           = {BITTER_SWEET}{class_names}{RESET}" )
       print ( f"CUDA_TSNE:       INFO: plot()  classes               = {BITTER_SWEET}{classes}{RESET}" )
       print ( f"CUDA_TSNE:       INFO: plot()  colors                = {BITTER_SWEET}{colors}{RESET}" )
-      print ( f"CUDA_TSNE:       INFO: plot()  colors.get            = {BITTER_SWEET}{colors.get}{RESET}" )
-      print ( f"CUDA_TSNE:       INFO: plot()  point_colors          = {BITTER_SWEET}{point_colors}{RESET}" )
+      # ~ print ( f"CUDA_TSNE:       INFO: plot()  colors.get            = {BITTER_SWEET}{colors.get}{RESET}" )
+      # ~ print ( f"CUDA_TSNE:       INFO: plot()  point_colors          = {BITTER_SWEET}{point_colors}{RESET}" )
 
     
     if (DEBUG>2):
