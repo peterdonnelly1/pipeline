@@ -224,7 +224,7 @@ def cuda_tsne( args, class_names, pct_test, super_title, output_file_name ):
     fig, axes = plt.subplots( figsize=figsize, nrows=1, ncols=1  )
     title_font_size = 14
     marker_size     = 2
-    labelspacing    = 0.5
+    labelspacing    = 0.1
     handletextpad   = 0.8
     ms              = 12 
     
@@ -382,7 +382,7 @@ def plot( num_subplots, subplot_index, x, y, class_names, ax, title, title_font_
             )
             for yi in classes
         ]
-        legend_kwargs_ = dict(loc="center left", bbox_to_anchor=( 0.95, 0.5), frameon=False, fontsize=title_font_size, labelspacing=labelspacing, handletextpad=handletextpad )
+        legend_kwargs_ = dict(loc="center left", bbox_to_anchor=( 0.95, 0.5), frameon=False, labelspacing=labelspacing, handletextpad=handletextpad )
         if legend_kwargs is not None:
             legend_kwargs_.update(legend_kwargs)
         ax.legend(handles=legend_handles, **legend_kwargs_, fontsize=7 if len(class_names)>2 else 12)
