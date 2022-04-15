@@ -377,7 +377,7 @@ def plot( num_subplots, subplot_index, x, y, class_names, ax, title, title_font_
                 ms=ms,
                 alpha=1,
                 linewidth=0,
-                label=yi,
+                label=class_names[yi],
                 # ~ markeredgecolor="k",
             )
             for yi in classes
@@ -385,7 +385,7 @@ def plot( num_subplots, subplot_index, x, y, class_names, ax, title, title_font_
         legend_kwargs_ = dict(loc="center left", bbox_to_anchor=( 0.95, 0.5), frameon=False, fontsize=title_font_size, labelspacing=labelspacing, handletextpad=handletextpad )
         if legend_kwargs is not None:
             legend_kwargs_.update(legend_kwargs)
-        ax.legend(handles=legend_handles, **legend_kwargs_)
+        ax.legend(handles=legend_handles, **legend_kwargs_, fontsize=7 if len(class_names)>2 else 12)
 
 
   
