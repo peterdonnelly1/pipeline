@@ -18,21 +18,6 @@ from tsnecuda import TSNE
 
 from constants  import *
 
-MACOSKO_COLORS = {
-    "Amacrine cells": "#A5C93D",
-    "Astrocytes": "#8B006B",
-    "Bipolar cells": "#2000D7",
-    "Cones": "#538CBA",
-    "Fibroblasts": "#8B006B",
-    "Horizontal cells": "#B33B19",
-    "Microglia": "#8B006B",
-    "Muller glia": "#8B006B",
-    "Pericytes": "#8B006B",
-    "Retinal ganglion cells": "#C38A1F",
-    "Rods": "#538CBA",
-    "Vascular endothelium": "#8B006B",
-}
-
 
 DEBUG   = 1
 
@@ -311,7 +296,7 @@ def plot( num_subplots, subplot_index, x, y, class_names, ax, title, title_font_
         colors = {k: v["color"] for k, v in zip(classes, default_colors())}
     point_colors = list(map(colors.get, y))
 
-    if (DEBUG>2):
+    if (DEBUG>0):
       print ( f"CUDA_TSNE:       INFO: plot()  class_names           = {BITTER_SWEET}{class_names}{RESET}" )
       print ( f"CUDA_TSNE:       INFO: plot()  classes               = {BITTER_SWEET}{classes}{RESET}" )
       print ( f"CUDA_TSNE:       INFO: plot()  colors                = {BITTER_SWEET}{colors}{RESET}" )
