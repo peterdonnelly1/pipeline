@@ -741,15 +741,15 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
                hidden_layer_neurons  =   hidden_layer_neurons,
            low_expression_threshold  =   low_expression_threshold,
                   cutoff_percentile  =   cutoff_percentile,
-                     embedding_dimensions  =   embedding_dimensions,
+               embedding_dimensions  =   embedding_dimensions,
                           dropout_1  =   dropout_1,
                           dropout_2  =   dropout_2,
-                        nn_optimizer =  nn_optimizer,
-                          stain_norm =  stain_norm,
-                      gene_data_norm =  gene_data_norm, 
-                 gene_data_transform =  gene_data_transform,                                                
-                  label_swap_pct = [   0.0   ],
-                   make_grey_pct = [   0.0   ],
+                        nn_optimizer =   nn_optimizer,
+                          stain_norm =   stain_norm,
+                      gene_data_norm =   gene_data_norm, 
+                 gene_data_transform =   gene_data_transform,                                                
+                      label_swap_pct =  [   0.0   ],
+                       make_grey_pct =  [   0.0   ],
                               jitter = [  [ 0.0, 0.0, 0.0, 0.0 ] ]  )
 
 
@@ -5846,7 +5846,7 @@ if __name__ == '__main__':
   p.add_argument('--nn_type_img',                                       nargs="+",  type=str,    default='VGG11'                                )
   p.add_argument('--nn_type_rna',                                       nargs="+",  type=str,    default='DENSE'                                )
   p.add_argument('--hidden_layer_encoder_topology', '--nargs-int-type', nargs='*',  type=int,                                                   )                             
-  p.add_argument('--encoder_activation',                                nargs="+",  type=str,    default='sigmoid'                              )                              
+  p.add_argument('--encoder_activation',                                            type=str,    default='none'                                 )                              
   p.add_argument('--nn_dense_dropout_1',                                nargs="+",  type=float,  default=0.0                                    )                                    
   p.add_argument('--nn_dense_dropout_2',                                nargs="+",  type=float,  default=0.0                                    )                                    
   p.add_argument('--dataset',                                                       type=str                                                    )
