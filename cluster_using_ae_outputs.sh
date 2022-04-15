@@ -110,7 +110,7 @@ REPEAT=1
 SKIP_RNA_PREPROCESSING="False"
 SKIP_TILING="False"                                                                                        # supported: any of the sklearn metrics
 SKIP_TRAINING="False"
-SUPERGRID_SIZE="4"
+SUPERGRID_SIZE="9"
 TILES_PER_IMAGE="10"
 TILE_SIZE="32"
 USE_AUTOENCODER_OUTPUT="False"
@@ -306,7 +306,13 @@ elif [[ ${CLUSTERING} == "cuda_tsne" ]]
 
   then
 
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l cuda_tsne  -p "10 30 400 500"  -G ${SUPERGRID_SIZE} -u ${USE_AUTOENCODER_OUTPUT}
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l cuda_tsne  -p 10                                    -u ${USE_AUTOENCODER_OUTPUT}
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l cuda_tsne  -p 30                                    -u ${USE_AUTOENCODER_OUTPUT}
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l cuda_tsne  -p 70                                    -u ${USE_AUTOENCODER_OUTPUT}
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l cuda_tsne  -p 100                                   -u ${USE_AUTOENCODER_OUTPUT}
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l cuda_tsne  -p 300                                   -u ${USE_AUTOENCODER_OUTPUT}
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l cuda_tsne  -p 700                                   -u ${USE_AUTOENCODER_OUTPUT}
+    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l cuda_tsne  -p "10 30 70 100 300 700"  -G ${SUPERGRID_SIZE} -u ${USE_AUTOENCODER_OUTPUT}
 
 
 elif [[ ${CLUSTERING} == "dbscan" ]]
