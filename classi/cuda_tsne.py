@@ -263,7 +263,7 @@ def cuda_tsne( args, class_names, pct_test, super_title, output_file_name ):
     N=labels.shape[0]
     title=f"unsupervised clustering using cuda t-sne \n{args.dataset.upper()} dataset:  {N}=samples   iterations={n_iter}   perplexity={perplexity[0]}"
 
-    plot( 1, 1, embedding_train, labels, class_names, axes, title, title_font_size, marker_size, labelspacing, handletextpad, ms  )  
+    plot( 1, 1, grid_size, embedding_train, labels, class_names, axes, title, title_font_size, marker_size, labelspacing, handletextpad, ms  )  
   
   now = datetime.datetime.now()  
   fqn = f"{args.log_dir}/{now:%y%m%d%H%M}_Embedding_Dims_{samples.shape[1]}_{output_file_name}____cuda_tsne_clustering_chart.png"
@@ -277,7 +277,7 @@ def cuda_tsne( args, class_names, pct_test, super_title, output_file_name ):
 # HELPER FUNCTIONS
 # ------------------------------------------------------------------------------
 
-def plot( num_subplots, subplot_index, x, y, class_names, ax, title, title_font_size, marker_size, labelspacing, handletextpad, ms, draw_legend=True, draw_centers=False, draw_cluster_labels=False, colors=None, legend_kwargs=None, label_order=None, **kwargs ):
+def plot( num_subplots, subplot_index, grid_size, x, y, class_names, ax, title, title_font_size, marker_size, labelspacing, handletextpad, ms, draw_legend=True, draw_centers=False, draw_cluster_labels=False, colors=None, legend_kwargs=None, label_order=None, **kwargs ):
 
 
     ax.set_title( title, fontsize=title_font_size )
@@ -366,6 +366,8 @@ def plot( num_subplots, subplot_index, x, y, class_names, ax, title, title_font_
     # Hide ticks and axis
     ax.set_xticks([]), ax.set_yticks([]), ax.axis("off")
 
+    fontsize=5 if (len(class_names)>2 and grid_size>1) else 8 if (len(class_names)>2 and grid_size>1) else 12
+    
     if draw_legend:
         legend_handles = [
             matplotlib.lines.Line2D(
@@ -385,7 +387,7 @@ def plot( num_subplots, subplot_index, x, y, class_names, ax, title, title_font_
         legend_kwargs_ = dict(loc="center left", bbox_to_anchor=( 0.95, 0.5), frameon=False, labelspacing=labelspacing, handletextpad=handletextpad )
         if legend_kwargs is not None:
             legend_kwargs_.update(legend_kwargs)
-        ax.legend(handles=legend_handles, **legend_kwargs_, fontsize=7 if len(class_names)>2 else 12)
+        ax.legend(handles=legend_handles, **legend_kwargs_, fontsize=fontsize )
 
 
   
