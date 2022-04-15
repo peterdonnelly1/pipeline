@@ -1956,8 +1956,9 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         if DEBUG>888:
           print( f"CLASSI:         INFO:      test: embeddings: batch_fnames            = {PURPLE}{batch_fnames.cpu().numpy()}{RESET}", flush=True )
 
-        gpu                = 0
-        encoder_activation = 0
+        gpu                = 0                                                                             # not currently used
+        encoder_activation = args.encoder_activation
+        
         if args.input_mode=='image':
           with torch.no_grad(): 
             y1_hat, y2_hat, embedding = model.forward( [ batch_images, 0            , batch_fnames] , gpu, encoder_activation  )          # y1_hat = image outputs
@@ -3114,8 +3115,8 @@ def train( args, epoch, train_loader, model, optimizer, loss_function, loss_type
         if DEBUG>2:
           print( f"CLASSI:         INFO:      train: about to call {MAGENTA}model.forward(){RESET}" )
 
-        gpu                = 0                                                                             # to maintain compatability with NN_MODE=pre_compress
-        encoder_activation = 0                                                                             # to maintain compatability with NN_MODE=pre_compress
+        gpu                = 0                                                                             # not currently used
+        encoder_activation = args.encoder_activation
         
         if args.input_mode=='image':
           y1_hat, y2_hat, embedding = model.forward( [ batch_images, 0          ,  batch_fnames] , gpu, encoder_activation  )          # perform a step. y1_hat = image outputs; y2_hat = rna outputs
@@ -3284,8 +3285,8 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
         image_labels = image_labels.to(device)
         rna_labels   = rna_labels  .to(device)        
 
-        gpu                = 0                                                                             # not used, but necessary to to maintain compatability with NN_MODE=pre_compress
-        encoder_activation = 0                                                                             # not used, but necessary to to maintain compatability with NN_MODE=pre_compress
+        gpu                = 0                                                                             # not currently used
+        encoder_activation = args.encoder_activation
 
         if DEBUG>10:
           print( f"CLASSI:         INFO:      test: about to call {COQUELICOT}model.forward(){RESET}" )
