@@ -114,7 +114,7 @@ def sk_tsne( args, class_names, pct_test):
       label_file = "../logs/all_rna_seq_vector_labels_from_last_run_of_generate.npy"
       
       try:
-        samples      =  np.load( sample_file )
+        samples      =  np.load( sample_file ).squeeze()
       except Exception as e:
         print( f"{RED}SK_TSNE:        INFO:  could not load file:  {CYAN}{sample_file}{RESET}", flush=True)
         print( f"{RED}SK_TSNE:        INFO:  can't continue --- halting{RESET}",         flush=True)
