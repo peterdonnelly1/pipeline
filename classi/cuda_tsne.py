@@ -251,7 +251,7 @@ def cuda_tsne( args, class_names, pct_test, super_title, output_file_name ):
         n_components = n_components,
         n_iter       = n_iter,
         perplexity   = perplexity[0],
-      learning_rate=learning_rate
+      learning_rate  = learning_rate
         # ~ verbose      = verbose
     ).fit_transform( samples )
           

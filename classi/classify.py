@@ -3325,7 +3325,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
   
               embeddings_accum = torch.cat( (embeddings_accum, embeddings.cpu().squeeze()   ), dim=0, out=None ) 
 
-              if DEBUG>0:
+              if DEBUG>2:
                 print( f"CLASSI:         INFO:        sanity check: embeddings_accum.size     = {ASPARAGUS}{embeddings_accum.size()}{RESET}",         flush=True )
                 print( f"CLASSI:         INFO:        sanity check: labels_accum    .size     = {ASPARAGUS}{labels_accum.size()}{RESET}",             flush=True )
                 print( f"CLASSI:         INFO:        sanity check: embeddings      .size     = {ASPARAGUS}{embeddings.size()}{RESET}",               flush=True )
