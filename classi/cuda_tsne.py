@@ -216,7 +216,7 @@ def cuda_tsne( args, class_names, pct_test, super_title, output_file_name ):
         N=labels.shape[0]
         title=f"N={N}  iters={n_iter:,}  perplexity={perplexity[subplot_index]}"
        
-        plot( num_subplots, subplot_index, embedding_train, labels, class_names, axes[r,c], title, title_font_size, marker_size, labelspacing, handletextpad, ms  )
+        plot( num_subplots, subplot_index, grid_size, embedding_train, labels, class_names, axes[r,c], title, title_font_size, marker_size, labelspacing, handletextpad, ms  )
         
 
   else:
@@ -384,7 +384,7 @@ def plot( num_subplots, subplot_index, grid_size, x, y, class_names, ax, title, 
             )
             for yi in classes
         ]
-        legend_kwargs_ = dict(loc="center left", bbox_to_anchor=( 0.95, 0.5), frameon=False, labelspacing=labelspacing, handletextpad=handletextpad )
+        legend_kwargs_ = dict(loc="center left", bbox_to_anchor=( 0.95, 0.5), frameon=False, labelspacing=0 if (len(class_names)>2 and grid_size>1) else 1 if (len(class_names)>2 and grid_size>1) else 2, handletextpad=handletextpad )
         if legend_kwargs is not None:
             legend_kwargs_.update(legend_kwargs)
         ax.legend(handles=legend_handles, **legend_kwargs_, fontsize=fontsize )
