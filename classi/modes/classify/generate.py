@@ -582,50 +582,48 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
 
     # (4A) determine 'n_genes' by looking at an (any) rna file, (so that it doesn't have to be manually entered as a user parameter)
     
-    if use_autoencoder_output=='False':
+    # To determine n_genes, (so that it doesn't have to be manually specified), need to examine just ONE of the rna files   
+    if DEBUG>0:
+      print ( f"GENERATE:       INFO:  about to determine value of 'n_genes'"      )
   
-      # To determine n_genes, (so that it doesn't have to be manually specified), need to examine just ONE of the rna files   
-      if DEBUG>0:
-        print ( f"GENERATE:       INFO:  about to determine value of 'n_genes'"      )
-    
-      found_one=False
-      for dir_path, dirs, files in os.walk( data_dir ):                                                    # each iteration takes us to a new directory under data_dir
-        if not (dir_path==data_dir):                                                                       # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
-          
-          if check_mapping_file( args, dir_path ) == True:                                                 # doesn't currently do anything becaue custom mapping files not implemented
-          
-            for f in sorted(files):                                                                        # examine every file in the current directory
-              if found_one==True:
-                break
-              if ( f.endswith( rna_file_suffix[1:]) ):                                                     # have to leave out the asterisk apparently
-                if DEBUG>999:
-                  print (f)     
-                rna_file      = os.path.join(dir_path, rna_file_name)
-                try:
-                  rna = np.load( rna_file )
-                  n_genes=rna.shape[0]
-                  found_one=True
-                  if DEBUG>9:
-                    print ( f"GENERATE:       INFO:   rna.shape             =  '{MIKADO}{rna.shape}{RESET}' "      )
-                  if DEBUG>2:
-                    print ( f"GENERATE:       INFO:  n_genes (determined)  = {MIKADO}{n_genes}{RESET}"        )
-                except Exception as e:
-                    print ( f"{BOLD}{RED}GENERATE:       FATAL: error message: '{e}'{RESET}" )
-                    print ( f"{BOLD}{RED}GENERATE:       FATAL: explanation: a required rna class file doesn't exist. (Probably none exist){RESET}" )                 
-                    print ( f"{BOLD}{RED}GENERATE:       FATAL: did you change from image mode to rna mode but neglect to regenerate the rna files the NN needs for rna mode ? {RESET}" )
-                    print ( f"{BOLD}{RED}GENERATE:       FATAL: if so, run '{CYAN}./do_all.sh -d <cancer type code> -i rna {BOLD}{CHARTREUSE}-r True{RESET}{BOLD}{RED}' to generate the rna files{RESET}" )                 
-                    print ( f"{BOLD}{RED}GENERATE:       FATAL: when you do this, don't suppress preprocessing or dataset generation (i.e. DON'T use either '{BOLD}{CYAN}-X True{RESET}{BOLD}{RED}' or '{BOLD}{CYAN}-g True{RESET}{BOLD}{RED}')" )                 
-                    print ( f"{BOLD}{RED}GENERATE:       FATAL: halting now ...{RESET}" )                 
-                    sys.exit(0)
+    found_one=False
+    for dir_path, dirs, files in os.walk( data_dir ):                                                    # each iteration takes us to a new directory under data_dir
+      if not (dir_path==data_dir):                                                                       # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
+        
+        if check_mapping_file( args, dir_path ) == True:                                                 # doesn't currently do anything becaue custom mapping files not implemented
+        
+          for f in sorted(files):                                                                        # examine every file in the current directory
+            if found_one==True:
+              break
+            if ( f.endswith( rna_file_suffix[1:]) ):                                                     # have to leave out the asterisk apparently
+              if DEBUG>999:
+                print (f)     
+              rna_file      = os.path.join(dir_path, rna_file_name)
+              try:
+                rna = np.load( rna_file )
+                n_genes=rna.shape[0]
+                found_one=True
+                if DEBUG>9:
+                  print ( f"GENERATE:       INFO:   rna.shape             =  '{MIKADO}{rna.shape}{RESET}' "      )
+                if DEBUG>2:
+                  print ( f"GENERATE:       INFO:  n_genes (determined)  = {MIKADO}{n_genes}{RESET}"        )
+              except Exception as e:
+                  print ( f"{BOLD}{RED}GENERATE:       FATAL: error message: '{e}'{RESET}" )
+                  print ( f"{BOLD}{RED}GENERATE:       FATAL: explanation: a required rna class file doesn't exist. (Probably none exist){RESET}" )                 
+                  print ( f"{BOLD}{RED}GENERATE:       FATAL: did you change from image mode to rna mode but neglect to regenerate the rna files the NN needs for rna mode ? {RESET}" )
+                  print ( f"{BOLD}{RED}GENERATE:       FATAL: if so, run '{CYAN}./do_all.sh -d <cancer type code> -i rna {BOLD}{CHARTREUSE}-r True{RESET}{BOLD}{RED}' to generate the rna files{RESET}" )                 
+                  print ( f"{BOLD}{RED}GENERATE:       FATAL: when you do this, don't suppress preprocessing or dataset generation (i.e. DON'T use either '{BOLD}{CYAN}-X True{RESET}{BOLD}{RED}' or '{BOLD}{CYAN}-g True{RESET}{BOLD}{RED}')" )                 
+                  print ( f"{BOLD}{RED}GENERATE:       FATAL: halting now ...{RESET}" )                 
+                  sys.exit(0)
 
-      if found_one==False:                  
-        print ( f"{RED}GENERATE:       FATAL: No rna files at all exist in the dataset directory ({MAGENTA}{data_dir}{RESET}{RED})"                                                                          )                 
-        print ( f"{PALE_RED}GENERATE:                 Possible explanations:{RESET}"                                                                                                                       )
-        print ( f"{PALE_RED}GENERATE:                   (1) The dataset '{CYAN}{args.dataset}{RESET}{PALE_RED}' doesn't have any rna-seq data. It might only have image data{RESET}" )
-        print ( f"{PALE_RED}GENERATE:                   (2) Did you change from image mode to rna mode but neglect to run '{CYAN}./do_all.sh{RESET}{PALE_RED}' to generate the files requiPALE_RED for rna mode ? {RESET}" )
-        print ( f"{PALE_RED}GENERATE:                       If so, run '{CYAN}./do_all.sh <cancer_type_code> rna{RESET}{PALE_RED}' to generate the rna files{RESET}{PALE_RED}. After that, you will be able to use '{CYAN}./just_run.sh <cancer_type_code> rna{RESET}{PALE_RED}'" )                 
-        print ( f"{PALE_RED}GENERATE:               Halting now{RESET}" )                 
-        sys.exit(0)
+    if found_one==False:                  
+      print ( f"{RED}GENERATE:       FATAL: No rna files at all exist in the dataset directory ({MAGENTA}{data_dir}{RESET}{RED})"                                                                          )                 
+      print ( f"{PALE_RED}GENERATE:                 Possible explanations:{RESET}"                                                                                                                       )
+      print ( f"{PALE_RED}GENERATE:                   (1) The dataset '{CYAN}{args.dataset}{RESET}{PALE_RED}' doesn't have any rna-seq data. It might only have image data{RESET}" )
+      print ( f"{PALE_RED}GENERATE:                   (2) Did you change from image mode to rna mode but neglect to run '{CYAN}./do_all.sh{RESET}{PALE_RED}' to generate the files requiPALE_RED for rna mode ? {RESET}" )
+      print ( f"{PALE_RED}GENERATE:                       If so, run '{CYAN}./do_all.sh <cancer_type_code> rna{RESET}{PALE_RED}' to generate the rna files{RESET}{PALE_RED}. After that, you will be able to use '{CYAN}./just_run.sh <cancer_type_code> rna{RESET}{PALE_RED}'" )                 
+      print ( f"{PALE_RED}GENERATE:               Halting now{RESET}" )                 
+      sys.exit(0)
 
 
 
@@ -1340,9 +1338,23 @@ def generate_rna_dataset ( args, class_names, target, cases_required, highest_cl
   if DEBUG>2:        
       print ( f"GENERATE:       INFO:     rna_labels_new                 =                             \n{MIKADO}{rna_labels_new.numpy()}{RESET}"    )     
     
-    
 
-  # (6D) save torch tensors as '.pth' file for subsequent loading by loader/dataset functions
+  # (6D) save numpy array for possible subsequent use by clustering functions
+
+  if target=='rna_train':
+    
+    if DEBUG>0:  
+      print( f"GENERATE:       INFO:    {COTTON_CANDY}now saving save numpy version of RNA-Seq vectors and labels arrays for possible subsequent use by clustering functions{RESET}{CLEAR_LINE}")
+      
+    fqn =  f"{args.base_dir}/logs/all_rna_seq_vectors_from_last_run_of_generate"
+    np.save ( fqn, genes_new )
+  
+    fqn =  f"{args.base_dir}/logs/all_rna_seq_vector_labels_from_last_run_of_generate"
+    np.save ( fqn, rna_labels_new )
+
+  
+
+  # (6E) save torch tensors as '.pth' file for subsequent loading by loader/dataset functions
 
   fqn =  f"{args.base_dir}/{args.application_dir}/modes/{args.mode}/dataset_{target}.pth"
   
@@ -1625,22 +1637,18 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
 
 
 
-
-  # save numpy array for possible subsequent use by clustering functions -  save numpy array for possible subsequent use by clustering functions - save numpy array for possible subsequent use by clustering functions
+  # save numpy array for possible subsequent use by clustering functions
 
   if target=='image_train':
     
     if DEBUG>0:  
       print( f"GENERATE:       INFO:    {COTTON_CANDY}now saving save numpy version of image and labels arrays for possible subsequent use by clustering functions{RESET}{CLEAR_LINE}")
       
-    fqn =  f"{args.base_dir}/logs/images_new"
+    fqn =  f"{args.base_dir}/logs/all_images_from_last_run_of_generate"
     np.save ( fqn, images_new )
   
-    fqn =  f"{args.base_dir}/logs/img_labels_new"
+    fqn =  f"{args.base_dir}/logs/all_image_labels__from_last_run_of_generate"
     np.save ( fqn, img_labels_new )
-
-  # save numpy array for possible subsequent use by clustering functions -  save numpy array for possible subsequent use by clustering functions - save numpy array for possible subsequent use by clustering functions
-
 
 
 

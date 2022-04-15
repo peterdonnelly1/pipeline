@@ -87,8 +87,8 @@ def h_dbscan( args, class_names, pct_test, min_cluster_size ):
  
   else:
     
-    image_file = "../logs/images_new.npy" 
-    label_file = "../logs/img_labels_new.npy"
+    image_file = "../logs/all_images_from_last_run_of_generate.npy" 
+    label_file = "../logs/all_image_labels__from_last_run_of_generate.npy"
     
     embeddings = np.load( image_file )
     labels     = np.load( label_file )

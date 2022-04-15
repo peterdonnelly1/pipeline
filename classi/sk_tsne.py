@@ -84,22 +84,22 @@ def sk_tsne( args, class_names, pct_test):
   
     if input_mode=='image':
   
-      sample_file = "../logs/images_new.npy" 
-      label_file = "../logs/img_labels_new.npy"
+      sample_file = "../logs/all_images_from_last_run_of_generate.npy" 
+      label_file = "../logs/all_image_labels__from_last_run_of_generate.npy"
       
       try:
         samples      =  np.load( sample_file )
       except Exception as e:
-        print( f"{RED}CLASSI:         INFO:  could not load file:  {CYAN}{sample_file}{RESET}", flush=True)
-        print( f"{RED}CLASSI:         INFO:  can't continue --- halting{RESET}",         flush=True)
+        print( f"{RED}SK_TSNE:        INFO:  could not load file:  {CYAN}{sample_file}{RESET}", flush=True)
+        print( f"{RED}SK_TSNE:        INFO:  can't continue --- halting{RESET}",         flush=True)
         time.sleep(4)
         sys.exit(0)
               
       try:
         labels       =  np.load( label_file  )
       except Exception as e:
-        print( f"{RED}CLASSI:         INFO:  could not load file: {CYAN}{sample_file}{RESET}", flush=True)
-        print( f"{RED}CLASSI:         INFO:  can't continue --- halting{RESET}",         flush=True)
+        print( f"{RED}SK_TSNE:        INFO:  could not load file: {CYAN}{sample_file}{RESET}", flush=True)
+        print( f"{RED}SK_TSNE:        INFO:  can't continue --- halting{RESET}",         flush=True)
         time.sleep(4)
         sys.exit(0)
       
@@ -110,22 +110,22 @@ def sk_tsne( args, class_names, pct_test):
   
     if input_mode=='rna': 
   
-      sample_file = "../logs/rna_new.npy" 
-      label_file = "../logs/rna_labels_new.npy"
+      sample_file = "../logs/all_rna_seq_vectors_from_last_run_of_generate.npy" 
+      label_file = "../logs/all_rna_seq_vector_labels_from_last_run_of_generate.npy"
       
       try:
         samples      =  np.load( sample_file )
       except Exception as e:
-        print( f"{RED}CLASSI:         INFO:  could not load file:  {CYAN}{sample_file}{RESET}", flush=True)
-        print( f"{RED}CLASSI:         INFO:  can't continue --- halting{RESET}",         flush=True)
+        print( f"{RED}SK_TSNE:        INFO:  could not load file:  {CYAN}{sample_file}{RESET}", flush=True)
+        print( f"{RED}SK_TSNE:        INFO:  can't continue --- halting{RESET}",         flush=True)
         time.sleep(4)
         sys.exit(0)
               
       try:
         labels       =  np.load( label_file  )
       except Exception as e:
-        print( f"{RED}CLASSI:         INFO:  could not load file:  {CYAN}{sample_file}{RESET}", flush=True)
-        print( f"{RED}CLASSI:         INFO:  can't continue --- halting{RESET}",         flush=True)
+        print( f"{RED}SK_TSNE:        INFO:  could not load file:  {CYAN}{sample_file}{RESET}", flush=True)
+        print( f"{RED}SK_TSNE:        INFO:  can't continue --- halting{RESET}",         flush=True)
         time.sleep(4)
         sys.exit(0)
       

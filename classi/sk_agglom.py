@@ -94,8 +94,8 @@ def sk_agglom( args, class_names, pct_test):
  
   else:
     
-    sample_file = "../logs/images_new.npy" 
-    label_file = "../logs/img_labels_new.npy"
+    sample_file = "../logs/all_images_from_last_run_of_generate.npy" 
+    label_file = "../logs/all_image_labels__from_last_run_of_generate.npy"
     
     samples_npy  =  np.load( sample_file )
     labels       =  np.load( label_file  )

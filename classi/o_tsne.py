@@ -42,8 +42,8 @@ def o_tsne( args, class_names, pct_test):
   
   # 1. load and prepare data
 
-  image_file = "../logs/images_new.npy" 
-  label_file = "../logs/img_labels_new.npy"
+  image_file = "../logs/all_images_from_last_run_of_generate.npy" 
+  label_file = "../logs/all_image_labels__from_last_run_of_generate.npy"
   
   images = np.load( image_file )
   labels = np.load( label_file )
