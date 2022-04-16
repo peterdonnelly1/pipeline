@@ -366,7 +366,7 @@ def plot( num_subplots, subplot_index, grid_size, x, y, class_names, ax, title, 
     # Hide ticks and axis
     ax.set_xticks([]), ax.set_yticks([]), ax.axis("off")
 
-    fontsize=6 if (len(class_names)>2 and grid_size>1) else 9 if (len(class_names)>2 and grid_size>1) else 12
+    fontsize=5 if (len(class_names)>2 and grid_size>2) else 6 if (len(class_names)>2 and grid_size>1) else 9 if (len(class_names)>2 and grid_size>1) else 12
     
     if draw_legend:
         legend_handles = [
