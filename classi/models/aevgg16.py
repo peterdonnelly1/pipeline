@@ -20,43 +20,7 @@ import torch.nn.functional as F
 # ~ from torch import nn
 from torchvision import models
 
-WHITE='\033[37;1m'
-PURPLE='\033[35;1m'
-DIM_WHITE='\033[37;2m'
-DULL_WHITE='\033[38;2;140;140;140m'
-CYAN='\033[36;1m'
-MIKADO='\033[38;2;255;196;12m'
-AZURE='\033[38;2;0;127;255m'
-AMETHYST='\033[38;2;153;102;204m'
-CHARTREUSE='\033[38;2;223;255;0m'
-MAGENTA='\033[38;2;255;0;255m'
-YELLOW='\033[38;2;255;255;0m'
-DULL_YELLOW='\033[38;2;179;179;0m'
-ARYLIDE='\033[38;2;233;214;107m'
-BLEU='\033[38;2;49;140;231m'
-DULL_BLUE='\033[38;2;0;102;204m'
-RED='\033[38;2;255;0;0m'
-PINK='\033[38;2;255;192;203m'
-BITTER_SWEET='\033[38;2;254;111;94m'
-PALE_RED='\033[31m'
-DARK_RED='\033[38;2;120;0;0m'
-ORANGE='\033[38;2;255;103;0m'
-PALE_ORANGE='\033[38;2;127;63;0m'
-GOLD='\033[38;2;255;215;0m'
-GREEN='\033[38;2;19;136;8m'
-BRIGHT_GREEN='\033[38;2;102;255;0m'
-CARRIBEAN_GREEN='\033[38;2;0;204;153m'
-PALE_GREEN='\033[32m'
-
-BOLD='\033[1m'
-ITALICS='\033[3m'
-UNDER='\033[4m'
-BLINK='\033[5m'
-RESET='\033[m'
-
-CLEAR_LINE='\033[0K'
-UP_ARROW='\u25B2'
-DOWN_ARROW='\u25BC'
+from constants  import *
 
 DEBUG=0
 
@@ -107,7 +71,7 @@ class EncoderVGG(nn.Module):
 # MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE 
         
         if DEBUG>0:
-          print ( f"EncoderVGG:     INFO:         encode():  x.size()                = {ARYLIDE}{x.size()}{RESET}", flush=True     )
+          print ( f"EncoderVGG:     INFO:         forward:  x.size()                = {ARYLIDE}{x.size()}{RESET}", flush=True     )
 
               
         for module_encode in self.encoder:
@@ -123,7 +87,7 @@ class EncoderVGG(nn.Module):
                 x = output
 
             if DEBUG>0:
-              print ( f"AEVGG16:        INFO:         forward(): x.size() after module_encode    = {BITTER_SWEET}{x.size()}{RESET}", flush=True     )  
+              print ( f"AEVGG16:        INFO:         forward: x.size() after module_encode    = {BITTER_SWEET}{x.size()}{RESET}", flush=True     )  
 
         return x, pool_indices
         
@@ -375,7 +339,7 @@ class DecoderVGG(nn.Module):
                 x_current = module_decode(x_current)
 
             if DEBUG>0:
-              print ( f"AEVGG16:        INFO:         forward(): x.size() after module_decode    = {CARRIBEAN_GREEN}{x_current.size()}{RESET}", flush=True     )  
+              print ( f"AEVGG16:        INFO:         forward: x.size() after module_decode    = {CARRIBEAN_GREEN}{x_current.size()}{RESET}", flush=True     )  
 
         return x_current
         
@@ -467,7 +431,7 @@ class AEVGG16(nn.Module):
         self.Dropout = nn.Dropout()
                 
 
-    def forward( self, args, x, gpu, encoder_activation ):
+    def forward( self, x, gpu, args  ):
     
         '''Forward the autoencoder for image input
 
@@ -480,23 +444,23 @@ class AEVGG16(nn.Module):
         '''
         
         if DEBUG>0:
-          print ( f"AEVGG16:        INFO:         forward(): x.size() at input               = {AMETHYST}{x.size()}{RESET}", flush=True     ) 
+          print ( f"AEVGG16:        INFO:         forward: x.size() at input               = {AMETHYST}{x.size()}{RESET}", flush=True     ) 
                   
         x, pool_indices = self.encoder(x)
 
         if DEBUG>0:
-          print ( f"AEVGG16:        INFO:         forward(): x.size() after encode           = {BRIGHT_GREEN}{x.size()}{RESET}", flush=True     ) 
+          print ( f"AEVGG16:        INFO:         forward: x.size() after encode           = {BRIGHT_GREEN}{x.size()}{RESET}", flush=True     ) 
 
         x = self.decoder(x, pool_indices)
 
         if DEBUG>0:
-          print ( f"AEVGG16:        INFO:         forward(): x.size() after decode           = {BRIGHT_GREEN}{x.size()}{RESET}", flush=True     )    
+          print ( f"AEVGG16:        INFO:         forward: x.size() after decode           = {BRIGHT_GREEN}{x.size()}{RESET}", flush=True     )    
 
         return x, 0, 0
         
         
 
-    def encode( self, x, gpu, encoder_activation ):                                                        # adapter function added by PGD to re-introduce the VGG fully connected layers when creating an embedding
+    def encode( self, x, gpu, args ):                                                        # adapter function added by PGD to re-introduce the VGG fully connected layers when creating an embedding
     
         '''Forward the autoencoder for image input
 
@@ -515,26 +479,28 @@ class AEVGG16(nn.Module):
         x = self.fc1(x)
         x = F.relu(x) 
         if DEBUG>0:
-          print ( f"AEVGG16:        INFO:         forward(): x.size() after         fc1/relu = {BLEU}{x.size()}{RESET}{CLEAR_LINE}" )
-        x = self.Dropout(x)
+          print ( f"AEVGG16:        INFO:         forward: x.size() after         fc1/relu = {BLEU}{x.size()}{RESET}{CLEAR_LINE}" )
+        if args.just_test != 'True':
+          x = self.Dropout(x)
         x = self.fc2(x)
         embedding = x
         x = F.relu(x)
         if DEBUG>0:
-          print ( f"AEVGG16:        INFO:         forward(): x.size() after dropout/fc2/relu = {BLEU}{x.size()}{RESET}{CLEAR_LINE}" )
+          print ( f"AEVGG16:        INFO:         forward: x.size() after (dropout)/fc2/relu = {BLEU}{x.size()}{RESET}{CLEAR_LINE}" )
         if DEBUG>88:
-          print ( f"AEVGG16:        INFO:         forward(): x[:,0:20]                                 = {BLEU}{x[:,0:20]}{RESET}{CLEAR_LINE}" )
-        x = self.Dropout(x)
+          print ( f"AEVGG16:        INFO:         forward: x[:,0:20]                                 = {BLEU}{x[:,0:20]}{RESET}{CLEAR_LINE}" )
+        if args.just_test != 'True':
+          x = self.Dropout(x)
         x = self.fc3(x)
         if DEBUG>0:
-          print ( f"AEVGG16:        INFO:         forward(): x.size() after dropout/fc3/relu = {BLEU}{x.size()}{RESET}{CLEAR_LINE}" )
+          print ( f"AEVGG16:        INFO:         forward: x.size() after (dropout)/fc3/relu = {BLEU}{x.size()}{RESET}{CLEAR_LINE}" )
 
         if DEBUG>0:
-          print ( f"AEVGG16:        INFO:         forward(): x.size() after all FC layers    = {CARRIBEAN_GREEN}{x.size()}{RESET}{CLEAR_LINE}" )
+          print ( f"AEVGG16:        INFO:         forward: x.size() after all FC layers    = {CARRIBEAN_GREEN}{x.size()}{RESET}{CLEAR_LINE}" )
           
 
         if DEBUG>0:
-          print ( f"AEVGG16:        INFO:         encode():  x.size() after  x.view          = {ARYLIDE}{x.size()}{RESET}", flush=True     )              
+          print ( f"AEVGG16:        INFO:         forward:  x.size() after  x.view          = {ARYLIDE}{x.size()}{RESET}", flush=True     )              
         
         return x
         

@@ -47,7 +47,7 @@ class DENSE(nn.Module):
         
 # ------------------------------------------------------------------------------
 
-    def encode( self, x, gpu, encoder_activation ):
+    def encode( self, x, gpu, args ):
     
       if DEBUG>999:
           print ( "DENSE:         INFO:     encode():   x.shape           = {:}".format( x.shape ) ) 
@@ -56,20 +56,22 @@ class DENSE(nn.Module):
         print ( f"DENSE:         INFO:     encode():   x                 = {x.cpu().numpy()[0]}" )          
     
       x = F.relu(self.fc1(x))
-      x = self.dropout_1(x)
+      if args.just_test != 'True':
+        x = self.dropout_1(x)
       x = self.fc2(x)
          
       return x
 
 # ------------------------------------------------------------------------------
 
-    def forward( self, x, gpu, encoder_activation ):
+    def forward( self, x, gpu, args ):
 
         if DEBUG>9:
           print ( f"\033[2KDENSE:          INFO:     forward(): x.shape = {MIKADO}{x.shape}{RESET}" )
  
         x = F.relu(self.fc1(x.view(-1, self.input_dim)))
-        x = self.dropout_1(x)
+        if args.just_test != 'True':
+          x = self.dropout_1(x)
         embedding = x
         if DEBUG>8:
           print ( f"DENSE:          INFO:     forward(): after FC2, x.size                          = {MIKADO}{x.size()}{RESET}" )
@@ -77,7 +79,7 @@ class DENSE(nn.Module):
           print ( f"DENSE:          INFO:     forward(): x[:,0:20]                                  = {MIKADO}{x[:,0:20]}{RESET}" )        
         output = self.fc2(x) 
           
-        #output = self.encode( x.view(-1, self.input_dim), gpu, encoder_activation )
+        #output = self.encode( x.view(-1, self.input_dim), gpu, args )
 
         if DEBUG>2:
           print ( f"{CLEAR_LINE}DENSE:          INFO:     forward(): output.shape    = {MIKADO}{output.shape}{RESET}" )

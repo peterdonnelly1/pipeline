@@ -9,27 +9,7 @@ from  torch import relu
 from  torch import tanh
 import numpy as np
 
-WHITE='\033[37;1m'
-PURPLE='\033[35;1m'
-DIM_WHITE='\033[37;2m'
-DULL_WHITE='\033[38;2;140;140;140m'
-CYAN='\033[36;1m'
-MAGENTA='\033[38;2;255;0;255m'
-YELLOW='\033[38;2;255;255;0m'
-DULL_YELLOW='\033[38;2;179;179;0m'
-BLUE='\033[38;2;0;0;255m'
-DULL_BLUE='\033[38;2;0;102;204m'
-RED='\033[38;2;255;0;0m'
-PINK='\033[38;2;255;192;203m'
-PALE_RED='\033[31m'
-ORANGE='\033[38;2;255;127;0m'
-PALE_ORANGE='\033[38;2;127;63;0m'
-GOLD='\033[38;2;255;215;0m'
-GREEN='\033[38;2;0;255;0m'
-PALE_GREEN='\033[32m'
-BOLD='\033[1m'
-ITALICS='\033[3m'
-RESET='\033[m'
+from constants  import *
 
 DEBUG=1
 # ------------------------------------------------------------------------------
@@ -68,18 +48,18 @@ class AEDENSEPOSITIVE(nn.Module):
 
 # ------------------------------------------------------------------------------
 
-    def encode(self, x, gpu, encoder_activation ):
+    def encode(self, x, gpu, args ):
        
         if DEBUG>99:
           print ( f"AEDENSEPOSITIVE: INFO:       encode(): x.shape   = {CYAN}{x.shape}{RESET}", flush=True   ) 
 
-        if encoder_activation=='none':
+        if args.encoder_activation=='none':
           z =  self.fc1(x)
-        if encoder_activation=='sigmoid':
+        if args.encoder_activation=='sigmoid':
           z =  sigmoid(self.fc1(x))
-        if encoder_activation=='tanh':
+        if args.encoder_activation=='tanh':
           z =  tanh(self.fc1(x))
-        if encoder_activation=='relu':
+        if args.encoder_activation=='relu':
           z =  relu(self.fc1(x))
           
         x =  self.dropout_1(x)  
@@ -108,12 +88,12 @@ class AEDENSEPOSITIVE(nn.Module):
 
 # ------------------------------------------------------------------------------
 
-    def forward( self, x, gpu, encoder_activation ):
+    def forward( self, x, gpu, args ):
 
         if DEBUG>9:
           print ( f"AEDENSEPOSITIVE: INFO:       forward(): x.shape           = {CYAN}{x.shape}{RESET}", flush=True             ) 
         
-        z = self.encode(x.view(-1, self.input_dim), gpu, encoder_activation )
+        z = self.encode(x.view(-1, self.input_dim), gpu, args )
 
         if DEBUG>9:
           print ( f"AEDENSEPOSITIVE: INFO:       forward(): z.shape           = {CYAN}{z.shape}{RESET}", flush=True             ) 

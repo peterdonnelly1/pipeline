@@ -32,34 +32,7 @@ torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark     = False
 
         
-WHITE='\033[37;1m'
-PURPLE='\033[35;1m'
-DIM_WHITE='\033[37;2m'
-DULL_WHITE='\033[38;2;140;140;140m'
-CYAN='\033[36;1m'
-MIKADO='\033[38;2;255;196;12m'
-MAGENTA='\033[38;2;255;0;255m'
-YELLOW='\033[38;2;255;255;0m'
-DULL_YELLOW='\033[38;2;179;179;0m'
-ARYLIDE='\033[38;2;233;214;107m'
-BLEU='\033[38;2;49;140;231m'
-DULL_BLUE='\033[38;2;0;102;204m'
-RED='\033[38;2;255;0;0m'
-PINK='\033[38;2;255;192;203m'
-PALE_RED='\033[31m'
-ORANGE='\033[38;2;204;85;0m'
-PALE_ORANGE='\033[38;2;127;63;0m'
-GOLD='\033[38;2;255;215;0m'
-GREEN='\033[38;2;19;136;8m'
-BRIGHT_GREEN='\033[38;2;102;255;0m'
-PALE_GREEN='\033[32m'
-BOLD='\033[1m'
-ITALICS='\033[3m'
-UNDER='\033[4m'
-RESET='\033[m'
-
-UP_ARROW='\u25B2'
-DOWN_ARROW='\u25BC'
+from constants  import *
 
 DEBUG=9999
 
@@ -177,7 +150,7 @@ class TTVAE( nn.Module) :
       print ( f"{MIKADO}{self.output_layer}{RESET}",   flush=True   )
 
 
-  def encode( self, x, gpu, encoder_activation ):
+  def encode( self, x, gpu, args ):
     """Encode input into latent representation.
 
     Parameters
@@ -277,7 +250,7 @@ class TTVAE( nn.Module) :
 
 
 
-  def forward( self, x, gpu, encoder_activation ):
+  def forward( self, x, gpu, args ):
     
     """Return reconstructed output, mean and variance of embeddings.
     """
@@ -285,7 +258,7 @@ class TTVAE( nn.Module) :
     if DEBUG>9:
       print ( f"TTVAE:          INFO:       forward() about to take a single encode/decode step" )
     
-    mean, logvar = self.encode( x, gpu, encoder_activation )
+    mean, logvar = self.encode( x, gpu, args )
     
     if DEBUG>9:
       print ( f"TTVAE:          INFO:       forward(): mean.shape    = {MIKADO}{mean.shape}{RESET}",    flush=True   ) 

@@ -22,52 +22,7 @@ import  numpy as np
 
 from skimage.util import random_noise
 
-WHITE='\033[37;1m'
-PURPLE='\033[35;1m'
-DIM_WHITE='\033[37;2m'
-AUREOLIN='\033[38;2;253;238;0m'
-DULL_WHITE='\033[38;2;140;140;140m'
-CYAN='\033[36;1m'
-MIKADO='\033[38;2;255;196;12m'
-AZURE='\033[38;2;0;127;255m'
-AMETHYST='\033[38;2;153;102;204m'
-ASPARAGUS='\033[38;2;135;169;107m'
-CHARTREUSE='\033[38;2;223;255;0m'
-COQUELICOT='\033[38;2;255;56;0m'
-COTTON_CANDY='\033[38;2;255;188;217m'
-HOT_PINK='\033[38;2;255;105;180m'
-CAMEL='\033[38;2;193;154;107m'
-MAGENTA='\033[38;2;255;0;255m'
-YELLOW='\033[38;2;255;255;0m'
-DULL_YELLOW='\033[38;2;179;179;0m'
-ARYLIDE='\033[38;2;233;214;107m'
-BLEU='\033[38;2;49;140;231m'
-DULL_BLUE='\033[38;2;0;102;204m'
-RED='\033[38;2;255;0;0m'
-PINK='\033[38;2;255;192;203m'
-BITTER_SWEET='\033[38;2;254;111;94m'
-PALE_RED='\033[31m'
-DARK_RED='\033[38;2;120;0;0m'
-ORANGE='\033[38;2;255;103;0m'
-PALE_ORANGE='\033[38;2;127;63;0m'
-GOLD='\033[38;2;255;215;0m'
-GREEN='\033[38;2;19;136;8m'
-BRIGHT_GREEN='\033[38;2;102;255;0m'
-CARRIBEAN_GREEN='\033[38;2;0;204;153m'
-PALE_GREEN='\033[32m'
-GREY_BACKGROUND='\033[48;2;60;60;60m'
-
-BOLD='\033[1m'
-ITALICS='\033[3m'
-UNDER='\033[4m'
-BLINK='\033[5m'
-RESET='\033[m'
-
-CLEAR_LINE='\033[0K'
-UP_ARROW='\u25B2'
-DOWN_ARROW='\u25BC'
-SAVE_CURSOR='\033[s'
-RESTORE_CURSOR='\033[u'
+from constants  import *
 
 DEBUG=0
 
@@ -244,7 +199,7 @@ class AEDCECCAE_5( nn.Module ):
     
 
 # ------------------------------------------------------------------------------
-  def encode(self, x, gpu, encoder_activation ):
+  def encode(self, x, gpu, args ):
    
 
     x = self.conv1  (x)
@@ -358,7 +313,7 @@ class AEDCECCAE_5( nn.Module ):
 
   # ------------------------------------------------------------------------------
   
-  def forward( self, args, x, gpu, encoder_activation ):
+  def forward( self, x, gpu, args ):
   
     if DEBUG>9:
       print ( f"\nAEDCECCAE_5:    INFO:       forward():   x.size() before encode          = {BOLD}{RED}{x.size()}{RESET}", flush=True   ) 
@@ -377,7 +332,7 @@ class AEDCECCAE_5( nn.Module ):
 # MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE 
 
 
-    z = self.encode( x, gpu, encoder_activation)    
+    z = self.encode( x, gpu, args)    
     
     # ~ clustering_out = self.clustering(z)
 

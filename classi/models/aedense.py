@@ -40,23 +40,24 @@ class AEDENSE(nn.Module):
   
 # ------------------------------------------------------------------------------
 
-  def encode(self, x, gpu, encoder_activation ):
+  def encode(self, x, gpu, args ):
      
     if DEBUG>99:
       print ( f"AEDENSE:        INFO:       encode(): x.shape   = {MIKADO}{x.shape}{RESET}", flush=True   ) 
 
-    # ~ if encoder_activation=='none':
+    # ~ if args.encoder_activation=='none':
       # ~ z =  self.fc1(x)
-    if encoder_activation=='sigmoid':
+    if args.encoder_activation=='sigmoid':
       z =  sigmoid(self.fc1(x))
-    if encoder_activation=='tanh':
+    if args.encoder_activation=='tanh':
       z =  tanh(self.fc1(x))
-    if encoder_activation=='relu':
+    if args.encoder_activation=='relu':
       z =  relu(self.fc1(x))
     else:
       z =  self.fc1(x)
-      
-    z =  self.dropout_1(z)
+
+    if args.just_test != 'True':
+      z =  self.dropout_1(z)
     z =  self.fc4(z)
 
     if DEBUG>99:
@@ -81,12 +82,12 @@ class AEDENSE(nn.Module):
 
 # ------------------------------------------------------------------------------
 
-  def forward( self, x, gpu, encoder_activation ):
+  def forward( self, x, gpu, args ):
 
     if DEBUG>99:
       print ( f"AEDENSE:        INFO:    forward():   x.shape   = {MIKADO}{x.shape}{RESET}", flush=True             ) 
     
-    z   = self.encode( x.view(-1, self.input_dim), gpu, encoder_activation)
+    z   = self.encode( x.view(-1, self.input_dim), gpu, args )
 
     if DEBUG>99:
       print ( f"AEDENSE:        INFO:    forward():   z.shape   = {MIKADO}{z.shape}{RESET}", flush=True             ) 

@@ -8,27 +8,7 @@ from   torch import nn
 import torch.nn.functional as F
 
 
-WHITE='\033[37;1m'
-PURPLE='\033[35;1m'
-DIM_WHITE='\033[37;2m'
-DULL_WHITE='\033[38;2;140;140;140m'
-CYAN='\033[36;1m'
-MAGENTA='\033[38;2;255;0;255m'
-YELLOW='\033[38;2;255;255;0m'
-DULL_YELLOW='\033[38;2;179;179;0m'
-BLUE='\033[38;2;0;0;255m'
-DULL_BLUE='\033[38;2;0;102;204m'
-RED='\033[38;2;255;0;0m'
-PINK='\033[38;2;255;192;203m'
-PALE_RED='\033[31m'
-ORANGE='\033[38;2;255;127;0m'
-DULL_ORANGE='\033[38;2;127;63;0m'
-GREEN='\033[38;2;0;255;0m'
-PALE_GREEN='\033[32m'
-BOLD='\033[1m'
-ITALICS='\033[3m'
-RESET='\033[m'
-
+from constants  import *
 
 DEBUG=1
 
@@ -68,7 +48,7 @@ class DENSEPOSITIVE(nn.Module):
         
 # ------------------------------------------------------------------------------
 
-    def encode(self, x):
+    def encode(self, x, gpu, args ):
     
       if DEBUG>999:
         print ( "DENSEPOSITIVE:         INFO:     encode():   x.shape           = {:}".format( x.shape ) ) 
@@ -88,12 +68,12 @@ class DENSEPOSITIVE(nn.Module):
 
 # ------------------------------------------------------------------------------
 
-    def forward(self, x):
+    def forward(self, x, gou, args ):
 
         if DEBUG>99:
           print ( "\033[2KLINEAR:         INFO:     forward(): x.shape = {:}".format( x.shape ) )
           
-        output = self.encode(x.view(-1, self.input_dim))
+        output = self.encode(x.view(-1, self.input_dim), gpu, args )
 
         if DEBUG>99:
           print ( "\033[2KLINEAR:         INFO:     forward(): output.shape = {:}".format( output.shape ) )
