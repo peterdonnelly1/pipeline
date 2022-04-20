@@ -279,7 +279,7 @@ def cuda_tsne( args, class_names, pct_test, super_title, output_file_name ):
 
 def plot( num_subplots, subplot_index, grid_size, x, y, class_names, ax, title, title_font_size, marker_size, labelspacing, handletextpad, ms, draw_legend=True, draw_centers=False, draw_cluster_labels=False, colors=None, legend_kwargs=None, label_order=None, **kwargs ):
 
-    plt.tight_layout(rect=[0, 0, 1, 0.93])                                                                 # see https://stackoverflow.com/questions/8248467/matplotlib-tight-layout-doesnt-take-into-account-figure-suptitle
+    plt.tight_layout(rect=[0, 0, 1, 0.945])                                                                 # see https://stackoverflow.com/questions/8248467/matplotlib-tight-layout-doesnt-take-into-account-figure-suptitle
 
     ax.set_title( title, fontsize=title_font_size )
 
