@@ -279,7 +279,10 @@ def cuda_tsne( args, class_names, pct_test, super_title, output_file_name ):
 
 def plot( num_subplots, subplot_index, grid_size, x, y, class_names, ax, title, title_font_size, marker_size, labelspacing, handletextpad, ms, draw_legend=True, draw_centers=False, draw_cluster_labels=False, colors=None, legend_kwargs=None, label_order=None, **kwargs ):
 
-    plt.tight_layout(rect=[0, 0, 1, 0.945])                                                                 # see https://stackoverflow.com/questions/8248467/matplotlib-tight-layout-doesnt-take-into-account-figure-suptitle
+    if grid_size>1:
+      plt.tight_layout(rect=[0, 0, 1, 0.945])                                                                 # see https://stackoverflow.com/questions/8248467/matplotlib-tight-layout-doesnt-take-into-account-figure-suptitle
+    else:
+      pass
 
     ax.set_title( title, fontsize=title_font_size )
 
@@ -387,6 +390,7 @@ def plot( num_subplots, subplot_index, grid_size, x, y, class_names, ax, title, 
 
     fontsize=5 if (len(class_names)>2 and grid_size>2) else 6 if (len(class_names)>2 and grid_size>1) else 9 if (len(class_names)>2 and grid_size>1) else 12
     
+    
     if draw_legend:
         legend_handles = [
             matplotlib.lines.Line2D(
@@ -403,7 +407,10 @@ def plot( num_subplots, subplot_index, grid_size, x, y, class_names, ax, title, 
             )
             for yi in classes
         ]
-        legend_kwargs_ = dict(loc="center left", bbox_to_anchor=( 1., 0.5), frameon=False, labelspacing=0 if (len(class_names)>2 and grid_size>1) else 0 if len(class_names)>2 else 0.1, handletextpad=handletextpad )
+        
+        bbox_to_anchor=( 1., 0.5) if grid_size>1 else (0.92, 0.5)
+        
+        legend_kwargs_ = dict(loc="center left", bbox_to_anchor=bbox_to_anchor, frameon=False, labelspacing=0 if (len(class_names)>2 and grid_size>1) else 0 if len(class_names)>2 else 0.1, handletextpad=handletextpad )
         if legend_kwargs is not None:
             legend_kwargs_.update(legend_kwargs)
 
