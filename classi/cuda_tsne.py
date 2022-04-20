@@ -279,6 +279,7 @@ def cuda_tsne( args, class_names, pct_test, super_title, output_file_name ):
 
 def plot( num_subplots, subplot_index, grid_size, x, y, class_names, ax, title, title_font_size, marker_size, labelspacing, handletextpad, ms, draw_legend=True, draw_centers=False, draw_cluster_labels=False, colors=None, legend_kwargs=None, label_order=None, **kwargs ):
 
+    plt.tight_layout(rect=[0, 0, 1, 0.93])                                                                 # see https://stackoverflow.com/questions/8248467/matplotlib-tight-layout-doesnt-take-into-account-figure-suptitle
 
     ax.set_title( title, fontsize=title_font_size )
 
@@ -312,6 +313,7 @@ def plot( num_subplots, subplot_index, grid_size, x, y, class_names, ax, title, 
                               ] 
                               
     plt.rcParams['axes.prop_cycle'] = cycler(color=colors)                                                 # see https://matplotlib.org/stable/tutorials/introductory/customizing.html?highlight=axes.prop_cycle
+
 
     default_colors = matplotlib.rcParams["axes.prop_cycle"]
     colors =  {k: v["color"] for k, v in zip(classes, default_colors())}
@@ -401,9 +403,10 @@ def plot( num_subplots, subplot_index, grid_size, x, y, class_names, ax, title, 
             )
             for yi in classes
         ]
-        legend_kwargs_ = dict(loc="center left", bbox_to_anchor=( 0.95, 0.5), frameon=False, labelspacing=0 if (len(class_names)>2 and grid_size>1) else 0 if len(class_names)>2 else 0.1, handletextpad=handletextpad )
+        legend_kwargs_ = dict(loc="center left", bbox_to_anchor=( 1., 0.5), frameon=False, labelspacing=0 if (len(class_names)>2 and grid_size>1) else 0 if len(class_names)>2 else 0.1, handletextpad=handletextpad )
         if legend_kwargs is not None:
             legend_kwargs_.update(legend_kwargs)
+
         ax.legend(handles=legend_handles, **legend_kwargs_, fontsize=fontsize )
 
 
