@@ -2,9 +2,9 @@ import sys
 import torch
 import random
 import datetime
+from cycler import cycler
 
 import numpy             as np
-import matplotlib.pyplot as plt
 import matplotlib.pyplot as plt
 import matplotlib.colors
 
@@ -291,28 +291,49 @@ def plot( num_subplots, subplot_index, grid_size, x, y, class_names, ax, title, 
     else:
         classes = np.unique(y)
 
-    if colors is None:
-        default_colors = matplotlib.rcParams["axes.prop_cycle"]
-        colors = {k: v["color"] for k, v in zip(classes, default_colors())}
-    point_colors = list(map(colors.get, y))
+    if len(classes)<10:
+      colors = list(plt.cm.tab10(np.arange(10)))                                                           # colors for pan cancer (hard-wired)
+
+    else:                                                                                                          
+      colors = [ "black",         "magenta",        "silver", 
+               "red",             "royalblue",      "lightsteelblue",  "yellow",   "blue",
+               "thistle",         "palevioletred", 
+               "lightgreen",      "limegreen",      "green",   "greenyellow",                                 
+               "peachpuff",       "orange", 
+               "powderblue",      "cornflowerblue", 
+               "khaki",           "peru", 
+               "red",             "teal", 
+               "yellow",          "fuchsia",         "cyan",   
+               "yellowgreen",     "chartreuse",      "mediumspringgreen",
+               "red",             "green",
+               "magenta",         "blue",
+               "coral",           "darkseagreen",    "darkturquoise",
+               "deepskyblue",            "deeppink"
+                              ] 
+                              
+    plt.rcParams['axes.prop_cycle'] = cycler(color=colors)                                                 # see https://matplotlib.org/stable/tutorials/introductory/customizing.html?highlight=axes.prop_cycle
+
+    default_colors = matplotlib.rcParams["axes.prop_cycle"]
+    colors =  {k: v["color"] for k, v in zip(classes, default_colors())}
+    point_colors = list( map(colors.get, y ) )                                                             # get the color for each y and create a python list from same
 
     if (DEBUG>0):
-      print ( f"CUDA_TSNE:       INFO: plot()  class_names           = {BITTER_SWEET}{class_names}{RESET}" )
-      print ( f"CUDA_TSNE:       INFO: plot()  classes               = {BITTER_SWEET}{classes}{RESET}" )
-      print ( f"CUDA_TSNE:       INFO: plot()  colors                = {BITTER_SWEET}{colors}{RESET}" )
-      # ~ print ( f"CUDA_TSNE:       INFO: plot()  colors.get            = {BITTER_SWEET}{colors.get}{RESET}" )
-      # ~ print ( f"CUDA_TSNE:       INFO: plot()  point_colors          = {BITTER_SWEET}{point_colors}{RESET}" )
+      print ( f"CUDA_TSNE:       INFO: plot()  class_names           = {BITTER_SWEET}{class_names}{RESET}"   )
+      print ( f"CUDA_TSNE:       INFO: plot()  classes               = {BITTER_SWEET}{classes}{RESET}"       )
+      print ( f"CUDA_TSNE:       INFO: plot()  colors                = {BITTER_SWEET}{colors}{RESET}"        )      # dictionary mapping colors to class
+    if (DEBUG>99):
+      print ( f"CUDA_TSNE:       INFO: plot()  point_colors          = {BITTER_SWEET}{point_colors}{RESET}"  )      # the color each individual point will receive
 
     
     if (DEBUG>2):
-      print ( f"CUDA_TSNE:       INFO: plot()  x[:, 0].min()               = {BITTER_SWEET}{x[:, 0].min()}{RESET}" )
-      print ( f"CUDA_TSNE:       INFO: plot()  x[:, 0].max()               = {BITTER_SWEET}{x[:, 0].max()}{RESET}" )
-      print ( f"CUDA_TSNE:       INFO: plot()  x[:, 1].min()               = {BITTER_SWEET}{x[:, 1].min()}{RESET}" )
-      print ( f"CUDA_TSNE:       INFO: plot()  x[:, 1].max()               = {BITTER_SWEET}{x[:, 1].max()}{RESET}" )      
+      print ( f"CUDA_TSNE:       INFO: plot()  x[:, 0].min()         = {BITTER_SWEET}{x[:, 0].min()}{RESET}" )
+      print ( f"CUDA_TSNE:       INFO: plot()  x[:, 0].max()         = {BITTER_SWEET}{x[:, 0].max()}{RESET}" )
+      print ( f"CUDA_TSNE:       INFO: plot()  x[:, 1].min()         = {BITTER_SWEET}{x[:, 1].min()}{RESET}" )
+      print ( f"CUDA_TSNE:       INFO: plot()  x[:, 1].max()         = {BITTER_SWEET}{x[:, 1].max()}{RESET}" )      
 
     if (DEBUG>99):
-      print ( f"CUDA_TSNE:       x[:, 0]                                   = {BITTER_SWEET}{x[:, 0]}{RESET}" )
-      print ( f"CUDA_TSNE:       x[:, 1]                                   = {BITTER_SWEET}{x[:, 1]}{RESET}" )
+      print ( f"CUDA_TSNE:       x[:, 0]                             = {BITTER_SWEET}{x[:, 0]}{RESET}"       )
+      print ( f"CUDA_TSNE:       x[:, 1]                             = {BITTER_SWEET}{x[:, 1]}{RESET}"       )
 
     x1 = x[:, 0]
     x2 = x[:, 1]
@@ -334,10 +355,6 @@ def plot( num_subplots, subplot_index, grid_size, x, y, class_names, ax, title, 
       # ~ if (DEBUG>0):  
         # ~ print ( f"i={i:4d} label={MIKADO}{label}{RESET}  class_names[label]={MIKADO}{ class_names[label]:16s}{RESET} class_names[label][0]={MIKADO}{class_names[label][0]}{RESET}" )
       
-
-
-
-
 
     # Plot mediods
     if draw_centers:
