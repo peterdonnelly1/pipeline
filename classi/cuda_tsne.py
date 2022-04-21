@@ -408,7 +408,7 @@ def plot( num_subplots, subplot_index, grid_size, x, y, class_names, ax, title, 
             for yi in classes
         ]
         
-        bbox_to_anchor=( 1., 0.5) if grid_size>1 else (0.92, 0.5)
+        bbox_to_anchor=( 1., 0.5) if grid_size>1 else (0.9, 0.5)
         
         legend_kwargs_ = dict(loc="center left", bbox_to_anchor=bbox_to_anchor, frameon=False, labelspacing=0 if (len(class_names)>2 and grid_size>1) else 0 if len(class_names)>2 else 0.1, handletextpad=handletextpad )
         if legend_kwargs is not None:
