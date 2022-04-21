@@ -25,7 +25,7 @@ np.set_printoptions(edgeitems=5)
 np.set_printoptions(linewidth=20)
 
 
-def cuda_tsne( args, class_names, pct_test, super_title, output_file_name ):
+def cuda_tsne( args, class_names, pct_test, super_title, descriptor_clustering ):
     
   n_components      =  2
   n_jobs            = -1                                                                                   # -1 means use all available processors
@@ -266,7 +266,7 @@ def cuda_tsne( args, class_names, pct_test, super_title, output_file_name ):
     plot( 1, 1, grid_size, embedding_train, labels, class_names, axes, title, title_font_size, marker_size, labelspacing, handletextpad, ms  )  
   
   now = datetime.datetime.now()  
-  fqn = f"{args.log_dir}/{now:%y%m%d%H%M}_Embedding_Dims_{samples.shape[1]}_{output_file_name}____cuda_tsne_clustering_chart.png"
+  fqn = f"{args.log_dir}/{now:%y%m%d%_H%M}__________{descriptor_clustering}_dims_{samples.shape[1]}____cuda_tsne_clustering.png"
   fig.savefig(fqn)
 
   if render_clustering=="True":
