@@ -266,7 +266,7 @@ def cuda_tsne( args, class_names, pct_test, super_title, descriptor_clustering )
     plot( 1, 1, grid_size, embedding_train, labels, class_names, axes, title, title_font_size, marker_size, labelspacing, handletextpad, ms  )  
   
   now = datetime.datetime.now()  
-  fqn = f"{args.log_dir}/{now:%y%m%d%_H%M}___________{descriptor_clustering}_dims_{samples.shape[1]}____cuda_tsne_clustering.png"
+  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}___________{descriptor_clustering}_dims_{samples.shape[1]}____cuda_tsne_clustering.png"
   fig.savefig(fqn)
 
   if render_clustering=="True":
@@ -299,20 +299,20 @@ def plot( num_subplots, subplot_index, grid_size, x, y, class_names, ax, title, 
       colors = list(plt.cm.tab10(np.arange(10)))                                                           # colors for pan cancer (hard-wired)
 
     else:                                                                                                          
-      colors = [ "black",         "magenta",        "silver", 
-               "red",             "royalblue",      "lightsteelblue",  "yellow",   "blue",
+      colors = [ "black",         "paleturquoise",   "silver", 
+               "red",             "royalblue",      "lightsteelblue",  "yellow",   "lightcoral",
                "thistle",         "palevioletred", 
                "lightgreen",      "limegreen",      "green",   "greenyellow",                                 
                "peachpuff",       "orange", 
                "powderblue",      "cornflowerblue", 
                "khaki",           "peru", 
-               "red",             "teal", 
+               "orangered",       "teal", 
                "yellow",          "fuchsia",         "cyan",   
                "yellowgreen",     "chartreuse",      "mediumspringgreen",
-               "red",             "green",
+               "firebrick",       "green",
                "magenta",         "blue",
                "coral",           "darkseagreen",    "darkturquoise",
-               "deepskyblue",            "deeppink"
+               "deepskyblue",     "deeppink"
                               ] 
                               
     plt.rcParams['axes.prop_cycle'] = cycler(color=colors)                                                 # see https://matplotlib.org/stable/tutorials/introductory/customizing.html?highlight=axes.prop_cycle
