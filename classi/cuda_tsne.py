@@ -72,8 +72,8 @@ def cuda_tsne( args, class_names, pct_test, super_title, descriptor_clustering )
     sys.exit(0)
     
                
-  if DEBUG>9:
-    print ( f"CUDA_TSNE:       INFO:  (embeddings) samples.shape      =  {MIKADO}{samples.shape}{RESET}",           flush=True       ) 
+  if DEBUG>0:
+    print ( f"CUDA_TSNE:       INFO:  samples.shape (i.e. embeddings) =  {MIKADO}{samples.shape}{RESET}",           flush=True       ) 
     print ( f"CUDA_TSNE:       INFO:  sanity check: np.sum(samples)   =  {MIKADO}{np.sum(samples):.2f}{RESET}",     flush=True       ) 
     
   if DEBUG>99:
