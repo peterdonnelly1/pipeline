@@ -142,10 +142,10 @@ def main(args):
     print ( f"CLASSI:         INFO:     pandas        version =  {MIKADO}{pd.__version__}{RESET}"           )  
     print ( f"CLASSI:         INFO:     numpy         version =  {MIKADO}{np.version.version}{RESET}"       )  
     print ( f"CLASSI:         INFO:     cuda toolkit  version =  {MIKADO}{torch.version.cuda}{RESET}\n"     )  
-#    print ( f"CLASSI:         INFO:     cuda          version via os command = \n{MIKADO}",    flush=True   )  
-#    print ( f"{os.system('/usr/local/cuda/bin/nvcc --version')}{RESET}\n",                    flush=True    )
-#    print ( f"CLASSI:         INFO:     cuda driver  version via os command = \n{MIKADO}",    flush=True    )  
-#    print ( f"{os.system('cat /proc/driver/nvidia/version')}{RESET}\n",                       flush=True    )
+    print ( f"CLASSI:         INFO:     cuda          version via os command = \n{MIKADO}",    flush=True   )  
+    print ( f"{os.system('/usr/local/cuda/bin/nvcc --version')}{RESET}\n",                    flush=True    )
+    print ( f"CLASSI:         INFO:     cuda driver  version via os command = \n{MIKADO}",    flush=True    )  
+    print ( f"{os.system('cat /proc/driver/nvidia/version')}{RESET}\n",                       flush=True    )
   
 
 
@@ -3024,17 +3024,17 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         
         # ~ display( df)
       
+        now = datetime.datetime.now()
         fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__conf_matrices_per_subtype.tsv"
 
         df.to_csv ( fqn, sep='\t' )
         
 
       if DEBUG>0:
-        print(tabulate( df, headers='keys', tablefmt = 'fancy_grid' ) )           
-        
+        print(tabulate( df, headers='keys', tablefmt = 'fancy_grid' ) )
       
-      print ( f"\n" )      
-      
+      print ( f"\n" )
+
 
       # (iii) generate and save and maybe display box plots
 
