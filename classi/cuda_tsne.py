@@ -402,7 +402,8 @@ def plot( num_subplots, subplot_index, grid_size, x, y, class_names, ax, title, 
                 ms=ms,
                 alpha=1,
                 linewidth=0,
-                label=class_names[yi],
+                # ~ label=class_names[yi],
+                label = f"{class_names[yi]} ({(labels==yi).sum()})",
                 # ~ markeredgecolor="k",
             )
             for yi in classes
