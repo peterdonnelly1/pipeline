@@ -26,17 +26,19 @@ np.set_printoptions(linewidth=20)
 
 
 def cuda_tsne( args, class_names, pct_test, super_title, descriptor_clustering ):
-    
-  n_components      =  2
-  n_jobs            = -1                                                                                   # -1 means use all available processors
-  verbose           =  2
-  # ~ learning_rate     = args.tsne_learning_rate
-  learning_rate     = 10.
+
+  
+  input_mode        = args.input_mode
   n_iter            = args.n_iterations
   perplexity        = args.perplexity
   grid_size         = args.supergrid_size
   render_clustering = args.render_clustering                                                               # 'True'   or 'False'. if 'True', show plots on terminal (they are always be saved to logs)
   
+  n_components      =  2
+  n_jobs            = -1                                                                                   # -1 means use all available processors
+  verbose           =  2
+  # ~ learning_rate     = args.tsne_learning_rate
+  learning_rate     = 10.
 
 
   if DEBUG>0:
@@ -45,47 +47,87 @@ def cuda_tsne( args, class_names, pct_test, super_title, descriptor_clustering )
     
       
   # 1. load and prepare data
+
+  if args.use_autoencoder_output=='True':
     
-  fqn = f"../logs/ae_output_features.pt"
-    
-  if DEBUG>0:
-    print( f"{BRIGHT_GREEN}CUDA_TSNE:       INFO:  about to load autoencoder generated embeddings from input file '{MAGENTA}{fqn}{RESET}'", flush=True )
-  try:
-    dataset  = torch.load( fqn )
+    fqn = f"../logs/ae_output_features.pt"
+      
     if DEBUG>0:
-      print( f"{BRIGHT_GREEN}CUDA_TSNE:       INFO:  dataset successfully loaded{RESET}" ) 
-  except Exception as e:
-    if args.input_mode=='image':
-      print ( f"{RED}CUDA_TSNE:       FATAL: could not load embeddings file. Did you remember to first run the system with an autoencoder such as {CYAN}'AEVGG16'{RESET}{RED} to generate an embeddings file?[646]{RESET}" )
-    if args.input_mode=='rna':
-      print ( f"{RED}CUDA_TSNE:       FATAL: could not load embeddings file. Did you remember to first run the system with an autoencoder such as {CYAN}'AEDENSE'{RESET}{RED} to generate an embeddings file?[189]{RESET}" )
-    print ( f"{RED}CUDA_TSNE:       FATAL: the exception was: {CYAN}'{e}'{RESET}" )
-    print ( f"{RED}CUDA_TSNE:       FATAL: halting now" )
-    sys.exit(0)
-
-  samples  = dataset['embeddings'].cpu().detach().numpy().squeeze()                                        # eliminate empty dimensions
-  labels   = dataset['labels'    ].cpu().detach().numpy().squeeze()                                        # eliminate empty dimensions
+      print( f"{BRIGHT_GREEN}SK_TSNE:        INFO:  about to load autoencoder generated embeddings from input file '{MAGENTA}{fqn}{RESET}'", flush=True )
+    try:
+      dataset  = torch.load( fqn )
+      if DEBUG>0:
+        print( f"{BRIGHT_GREEN}SK_TSNE:        INFO:  dataset successfully loaded{RESET}" ) 
+    except Exception as e:
+      print ( f"{RED}SK_TSNE:        ERROR:  could not load feature file. Did you remember to run the system with {CYAN}NN_MODE='pre_compress'{RESET}{RED} and an autoencoder such as {CYAN}'AEDENSE'{RESET}{RED} to generate the feature file? ... can't continue, so halting now [143]{RESET}" )
+      print ( f"{RED}SK_TSNE:        ERROR:  the exception was: {CYAN}'{e}'{RESET}" )
+      print ( f"{RED}SK_TSNE:        ERROR:  halting now" )
+      sys.exit(0)
   
-  if np.sum(samples)==0.0:
-    print ( f"{RED}CUDA_TSNE:       FATAL: all samples are zero vectors - the input file was completely degenerate{RESET}", flush=True  )
-    print ( f"{RED}CUDA_TSNE:       FATAL: halting now" )
-    sys.exit(0)
+    samples      = dataset['embeddings'].cpu().detach().numpy().squeeze()                                           # eliminate empty dimensions
+    labels       = dataset['labels'    ].cpu().detach().numpy().squeeze()                                           # eliminate empty dimensions
     
-               
-  if DEBUG>0:
-    print ( f"CUDA_TSNE:       INFO:  samples.shape (i.e. embeddings) =  {MIKADO}{samples.shape}{RESET}",           flush=True       ) 
-    print ( f"CUDA_TSNE:       INFO:  sanity check: np.sum(samples)   =  {MIKADO}{np.sum(samples):.2f}{RESET}",     flush=True       ) 
+    if DEBUG>0:
+      print ( f"SK_TSNE:        INFO:  (embeddings) samples.shape     =  {MIKADO}{samples.shape}{RESET}"      ) 
+      print ( f"SK_TSNE:        INFO:  sanity check: np.sum(samples)  =  {MIKADO}{np.sum(samples):.2f}{RESET}"      ) 
     
-  if DEBUG>99:
-    np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})    
-    print ( f"CUDA_TSNE:       INFO:  samples                         =  \n{MIKADO}{samples[:,0:30]}{RESET}",               flush=True       ) 
+    if np.sum(samples)==0.0:
+      print ( f"{RED}SK_TSNE:        ERROR:  all samples are zero vectors - the input file was completely degenerate{RESET}" )
+      print ( f"{RED}SK_TSNE:        ERROR:  not halting, but might as well be{RESET}" )
+ 
+  else:
+  
+    if input_mode=='image':
+  
+      sample_file = "../logs/all_images_from_last_run_of_generate.npy" 
+      label_file = "../logs/all_image_labels__from_last_run_of_generate.npy"
+      
+      try:
+        samples      =  np.load( sample_file )
+      except Exception as e:
+        print( f"{RED}SK_TSNE:        INFO:  could not load file:  {CYAN}{sample_file}{RESET}", flush=True)
+        print( f"{RED}SK_TSNE:        INFO:  can't continue --- halting{RESET}",         flush=True)
+        time.sleep(4)
+        sys.exit(0)
+              
+      try:
+        labels       =  np.load( label_file  )
+      except Exception as e:
+        print( f"{RED}SK_TSNE:        INFO:  could not load file: {CYAN}{sample_file}{RESET}", flush=True)
+        print( f"{RED}SK_TSNE:        INFO:  can't continue --- halting{RESET}",         flush=True)
+        time.sleep(4)
+        sys.exit(0)
+      
+      if DEBUG>0:
+        print ( f"SK_TSNE:        INFO:  input                  = {MIKADO}{input_mode}{RESET}",                flush=True   ) 
+        print ( f"SK_TSNE:        INFO:  about to flatten channels and r,g,b dimensions",                      flush=True   ) 
+        print ( f"SK_TSNE:        INFO:  (flattened) samples.shape          = {MIKADO}{samples.shape}{RESET}", flush=True   ) 
+  
+    if input_mode=='rna': 
+  
+      sample_file = "../logs/all_rna_seq_vectors_from_last_run_of_generate.npy" 
+      label_file = "../logs/all_rna_seq_vector_labels_from_last_run_of_generate.npy"
+      
+      try:
+        samples      =  np.load( sample_file ).squeeze()
+      except Exception as e:
+        print( f"{RED}SK_TSNE:        INFO:  could not load file:  {CYAN}{sample_file}{RESET}", flush=True)
+        print( f"{RED}SK_TSNE:        INFO:  can't continue --- halting{RESET}",         flush=True)
+        time.sleep(4)
+        sys.exit(0)
+              
+      try:
+        labels       =  np.load( label_file  )
+      except Exception as e:
+        print( f"{RED}SK_TSNE:        INFO:  could not load file:  {CYAN}{sample_file}{RESET}", flush=True)
+        print( f"{RED}SK_TSNE:        INFO:  can't continue --- halting{RESET}",         flush=True)
+        time.sleep(4)
+        sys.exit(0)
+      
+      if DEBUG>0:
+        print ( f"SK_TSNE:        INFO:  input                  = {MIKADO}{input_mode}{RESET}",                flush=True   ) 
+        print ( f"SK_TSNE:        INFO:  samples.shape          = {MIKADO}{samples.shape}{RESET}",             flush=True   ) 
 
-
-
-  # ~ mnist = load_digits()
-  # ~ images = mnist.images
-  # ~ labels = mnist.target    
-  # ~ samples = images.reshape( images.shape[0], images.shape[1]*images.shape[2] ) 
 
 
 
@@ -199,7 +241,7 @@ def cuda_tsne( args, class_names, pct_test, super_title, descriptor_clustering )
         
         if (DEBUG>0):
           for i in range ( 0, len(all_clusters_unique) ):
-            print ( f"CUDA_TSNE:       INFO:  count of instances of cluster label {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(labels==i).sum()}{RESET}" )
+            print ( f"CUDA_TSNE:       INFO:  number of examples of class label {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(labels==i).sum()}{RESET}" )
         
       
     
@@ -266,7 +308,7 @@ def cuda_tsne( args, class_names, pct_test, super_title, descriptor_clustering )
     plot( 1, 1, grid_size, embedding_train, labels, class_names, axes, title, title_font_size, marker_size, labelspacing, handletextpad, ms  )  
   
   now = datetime.datetime.now()  
-  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}___________{descriptor_clustering}_dims_{samples.shape[1]}____cuda_tsne_clustering.png"
+  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}__________{descriptor_clustering}_dims_{samples.shape[1]}____cuda_tsne_clustering.png"
   fig.savefig(fqn)
 
   if render_clustering=="True":
