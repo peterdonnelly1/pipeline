@@ -1871,6 +1871,9 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       #pplog.log_section('Job complete in {:} mins'.format( minutes ) )
       
       print( f'\n\n\n\nCLASSI:          INFO: Job complete {BOLD}{CHARTREUSE}(Autoencoder ending).{RESET} The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
+      now = time.localtime(time.time())
+      print(time.strftime( f"CLASSI:          INFO:  end time = %Y-%m-%d %H:%M:%S %Z", now ))
+      start_time = time.time() 
                 
       #pplog.log_section('Model saved.')
       
@@ -3055,7 +3058,10 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     print( f'\033[12B')  
   
   print( f'CLASSI:          INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
-            
+  now = time.localtime(time.time())
+  print(time.strftime( f"CLASSI:          INFO:  end time = %Y-%m-%d %H:%M:%S %Z", now ))
+  start_time = time.time() 
+
   #pplog.log_section('Model saved.')
   
 
