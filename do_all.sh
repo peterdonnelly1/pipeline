@@ -110,7 +110,7 @@ REPEAT=1
 SKIP_RNA_PREPROCESSING="False"
 SKIP_TILING="False"                                                                                        # supported: any of the sklearn metrics
 SKIP_TRAINING="False"
-SUPERGRID_SIZE="1"
+SUPERGRID_SIZE="4"
 TILES_PER_IMAGE="10"
 TILE_SIZE="32"
 USE_AUTOENCODER_OUTPUT="False"
@@ -278,7 +278,7 @@ fi
 
 
 
-if [[ ${SKIP_TILING} == "False" ]];  then
+if [[ ${SKIP_TILING}  != 'True' ]];  then
     #~ echo "=====> DELETING All PRE-PROCEESSING FILES AND LEAVING JUST SVS AND UQ FILES"
     #~ echo "DO_ALL.SH: INFO: deleting all empty subdirectories under '${DATA_DIR}'"
     find ${DATA_DIR} -type d -empty -delete
@@ -340,8 +340,10 @@ if [[ ${MULTIMODE} != 'image_rna' ]];    then
       #~ echo "DO_ALL.SH: INFO: 'image' mode, so deleting saved image indices:  train_inds_image, test_inds_image"
       rm ${DATA_DIR}/train_inds_image  > /dev/null 2>&1
       rm ${DATA_DIR}/test_inds_image   > /dev/null 2>&1
-      #~ echo "DO_ALL.SH: INFO: recursively deleting files (tiles)           matching this pattern:  '*.png'               <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as there can be up to millions of tiles"
-      find ${DATA_DIR} -type f -name *.png                                            -delete
+      if [[ ${SKIP_TILING} != 'True' ]];  then
+        find ${DATA_DIR} -type f -name *.png                                            -delete
+      echo "DO_ALL.SH: INFO: recursively deleting files (tiles)           matching this pattern:  '*.png'               <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as there can be up to millions of tiles"
+      fi
   fi
   
   if [[ ${INPUT_MODE} == "rna" ]];       then
