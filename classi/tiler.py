@@ -5,6 +5,7 @@ This routine performs tiling for exactly one SVS image
 """
 
 import os
+import re
 import sys
 import cv2
 import time
@@ -158,14 +159,16 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
       print(f"\033[{start_row+num_cpus+1};0f\r{CLEAR_LINE}{DULL_WHITE}TILER:          INFO: PROPERTY_NAME_VENDOR          = {BB}{PROPERTY_NAME_VENDOR}{RESET}", flush=True )
       
   if openslide.PROPERTY_NAME_COMMENT in oslide.properties:
-    PROPERTY_NAME_COMMENT = oslide.properties[ openslide.PROPERTY_NAME_COMMENT]
+    PROPERTY_NAME_COMMENT = oslide.properties[ openslide.PROPERTY_NAME_COMMENT]                          
+    PROPERTY_NAME_COMMENT = re.sub( r'\n' , ' ', PROPERTY_NAME_COMMENT )                                   # PROPERTY_NAME_COMMENT has an embedded carriage return and line feed so strip these out
+    PROPERTY_NAME_COMMENT = re.sub( r'\r' , ' ', PROPERTY_NAME_COMMENT )  
     if (DEBUG>0):
       print(f"{SAVE_CURSOR}", end="",                                flush=True )
       print(f"\033[{start_row+num_cpus+3};0f\r{CLEAR_LINE}", end="", flush=True )
       print(f"\033[{start_row+num_cpus+4};0f\r{CLEAR_LINE}", end="", flush=True )
       print(f"\033[{start_row+num_cpus+5};0f\r{CLEAR_LINE}", end="", flush=True )
       print(f"\033[{start_row+num_cpus+6};0f\r{CLEAR_LINE}", end="", flush=True )
-      print(f"\033[{start_row+num_cpus+2};0f\r{CLEAR_LINE}{BB}{PROPERTY_NAME_COMMENT}{RESET}{RESTORE_CURSOR}", flush=True )
+      print(f"\033[{start_row+num_cpus+2};0f\r{CLEAR_LINE}{BB}{PROPERTY_NAME_COMMENT[0:300]}{RESET}{RESTORE_CURSOR}", flush=True )
       
   objective_power = 0
   if openslide.PROPERTY_NAME_OBJECTIVE_POWER in oslide.properties:
@@ -362,11 +365,8 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
 \r\033[{start_row-2};{start_column+80}fbackground\
 ", flush=True, end="" )
 
-            if ( ( just_test=='True')  & ( multimode!='image_rna' ) ):  
+            if ( ( just_test=='True')  & ( multimode!='image_rna' ) ):
               
-              if ( rand_tiles=='True'):
-                  print ( f"{RED}TILER: INFO:  {CYAN}( just_test=='True')  & ( multimode!='image_rna' ){RESET} but user argument {CYAN}rand_tiles=='True'{RESET}. {CYAN}rand_tiles=='False'{RESET} probably should be changed to {CYAN}'False'{RESET}{RED}" )
-     
               if objective_power==20:
 
                 if (DEBUG>5) & (my_thread==thread_to_monitor):
@@ -400,9 +400,6 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
                  
 
             else:
-              
-              if ( rand_tiles=='False'):
-                  print ( f"{RED}TILER: INFO:  {CYAN}( just_test!='True')  | ( multimode=='True' ){RESET} but user argument {CYAN}rand_tiles=='False'{RESET}. {CYAN}rand_tiles=='False'{RESET} probably should be changed to {CYAN}'True'{RESET}{RED}" )
               
               if objective_power==20:
                     

@@ -213,7 +213,7 @@ def cuda_tsne( args, class_names, pct_test, super_title, descriptor_clustering )
           break
     
         if DEBUG>0:
-          print( f"CUDA_TSNE:       INFO:  about to configure {CYAN}cuda TSNE {RESET}object with: n_components={MIKADO}{n_components}{RESET} learning_rate={MIKADO}{learning_rate}{RESET} n_iter={MIKADO}{n_iter}{RESET} perplexity={MIKADO}{perplexity[subplot_index]}{RESET}", flush=True )
+          print( f"CUDA_TSNE:       INFO:  about to configure {CYAN}cuda TSNE {RESET}object with: n_components={MIKADO}{n_components}{RESET} learning_rate={MIKADO}{learning_rate}{RESET} n_iter={MIKADO}{n_iter:,}{RESET} perplexity={MIKADO}{perplexity[subplot_index]}{RESET}", flush=True )
     
         if DEBUG>0:
           print ( f"CUDA_TSNE:       INFO:  subplot_index               = {MIKADO}{subplot_index}{RESET}"      ) 

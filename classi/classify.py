@@ -388,8 +388,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
   if highest_class_number > len(subtype_names_as_list)-1:
     print( f"{BOLD}{ORANGE}CLASSI:         WARNG: config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{BOLD}{ORANGE}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{BOLD}{ORANGE}') = \
-{MIKADO}{highest_class_number}{RESET}{BOLD}{ORANGE}, but this is greater than the highest class (subtype) number in the dataset ({MIKADO}{len(subtype_names_as_list)-1}{RESET}{BOLD}{ORANGE}) (note that class (cancer subtype) numbers start at zero){RESET}", flush=True)
-    print( f"{BOLD}{ORANGE}CLASSI:         WARNG: therefore the config setting will be ignored. Continuing ...{RESET}", flush=True)
+{MIKADO}{highest_class_number}{RESET}{BOLD}{ORANGE}, which is greater than the highest class (subtype) in the dataset ({MIKADO}{len(subtype_names_as_list)-1}{RESET}{BOLD}{ORANGE}) (note that class numbers start at zero){RESET}", flush=True)
+    print( f"{BOLD}{ORANGE}CLASSI:         WARNG: therefore this config setting will be ignored. Continuing ...{RESET}", flush=True)
   
   if highest_class_number < 2:
     print( f"{BOLD}{RED}CLASSI:         FATAL: config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{BOLD}{RED}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{BOLD}{RED}') = \
@@ -453,8 +453,8 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
 
 
       if svs_file_count<np.max(args.n_samples):
-        print( f"{BOLD}{ORANGE}CLASSI:         WARNG:  there aren't enough samples. A file count reveals a total of {MIKADO}{svs_file_count}{RESET}{BOLD}{ORANGE} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}{BOLD}{ORANGE}, whereas the largest value in user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{BOLD}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
-        print( f"{BOLD}{ORANGE}CLASSI:         WARNG:  changing values of '{CYAN}N_SAMPLES{RESET}{BOLD}{ORANGE} that are greater than {RESET}{MIKADO}{svs_file_count}{RESET}{BOLD}{ORANGE} to exactly {MIKADO}{svs_file_count}{RESET}{BOLD}{ORANGE} and continuing{RESET}" )
+        print( f"{BOLD}{ORANGE}CLASSI:         WARNG: there aren't enough samples. A file count reveals a total of {MIKADO}{svs_file_count}{RESET}{BOLD}{ORANGE} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}{BOLD}{ORANGE}, whereas the largest value in user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{BOLD}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
+        print( f"{BOLD}{ORANGE}CLASSI:         WARNG: changing values of '{CYAN}N_SAMPLES{RESET}{BOLD}{ORANGE} that are greater than {RESET}{MIKADO}{svs_file_count}{RESET}{BOLD}{ORANGE} to exactly {MIKADO}{svs_file_count}{RESET}{BOLD}{ORANGE} and continuing{RESET}" )
         args.n_samples = [  el if el<=svs_file_count else svs_file_count for el in args.n_samples   ]
         n_samples = args.n_samples
       else:
@@ -568,7 +568,7 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
     if we_are_autoencoding != True:                                                                        # it's ok to use ALL_ELIGIBLE_CASES in test mode if we are generating embeddings, but not otherwise
       if args.cases=='ALL_ELIGIBLE_CASES':
         print( f"{RED}CLASSI:         FATAL: in test mode '{RESET}{CYAN}-c ALL_ELIGIBLE_CASES{RESET}{RED}' is not supported{RESET}" )
-        print( f"{RED}CLASSI:         FATAL:   explanation:  The '{CYAN}CASES{RESET}{RED}' subset '{CYAN}ALL_ELIGIBLE_CASES{RESET}{RED}' includes examples used to train the model that is about to be deployed. Therefore, the results would be meaningless{RESET}" )
+        print( f"{RED}CLASSI:         FATAL:   explanation:  The '{CYAN}CASES{RESET}{RED}' subset '{CYAN}ALL_ELIGIBLE_CASES{RESET}{RED}' includes tiles from examples (cases) which were used to train the model that is about to be used. Therefore, the results would be meaningless{RESET}" )
         print( f"{RED}CLASSI:         FATAL:   explanation:  in test mode the following case subsets are supported: ''{CYAN}UNIMODE_CASE{RESET}{RED}', '{CYAN}MULTIMODE____TEST{RESET}{RED}'" )
         print( f"{RED}CLASSI:         FATAL:   ... halting now{RESET}" )
         sys.exit(0)
@@ -580,9 +580,9 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
       
 
   if  ( args.cases!='ALL_ELIGIBLE_CASES' ) & ( args.divide_cases == 'False' ):
-    print( f"{ORANGE}CLASSI:         CAUTION: user option {CYAN}-v ('divide_cases') {RESET}{ORANGE} = {CYAN}False{RESET}{ORANGE}, however option {CYAN}-c ('cases'){RESET}{ORANGE} is NOT '{CYAN}ALL_ELIGIBLE_CASES{RESET}{ORANGE}', so the requested subset of cases may or may not already exist{RESET}" )
-    print( f"{ORANGE}CLASSI:         CAUTION:   this will definitely cause problems unless the requested subset of cases ({RESET}{ORANGE}'{CYAN}{args.cases}{RESET}{ORANGE}') already exists (in {RESET}{ORANGE}'{CYAN}{args.data_dir}{RESET}{ORANGE}') as a result of a previous run which had {CYAN}-v {'divide_cases'}{RESET}{ORANGE} flag set" )
-    print( f"{ORANGE}CLASSI:         CAUTION:   ... NOT halting, but if the program crashes, you'll at least know the likely cause{RESET}" )
+    print( f"{ORANGE}CLASSI:         INFO:  user option {CYAN}-v ('divide_cases') {RESET}{ORANGE} = {CYAN}False{RESET}{ORANGE}, however option {CYAN}-c ('cases'){RESET}{ORANGE} is NOT '{CYAN}ALL_ELIGIBLE_CASES{RESET}{ORANGE}', so the requested subset of cases may or may not already exist{RESET}" )
+    print( f"{ORANGE}CLASSI:         INFO:    this will definitely cause problems unless the requested subset of cases ({RESET}{ORANGE}'{CYAN}{args.cases}{RESET}{ORANGE}') already exists (in {RESET}{ORANGE}'{CYAN}{args.data_dir}{RESET}{ORANGE}') as a result of a previous run which had {CYAN}-v {'divide_cases'}{RESET}{ORANGE} flag set" )
+    print( f"{ORANGE}CLASSI:         INFO:    ... NOT halting, but if the program crashes, you'll at least know the likely cause{RESET}" )
       
   c_m = f"plt.cm.{eval('colour_map')}"                                                                     # the 'eval' is so that the user input string will be treated as a variable
   class_colors = [ eval(c_m)(i) for i in range(len(class_names))]                                          # makes an array of colours by calling the user defined colour map (which is a function, not a variable)
@@ -645,7 +645,7 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
         args.n_tests = args.n_samples[0]
         n_tests      = args.n_samples[0]
     if ( multimode!='image_rna' ) & ( input_mode!='image_rna' ):
-      print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set. Only one thread will be used for processing to ensure patch tiles will be processed in the correct sequence{RESET}" )
+      print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set. Only one thread will be used for processing to ensure patch tiles are processed in the correct sequence{RESET}" )
       if len(args.hidden_layer_neurons)>1:
         print( f"{RED}CLASSI:         INFO:  in test mode, ({CYAN}JUST_TEST=\"True\"{RESET}{RED}), only one value is allowed for the parameter '{CYAN}HIDDEN_LAYER_NEURONS{RESET}{RED}'. At the moment it has {MIKADO}{len(args.hidden_layer_neurons)}{RESET}{RED} values ... halting{RESET}" )
         sys.exit(0)        
@@ -673,8 +673,14 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
         args.supergrid_size=1
 
            
-  if rand_tiles=='False':
-    print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}RANDOM_TILES{RESET}{ORANGE}'  flag is not set. Tiles will be selected sequentially rather than at random. This is appropriate for test mode, but not training mode{RESET}" )     
+
+  if ( ( just_test=='True')  & ( multimode!='image_rna' ) ):
+    
+    if ( rand_tiles=='True'):
+      print ( f"\r{BOLD}{ORANGE}CLASSI:         WARNG: {CYAN}( just_test=={MIKADO}'True'{RESET}{CYAN})  & ( multimode!={MIKADO}'image_rna'{RESET}{CYAN}){BOLD}{ORANGE} but user argument {CYAN}rand_tiles=={MIKADO}'True'{RESET}{BOLD}{ORANGE}. It will  be changed to {MIKADO}'False'{RESET}{BOLD}{ORANGE} since test mode requires sequentially generated tiles{RESET}\n\n" )
+
+      args.rand_tiles = 'False'
+      rand_tiles      = 'False'
 
 
 
@@ -1548,7 +1554,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     if  ( input_mode!='image' ) & ( nn_type_rna in [ 'AELINEAR', 'AEDENSE', 'AEDENSEPOSITIVE', 'DCGANAE128' ] ):
  
       loss_function = torch.nn.MSELoss()
-      loss_type     = 'mse'                                                                         
+      loss_type     = 'mean_squared_error'                                                                         
       # ~ ae_loss2 = functional.mse_loss( x2r, x2.squeeze())    
 
     elif  ( input_mode!='image' ) & ( nn_type_rna in [ 'TTVAE' ] ):
@@ -1568,7 +1574,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     elif ( input_mode=='image')  & ( nn_type_img in [ 'AE3LAYERCONV2D', 'AEDCECCAE_3', 'AEDCECCAE_5', 'AEVGG16' ] ):
 
       loss_function = torch.nn.MSELoss()
-      loss_type     = 'mse'                                                                                                                                                 
+      loss_type     = 'mean_squared_error'                                                                                                                                                 
       # ~ ae_loss2 = functional.mse_loss( x2r, x2.squeeze())
       
     else:
@@ -1827,7 +1833,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
     # (A)  MAYBE SAVE THE AUTOENCODER GENERATED EMBEDDINGS (IF THIS WAS AN AUTOENCODER TEST RUN)
 
-    if loss_type=='mse':
+    if loss_type=='mean_squared_error':
 
       if args.just_test=='True':
         
@@ -3161,7 +3167,7 @@ def train( args, epoch, train_loader, model, optimizer, loss_function, loss_type
             y2_hat_numpy = (y2_hat.cpu().data).numpy()
             print ( "CLASSI:         INFO:      test:       y2_hat_numpy                      = \n{:}".format( y2_hat_numpy) )
 
-          if loss_type == 'mse':                                                                           # autoencoders use mean squared error. The function needs to be provided with both the input and the output to calculate mse 
+          if loss_type == 'mean_squared_error':                                                                           # autoencoders use mean squared error. The function needs to be provided with both the input and the output to calculate mean_squared_error 
             loss_genes        = loss_function( y2_hat, batch_genes.squeeze() )            
           else:
             loss_genes        = loss_function( y2_hat, rna_labels            )
@@ -3319,7 +3325,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
             y1_hat, y2_hat, embedding = model.forward( [ 0,            batch_genes  , batch_fnames], gpu, args )
 
 
-          if loss_type=='mse':
+          if loss_type=='mean_squared_error':
             
             if args.just_test=='True':                                                                       # In test mode (only), the embeddings are the reduced dimensionality features that we want to save for use with NN models
               
@@ -3356,9 +3362,8 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
 
 
 
-        if loss_type!='mse':    
+        if loss_type!='mean_squared_error':                                                                # autoencoders don't produce predictions,so ignore
 
-          # move to a separate function ----------------------------------------------------------------------------------------------
           if   ( args.input_mode=='image' ):
             
             preds, p_full_softmax_matrix, p_highest, p_2nd_highest, p_true_class = analyse_probs( y1_hat, image_labels_values )          
@@ -3369,7 +3374,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
               if DEBUG>2:
                   print ( f"CLASSI:         INFO:      test:         global_batch_count {DIM_WHITE}(super-patch number){RESET} = {global_batch_count+1:5d}  {DIM_WHITE}({((global_batch_count+1)/(args.supergrid_size**2)):04.2f}){RESET}" )
                         
-            if global_batch_count%(args.supergrid_size**2)==0:                                               # establish grid arrays on the FIRST batch of each grid
+            if global_batch_count%(args.supergrid_size**2)==0:                                                                                # establish grid arrays on the FIRST batch of each grid
               grid_images                = batch_images.cpu().numpy()
               grid_labels                = image_labels.cpu().numpy()
               grid_preds                 = preds
@@ -3378,21 +3383,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
               grid_p_true_class          = p_true_class
               grid_p_full_softmax_matrix = p_full_softmax_matrix 
   
-              if DEBUG>0:
-                print ( f"CLASSI:         INFO:      test:             batch_images.shape                      = {BLEU}{batch_images.shape}{RESET}"                  )
-                print ( f"CLASSI:         INFO:      test:             grid_images.shape                       = {BLEU}{grid_images.shape}{RESET}"                   )
-                print ( f"CLASSI:         INFO:      test:             image_labels.shape                      = {BLEU}{image_labels.shape}{RESET}"                  )            
-                print ( f"CLASSI:         INFO:      test:             grid_labels.shape                       = {BLEU}{grid_labels.shape}{RESET}"                   )
-                print ( f"CLASSI:         INFO:      test:             preds.shape                             = {BLEU}{preds.shape}{RESET}"                         )
-                print ( f"CLASSI:         INFO:      test:             grid_preds.shape                        = {BLEU}{grid_preds.shape}{RESET}"                    )
-                print ( f"CLASSI:         INFO:      test:             p_highest.shape                         = {BLEU}{p_highest.shape}{RESET}"                     )            
-                print ( f"CLASSI:         INFO:      test:             grid_p_highest.shape                    = {BLEU}{grid_p_highest.shape}{RESET}"                )            
-                print ( f"CLASSI:         INFO:      test:             p_2nd_highest.shape                     = {BLEU}{p_2nd_highest.shape}{RESET}"                 )
-                print ( f"CLASSI:         INFO:      test:             grid_p_2nd_highest.shape                = {BLEU}{grid_p_2nd_highest.shape}{RESET}"            )
-                print ( f"CLASSI:         INFO:      test:             p_full_softmax_matrix.shape             = {BLEU}{p_full_softmax_matrix.shape}{RESET}"         )                                    
-                print ( f"CLASSI:         INFO:      test:             grid_p_full_softmax_matrix.shape        = {BLEU}{grid_p_full_softmax_matrix.shape}{RESET}"    )
-                        
-            else:                                                                                            # ... accumulate for subsequent batches in the same grid 
+            else:                                                                                                                              # ... accumulate for subsequent batches in the same grid 
               grid_images                = np.append( grid_images,                batch_images.cpu().numpy(), axis=0 )
               grid_labels                = np.append( grid_labels,                image_labels.cpu().numpy(), axis=0 )
               grid_preds                 = np.append( grid_preds,                 preds,                      axis=0 )
@@ -3400,67 +3391,22 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
               grid_p_2nd_highest         = np.append( grid_p_2nd_highest,         p_2nd_highest,              axis=0 )
               grid_p_true_class          = np.append( grid_p_true_class,          p_true_class,               axis=0 )
               grid_p_full_softmax_matrix = np.append( grid_p_full_softmax_matrix, p_full_softmax_matrix,      axis=0 )
-    
-              if DEBUG>88:
-                print ( f"CLASSI:         INFO:      test:             grid_images.shape                       = {MIKADO}{grid_images.shape}{RESET}"                 )
-                print ( f"CLASSI:         INFO:      test:             grid_labels.shape                       = {MIKADO}{grid_labels.shape}{RESET}"                 )
-                print ( f"CLASSI:         INFO:      test:             grid_preds.shape                        = {MIKADO}{grid_preds.shape}{RESET}"                  )
-                print ( f"CLASSI:         INFO:      test:             grid_p_highest.shape                    = {MIKADO}{grid_p_highest.shape}{RESET}"              )            
-                print ( f"CLASSI:         INFO:      test:             grid_p_2nd_highest.shape                = {MIKADO}{grid_p_2nd_highest.shape}{RESET}"          )
-                print ( f"CLASSI:         INFO:      test:             grid_p_true_class.shape                 = {MIKADO}{grid_p_true_class.shape}{RESET}"           )
-                print ( f"CLASSI:         INFO:      test:             grid_p_full_softmax_matrix.shape        = {MIKADO}{grid_p_full_softmax_matrix.shape}{RESET}"  )
+
   
-              if DEBUG>88:
-                np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
-                print ( f"CLASSI:         INFO:      test:             grid_p_full_softmax_matrix              = \n{CHARTREUSE}{grid_p_full_softmax_matrix}{RESET}"  ) 
-  
-              if global_batch_count%(args.supergrid_size**2)==(args.supergrid_size**2)-1:                    # if it is the last batch in the grid (super-patch)
+              if global_batch_count%(args.supergrid_size**2)==(args.supergrid_size**2)-1:                                                      # if it is the last batch in the grid (super-patch)
     
-                index  = int(i/(args.supergrid_size**2))         # the entry we will update. (Because we aren't accumulating on every i'th batch, but rather on every  args.supergrid_size**2-1'th batch  (one time per grid))
-  
-                if DEBUG>5:
-                  np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
-                  print ( f"CLASSI:         INFO:      test:             index                           =  {MAGENTA}{index}{RESET}"  )
-  
-                patches_true_classes[index] =  image_labels.cpu().detach().numpy()[0]                        # all tiles in a patch belong to the same case, so we can chose any of them
-                patches_case_id     [index] =  batch_fnames_npy[0]                                           # all tiles in a patch belong to the same case, so we can chose any of them
-  
-                if DEBUG>88:
-                  np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
-                  print ( f"CLASSI:         INFO:      test:             patches_case_id                 =  {MAGENTA}{patches_case_id}{RESET}{CLEAR_LINE}"  )
-                  print ( f"CLASSI:         INFO:      test:             patches_case_id[index]          =  {MAGENTA}{patches_case_id[index]}{RESET}{CLEAR_LINE}"  )
-    
-                grid_tile_probabs_totals_by_class = np.transpose(np.expand_dims( grid_p_full_softmax_matrix.sum( axis=0 ), axis=1 ))         # this is where we sum the totals across all tiles
-                binary_matrix = np.zeros_like(grid_p_full_softmax_matrix)                                                                    # new matrix same shape as grid_p_full_softmax_matrix, with all values set to zero
-                binary_matrix[ np.arange( len(grid_p_full_softmax_matrix)), grid_p_full_softmax_matrix.argmax(1) ] = 1                       # set the max value in each row to 1, all others zero
-    
-                if DEBUG>8:
-                  print ( f"CLASSI:         INFO:      test:         binary_matrix         = \n{CHARTREUSE}{binary_matrix}{RESET}"  )              
-    
-                grid_tile_winners_totals_by_class        = np.transpose(np.expand_dims( binary_matrix.sum( axis=0 ), axis=1 ))               # same, but 'winner take all' at the tile level
-    
-                if DEBUG>8:
-                  np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
-                  print ( f"CLASSI:         INFO:      test:         grid_tile_probabs_totals_by_class                     =    {CHARTREUSE}{grid_tile_probabs_totals_by_class}{RESET}"  )
-                  print ( f"CLASSI:         INFO:      test:         grid_tile_winners_totals_by_class                     =    {CHARTREUSE}{grid_tile_winners_totals_by_class}{RESET}"  )
-                             
+                index                                      = int(i/(args.supergrid_size**2))                                                   # the entry we will update. (We aren't accumulating on every i'th batch, but rather on every args.supergrid_size**2-1'th batch (one time per grid))
+                patches_true_classes[index]                = image_labels.cpu().detach().numpy()[0]                                            # all tiles in a patch belong to the same case, so we can chose any of them - we choose the zero'th
+                patches_case_id     [index]                = batch_fnames_npy[0]                                                               # all tiles in a patch belong to the same case, so we can chose any of them - we choose the zero'th
+                grid_tile_probabs_totals_by_class          = np.transpose (np.expand_dims( grid_p_full_softmax_matrix.sum( axis=0 ), axis=1 )) # this is where we sum the totals across all tiles
+                binary_matrix                              = np.zeros_like (grid_p_full_softmax_matrix)                                        # new matrix same shape as grid_p_full_softmax_matrix, with all values set to zero
+                binary_matrix[ np.arange( len(grid_p_full_softmax_matrix)), grid_p_full_softmax_matrix.argmax(1) ] = 1                         # set the max value in each row to 1, all others left at zero
+                grid_tile_winners_totals_by_class          = np.transpose(np.expand_dims( binary_matrix.sum( axis=0 ), axis=1 ))               # same, but 'winner take all' at the tile level
                 aggregate_tile_probabilities_matrix[index] = grid_tile_probabs_totals_by_class
-                aggregate_tile_level_winners_matrix[index] = grid_tile_winners_totals_by_class + random.uniform( 0.001, 0.01)   # necessary to make all the tile totals unique when we go looking for them later. ugly but necessary
+                aggregate_tile_level_winners_matrix[index] = grid_tile_winners_totals_by_class + random.uniform( 0.001, 0.01)                  # necessary to make all the tile totals unique when we go looking for them later. ugly but it works
     
-                if DEBUG>8:
-                  np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
-                  print ( f"CLASSI:         INFO:      test:         aggregate_tile_probabilities_matrix                = \n{CHARTREUSE}{aggregate_tile_probabilities_matrix}{RESET}"  ) 
-  
-            if DEBUG>5:
-              np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
-              print ( f"CLASSI:         INFO:      test:             global_batch_count              = {CHARTREUSE}{global_batch_count}{RESET}"  ) 
-              print ( f"CLASSI:         INFO:      test:             args.supergrid_size**2          =  {CHARTREUSE}{args.supergrid_size**2}{RESET}"  ) 
-  
             global_batch_count+=1
           
-            if DEBUG>999:
-                print ( f"CLASSI:         INFO:      test:             global_batch_count%(args.supergrid_size**2)                       = {global_batch_count%(args.supergrid_size**2)}"  )
-            
             if global_batch_count%(args.supergrid_size**2)==0:
               if args.input_mode=='image':
                 print("")
@@ -3473,17 +3419,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
   
                 batch_fnames_npy = batch_fnames.numpy()                                                      # batch_fnames was set up during dataset generation: it contains a link to the SVS file corresponding to the tile it was extracted from - refer to generate() for details
                 
-                if DEBUG>99:
-                  np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-                  print ( f"CLASSI:         INFO:      test:       batch_fnames_npy.shape      = {batch_fnames_npy.shape:}" )        
-                  print ( f"CLASSI:         INFO:      test:       batch_fnames_npy            = {batch_fnames_npy:}"       )
-      
                 fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
-                
-                if DEBUG>28:
-                  np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-                  print ( f"CLASSI:         INFO:      test:       fq_link                     = {PINK}{fq_link:}{RESET}"                )
-                  print ( f"CLASSI:         INFO:      test:       file fq_link points to      = {PINK}{os.readlink(fq_link)}{RESET}"    )
                 
                 try:
                   background_image = np.load(f"{fq_link}")
@@ -3494,14 +3430,11 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
                   print ( f"{RED}CLASSI:         FATAL:     if so, run '{CYAN}./just_test.sh -d <cancer type code> -i <INPUT_MODE>{RESET}{RED}' at least one time so that these files will be generated{RESET}" )                 
                   print ( f"{RED}CLASSI:         FATAL:     halting now ...{RESET}" )                 
                   sys.exit(0)              
-  
-                
-                if DEBUG>0:
-                  print ( f"CLASSI:         INFO:      test:        background_image.shape = {background_image.shape}" )
+
                   
                 if args.scattergram=='True':
                   
-                  plot_scatter(args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, p_full_softmax_matrix, show_patch_images='True')
+                  plot_scatter( args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, p_full_softmax_matrix, show_patch_images='True')
                   # ~ plot_scatter(args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, p_full_softmax_matrix, show_patch_images='False')
   
                 if (args.probs_matrix=='True') & (args.multimode!='image_rna'):
@@ -3513,18 +3446,14 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
                   # with  interpolation
                   matrix_types = [ 'probs_true' ]
                   for n, matrix_type in enumerate(matrix_types): 
-                    plot_matrix (matrix_type, args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_p_full_softmax_matrix, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, args.probs_matrix_interpolation )
-            # move to a separate function ----------------------------------------------------------------------------------------------
+                    plot_matrix ( matrix_type, args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_p_full_softmax_matrix, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, args.probs_matrix_interpolation )
            
   
-  
-  
 
 
 
 
-
-        if loss_type!='mse':        
+        if loss_type!='mean_squared_error':        
 
           # move to a separate function ----------------------------------------------------------------------------------------------
           if ( args.input_mode=='rna' ) & ( args.just_test=='True' ):
@@ -3572,7 +3501,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
              
         elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
 
-          if loss_type == 'mse':                                                                           # autoencoders use mean squared error. The function needs to be provided with both the input and the output to calculate mse 
+          if loss_type == 'mean_squared_error':                                                                           # autoencoders use mean squared error. The function needs to be provided with both the input and the output to calculate mean_squared_error 
             loss_genes        = loss_function( y2_hat, batch_genes.squeeze() )            
           else:
             loss_genes        = loss_function( y2_hat, rna_labels            )
@@ -3625,10 +3554,10 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
 
 
     
-    if loss_type=='mse':
+    if loss_type=='mean_squared_error':
       print ( "" )
 
-    if loss_type == 'mse':
+    if loss_type == 'mean_squared_error':
                       
       print ( "\n\n\n" )
       
@@ -3781,7 +3710,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
     image_labels_values         = image_labels.cpu().detach().numpy()                                      # these are the true      classes corresponding to batch_images
 
 
-    if loss_type != 'mse':                                                                                 # the following analysis only make sense if we are classifying, so skip for autoencoders 
+    if loss_type != 'mean_squared_error':                                                                                 # the following analysis only make sense if we are classifying, so skip for autoencoders 
       if args.input_mode=='image':
         correct_predictions              = np.sum( y1_hat_values_max_indices == image_labels_values )
       elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
@@ -3798,7 +3727,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
     if total_loss_sum    <  test_loss_min:
        test_loss_min     =  total_loss_sum
 
-    if loss_type != 'mse':                                                                                 # the following only make sense if we are classifying, so skip for autoencoders 
+    if loss_type != 'mean_squared_error':                                                                                 # the following only make sense if we are classifying, so skip for autoencoders 
 
       if correct_predictions    >  max_correct_predictions:
         max_correct_predictions =  correct_predictions
@@ -3826,7 +3755,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
 #      if args.input_mode=='image':
 #        writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, tile_size, batch_images, image_labels, preds, p_highest, p_2nd_highest, p_full_softmax_matrix, class_names, class_colours), epoch)
 
-    if loss_type != 'mse':                                                                                 # the following only make sense if we are classifying, so skip for autoencoders 
+    if loss_type != 'mean_squared_error':                                                                                 # the following only make sense if we are classifying, so skip for autoencoders 
   
       if args.just_test=='False':                                                                          # This call to plot_classes_preds() is for use by test during training, and not for use in "just_test" mode (the latter needs support for supergrids)
         if args.annotated_tiles=='True':
@@ -3847,7 +3776,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
     if args.multimode!="image_rna":
       embedding               = 0
 
-    if loss_type == 'mse':                                                                                 # these weren't applicable for mean squared error
+    if loss_type == 'mean_squared_error':                                                                                 # these weren't applicable for mean squared error
       correct_predictions     = 0
       max_correct_predictions = 0
       max_percent_correct     = 0
@@ -4526,38 +4455,38 @@ def plot_scatter( args, writer, i, background_image, tile_size, image_labels, cl
     ax.text(   0,  -1300, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
     ax.text(   0,  -1000, t3, size=10, ha="left",   color="black", style="normal" )
     ax.text( 4400, -1000, t4, size=10, ha="left",   color="black", style="italic" )
-    ax.text(   0,  -700, t5, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 4400, -700, t6, size=10, ha="left",   color="black", style="italic" ) 
+    ax.text(   0,  -700,  t5, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 4400, -700,  t6, size=10, ha="left",   color="black", style="italic" ) 
   elif threshold_4>total_tiles>=threshold_3:       ## OPTIMISED
-    ax.text(   0,  -180, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
-    ax.text(   0,  -140, t3, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 525,  -140, t4, size=10, ha="left",   color="black", style="italic" )
+    ax.text(   0,  -180,  t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
+    ax.text(   0,  -140,  t3, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 525,  -140,  t4, size=10, ha="left",   color="black", style="italic" )
     ax.text(   0,  -100,  t5, size=10, ha="left",   color="black", style="normal" )
     ax.text( 525,  -100,  t6, size=10, ha="left",   color="black", style="italic" )        
   elif threshold_3>total_tiles>=threshold_2:       ## OPTIMISED
-    ax.text(   0,  -180, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
-    ax.text(   0,  -140, t3, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 525,  -140, t4, size=10, ha="left",   color="black", style="italic" )
+    ax.text(   0,  -180,  t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
+    ax.text(   0,  -140,  t3, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 525,  -140,  t4, size=10, ha="left",   color="black", style="italic" )
     ax.text(   0,  -100,  t5, size=10, ha="left",   color="black", style="normal" )
     ax.text( 525,  -100,  t6, size=10, ha="left",   color="black", style="italic" )    
   elif threshold_2>total_tiles>=threshold_1:       ## OPTIMISED
-    ax.text(   0,  -700, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
-    ax.text(   0,  -330, t3, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 525,  -330, t4, size=10, ha="left",   color="black", style="italic" )
-    ax.text(   0,  -300, t5, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 525,  -300, t6, size=10, ha="left",   color="black", style="italic" )    
+    ax.text(   0,  -700,  t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
+    ax.text(   0,  -330,  t3, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 525,  -330,  t4, size=10, ha="left",   color="black", style="italic" )
+    ax.text(   0,  -300,  t5, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 525,  -300,  t6, size=10, ha="left",   color="black", style="italic" )    
   elif threshold_1>total_tiles>=threshold_0:      ## OPTIMISED
-    ax.text(   0,  -62, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
-    ax.text(   0,  -51, t3, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 175,  -51, t4, size=10, ha="left",   color="black", style="italic" )
-    ax.text(   0,  -40, t5, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 175,  -40, t6, size=10, ha="left",   color="black", style="italic" )                   
+    ax.text(   0,  -62,   t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
+    ax.text(   0,  -51,   t3, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 175,  -51,   t4, size=10, ha="left",   color="black", style="italic" )
+    ax.text(   0,  -40,   t5, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 175,  -40,   t6, size=10, ha="left",   color="black", style="italic" )                   
   else: # (< threshold0)                          ## OPTIMISED
-    ax.text(   0,  -32, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
-    ax.text(   0,  -25, t3, size=10, ha="left",   color="black", style="normal" )
-    ax.text(  90,  -25, t4, size=10, ha="left",   color="black", style="italic" )
-    ax.text(   0,  -18, t5, size=10, ha="left",  color="black", style="normal" )
-    ax.text(  90,  -18, t6, size=10, ha="left",   color="black", style="italic" )    
+    ax.text(   0,  -32,   t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
+    ax.text(   0,  -25,   t3, size=10, ha="left",   color="black", style="normal" )
+    ax.text(  90,  -25,   t4, size=10, ha="left",   color="black", style="italic" )
+    ax.text(   0,  -18,   t5, size=10, ha="left",   color="black", style="normal" )
+    ax.text(  90,  -18,   t6, size=10, ha="left",   color="black", style="italic" )    
 
   # (6) plot the points, organised to be at the centre of where the tiles would be on the background image, if it were tiled (the grid lines are on the tile borders)
   
@@ -4670,7 +4599,7 @@ def plot_scatter( args, writer, i, background_image, tile_size, image_labels, cl
   stats=f"Statistics: tile count: {total_tiles}; correctly predicted: {correct_predictions}/{total_tiles} ({100*pct_correct:2.1f}%)"
   plt.figtext( 0.15, 0.035, stats, size=14, color="grey", style="normal" )
   
-  scattergram_name = [ "2 scattergram on tiles" if show_patch_images=='True' else "9 scattergram " ][0]
+  scattergram_name = [ "2 scattergram over tiles" if show_patch_images=='True' else "9 scattergram " ][0]
   plt.show
   writer.add_figure( scattergram_name, fig, i )
   plt.close(fig)  
