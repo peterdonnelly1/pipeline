@@ -3402,10 +3402,26 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
               grid_p_true_class          = np.append( grid_p_true_class,          p_true_class,               axis=0 )
               grid_p_full_softmax_matrix = np.append( grid_p_full_softmax_matrix, p_full_softmax_matrix,      axis=0 )
 
-  
+
+              if DEBUG>0:
+                print ( f"CLASSI:         INFO:      test:             supergrid_size                          = {MIKADO}{args.supergrid_size}{RESET}"                                 )
+                print ( f"CLASSI:         INFO:      test:             grid_labels.shape                       = {MIKADO}{grid_labels.shape}{RESET}"                 )
+                print ( f"CLASSI:         INFO:      test:             grid_preds.shape                        = {MIKADO}{grid_preds.shape}{RESET}"                  )
+                print ( f"CLASSI:         INFO:      test:             grid_p_highest.shape                    = {MIKADO}{grid_p_highest.shape}{RESET}"              )            
+                print ( f"CLASSI:         INFO:      test:             grid_p_2nd_highest.shape                = {MIKADO}{grid_p_2nd_highest.shape}{RESET}"          )
+                print ( f"CLASSI:         INFO:      test:             grid_p_true_class.shape                 = {MIKADO}{grid_p_true_class.shape}{RESET}"           )
+                print ( f"CLASSI:         INFO:      test:             grid_p_full_softmax_matrix.shape        = {MIKADO}{grid_p_full_softmax_matrix.shape}{RESET}"  )
+
+
               if global_batch_count%(args.supergrid_size**2)==(args.supergrid_size**2)-1:                                                      # if it is the last batch in the grid (super-patch)
     
                 index                                      = int(i/(args.supergrid_size**2))                                                   # the entry we will update. (We aren't accumulating on every i'th batch, but rather on every args.supergrid_size**2-1'th batch (one time per grid))
+
+                if DEBUG>0:
+                  print ( f"CLASSI:         INFO:      test:             i                                       = {MIKADO}{i}{RESET}"                                 )
+                  print ( f"CLASSI:         INFO:      test:             index                                   = {MIKADO}{index}{RESET}"                                 )
+                  print ( f"CLASSI:         INFO:      test:             supergrid_size                          = {MIKADO}{args.supergrid_size}{RESET}"                                 )
+
                 patches_true_classes[index]                = image_labels.cpu().detach().numpy()[0]                                            # all tiles in a patch belong to the same case, so we can chose any of them - we choose the zero'th
                 patches_case_id     [index]                = batch_fnames_npy[0]                                                               # all tiles in a patch belong to the same case, so we can chose any of them - we choose the zero'th
                 grid_tile_probabs_totals_by_class          = np.transpose (np.expand_dims( grid_p_full_softmax_matrix.sum( axis=0 ), axis=1 )) # this is where we sum the totals across all tiles
