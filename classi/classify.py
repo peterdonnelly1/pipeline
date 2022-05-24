@@ -3381,7 +3381,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
           if ( args.input_mode=='image' ) & ( args.just_test=='True' ):
             
             if args.scattergram=='True':
-              if DEBUG>2:
+              if DEBUG>0:
                   print ( f"CLASSI:         INFO:      test:         global_batch_count {DIM_WHITE}(super-patch number){RESET} = {global_batch_count+1:5d}  {DIM_WHITE}({((global_batch_count+1)/(args.supergrid_size**2)):04.2f}){RESET}" )
                         
             if global_batch_count%(args.supergrid_size**2)==0:                                                                                # establish grid arrays on the FIRST batch of each grid
@@ -3404,6 +3404,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
 
 
               if DEBUG>0:
+                print ( f"CLASSI:         INFO:      test:             i                                       = {MIKADO}{i}{RESET}"                                 )
                 print ( f"CLASSI:         INFO:      test:             supergrid_size                          = {MIKADO}{args.supergrid_size}{RESET}"                                 )
                 print ( f"CLASSI:         INFO:      test:             grid_labels.shape                       = {MIKADO}{grid_labels.shape}{RESET}"                 )
                 print ( f"CLASSI:         INFO:      test:             grid_preds.shape                        = {MIKADO}{grid_preds.shape}{RESET}"                  )
@@ -3418,9 +3419,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
                 index                                      = int(i/(args.supergrid_size**2))                                                   # the entry we will update. (We aren't accumulating on every i'th batch, but rather on every args.supergrid_size**2-1'th batch (one time per grid))
 
                 if DEBUG>0:
-                  print ( f"CLASSI:         INFO:      test:             i                                       = {MIKADO}{i}{RESET}"                                 )
-                  print ( f"CLASSI:         INFO:      test:             index                                   = {MIKADO}{index}{RESET}"                                 )
-                  print ( f"CLASSI:         INFO:      test:             supergrid_size                          = {MIKADO}{args.supergrid_size}{RESET}"                                 )
+                  print ( f"CLASSI:         INFO:      test:             index                                   = {PINK}{index}{RESET}"                                 )
 
                 patches_true_classes[index]                = image_labels.cpu().detach().numpy()[0]                                            # all tiles in a patch belong to the same case, so we can chose any of them - we choose the zero'th
                 patches_case_id     [index]                = batch_fnames_npy[0]                                                               # all tiles in a patch belong to the same case, so we can chose any of them - we choose the zero'th
