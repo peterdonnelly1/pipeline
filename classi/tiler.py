@@ -171,26 +171,26 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
         print(f"\033[{start_row+num_cpus+6};0f\r{CLEAR_LINE}", end="", flush=True )
         print(f"\033[{start_row+num_cpus+2};0f\r{CLEAR_LINE}{BB}{PROPERTY_NAME_COMMENT[0:300]}{RESET}{RESTORE_CURSOR}", flush=True )
       
-  objective_power = 0
-  if openslide.PROPERTY_NAME_OBJECTIVE_POWER in oslide.properties:
-    objective_power = int(oslide.properties[ openslide.PROPERTY_NAME_OBJECTIVE_POWER])
-    if (DEBUG>2):
-      print(f"\r{DULL_WHITE}TILER:          INFO: objective power         = {BB}{objective_power}{RESET}", flush=True )
-  else:
-    if (DEBUG>2):
-      print(f"\r{DULL_WHITE}TILER:          INFO: objective power         = {DULL_WHITE}property {BB}PROPERTY_NAME_OBJECTIVE_POWER{RESET}{DULL_WHITE} does not exist for this slide{RESET}")
-             
-  if openslide.PROPERTY_NAME_MPP_X           in oslide.properties:                                         # microns per pixel the image was scanned at
-    if (DEBUG>0):
-      print(f"\r{DULL_WHITE}                         microns/pixel = {BB}PROPERTY_NAME_MPP_X{RESET} = {MIKADO}{float(oslide.properties[ openslide.PROPERTY_NAME_MPP_X]):6.2f}{RESET}", flush=True )                
-  elif "XResolution" in oslide.properties:                                                                 # for TIFF format images (apparently)  https://openslide.org/docs/properties/
-    mag = 10.0 / float(oslide.properties["XResolution"]);
-    if (DEBUG>2):
-      print(f"\r{DULL_WHITE}TILER:          INFO:   XResolution       = {DULL_WHITE}property {BB}XResolution{RESET} = {MIKADO}{float(oslide.properties['XResolution']):6.2f}{RESET}",                              flush=True )
-      print(f"\r{DULL_WHITE}TILER:          INFO:   magnification                                                               = {MIKADO}float(oslide.properties['XResolution'] / {10.0} = {mag:6.2f}{RESET}",  flush=True ) 
-  else:
-    if (DEBUG>2):
-      print(f"\r{DULL_WHITE}TILER:          INFO:   Neither {CAMEL}PROPERTY_NAME_MPP_X{RESET} nor {BB}XResolution{RESET} exist for this slide{RESET}")
+    objective_power = 0
+    if openslide.PROPERTY_NAME_OBJECTIVE_POWER in oslide.properties:
+      objective_power = int(oslide.properties[ openslide.PROPERTY_NAME_OBJECTIVE_POWER])
+      if (DEBUG>2):
+        print(f"\r{DULL_WHITE}TILER:          INFO: objective power         = {BB}{objective_power}{RESET}", flush=True )
+    else:
+      if (DEBUG>2):
+        print(f"\r{DULL_WHITE}TILER:          INFO: objective power         = {DULL_WHITE}property {BB}PROPERTY_NAME_OBJECTIVE_POWER{RESET}{DULL_WHITE} does not exist for this slide{RESET}")
+               
+    if openslide.PROPERTY_NAME_MPP_X           in oslide.properties:                                         # microns per pixel the image was scanned at
+      if (DEBUG>0):
+        print(f"\r{DULL_WHITE}                         microns/pixel = {BB}PROPERTY_NAME_MPP_X{RESET} = {MIKADO}{float(oslide.properties[ openslide.PROPERTY_NAME_MPP_X]):6.2f}{RESET}", flush=True )                
+    elif "XResolution" in oslide.properties:                                                                 # for TIFF format images (apparently)  https://openslide.org/docs/properties/
+      mag = 10.0 / float(oslide.properties["XResolution"]);
+      if (DEBUG>2):
+        print(f"\r{DULL_WHITE}TILER:          INFO:   XResolution       = {DULL_WHITE}property {BB}XResolution{RESET} = {MIKADO}{float(oslide.properties['XResolution']):6.2f}{RESET}",                              flush=True )
+        print(f"\r{DULL_WHITE}TILER:          INFO:   magnification                                                               = {MIKADO}float(oslide.properties['XResolution'] / {10.0} = {mag:6.2f}{RESET}",  flush=True ) 
+    else:
+      if (DEBUG>2):
+        print(f"\r{DULL_WHITE}TILER:          INFO:   Neither {CAMEL}PROPERTY_NAME_MPP_X{RESET} nor {BB}XResolution{RESET} exist for this slide{RESET}")
 
 
 
