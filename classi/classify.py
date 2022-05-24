@@ -600,9 +600,9 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
     print (f"CLASSI:         INFO:  class_colors = \n{MIKADO}{class_colors}{RESET}" )
 
 
-  if ( input_mode=='image' ) & ( just_test!='True' ): 
+  if ( input_mode=='image' ): 
     if 1 in batch_size:
-      print ( f"{RED}CLASSI:         INFO: sorry - in trainig mode, parameter '{CYAN}BATCH_SIZE{RESET}{RED}' (currently '{MIKADO}{batch_size}{RESET}{RED}' cannot include a value <2 for images{RESET}" )
+      print ( f"{RED}CLASSI:         INFO: sorry - parameter '{CYAN}BATCH_SIZE{RESET}{RED}' (currently '{MIKADO}{batch_size}{RESET}{RED}' cannot include a value <2 for images{RESET}" )
       print ( f"{RED}CLASSI:         INFO: halting now{RESET}" )      
       sys.exit(0) 
  
