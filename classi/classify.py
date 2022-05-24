@@ -3305,7 +3305,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
           with torch.no_grad():                                                                            # don't need gradients for testing
             y1_hat, y2_hat, embedding = model.forward( [ batch_images, 0            , batch_fnames], gpu, args  )          # perform a step. y1_hat = image outputs; y2_hat = rna outputs
 
-          if DEBUG>0:
+          if DEBUG>2:
             np.set_printoptions(formatter={'float': lambda x:   "{:>6.2f}".format(x)})
             image_labels_numpy = (image_labels .cpu() .data) .numpy()
             y1_hat_numpy       = (y1_hat       .cpu() .data) .numpy()

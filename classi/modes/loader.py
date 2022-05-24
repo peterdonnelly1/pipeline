@@ -562,7 +562,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
 
       if args.input_mode=='image':
         if DEBUG>0:
-          print( "LOADER:         INFO:   about to create and return test loader for the dedicated test mode: (image / 'just_test'). Note: sequential rather than random sampling for test mode" ) 
+          print( f"{ORANGE}LOADER:         INFO:   about to create and return test loader for the dedicated test mode: (image / 'just_test'). Note: sequential rather than random sampling for test mode{RESET}" ) 
         dataset     = dataset_image_test      
         sampler     = SequentialSampler  ( test_inds )                                                     # tiles need to be drawn sequentially because we are analysing a 2D contiguous square patch of tiles 
       elif args.input_mode=='rna':
