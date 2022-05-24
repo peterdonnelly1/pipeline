@@ -3384,7 +3384,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
               if DEBUG>0:
                   print ( f"CLASSI:         INFO:      test:         global_batch_count {DIM_WHITE}(super-patch number){RESET} = {global_batch_count+1:5d}  {DIM_WHITE}({((global_batch_count+1)/(args.supergrid_size**2)):04.2f}){RESET}" )
                         
-            if global_batch_count%(args.supergrid_size**2)==0:                                                                                # establish grid arrays on the FIRST batch of each grid
+            if global_batch_count%(args.supergrid_size**2)==0:                                                                                 # establish grid arrays on the FIRST batch of each grid
               grid_images                = batch_images.cpu().numpy()
               grid_labels                = image_labels.cpu().numpy()
               grid_preds                 = preds
@@ -3392,8 +3392,18 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
               grid_p_2nd_highest         = p_2nd_highest
               grid_p_true_class          = p_true_class
               grid_p_full_softmax_matrix = p_full_softmax_matrix 
+
+              if DEBUG>0:
+                print ( f"CLASSI:         INFO:      test:             i                                       = {BLEU}{i}{RESET}"                                 )
+                print ( f"CLASSI:         INFO:      test:             supergrid_size                          = {BLEU}{args.supergrid_size}{RESET}"               )
+                print ( f"CLASSI:         INFO:      test:             grid_labels.shape                       = {BLEU}{grid_labels.shape}{RESET}"                 )
+                print ( f"CLASSI:         INFO:      test:             grid_preds.shape                        = {BLEU}{grid_preds.shape}{RESET}"                  )
+                print ( f"CLASSI:         INFO:      test:             grid_p_highest.shape                    = {BLEU}{grid_p_highest.shape}{RESET}"              )            
+                print ( f"CLASSI:         INFO:      test:             grid_p_2nd_highest.shape                = {BLEU}{grid_p_2nd_highest.shape}{RESET}"          )
+                print ( f"CLASSI:         INFO:      test:             grid_p_true_class.shape                 = {BLEU}{grid_p_true_class.shape}{RESET}"           )
+                print ( f"CLASSI:         INFO:      test:             grid_p_full_softmax_matrix.shape        = {BLEU}{grid_p_full_softmax_matrix.shape}{RESET}"  )
   
-            else:                                                                                                                              # ... accumulate for subsequent batches in the same grid 
+            else:                                                                                                                              # ... accumulate for subsequent batches that will go into the same grid 
               grid_images                = np.append( grid_images,                batch_images.cpu().numpy(), axis=0 )
               grid_labels                = np.append( grid_labels,                image_labels.cpu().numpy(), axis=0 )
               grid_preds                 = np.append( grid_preds,                 preds,                      axis=0 )
@@ -3405,7 +3415,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
 
               if DEBUG>0:
                 print ( f"CLASSI:         INFO:      test:             i                                       = {MIKADO}{i}{RESET}"                                 )
-                print ( f"CLASSI:         INFO:      test:             supergrid_size                          = {MIKADO}{args.supergrid_size}{RESET}"                                 )
+                print ( f"CLASSI:         INFO:      test:             supergrid_size                          = {MIKADO}{args.supergrid_size}{RESET}"               )
                 print ( f"CLASSI:         INFO:      test:             grid_labels.shape                       = {MIKADO}{grid_labels.shape}{RESET}"                 )
                 print ( f"CLASSI:         INFO:      test:             grid_preds.shape                        = {MIKADO}{grid_preds.shape}{RESET}"                  )
                 print ( f"CLASSI:         INFO:      test:             grid_p_highest.shape                    = {MIKADO}{grid_p_highest.shape}{RESET}"              )            
@@ -3414,7 +3424,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
                 print ( f"CLASSI:         INFO:      test:             grid_p_full_softmax_matrix.shape        = {MIKADO}{grid_p_full_softmax_matrix.shape}{RESET}"  )
 
 
-              if global_batch_count%(args.supergrid_size**2)==(args.supergrid_size**2)-1:                                                      # if it is the last batch in the grid (super-patch)
+              if global_batch_count%(args.supergrid_size**2)==(args.supergrid_size**2)-1:                                                      # if it is the last batch to go into this grid (super-patch)
     
                 index                                      = int(i/(args.supergrid_size**2))                                                   # the entry we will update. (We aren't accumulating on every i'th batch, but rather on every args.supergrid_size**2-1'th batch (one time per grid))
 
