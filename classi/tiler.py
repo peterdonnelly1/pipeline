@@ -157,18 +157,19 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
     PROPERTY_NAME_VENDOR = oslide.properties[ openslide.PROPERTY_NAME_VENDOR]
     if (DEBUG>99):
       print(f"\033[{start_row+num_cpus+1};0f\r{CLEAR_LINE}{DULL_WHITE}TILER:          INFO: PROPERTY_NAME_VENDOR          = {BB}{PROPERTY_NAME_VENDOR}{RESET}", flush=True )
-      
-  if openslide.PROPERTY_NAME_COMMENT in oslide.properties:
-    PROPERTY_NAME_COMMENT = oslide.properties[ openslide.PROPERTY_NAME_COMMENT]                          
-    PROPERTY_NAME_COMMENT = re.sub( r'\n' , ' ', PROPERTY_NAME_COMMENT )                                   # PROPERTY_NAME_COMMENT has an embedded carriage return and line feed so strip these out
-    PROPERTY_NAME_COMMENT = re.sub( r'\r' , ' ', PROPERTY_NAME_COMMENT )  
-    if (DEBUG>0):
-      print(f"{SAVE_CURSOR}", end="",                                flush=True )
-      print(f"\033[{start_row+num_cpus+3};0f\r{CLEAR_LINE}", end="", flush=True )
-      print(f"\033[{start_row+num_cpus+4};0f\r{CLEAR_LINE}", end="", flush=True )
-      print(f"\033[{start_row+num_cpus+5};0f\r{CLEAR_LINE}", end="", flush=True )
-      print(f"\033[{start_row+num_cpus+6};0f\r{CLEAR_LINE}", end="", flush=True )
-      print(f"\033[{start_row+num_cpus+2};0f\r{CLEAR_LINE}{BB}{PROPERTY_NAME_COMMENT[0:300]}{RESET}{RESTORE_CURSOR}", flush=True )
+  
+  if just_test != 'True':
+    if openslide.PROPERTY_NAME_COMMENT in oslide.properties:
+      PROPERTY_NAME_COMMENT = oslide.properties[ openslide.PROPERTY_NAME_COMMENT]                          
+      PROPERTY_NAME_COMMENT = re.sub( r'\n' , ' ', PROPERTY_NAME_COMMENT )                                   # PROPERTY_NAME_COMMENT has an embedded carriage return and line feed so strip these out
+      PROPERTY_NAME_COMMENT = re.sub( r'\r' , ' ', PROPERTY_NAME_COMMENT )  
+      if (DEBUG>0):
+        print(f"{SAVE_CURSOR}", end="",                                flush=True )
+        print(f"\033[{start_row+num_cpus+3};0f\r{CLEAR_LINE}", end="", flush=True )
+        print(f"\033[{start_row+num_cpus+4};0f\r{CLEAR_LINE}", end="", flush=True )
+        print(f"\033[{start_row+num_cpus+5};0f\r{CLEAR_LINE}", end="", flush=True )
+        print(f"\033[{start_row+num_cpus+6};0f\r{CLEAR_LINE}", end="", flush=True )
+        print(f"\033[{start_row+num_cpus+2};0f\r{CLEAR_LINE}{BB}{PROPERTY_NAME_COMMENT[0:300]}{RESET}{RESTORE_CURSOR}", flush=True )
       
   objective_power = 0
   if openslide.PROPERTY_NAME_OBJECTIVE_POWER in oslide.properties:
