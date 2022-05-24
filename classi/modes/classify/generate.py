@@ -184,7 +184,8 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
       if args.cases == 'UNIMODE_CASE':
 
         target                = 'image_test'
-        cases_required        = n_samples
+        test_cases            = int( n_samples * pct_test )
+        cases_required        = test_cases 
         case_designation_flag = args.cases
         
         if DEBUG>0:
