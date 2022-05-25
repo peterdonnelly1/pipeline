@@ -103,7 +103,7 @@ def tiler_scheduler( args, r_norm, flag, count, n_tiles, tile_size, batch_size, 
                 if result==SUCCESS:
                   slides_processed+=1
                   if ( ( just_test=='True' ) & ( multimode!='image_rna') )  & (my_thread==0):
-                    print ( f"{SAVE_CURSOR}\r\033[300C\033[11B{RESET}{CARRIBEAN_GREEN}{slides_processed}/{my_quota}{RESET}{RESTORE_CURSOR}{CLEAR_LINE}", flush=True ) 
+                    print ( f"{SAVE_CURSOR}\r\033[{start_row-2};280H{RESET}{CARRIBEAN_GREEN}{slides_processed}/{my_quota}{RESET}{RESTORE_CURSOR}{CLEAR_LINE}", flush=True ) 
                   else:
                     print ( f"{SAVE_CURSOR}\r\033[300C\033[{my_thread}B{RESET}{CARRIBEAN_GREEN}{slides_processed}/{my_quota}{RESET}{RESTORE_CURSOR}{CLEAR_LINE}", flush=True )                           
                   if slides_processed>=my_expanded_quota:
@@ -121,7 +121,7 @@ def tiler_scheduler( args, r_norm, flag, count, n_tiles, tile_size, batch_size, 
                 if result==SUCCESS:
                   slides_processed+=1
                   if ( ( just_test=='True' ) & ( multimode!='image_rna') )  & (my_thread==0):
-                    print ( f"{SAVE_CURSOR}\r\033[300C\033[13B{RESET}{CARRIBEAN_GREEN}{slides_processed}/{my_quota}{RESET}{RESTORE_CURSOR}{CLEAR_LINE}", flush=True ) 
+                    print ( f"{SAVE_CURSOR}\r\033[{start_row};280H{RESET}{CARRIBEAN_GREEN}{slides_processed}/{my_quota}{RESET}{RESTORE_CURSOR}{CLEAR_LINE}", flush=True ) 
                   else:
                     print ( f"{SAVE_CURSOR}\r\033[300C\033[{my_thread}B{RESET}{CARRIBEAN_GREEN}{slides_processed}/{my_quota}{RESET}{RESTORE_CURSOR}{CLEAR_LINE}", flush=True )                           
                   if slides_processed>=my_expanded_quota:

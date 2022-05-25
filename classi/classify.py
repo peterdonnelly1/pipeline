@@ -590,9 +590,8 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
       
 
   if  ( args.cases!='ALL_ELIGIBLE_CASES' ) & ( args.divide_cases == 'False' ):
-    print( f"{ORANGE}CLASSI:         INFO:  user option {CYAN}-v ('divide_cases') {RESET}{ORANGE} = {CYAN}False{RESET}{ORANGE}, however option {CYAN}-c ('cases'){RESET}{ORANGE} is NOT '{CYAN}ALL_ELIGIBLE_CASES{RESET}{ORANGE}', so the requested subset of cases may or may not already exist{RESET}" )
-    print( f"{ORANGE}CLASSI:         INFO:    this will definitely cause problems unless the requested subset of cases ({RESET}{ORANGE}'{CYAN}{args.cases}{RESET}{ORANGE}') already exists (in {RESET}{ORANGE}'{CYAN}{args.data_dir}{RESET}{ORANGE}') as a result of a previous run which had {CYAN}-v {'divide_cases'}{RESET}{ORANGE} flag set" )
-    print( f"{ORANGE}CLASSI:         INFO:    ... NOT halting, but if the program crashes, you'll at least know the likely cause{RESET}" )
+    print( f"{ORANGE}CLASSI:         INFO:  user option {CYAN}-v ('divide_cases') {RESET}{ORANGE} = {CYAN}False{RESET}{ORANGE}, however option {CYAN}-c ('cases'){RESET}{ORANGE} is NOT '{CYAN}ALL_ELIGIBLE_CASES{RESET}{ORANGE}'.  The requested subset of cases may or may not already exist{RESET}" )
+    print( f"{ORANGE}CLASSI:         INFO:    this will cause problems if the requested subset ({RESET}{ORANGE}'{CYAN}{args.cases}{RESET}{ORANGE}') does not exist (in {RESET}{ORANGE}'{CYAN}{args.data_dir}{RESET}{ORANGE}') from a previous run with {CYAN}-v {'divide_cases'}{RESET}{ORANGE} flag set. NOT halting, but if CLASSI crashes, you'll know why.{RESET}" )
       
   c_m = f"plt.cm.{eval('colour_map')}"                                                                     # the 'eval' is so that the user input string will be treated as a variable
   class_colors = [ eval(c_m)(i) for i in range(len(class_names))]                                          # makes an array of colours by calling the user defined colour map (which is a function, not a variable)
@@ -3441,7 +3440,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
                 aggregate_tile_level_winners_matrix[index] = grid_tile_winners_totals_by_class + random.uniform( 0.001, 0.01)                  # necessary to make all the tile totals unique when we go looking for them later. ugly but it works
 
                 if DEBUG>0:
-                  print ( f"CLASSI:         INFO:      test:             grid_tile_winners_totals_by_class                            = {BOLD}{MIKADASPARAGUSO}{grid_tile_winners_totals_by_class}{RESET}"             )
+                  print ( f"CLASSI:         INFO:      test:             grid_tile_winners_totals_by_class                            = {BOLD}{ASPARAGUS}{grid_tile_winners_totals_by_class}{RESET}"             )
                   print ( f"CLASSI:         INFO:      test:             aggregate_tile_level_winners_matrix[{MIKADO}{index}{RESET}]                = {ASPARAGUS}{MIKADO}{aggregate_tile_level_winners_matrix[index]}{RESET}"    )
 
             global_batch_count+=1
