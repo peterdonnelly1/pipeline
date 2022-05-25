@@ -3422,8 +3422,6 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
                 print ( f"CLASSI:         INFO:      test:             grid_p_2nd_highest.shape                                     = {MIKADO}{grid_p_2nd_highest.shape}{RESET}"                            )
                 print ( f"CLASSI:         INFO:      test:             grid_p_true_class.shape                                      = {MIKADO}{grid_p_true_class.shape}{RESET}"                             )
                 print ( f"CLASSI:         INFO:      test:             grid_p_full_softmax_matrix.shape                             = {MIKADO}{grid_p_full_softmax_matrix.shape}{RESET}"                    )
-                print ( f"CLASSI:         INFO:      test:             grid_tile_winners_totals_by_class                            = {BOLD}{MIKADO}{grid_tile_winners_totals_by_class}{RESET}"             )
-                print ( f"CLASSI:         INFO:      test:             aggregate_tile_level_winners_matrix[{MIKADO}{indexy}{RESET}] = {BOLD}{MIKADO}{aggregate_tile_level_winners_matrix[index]}{RESET}"    )
 
 
               if global_batch_count%(args.supergrid_size**2)==(args.supergrid_size**2)-1:                                                      # if it is the last batch to go into this grid (super-patch)
@@ -3441,7 +3439,11 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
                 grid_tile_winners_totals_by_class          = np.transpose(np.expand_dims( binary_matrix.sum( axis=0 ), axis=1 ))               # same, but 'winner take all' at the tile level
                 aggregate_tile_probabilities_matrix[index] = grid_tile_probabs_totals_by_class
                 aggregate_tile_level_winners_matrix[index] = grid_tile_winners_totals_by_class + random.uniform( 0.001, 0.01)                  # necessary to make all the tile totals unique when we go looking for them later. ugly but it works
-    
+
+              if DEBUG>0:
+                print ( f"CLASSI:         INFO:      test:             grid_tile_winners_totals_by_class                            = {BOLD}{MIKADO}{grid_tile_winners_totals_by_class}{RESET}"             )
+                print ( f"CLASSI:         INFO:      test:             aggregate_tile_level_winners_matrix[{MIKADO}{index}{RESET}] = {BOLD}{MIKADO}{aggregate_tile_level_winners_matrix[index]}{RESET}"    )
+
             global_batch_count+=1
           
             if global_batch_count%(args.supergrid_size**2)==0:
