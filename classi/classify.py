@@ -3440,9 +3440,9 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
                 aggregate_tile_probabilities_matrix[index] = grid_tile_probabs_totals_by_class
                 aggregate_tile_level_winners_matrix[index] = grid_tile_winners_totals_by_class + random.uniform( 0.001, 0.01)                  # necessary to make all the tile totals unique when we go looking for them later. ugly but it works
 
-              if DEBUG>0:
-                print ( f"CLASSI:         INFO:      test:             grid_tile_winners_totals_by_class                            = {BOLD}{MIKADO}{grid_tile_winners_totals_by_class}{RESET}"             )
-                print ( f"CLASSI:         INFO:      test:             aggregate_tile_level_winners_matrix[{MIKADO}{index}{RESET}] = {BOLD}{MIKADO}{aggregate_tile_level_winners_matrix[index]}{RESET}"    )
+                if DEBUG>0:
+                  print ( f"CLASSI:         INFO:      test:             grid_tile_winners_totals_by_class                            = {BOLD}{MIKADO}{grid_tile_winners_totals_by_class}{RESET}"             )
+                  print ( f"CLASSI:         INFO:      test:             aggregate_tile_level_winners_matrix[{MIKADO}{index}{RESET}] = {BOLD}{MIKADO}{aggregate_tile_level_winners_matrix[index]}{RESET}"    )
 
             global_batch_count+=1
           
