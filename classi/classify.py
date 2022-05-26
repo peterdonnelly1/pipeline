@@ -3442,7 +3442,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
 
                 if DEBUG>0:
                   print ( f"CLASSI:         INFO:      test:             grid_tile_winners_totals_by_class                              = {BOLD}{ASPARAGUS}{grid_tile_winners_totals_by_class}{RESET}"             )
-                  print ( f"CLASSI:         INFO:      test:             aggregate_tile_level_winners_matrix[{MIKADO}{index}{RESET}]                         = {ASPARAGUS}{MIKADO}{aggregate_tile_level_winners_matrix[index]}{RESET}"    )
+                  print ( f"CLASSI:         INFO:      test:             aggregate_tile_level_winners_matrix[{ASPARAGUS}{index}{RESET}]                         = {ASPARAGUS}{aggregate_tile_level_winners_matrix[index]}{RESET}"    )
 
             global_batch_count+=1
           
