@@ -2077,7 +2077,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         pd.set_option('display.max_colwidth', 300)      
         pd.set_option('display.width',       2000)
         
-        if DEBUG>0:
+        if DEBUG>1:
           print ( f"\nCLASSI:         INFO:      patches_true_classes                                        = {BITTER_SWEET}{patches_true_classes}{RESET}", flush=True )
           print ( f"CLASSI:         INFO:      patches_case_id                                             = {BITTER_SWEET}{patches_case_id}{RESET}",     flush=True )        
 
@@ -2332,7 +2332,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ]  = true_class_prob[0:upper_bound_of_indices_to_plot_image]   # same
         # ~ pd_aggregate_tile_probabilities_matrix.sort_values( by='max_agg_prob', ascending=False, ignore_index=True, inplace=True )
 
-        if DEBUG>0:
+        if DEBUG>1:
           print ( f"\nCLASSI:         INFO:      pd_aggregate_tile_probabilities_matrix {CYAN}image{RESET} = \n{COTTON_CANDY}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True )    
                 
                 
@@ -3394,14 +3394,14 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
               grid_p_full_softmax_matrix = p_full_softmax_matrix 
 
               if DEBUG>0:
-                print ( f"CLASSI:         INFO:      test:             i                                                              = {BLEU}{i}{RESET}"                                 )
-                print ( f"CLASSI:         INFO:      test:             supergrid_size                                                 = {BLEU}{args.supergrid_size}{RESET}"               )
-                print ( f"CLASSI:         INFO:      test:             grid_labels.shape                                              = {BLEU}{grid_labels.shape}{RESET}"                 )
-                print ( f"CLASSI:         INFO:      test:             grid_preds.shape                                               = {BLEU}{grid_preds.shape}{RESET}"                  )
-                print ( f"CLASSI:         INFO:      test:             grid_p_highest.shape                                           = {BLEU}{grid_p_highest.shape}{RESET}"              )            
-                print ( f"CLASSI:         INFO:      test:             grid_p_2nd_highest.shape                                       = {BLEU}{grid_p_2nd_highest.shape}{RESET}"          )
-                print ( f"CLASSI:         INFO:      test:             grid_p_true_class.shape                                        = {BLEU}{grid_p_true_class.shape}{RESET}"           )
-                print ( f"CLASSI:         INFO:      test:             grid_p_full_softmax_matrix.shape                               = {BLEU}{grid_p_full_softmax_matrix.shape}{RESET}"  )
+                print ( f"CLASSI:         INFO:      test:             i                                                              = {BLEU}{i}{RESET}{CLEAR_LINE}"                                 )
+                print ( f"CLASSI:         INFO:      test:             supergrid_size                                                 = {BLEU}{args.supergrid_size}{RESET}{CLEAR_LINE}"               )
+                print ( f"CLASSI:         INFO:      test:             grid_labels.shape                                              = {BLEU}{grid_labels.shape}{RESET}{CLEAR_LINE}"                 )
+                print ( f"CLASSI:         INFO:      test:             grid_preds.shape                                               = {BLEU}{grid_preds.shape}{RESET}{CLEAR_LINE}"                  )
+                print ( f"CLASSI:         INFO:      test:             grid_p_highest.shape                                           = {BLEU}{grid_p_highest.shape}{RESET}{CLEAR_LINE}"              )            
+                print ( f"CLASSI:         INFO:      test:             grid_p_2nd_highest.shape                                       = {BLEU}{grid_p_2nd_highest.shape}{RESET}{CLEAR_LINE}"          )
+                print ( f"CLASSI:         INFO:      test:             grid_p_true_class.shape                                        = {BLEU}{grid_p_true_class.shape}{RESET}{CLEAR_LINE}"           )
+                print ( f"CLASSI:         INFO:      test:             grid_p_full_softmax_matrix.shape                               = {BLEU}{grid_p_full_softmax_matrix.shape}{RESET}{CLEAR_LINE}"  )
   
             else:                                                                                                                              # ... accumulate for subsequent batches that will go into the same grid 
               grid_images                = np.append( grid_images,                batch_images.cpu().numpy(), axis=0 )
