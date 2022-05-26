@@ -353,8 +353,9 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
               multiplier = 1
 
             if DEBUG>0:
-              print( f'\r\033[{start_row+my_thread};77fzoom out =      {AMETHYST if multiplier==1 else MIKADO if multiplier==2 else CARRIBEAN_GREEN if 2<multiplier<=4 else BITTER_SWEET if 5<multiplier<=8 else CHARTREUSE if 5<multiplier<=8 else CAMEL }\033[{3*int(math.log2(multiplier))}C{multiplier:<12d}   {RESET}' )
-
+              print( f'\r\033[{start_row+my_thread};0H                                                                             zoom out = {AMETHYST if multiplier==1 else MIKADO if multiplier==2 else CARRIBEAN_GREEN if 2<multiplier<=4 else BITTER_SWEET if 5<multiplier<=8 else CHARTREUSE if 5<multiplier<=8 else CAMEL}{multiplier}   {RESET}' )
+              print( f"                       ", end="" )
+              
             if DEBUG>0:
                 print  (f"\
       {WHITE}\
