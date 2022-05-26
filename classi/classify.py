@@ -3429,7 +3429,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
                 index                                      = int(i/(args.supergrid_size**2))                                                   # the entry we will update. (We aren't accumulating on every i'th batch, but rather on every args.supergrid_size**2-1'th batch (one time per grid))
 
                 if DEBUG>0:
-                  print ( f"CLASSI:         INFO:      test:             (image) index                                                   = {ASPARAGUS}{index}{RESET}"                                 )
+                  print ( f"CLASSI:         INFO:      test:             (image) index                                                  = {ASPARAGUS}{index}{RESET}"                                 )
 
                 patches_true_classes[index]                = image_labels.cpu().detach().numpy()[0]                                            # all tiles in a patch belong to the same case, so we can chose any of them - we choose the zero'th
                 patches_case_id     [index]                = batch_fnames_npy[0]                                                               # all tiles in a patch belong to the same case, so we can chose any of them - we choose the zero'th
@@ -3442,7 +3442,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
 
                 if DEBUG>0:
                   print ( f"CLASSI:         INFO:      test:             grid_tile_winners_totals_by_class                              = {BOLD}{ASPARAGUS}{grid_tile_winners_totals_by_class}{RESET}"             )
-                  print ( f"CLASSI:         INFO:      test:             aggregate_tile_level_winners_matrix[{MIKADO}{index}{RESET}]                      = {ASPARAGUS}{MIKADO}{aggregate_tile_level_winners_matrix[index]}{RESET}"    )
+                  print ( f"CLASSI:         INFO:      test:             aggregate_tile_level_winners_matrix[{MIKADO}{index}{RESET}]                         = {ASPARAGUS}{MIKADO}{aggregate_tile_level_winners_matrix[index]}{RESET}"    )
 
             global_batch_count+=1
           
