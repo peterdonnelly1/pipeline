@@ -645,14 +645,15 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
 
   if just_test=='True':
     print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set. No training will be performed{RESET}" )
-    if n_epochs>1:
-      print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set, so n_epochs (currently {MIKADO}{n_epochs}{RESET}{ORANGE}) has been set to {MIKADO}1{RESET}{ORANGE} for this run{RESET}" ) 
-      n_epochs=1
     if ( input_mode=='image' ):
       if args.n_tests > args.n_samples[0]:      
         print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set. {CYAN}N_TESTS ('-Z'){RESET}{ORANGE} ({MIKADO}{args.n_tests}{RESET}{ORANGE}) is greater than {CYAN}N_SAMPLES{RESET}{ORANGE} ({MIKADO}{args.n_samples[0]}{RESET}{ORANGE}). Changing {CYAN}N_TESTS{RESET}{ORANGE} to {MIKADO}{args.n_samples[0]}",  flush=True        ) 
         args.n_tests = args.n_samples[0]
         n_tests      = args.n_samples[0]
+    if ( input_mode=='rna' ):
+      if n_epochs>1:
+        print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set, so n_epochs (currently {MIKADO}{n_epochs}{RESET}{ORANGE}) has been set to {MIKADO}1{RESET}{ORANGE} for this run{RESET}" ) 
+        n_epochs=1
     if ( multimode!='image_rna' ) & ( input_mode!='image_rna' ):
       print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set. Only one thread will be used for processing to ensure patch tiles are processed in the correct sequence{RESET}" )
       if len(args.hidden_layer_neurons)>1:
