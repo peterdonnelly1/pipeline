@@ -2059,8 +2059,8 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
     if args.input_mode=='rna':
       print ( "\033[8A", end='' )
-    else:
-      print ( "\033[8A", end='' )  
+    # ~ else:
+      # ~ print ( "\033[8A", end='' )  
 
 
 
@@ -2078,8 +2078,8 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         pd.set_option('display.width',       2000)
         
         if DEBUG>0:
-          print ( f"\nCLASSI:         INFO:      patches_true_classes                                        = {AMETHYST}{patches_true_classes}{RESET}", flush=True )
-          print ( f"\nCLASSI:         INFO:      patches_case_id                                             = {AMETHYST}{patches_case_id}{RESET}",     flush=True )        
+          print ( f"\nCLASSI:         INFO:      patches_true_classes                                        = {BITTER_SWEET}{patches_true_classes}{RESET}", flush=True )
+          print ( f"CLASSI:         INFO:      patches_case_id                                             = {BITTER_SWEET}{patches_case_id}{RESET}",     flush=True )        
 
         if args.cases=='MULTIMODE____TEST':
           upper_bound_of_indices_to_plot_image = cases_reserved_for_image_rna
