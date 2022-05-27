@@ -1485,7 +1485,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
             else:
               pass
     
-          if DEBUG>0:
+          if DEBUG>2:
             print( f"GENERATE:       INFO:                                fqln = '{MAGENTA}{fqln}{RESET}{CLEAR_LINE}'"                     )   
           if DEBUG>90:
             print( f"GENERATE:       INFO:                    svs_file_link_id =  {MAGENTA}{svs_file_link_id}{RESET}"          )

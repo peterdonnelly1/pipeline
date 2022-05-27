@@ -5396,8 +5396,8 @@ def box_plot_by_subtype( args, class_names, n_genes, start_time, parameters, wri
     supertitle = f"Classification of 14 Cancers into {len(class_names)} Subtypes\n{total_runs_in_job} experiment runs in this box plot.  Total run time: {round(minutes):02d}m:{round(seconds):02d}s"
   
   if args.input_mode=='image':
-    title = f"{now:%d-%m-%y %H:%M}  {args.cases[0:25]} ({parameters['n_samples'][0]})  subtypes:{len(class_names)} NN:{parameters['nn_type_image'][0]}  optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}\n  \
-batch size:{parameters['batch_size'][0]}  held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]:<9.6f}  tiles:{parameters['n_tiles'][0]}  tile_size:{parameters['tile_size'][0]}  batch_size:{parameters['batch_size'][0]}  (mags:{mags} probs:{prob})"
+    title = f"{now:%d-%m-%y %H:%M}  {args.cases[0:25]} ({parameters['n_samples'][0]})  subtypes:{len(class_names)} NN:{parameters['nn_type_img'][0]}  optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}\n  \
+held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]:<9.6f}  tiles:{parameters['n_tiles'][0]}  tile_size:{parameters['tile_size'][0]}  batch_size:{parameters['batch_size'][0]}  (mags:{mags} probs:{prob})"
   else:
     title = f"{now:%d-%m-%y %H:%M}  {args.cases[0:25]} ({parameters['n_samples'][0]}) / {args.rna_genes_tranche} (n_genes:{n_genes})   subtypes:{len(class_names)}  \
 FPKM-UQ threshold cutoff: >{parameters['cutoff_percentile'][0]}%/<{parameters['low_expression_threshold'][0]} \nNeural Network:{parameters['nn_type_rna'][0]}  optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}  \
