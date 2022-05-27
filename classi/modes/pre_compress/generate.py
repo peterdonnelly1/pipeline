@@ -75,7 +75,6 @@ DEBUG=10
 def generate( args, class_names, n_samples, highest_class_number, multimode_case_count, unimode_case_count, not_a_multimode_case_count, not_a_multimode_case____image_count, not_a_multimode_case____image_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform ):
 
   # DON'T USE args.n_samples or args.n_tiles or args.gene_data_norm or args.tile_size or args.highest_class_number since these are job-level lists. Here we are just using one value of each, passed in as the parameters above
-  n_tests                      = args.n_tests
   data_dir                     = args.data_dir
   input_mode                   = args.input_mode
   pretrain                     = args.pretrain
@@ -177,7 +176,7 @@ def generate( args, class_names, n_samples, highest_class_number, multimode_case
       if args.cases == 'UNIMODE_CASE____IMAGE_TEST':
 
         target                = 'image_test'
-        cases_required        = n_tests
+        cases_required        = n_samples
         case_designation_flag = args.cases
         
         if DEBUG>0:
@@ -780,9 +779,6 @@ def generate( args, class_names, n_samples, highest_class_number, multimode_case
 
     # (4B) set up numpy data structures to accumulate rna data as it is processed 
 
-    if  ( args.just_test=='True' ):
-      n_samples = n_tests
- 
     if ( input_mode=='rna' ):
       # set up numpy data structures to accumulate rna-seq data as it is processed
       

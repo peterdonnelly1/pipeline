@@ -266,7 +266,6 @@ g_xform={WHITE}{ORANGE        if not args.gene_data_transform[0]=='NONE' else MA
   label_swap_pct            = args.label_swap_pct
   nn_optimizer                  = args.optimizer
   n_samples                     = args.n_samples
-  n_tests                       = args.n_tests
   pct_test                      = args.pct_test
   n_tiles                       = args.n_tiles
   n_epochs                      = args.n_epochs
@@ -2053,7 +2052,6 @@ if __name__ == '__main__':
   p.add_argument('--multimode',                                                     type=str,    default='NONE'                                 )
   p.add_argument('--n_samples',                                         nargs="+",  type=int,    default=101                                    )                                    
   p.add_argument('--n_tiles',                                           nargs="+",  type=int,    default=50                                     )                                    
-  p.add_argument('--n_tests',                                                       type=int,    default="16"                                   )       
   p.add_argument('--highest_class_number',                                          type=int,    default=999                                    )                                                             
   p.add_argument('--supergrid_size',                                                type=int,    default=1                                      )                                      
   p.add_argument('--patch_points_to_sample',                                        type=int,    default=1000                                   )                                   

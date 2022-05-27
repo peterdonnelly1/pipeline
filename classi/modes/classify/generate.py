@@ -184,7 +184,7 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
       if args.cases == 'UNIMODE_CASE':
 
         target                = 'image_test'
-        test_cases            = int( n_samples * pct_test )
+        test_cases            = n_samples                                                                  # for 'just_test', n_samples is the number of cases user wants to be processed (i.e NOT n_samples * pct_test, which would be the case in training mode)
         cases_required        = test_cases 
         case_designation_flag = args.cases
         
@@ -1485,11 +1485,11 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
             else:
               pass
     
-          if DEBUG>8:
+          if DEBUG>0:
+            print( f"GENERATE:       INFO:                                fqln = '{MAGENTA}{fqln}{RESET}{CLEAR_LINE}'"                     )   
+          if DEBUG>90:
             print( f"GENERATE:       INFO:                    svs_file_link_id =  {MAGENTA}{svs_file_link_id}{RESET}"          )
             print( f"GENERATE:       INFO:                  svs_file_link_name = '{MAGENTA}{svs_file_link_name}{RESET}'"       )
-            print( f"GENERATE:       INFO:                                fqln = '{MAGENTA}{fqln}{RESET}'"                     )   
-
 
       # (3) set up the array for each png entry in this directory
       

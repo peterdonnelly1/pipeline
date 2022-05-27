@@ -242,7 +242,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   label_swap_pct                = args.label_swap_pct
   nn_optimizer                  = args.optimizer
   n_samples                     = args.n_samples
-  n_tests                       = args.n_tests
   n_tiles                       = args.n_tiles
   n_iterations                  = args.n_iterations
   pct_test                      = args.pct_test
@@ -645,15 +644,10 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
 
   if just_test=='True':
     print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set. No training will be performed{RESET}" )
-    if ( input_mode=='image' ):
-      if args.n_tests > args.n_samples[0]:      
-        print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set. {CYAN}N_TESTS ('-Z'){RESET}{ORANGE} ({MIKADO}{args.n_tests}{RESET}{ORANGE}) is greater than {CYAN}N_SAMPLES{RESET}{ORANGE} ({MIKADO}{args.n_samples[0]}{RESET}{ORANGE}). Changing {CYAN}N_TESTS{RESET}{ORANGE} to {MIKADO}{args.n_samples[0]}",  flush=True        ) 
-        args.n_tests = args.n_samples[0]
-        n_tests      = args.n_samples[0]
-    if ( input_mode=='rna' ):
-      if n_epochs>1:
-        print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set, so n_epochs (currently {MIKADO}{n_epochs}{RESET}{ORANGE}) has been set to {MIKADO}1{RESET}{ORANGE} for this run{RESET}" ) 
-        n_epochs=1
+    if n_epochs>1:
+      print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set, so {CYAN}n_epochs{RESET}{ORANGE} (currently {MIKADO}{n_epochs}{RESET}{ORANGE}) has been set to {MIKADO}1{RESET}{ORANGE} for this run{RESET}" ) 
+      n_epochs=1
+      args.n_epochs=1
     if ( multimode!='image_rna' ) & ( input_mode!='image_rna' ):
       print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set. Only one thread will be used for processing to ensure patch tiles are processed in the correct sequence{RESET}" )
       if len(args.hidden_layer_neurons)>1:
@@ -720,10 +714,7 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
       n_samples      = args.n_samples
 
     else:
-      if just_test!='True':
-        print( f"CLASSI:         INFO:  {WHITE}a file count shows there is a total of {MIKADO}{rna_file_count}{RESET} rna files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' = {MIKADO}{np.max(args.n_samples)}{RESET})" )
-      else:
-        print( f"CLASSI:         INFO:  {WHITE}a file count shows there is a total of {MIKADO}{rna_file_count}{RESET} rna files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_TESTS{RESET}' = {MIKADO}{np.max(args.n_tests)}{RESET})" )
+      print( f"CLASSI:         INFO:  {WHITE}a file count shows there is a total of {MIKADO}{rna_file_count}{RESET} rna files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' = {MIKADO}{np.max(args.n_samples)}{RESET})" )
 
 
   if (DEBUG>8):
@@ -998,10 +989,10 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       true_classes                                =  np.zeros     ( ( n_samples            ),     dtype=int         )              # same, but for rna 
       rna_case_id                                 =  np.zeros     ( ( n_samples            ),     dtype=int         )              # same, but for rna 
     else:
-      aggregate_tile_probabilities_matrix =  np.zeros     ( ( args.n_tests, n_classes ),     dtype=float       )
+      aggregate_tile_probabilities_matrix =  np.zeros     ( ( n_samples, n_classes ),     dtype=float       )
       aggregate_tile_level_winners_matrix =  np.full_like ( aggregate_tile_probabilities_matrix, 0  )
-      patches_true_classes                        =  np.zeros     ( ( args.n_tests            ),     dtype=int         )
-      patches_case_id                             =  np.zeros     ( ( args.n_tests            ),     dtype=int         )    
+      patches_true_classes                        =  np.zeros     ( ( n_samples            ),     dtype=int         )
+      patches_case_id                             =  np.zeros     ( ( n_samples            ),     dtype=int         )    
       
       probabilities_matrix                        =  np.zeros     ( ( n_samples, n_classes ),     dtype=float       )            # same, but for rna        
       true_classes                                =  np.zeros     ( ( n_samples            ),     dtype=int         )            # same, but for rna 
@@ -1009,7 +1000,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
       if DEBUG>9:
         print ( f"\n\n" )
-        print ( f"CLASSI:         INFO:      test: args.n_tests                     = {PALE_GREEN}{args.n_tests}{RESET}"                  )
+        print ( f"CLASSI:         INFO:      test: n_samples                        = {PALE_GREEN}{n_samples}{RESET}"                  )
         print ( f"CLASSI:         INFO:      test: n_classes                        = {PALE_GREEN}{n_classes}{RESET}"                     )
         print ( f"CLASSI:         INFO:      test: probabilities_matrix.shape       = {PALE_GREEN}{probabilities_matrix.shape}{RESET}"    )                                    
 
@@ -1750,6 +1741,8 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         if (just_test=='True') & (multimode=='image_rnaxxx'):                                               # skip testing in Test mode if multimode is True 
           pass  # <---- This will never happen
             
+            
+            
         # DO TESTING
         else:  
     
@@ -1896,7 +1889,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       sys.exit()
 
   
-    # (C)  MAYBE CLASSIFY FINAL_TEST_BATCH_SIZE TEST SAMPLES USING THE BEST MODEL SAVED DURING THIS RUN
+    # (B)  MAYBE CLASSIFY FINAL_TEST_BATCH_SIZE TEST SAMPLES USING THE BEST MODEL SAVED DURING THIS RUN
   
     if final_test_batch_size>0:
     
@@ -1945,7 +1938,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
 
 
-    # (D)  MAYBE CREATE AND SAVE EMBEDDINGS FOR ALL TEST SAMPLES (IN TEST MODE, SO THE OPTIMUM MODEL HAS ALREADY BEEN LOADED AT STEP 5 ABOVE)
+    # (C)  MAYBE CREATE AND SAVE EMBEDDINGS FOR ALL TEST SAMPLES (IN TEST MODE, SO THE OPTIMUM MODEL HAS ALREADY BEEN LOADED AT STEP 5 ABOVE)
     
     if (just_test=='True') & (multimode=="image_rna"):
 
@@ -2064,7 +2057,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
 
 
-    # (E)  ALWAYS DISPLAY & SAVE BAR CHARTS
+    # (D)  ALWAYS DISPLAY & SAVE BAR CHARTS
 
     if (just_test=='True') & (multimode!="image_rna"):                                                     # don't currently produce bar-charts for embedded outputs ('image_rna')
 
@@ -2084,7 +2077,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         if args.cases=='MULTIMODE____TEST':
           upper_bound_of_indices_to_plot_image = cases_reserved_for_image_rna
         else:  # correct for UNIMODE_CASE
-          upper_bound_of_indices_to_plot_image = n_tests
+          upper_bound_of_indices_to_plot_image = n_samples
 
 
         # case image- 1: PREDICTED - AGGREGATE probabilities
@@ -2213,7 +2206,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         # save version to logs directory
         now              = datetime.datetime.now()
         
-        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_chart_images___aggregated_tile_level_raw____probs.png"
+        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_chart_images___agg_tile_level_raw____probs.png"
         fig.savefig(fqn)
         
         
@@ -2314,7 +2307,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         # save version to logs directory
         now              = datetime.datetime.now()
               
-        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_chart_images___aggregated_tile_level_winner_probs.png"
+        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_chart_images___agg_tile_level_winner_probs.png"
         fig.savefig(fqn)
         
         
@@ -2495,7 +2488,6 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
         if DEBUG>8:
           print ( f"\nCLASSI:         INFO:                                 n_samples                                    = {MIKADO}{n_samples}{RESET}",                                        flush=True )
-          print ( f"\nCLASSI:         INFO:                                 n_tests                                      = {MIKADO}{n_tests}{RESET}",                                          flush=True )
           print ( f"\nCLASSI:         INFO:                                 cases_reserved_for_image_rna                 = {MIKADO}{cases_reserved_for_image_rna}{RESET}",                     flush=True )
           print ( f"\nCLASSI:         INFO:                                 upper_bound_of_indices_to_plot_rna           = {MIKADO}{upper_bound_of_indices_to_plot_rna}{RESET}\n\n\n\n\n\n  ", flush=True )
         
@@ -2876,7 +2868,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   
 
    
-    # (F)  MAYBE PROCESS AND DISPLAY RUN LEVEL CONFUSION MATRICES   
+    # (E)  MAYBE PROCESS AND DISPLAY RUN LEVEL CONFUSION MATRICES   
     
     if ( args.just_test!='True') | ( (args.just_test=='true')  &  (args.input_mode=='image_rna') & (args.multimode=='image_rna') ):
     
@@ -2927,7 +2919,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   
   
   
-    # (G)  MAYBE PROCESS AND GENERATE AND SAVE AND MAYBE DISPLAY JOB LEVEL CONFUSION MATRIX AND BOX PLOTS
+    # (F)  MAYBE PROCESS AND GENERATE AND SAVE AND MAYBE DISPLAY JOB LEVEL CONFUSION MATRIX AND BOX PLOTS
     
     if (args.just_test!='True') & (total_runs_in_job>1) & (run==total_runs_in_job):
       
@@ -3061,7 +3053,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
           box_plot_by_subtype( args, class_names, n_genes, start_time, parameters, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc )
 
 
-  # (H)  CLOSE UP AND END
+  # (G)  CLOSE UP AND END
   writer.close()        
 
   hours   = round( (time.time() - start_time) / 3600,  1   )
@@ -3154,7 +3146,7 @@ def train( args, epoch, train_loader, model, optimizer, loss_function, loss_type
             y1_hat_numpy       = (y1_hat       .cpu() .data) .numpy()
             batch_fnames_npy   = (batch_fnames .cpu() .data) .numpy()
             random_pick        = random.randint( 0, y1_hat_numpy.shape[0]-1 )
-            print ( f"CLASSI:         INFO:      test:        fq_link            [{random_pick:3d}]      (Truth)         = {MIKADO}{args.data_dir}/{batch_fnames_npy[random_pick]}.fqln{RESET}"     )            
+            print ( f"CLASSI:         INFO:      test:        fq_link            [{random_pick:3d}]                      = {MIKADO}{args.data_dir}/{batch_fnames_npy[random_pick]}.fqln{RESET}"     )            
             print ( f"CLASSI:         INFO:      test:        image_labels_numpy [{random_pick:3d}]      {GREEN}(Truth){RESET}         = {MIKADO}{image_labels_numpy[random_pick]}{RESET}"     )            
             print ( f"CLASSI:         INFO:      test:        y1_hat_numpy       [{random_pick:3d}]      {ORANGE}(Predictions){RESET}   = {MIKADO}{y1_hat_numpy[random_pick]}{RESET}"     )
             print ( f"CLASSI:         INFO:      test:        predicted class    [{random_pick:3d}]                      = {RED if image_labels_numpy[random_pick]!=np.argmax(y1_hat_numpy[random_pick]) else GREEN}{np.argmax(y1_hat_numpy[random_pick])}{RESET}"     )
@@ -3293,13 +3285,12 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
     loss_genes_sum      = 0
     l1_loss_sum         = 0
     total_loss_sum      = 0
-
+    # ~ random_pick        = random.randint( 0, batch_size-1 )
+    random_pick        = 2
+      
       
     for i, ( batch_images, batch_genes, image_labels, rna_labels, batch_fnames ) in  enumerate( test_loader ):
   
-        if DEBUG>10:
-          print( f"CLASSI:         INFO:      test: top of test, and i={MIKADO}{i}{RESET}" ) 
-        
         batch_images = batch_images.to(device)
         batch_genes  = batch_genes .to(device)
         image_labels = image_labels.to(device)
@@ -3308,23 +3299,23 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
         gpu                = 0                                                                             # not currently used
         encoder_activation = args.encoder_activation
 
-        if DEBUG>10:
-          print( f"CLASSI:         INFO:      test: about to call {COQUELICOT}model.forward(){RESET}" )
-
         if args.input_mode=='image':
           with torch.no_grad():                                                                            # don't need gradients for testing
             y1_hat, y2_hat, embedding = model.forward( [ batch_images, 0            , batch_fnames], gpu, args  )          # perform a step. y1_hat = image outputs; y2_hat = rna outputs
 
-          if DEBUG>2:
+          if DEBUG>9:
             np.set_printoptions(formatter={'float': lambda x:   "{:>6.2f}".format(x)})
             image_labels_numpy = (image_labels .cpu() .data) .numpy()
             y1_hat_numpy       = (y1_hat       .cpu() .data) .numpy()
             batch_fnames_npy   = (batch_fnames .cpu() .data) .numpy()
-            random_pick        = random.randint( 0, y1_hat_numpy.shape[0]-1 )
-            print ( f"CLASSI:         INFO:      test:        fq_link            [{random_pick:3d}]      (Truth)         = {MIKADO}{args.data_dir}/{batch_fnames_npy[random_pick]}.fqln{RESET}"     )            
+            print ( f"CLASSI:         INFO:      test:        fq_link            [{random_pick:3d}]                      = {CAMEL}{args.data_dir}/{batch_fnames_npy[random_pick]}.fqln{RESET}"     )            
             print ( f"CLASSI:         INFO:      test:        image_labels_numpy [{random_pick:3d}]      {GREEN}(Truth){RESET}         = {MIKADO}{image_labels_numpy[random_pick]}{RESET}"     )            
             print ( f"CLASSI:         INFO:      test:        y1_hat_numpy       [{random_pick:3d}]      {ORANGE}(Predictions){RESET}   = {MIKADO}{y1_hat_numpy[random_pick]}{RESET}"     )
             print ( f"CLASSI:         INFO:      test:        predicted class    [{random_pick:3d}]                      = {RED if image_labels_numpy[random_pick]!=np.argmax(y1_hat_numpy[random_pick]) else GREEN}{np.argmax(y1_hat_numpy[random_pick])}{RESET}"     )
+          if DEBUG>99:
+            print ( f"CLASSI:         INFO:      test:        y1_hat_numpy                {ORANGE}(Predictions){RESET}     = \n{MIKADO}{y1_hat_numpy}{RESET}"     )
+
+
 
         elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
 
@@ -3371,7 +3362,6 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
         batch_fnames_npy      =   batch_fnames.cpu().detach().numpy()        
 
 
-
         if loss_type!='mean_squared_error':                                                                # autoencoders don't produce predictions,so ignore
 
           if   ( args.input_mode=='image' ):
@@ -3391,17 +3381,19 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
               grid_p_highest             = p_highest
               grid_p_2nd_highest         = p_2nd_highest
               grid_p_true_class          = p_true_class
-              grid_p_full_softmax_matrix = p_full_softmax_matrix 
+              grid_p_full_softmax_matrix = p_full_softmax_matrix
+              image_tile_width           = args.supergrid_size**2*batch_size
 
               if DEBUG>0:
-                print ( f"CLASSI:         INFO:      test:             i                                                              = {BLEU}{i}{RESET}{CLEAR_LINE}"                                 )
-                print ( f"CLASSI:         INFO:      test:             supergrid_size                                                 = {BLEU}{args.supergrid_size}{RESET}{CLEAR_LINE}"               )
-                print ( f"CLASSI:         INFO:      test:             grid_labels.shape                                              = {BLEU}{grid_labels.shape}{RESET}{CLEAR_LINE}"                 )
-                print ( f"CLASSI:         INFO:      test:             grid_preds.shape                                               = {BLEU}{grid_preds.shape}{RESET}{CLEAR_LINE}"                  )
-                print ( f"CLASSI:         INFO:      test:             grid_p_highest.shape                                           = {BLEU}{grid_p_highest.shape}{RESET}{CLEAR_LINE}"              )            
-                print ( f"CLASSI:         INFO:      test:             grid_p_2nd_highest.shape                                       = {BLEU}{grid_p_2nd_highest.shape}{RESET}{CLEAR_LINE}"          )
-                print ( f"CLASSI:         INFO:      test:             grid_p_true_class.shape                                        = {BLEU}{grid_p_true_class.shape}{RESET}{CLEAR_LINE}"           )
-                print ( f"CLASSI:         INFO:      test:             grid_p_full_softmax_matrix.shape                               = {BLEU}{grid_p_full_softmax_matrix.shape}{RESET}{CLEAR_LINE}"  )
+                print ( f"CLASSI:         INFO:      test:             i                                                              = {BLEU}{i}{RESET}{CLEAR_LINE}"                                    )
+                print ( f"CLASSI:         INFO:      test:             supergrid_size                                                 = {BLEU}{args.supergrid_size}{RESET} hence image dimensions (tiles*tiles*batch_size = {args.supergrid_size}*{args.supergrid_size}*{batch_size}={image_tile_width}) will be {BLEU}{image_tile_width}x{image_tile_width}{RESET}{CLEAR_LINE}"  )
+              if DEBUG>90:
+                print ( f"CLASSI:         INFO:      test:             grid_labels.shape                                              = {BLEU}{grid_labels.shape}{RESET}{CLEAR_LINE}"                    )
+                print ( f"CLASSI:         INFO:      test:             grid_preds.shape                                               = {BLEU}{grid_preds.shape}{RESET}{CLEAR_LINE}"                     )
+                print ( f"CLASSI:         INFO:      test:             grid_p_highest.shape                                           = {BLEU}{grid_p_highest.shape}{RESET}{CLEAR_LINE}"                 )            
+                print ( f"CLASSI:         INFO:      test:             grid_p_2nd_highest.shape                                       = {BLEU}{grid_p_2nd_highest.shape}{RESET}{CLEAR_LINE}"             )
+                print ( f"CLASSI:         INFO:      test:             grid_p_true_class.shape                                        = {BLEU}{grid_p_true_class.shape}{RESET}{CLEAR_LINE}"              )
+                print ( f"CLASSI:         INFO:      test:             grid_p_full_softmax_matrix.shape                               = {BLEU}{grid_p_full_softmax_matrix.shape}{RESET}{CLEAR_LINE}"     )
   
             else:                                                                                                                              # ... accumulate for subsequent batches that will go into the same grid 
               grid_images                = np.append( grid_images,                batch_images.cpu().numpy(), axis=0 )
@@ -3415,7 +3407,8 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
 
               if DEBUG>0:
                 print ( f"CLASSI:         INFO:      test:             i                                                              = {MIKADO}{i}{RESET}"                                                   )
-                print ( f"CLASSI:         INFO:      test:             supergrid_size                                                 = {MIKADO}{args.supergrid_size}{RESET}"                                 )
+                print ( f"CLASSI:         INFO:      test:             supergrid_size                                                 = {MIKADO}{args.supergrid_size}{RESET} hence image dimensions (tiles*tiles*batch_size = {args.supergrid_size}*{args.supergrid_size}*{batch_size}={image_tile_width}) will be {BLEU}{image_tile_width}x{image_tile_width}{RESET}{CLEAR_LINE}"  )
+              if DEBUG>90:
                 print ( f"CLASSI:         INFO:      test:             grid_labels.shape                                              = {MIKADO}{grid_labels.shape}{RESET}"                                   )
                 print ( f"CLASSI:         INFO:      test:             grid_preds.shape                                               = {MIKADO}{grid_preds.shape}{RESET}"                                    )
                 print ( f"CLASSI:         INFO:      test:             grid_p_highest.shape                                           = {MIKADO}{grid_p_highest.shape}{RESET}"                                )            
@@ -3428,8 +3421,18 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
     
                 index                                      = int(i/(args.supergrid_size**2))                                                   # the entry we will update. (We aren't accumulating on every i'th batch, but rather on every args.supergrid_size**2-1'th batch (one time per grid))
 
+                batch_fnames_npy = batch_fnames.numpy()                                                                                        # batch_fnames was set up during dataset generation: it contains a link to the SVS file corresponding to the tile it was extracted from - refer to generate() for details
+                fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
+
                 if DEBUG>0:
+                  print ( f"CLASSI:         INFO:      test:             i                                                              = {ASPARAGUS}{i} (last batch for this epoch and therefore for the batches that make up this super-image{RESET})"                                                   )
                   print ( f"CLASSI:         INFO:      test:             (image) index                                                  = {ASPARAGUS}{index}{RESET}"                                 )
+                  print ( f"CLASSI:         INFO:      test:             supergrid_size                                                 = {ASPARAGUS}{args.supergrid_size}{RESET} hence image dimensions (tiles*tiles*batch_size = {args.supergrid_size}*{args.supergrid_size}*{batch_size}={image_tile_width}) will be {BLEU}{image_tile_width}x{image_tile_width}{RESET}{CLEAR_LINE}"  )
+                  print ( f"CLASSI:         INFO:      test:             n_samples                                                      = {ASPARAGUS}{args.n_samples[0]}{RESET}" )
+                  print ( f"CLASSI:         INFO:      test:             len(patches_true_classes)                                      = {ASPARAGUS}{len(patches_true_classes)}{RESET}" )
+                  print ( f"CLASSI:         INFO:      test:             patches_true_classes                                           = {ASPARAGUS}{patches_true_classes}{RESET}" )
+                  print ( f"CLASSI:         INFO:      test:             batch_fnames_npy                                               = {ASPARAGUS}{batch_fnames_npy}{RESET}" )
+                  print ( f"CLASSI:         INFO:      test:             fq_link                                                        = {ASPARAGUS}{fq_link}{RESET}" )
 
                 patches_true_classes[index]                = image_labels.cpu().detach().numpy()[0]                                            # all tiles in a patch belong to the same case, so we can chose any of them - we choose the zero'th
                 patches_case_id     [index]                = batch_fnames_npy[0]                                                               # all tiles in a patch belong to the same case, so we can chose any of them - we choose the zero'th
@@ -3440,13 +3443,20 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
                 aggregate_tile_probabilities_matrix[index] = grid_tile_probabs_totals_by_class
                 aggregate_tile_level_winners_matrix[index] = grid_tile_winners_totals_by_class + random.uniform( 0.001, 0.01)                  # necessary to make all the tile totals unique when we go looking for them later. ugly but it works
 
+                if DEBUG>1:
+                  np.set_printoptions(formatter={'float': lambda x:   "{:>6.2f}".format(x)})
+                  print ( f"CLASSI:         INFO:      test:             aggregate_tile_probabilities_matrix[{ASPARAGUS}{index}{RESET}]                         = {BOLD}{ASPARAGUS}{aggregate_tile_probabilities_matrix[index]}{RESET}", flush=True  )
+                  print ( f"CLASSI:         INFO:      test:             aggregate_tile_level_winners_matrix[{ASPARAGUS}{index}{RESET}]                         = {BOLD}{ASPARAGUS}{aggregate_tile_level_winners_matrix[index]}{RESET}",  flush=True  )
                 if DEBUG>0:
-                  print ( f"CLASSI:         INFO:      test:             grid_tile_winners_totals_by_class                              = {BOLD}{ASPARAGUS}{grid_tile_winners_totals_by_class}{RESET}"             )
-                  print ( f"CLASSI:         INFO:      test:             aggregate_tile_level_winners_matrix[{ASPARAGUS}{index}{RESET}]                         = {ASPARAGUS}{aggregate_tile_level_winners_matrix[index]}{RESET}"    )
+                  np.set_printoptions(formatter={'float': lambda x:   "{:>6.2f}".format(x)})
+                  print ( f"CLASSI:         INFO:      test:             grid_p_full_softmax_matrix{ASPARAGUS}{RESET}                                     = \n{BOLD}{ASPARAGUS}{grid_p_full_softmax_matrix}{RESET}", flush=True  )
+                  print ( f"CLASSI:         INFO:      test:             aggregate_tile_probabilities_matrix{ASPARAGUS}{RESET}                            = \n{BOLD}{ASPARAGUS}{aggregate_tile_probabilities_matrix}{RESET}", flush=True  )
+
 
             global_batch_count+=1
           
             if global_batch_count%(args.supergrid_size**2)==0:
+              
               if args.input_mode=='image':
                 print("")
                 
@@ -3457,11 +3467,13 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
                   plt.close(fig)
   
                 batch_fnames_npy = batch_fnames.numpy()                                                      # batch_fnames was set up during dataset generation: it contains a link to the SVS file corresponding to the tile it was extracted from - refer to generate() for details
-                
                 fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
                 
                 try:
                   background_image = np.load(f"{fq_link}")
+                  if DEBUG>99:
+                    print ( f"CLASSI:         INFO:      test:        fq_link                                              = {MIKADO}{fq_link}{RESET}" )
+                  
                 except Exception as e:
                   print ( f"{RED}CLASSI:         FATAL:  '{e}'{RESET}" )
                   print ( f"{RED}CLASSI:         FATAL:     explanation: a required {MAGENTA}entire_patch.npy{RESET}{RED} file doesn't exist. (Probably none exist). These contain the background images used for the scattergram. {RESET}" )                
@@ -5833,7 +5845,6 @@ if __name__ == '__main__':
   p.add_argument('--multimode',                                                     type=str,    default='NONE'                                 )
   p.add_argument('--n_samples',                                         nargs="+",  type=int,    default="101"                                  )                                    
   p.add_argument('--n_tiles',                                           nargs="+",  type=int,    default="50"                                   )       
-  p.add_argument('--n_tests',                                                       type=int,    default="16"                                   )       
   p.add_argument('--highest_class_number',                                          type=int,    default="777"                                  )                                                             
   p.add_argument('--supergrid_size',                                                type=int,    default=1                                      )                                      
   p.add_argument('--patch_points_to_sample',                                        type=int,    default=1000                                   )                                   
