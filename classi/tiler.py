@@ -356,7 +356,9 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
               print( f"\r\033[{start_row-1}{CLEAR_LINE}" )
 
             if DEBUG>0:
-              if objective_power==20:
+              if objective_power==0:
+                print( f"\r\033[{start_row+my_thread};0H{RESET}       objective_power = {ARYLIDE}{objective_power}{RESET} (means it was not recorded. will assume 40x)                 ", end="", flush=True )
+              elif objective_power==20:
                 print( f"\r\033[{start_row+my_thread};0H{RESET}       objective_power = {ARYLIDE}{objective_power}{RESET} (will extract double tile size then shrink)                  ", end="", flush=True )
               else:
                 print( f"\r\033[{start_row+my_thread};0H{RESET}       objective_power = {CAMEL}{objective_power}{RESET}                                                             ", end="", flush=True )                
