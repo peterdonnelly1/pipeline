@@ -3050,7 +3050,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       # (iii) generate and save and maybe display box plots
 
       if ( args.box_plot=='True' ) & ( total_runs_in_job>=args.minimum_job_size ):
-          box_plot_by_subtype( args, class_names, n_genes, start_time, parameters, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc )
+          box_plot_by_subtype( args, class_names, n_genes, start_time, parameters, zoom_out_mags, zoom_out_prob, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc )
 
 
   # (G)  CLOSE UP AND END
@@ -5262,7 +5262,7 @@ def excludes( number_to_plot, plot_box_side_length ):
   return concat_excludes
 
 # ------------------------------------------------------------------------------
-def box_plot_by_subtype( args, class_names, n_genes, start_time, parameters, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc ):
+def box_plot_by_subtype( args, class_names, n_genes, start_time, parameters, mags, probs, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc ):
   
   np.set_printoptions(edgeitems=1000)
   np.set_printoptions(linewidth=1000)
