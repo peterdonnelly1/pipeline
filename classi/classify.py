@@ -5397,7 +5397,7 @@ def box_plot_by_subtype( args, class_names, n_genes, start_time, parameters, mag
   
   if args.input_mode=='image':
     title = f"{now:%d-%m-%y %H:%M}  {args.cases[0:25]} ({parameters['n_samples'][0]})  subtypes:{len(class_names)} NN:{parameters['nn_type_img'][0]}  optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}\n  \
-held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]:<9.6f}  tiles:{parameters['n_tiles'][0]}  tile_size:{parameters['tile_size'][0]}  batch_size:{parameters['batch_size'][0]}  (mags:{mags} probs:{prob})"
+held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]:<9.6f}  tiles:{parameters['n_tiles'][0]}  tile_size:{parameters['tile_size'][0]}  batch_size:{parameters['batch_size'][0]}  (mags:{mags} probs:{probs})"
   else:
     title = f"{now:%d-%m-%y %H:%M}  {args.cases[0:25]} ({parameters['n_samples'][0]}) / {args.rna_genes_tranche} (n_genes:{n_genes})   subtypes:{len(class_names)}  \
 FPKM-UQ threshold cutoff: >{parameters['cutoff_percentile'][0]}%/<{parameters['low_expression_threshold'][0]} \nNeural Network:{parameters['nn_type_rna'][0]}  optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}  \
