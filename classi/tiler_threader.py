@@ -73,7 +73,7 @@ def tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_nor
     if DEBUG>20:
       print( f"TILER_THREADER: INFO: number of image samples = {CARRIBEAN_GREEN}{count}{RESET}",           flush=True       )
       print( f"TILER_THREADER: INFO: tiles per image         = {CARRIBEAN_GREEN}{n_tiles}{RESET}",         flush=True       )
-      print( f"TILER_THREADER: INFO: tile_size               = {CARRIBEAN_GREEN}{tile_size}{RESET}",         flush=True       )
+      print( f"TILER_THREADER: INFO: tile_size               = {CARRIBEAN_GREEN}{tile_size}{RESET}",       flush=True       )
       print( f"TILER_THREADER: INFO: batch_size              = {CARRIBEAN_GREEN}{batch_size}{RESET}",      flush=True       )
 
     for n in range(0, num_cpus):

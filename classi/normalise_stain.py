@@ -1,18 +1,42 @@
-"""
-based on ...................... (insert reference & URL to author) 
-
-
-"""
+# all code used for spcn stain normalisation is due to:
+#     D. Anand, G. Ramakrishnan, A. Sethi
+#     and is an implementation of spcn described in their paper
+#        "Fast GPU-enabled color normalization for digital pathology"
+#        International Conference on Systems, Signals and Image Processing, Osijek, Croatia (2019), pp. 219-224
+#
+# their spcn implementation is an optimised, GPU based version of the original spcn algorithm which was created by:
+#     Vahadane, A. et al.
+#     as described in their paper: 
+#         "Structure-preserving color normalization and sparse stain separation for histological images" 
+#         IEEE Trans. Med. Imaging. 35, 1962–1971 (2016).
+#
+# the Anand et al fast GPU implementation used may be found here:
+#     https://github.com/goutham7r/spcn
+#
+#
+#  Notes:
+#   spcn stain normalisation takes place outside of the CLASSI framework
+#   it is run prior to using CLASSI, and creates a new, stain normalised version of each SVS file it finds in the working data directory and places it in the same directory
+#   when the spcn option is selected in CLASSI, (-0 spcn), these normalised files are used rather than the SVS files    
+#   
+#   further:
+#   1`characterising the reference file typically takes a long time - perhaps half an hour
+#   2`stain normalisation of svs files, which are typically very large, likewise can take a long time - easily 20 minutes per image
+#   2 the program performing spcn stain normalisation uses tensorflow rather than pytorch
+#   3 since it uses some of the same libraries as CLASSI, but at different version levels, it should be run in a different virtual environment to CLASSI (I use conda)
+#   4 here are the dependencies:
+#        python              3.6.13
+#        tensorflow          1.15.0
+#        numpy               1.19.5
+#        pyvips              2.1.8
+#        openslide           3.4.1
+#        openslide-python    1.1.2
+#        pillow              8.1.2
+#        spams               2.6.1
 
 import os
 import sys
-import glob
-import codecs
-import random
-import fnmatch
 import argparse
-import numpy  as np
-import pandas as pd
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # or any {'0', '1', '2'}
 
@@ -43,9 +67,16 @@ DEBUG   = 1
 #====================================================================================================================================================
 def main(args):
 
-  data_dir                 = args.data_dir
+  data_dir       = args.data_dir
+  reference_file = f"{data_dir}/{args.reference_file}"
   
-  reference_file = f"{data_dir}/TCGA-IP-7968-11A-01-TS1.aa84dfd6-6660-4488-b7d6-7652445a6f35.svs"
+  # ~ reference_file = f"{data_dir}/TCGA-IP-7968-11A-01-TS1.aa84dfd6-6660-4488-b7d6-7652445a6f35.svs"
+
+  if os.path.isfile(reference_file)!=True:
+    print ( f"{RED}CLASSI:        FATAL:  the image reference file you provided ('{CYAN}{reference_file}{RESET}{RED}') does not exist.{RESET}" )
+    print ( f"{RED}CLASSI:        FATAL:  cannot continue - halting now{RESET}" )                 
+    sys.exit(0)
+
 
   gpu_options=tf.GPUOptions( per_process_gpu_memory_fraction=1 )
   # config = tf.ConfigProto(device_count={'GPU': 1},log_device_placement=False,gpu_options=gpu_options)
@@ -147,7 +178,8 @@ if __name__ == '__main__':
 	
   p = argparse.ArgumentParser()
 
-  p.add_argument('--data_dir',                type=str, default="/home/peter/git/pipeline/working_data")
+  p.add_argument('--data_dir',                      type=str, default="/home/peter/git/pipeline/working_data" )
+  p.add_argument('--reference_file',                type=str                                                  )
   
   args, _ = p.parse_known_args()
 

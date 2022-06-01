@@ -1,3 +1,9 @@
+# all code used for spcn stain normalisation is due to:
+#     D. Anand, G. Ramakrishnan, A. Sethi
+#     Fast GPU-enabled color normalization for digital pathology
+#     International Conference on Systems, Signals and Image Processing, Osijek, Croatia (2019), pp. 219-224
+
+
 import sys
 import os
 import spams
@@ -121,7 +127,7 @@ def Wfast( img, nstains, lamb, num_patches, patchsize, level, background_correct
     if WS.shape[0]==1:
       Wsource=WS[0,:3,:]
     else:
-      print( f"ESTIMATE_Wi:            INFO:   median color basis of {MIKADO}{len(WS)}{RESET} patches will be used as color basis" )
+      print( f"ESTIMATE_Wi:            INFO: median color basis of {MIKADO}{len(WS)}{RESET} patches will be used as color basis" )
       Wsource=np.zeros(( 3, nstains))
       for k in range(nstains):
           Wsource[:,k]=[np.median(WS[:,0,k]),np.median(WS[:,1,k]),np.median(WS[:,2,k])]
