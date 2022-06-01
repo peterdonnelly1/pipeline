@@ -572,7 +572,7 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
                 # ~ print ( f"{SAVE_CURSOR}{CLEAR_LINE}", end="" )
 
               print  (f"\
-{RESET}{BRIGHT_GREEN if tiles_processed>=(0.95*n_tiles) else GREEN if tiles_processed>=(0.90*n_tiles) else ORANGE if tiles_processed>=(0.75*n_tiles) else ORANGE if tiles_processed>=(0.25*n_tiles) else WHITE if tiles_processed<=(0.10*n_tiles) else BLEU}\
+{RESET}{BRIGHT_GREEN if tiles_processed>=(0.95*n_tiles) else GREEN if tiles_processed>=(0.90*n_tiles) else ORANGE if tiles_processed>=(0.75*n_tiles) else WHITE if tiles_processed>=(0.25*n_tiles) else DULL_WHITE if tiles_processed<=(0.10*n_tiles) else BLEU}\
 \r\033[{start_row+my_thread};{start_column}f{my_thread:^8d}      \
 \r\033[{start_row+my_thread};{start_column+12}f{tiles_considered_count:6d}  \
   ({(tiles_processed/n_tiles*100):>3.0f}%)   \
