@@ -574,12 +574,11 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
               print  (f"\
 {RESET}{BRIGHT_GREEN if tiles_processed>=(0.95*n_tiles) else GREEN if tiles_processed>=(0.90*n_tiles) else ORANGE if tiles_processed>=(0.75*n_tiles) else BLEU if tiles_processed>=(0.50*n_tiles) else WHITE if tiles_processed>=(0.25*n_tiles) else DULL_WHITE}\
 \r\033[{start_row+my_thread};{start_column}f{my_thread:^8d}      \
-\r\033[{start_row+my_thread};{start_column+12}f{tiles_considered_count:6d}  \
-  ({(tiles_processed/n_tiles*100):>3.0f}%)   \
-\r\033[{start_row+my_thread};{start_column+30}f{tiles_processed:6d}  ({tiles_processed/[tiles_considered_count                 if tiles_considered_count>0 else .000000001][0] *100:4.0f}%)  \
-\r\033[{start_row+my_thread};{start_column+46}f{low_contrast_tile_count:6d}  ({low_contrast_tile_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:4.0f}%)  \
-\r\033[{start_row+my_thread};{start_column+62}f{degenerate_image_count:6d}  ({degenerate_image_count/[tiles_considered_count   if tiles_considered_count>0 else .000000001][0] *100:4.0f}%)  \
-\r\033[{start_row+my_thread};{start_column+78}f{background_image_count:6d}  ({background_image_count/[tiles_considered_count   if tiles_considered_count>0 else .000000001][0] *100:4.0f}%)  \
+\r\033[{start_row+my_thread};{start_column+12}f{tiles_considered_count:6d}    ({(tiles_considered_count/n_tiles*100):>3.0f}%)   \
+\r\033[{start_row+my_thread};{start_column+30}f{tiles_processed:6d}  ({tiles_processed/[tiles_considered_count                 if tiles_considered_count>0 else .000000001][0] *100:3.0f}%)   \
+\r\033[{start_row+my_thread};{start_column+46}f{low_contrast_tile_count:6d}  ({low_contrast_tile_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:3.0f}%)   \
+\r\033[{start_row+my_thread};{start_column+62}f{degenerate_image_count:6d}  ({degenerate_image_count/[tiles_considered_count   if tiles_considered_count>0 else .000000001][0] *100:3.0f}%)   \
+\r\033[{start_row+my_thread};{start_column+78}f{background_image_count:6d}  ({background_image_count/[tiles_considered_count   if tiles_considered_count>0 else .000000001][0] *100:3.0f}%)   \
 ", flush=True, end="" )
 
               # ~ time.sleep(.25)
