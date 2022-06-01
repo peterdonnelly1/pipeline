@@ -371,10 +371,10 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
 \r\033[{start_row-2};{start_column+0+3}fcpu\
 \r\033[{start_row-2};{start_column+6+3}frequired\
 \r\033[{start_row-2};{start_column+15+4}fexamined\
-\r\033[{start_row-2};{start_column+26+4}fof which...  accepted\
-\r\033[{start_row-2};{start_column+48+9}flow_contrast\
-\r\033[{start_row-2};{start_column+64+9}fdegenerate\
-\r\033[{start_row-2};{start_column+80+9}fbackground\
+\r\033[{start_row-2};{start_column+26+4}fof which >>  accepted\
+\r\033[{start_row-2};{start_column+48+10}flow_contrast\
+\r\033[{start_row-2};{start_column+64+10}fdegenerate\
+\r\033[{start_row-2};{start_column+80+10}fbackground\
 ", flush=True, end="" )
 
 
