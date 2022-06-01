@@ -371,7 +371,7 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
 \r\033[{start_row-2};{start_column+0+3}fcpu\
 \r\033[{start_row-2};{start_column+6+3}frequired\
 \r\033[{start_row-2};{start_column+15+4}fexamined\
-\r\033[{start_row-2};{start_column+24+4}fof which... accepted\
+\r\033[{start_row-2};{start_column+26+4}fof which... accepted\
 \r\033[{start_row-2};{start_column+48+4}flow_contrast\
 \r\033[{start_row-2};{start_column+64+4}fdegenerate\
 \r\033[{start_row-2};{start_column+80+4}fbackground\
@@ -579,10 +579,10 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
 \r\033[{start_row+my_thread};{start_column}f{my_thread:^8d}      \
 \r\033[{start_row+my_thread};{start_column+6}f{n_tiles:6d}              \
 \r\033[{start_row+my_thread};{start_column+15}f{tiles_considered_count:6d}         \
-\r\033[{start_row+my_thread};{start_column+30}f{tiles_processed:6d}  ({tiles_processed/[tiles_considered_count                 if tiles_considered_count>0 else .000000001][0] *100:3.0f}%)   \
-\r\033[{start_row+my_thread};{start_column+48}f{low_contrast_tile_count:6d}  ({low_contrast_tile_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:3.0f}%)   \
-\r\033[{start_row+my_thread};{start_column+64}f{degenerate_image_count:6d}  ({degenerate_image_count/[tiles_considered_count   if tiles_considered_count>0 else .000000001][0] *100:3.0f}%)   \
-\r\033[{start_row+my_thread};{start_column+80}f{background_image_count:6d}  ({background_image_count/[tiles_considered_count   if tiles_considered_count>0 else .000000001][0] *100:3.0f}%)   \
+\r\033[{start_row+my_thread};{start_column+30+9}f{tiles_processed:6d}  ({tiles_processed/[tiles_considered_count                 if tiles_considered_count>0 else .000000001][0] *100:3.0f}%)   \
+\r\033[{start_row+my_thread};{start_column+48+8}f{low_contrast_tile_count:6d}  ({low_contrast_tile_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:3.0f}%)   \
+\r\033[{start_row+my_thread};{start_column+64+8}f{degenerate_image_count:6d}  ({degenerate_image_count/[tiles_considered_count   if tiles_considered_count>0 else .000000001][0] *100:3.0f}%)   \
+\r\033[{start_row+my_thread};{start_column+80+8}f{background_image_count:6d}  ({background_image_count/[tiles_considered_count   if tiles_considered_count>0 else .000000001][0] *100:3.0f}%)   \
 ", flush=True, end="" )
 
               # ~ time.sleep(.25)
