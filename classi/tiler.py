@@ -368,13 +368,15 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
             if DEBUG>0:
                 print  (f"\
       {WHITE}\
-\r\033[{start_row-2};{start_column+3}fcpu\
-\r\033[{start_row-2};{start_column+15}fexamined\
-\r\033[{start_row-2};{start_column+33}faccepted\
-\r\033[{start_row-2};{start_column+48}flow_contrast\
-\r\033[{start_row-2};{start_column+64}fdegenerate\
-\r\033[{start_row-2};{start_column+80}fbackground\
+\r\033[{start_row-2};{start_column+8}fcpu\
+\r\033[{start_row-2};{start_column+24}fexamined\
+\r\033[{start_row-2};{start_column+40}faccepted\
+\r\033[{start_row-2};{start_column+56}flow_contrast\
+\r\033[{start_row-2};{start_column+80}fdegenerate\
+\r\033[{start_row-2};{start_column+98}fbackground\
 ", flush=True, end="" )
+
+
 
             if ( ( just_test=='True')  & ( multimode!='image_rna' ) ):
               
@@ -574,11 +576,12 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
               print  (f"\
 {RESET}{BRIGHT_GREEN if tiles_processed>=(0.95*n_tiles) else GREEN if tiles_processed>=(0.90*n_tiles) else ORANGE if tiles_processed>=(0.75*n_tiles) else BLEU if tiles_processed>=(0.50*n_tiles) else WHITE if tiles_processed>=(0.25*n_tiles) else DULL_WHITE}\
 \r\033[{start_row+my_thread};{start_column}f{my_thread:^8d}      \
-\r\033[{start_row+my_thread};{start_column+12}f{tiles_considered_count:6d}    ({(tiles_processed/n_tiles*100):>3.0f}%)   \
-\r\033[{start_row+my_thread};{start_column+30}f{tiles_processed:6d}  ({tiles_processed/[tiles_considered_count                 if tiles_considered_count>0 else .000000001][0] *100:3.0f}%)   \
-\r\033[{start_row+my_thread};{start_column+46}f{low_contrast_tile_count:6d}  ({low_contrast_tile_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:3.0f}%)   \
-\r\033[{start_row+my_thread};{start_column+62}f{degenerate_image_count:6d}  ({degenerate_image_count/[tiles_considered_count   if tiles_considered_count>0 else .000000001][0] *100:3.0f}%)   \
-\r\033[{start_row+my_thread};{start_column+78}f{background_image_count:6d}  ({background_image_count/[tiles_considered_count   if tiles_considered_count>0 else .000000001][0] *100:3.0f}%)   \
+\r\033[{start_row+my_thread};{start_column+8}f{n_tiles:6d}      \
+\r\033[{start_row+my_thread};{start_column+24}f{tiles_considered_count:6d}    ({(tiles_processed/n_tiles*100):>3.0f}%)   \
+\r\033[{start_row+my_thread};{start_column+40}f{tiles_processed:6d}  ({tiles_processed/[tiles_considered_count                 if tiles_considered_count>0 else .000000001][0] *100:3.0f}%)   \
+\r\033[{start_row+my_thread};{start_column+56}f{low_contrast_tile_count:6d}  ({low_contrast_tile_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:3.0f}%)   \
+\r\033[{start_row+my_thread};{start_column+80}f{degenerate_image_count:6d}  ({degenerate_image_count/[tiles_considered_count   if tiles_considered_count>0 else .000000001][0] *100:3.0f}%)   \
+\r\033[{start_row+my_thread};{start_column+98}f{background_image_count:6d}  ({background_image_count/[tiles_considered_count   if tiles_considered_count>0 else .000000001][0] *100:3.0f}%)   \
 ", flush=True, end="" )
 
               # ~ time.sleep(.25)
