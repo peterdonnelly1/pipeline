@@ -1,17 +1,21 @@
 # all code used for spcn stain normalisation is due to:
 #     D. Anand, G. Ramakrishnan, A. Sethi
-#     and is an implementation of spcn described in their paper
+#     and is an implementation of spcn described in their paper:
 #        "Fast GPU-enabled color normalization for digital pathology"
 #        International Conference on Systems, Signals and Image Processing, Osijek, Croatia (2019), pp. 219-224
 #
-# their spcn implementation is an optimised, GPU based version of the original spcn algorithm which was created by:
+#
+# the code I used (trivially modified by me) may be found here:
+#     https://github.com/goutham7r/spcn
+#
+#
+# their spcn implementation is in turn an optimised, GPU based version of the original spcn algorithm which was created by:
 #     Vahadane, A. et al.
 #     as described in their paper: 
 #         "Structure-preserving color normalization and sparse stain separation for histological images" 
 #         IEEE Trans. Med. Imaging. 35, 1962–1971 (2016).
 #
-# the Anand et al fast GPU implementation used may be found here:
-#     https://github.com/goutham7r/spcn
+#
 #
 #
 #  Notes:
@@ -21,7 +25,7 @@
 #   
 #   further:
 #   1`characterising the reference file typically takes a long time - perhaps half an hour
-#   2`stain normalisation of svs files, which are typically very large, likewise can take a long time - easily 20 minutes per image
+#   2`stain normalisation of svs files, which are typically very large, likewise can take a long time - e.g 10-30 minutes per image
 #   2 the program performing spcn stain normalisation uses tensorflow rather than pytorch
 #   3 since it uses some of the same libraries as CLASSI, but at different version levels, it should be run in a different virtual environment to CLASSI (I use conda)
 #   4 here are the dependencies:
@@ -33,6 +37,7 @@
 #        openslide-python    1.1.2
 #        pillow              8.1.2
 #        spams               2.6.1
+#        scikit-learn        0.23.2
 
 import os
 import sys

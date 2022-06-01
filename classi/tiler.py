@@ -361,14 +361,14 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
               elif objective_power==20:
                 print( f"\r\033[{start_row+my_thread};0H{RESET}       objective_power = {ARYLIDE}{objective_power:2d}{RESET} (will extract double tile size then shrink)                  ", end="", flush=True )
               else:
-                print( f"\r\033[{start_row+my_thread};0H{RESET}       objective_power = {CAMEL}{objective_power:2d}{RESET}                                                             ", end="", flush=True )                
+                print( f"\r\033[{start_row+my_thread};0H{RESET}       objective_power = {CAMEL}{objective_power:2d}{RESET}                                                              ",   end="", flush=True )                
               print( f"\r\033[{start_row+my_thread};90H{RESET}zoom out = \
 {AMETHYST if multiplier==1 else MIKADO if multiplier==2 else CARRIBEAN_GREEN if 2<multiplier<=4 else BITTER_SWEET if 5<multiplier<=8 else CHARTREUSE if 5<multiplier<=8 else CAMEL}{multiplier}{RESET}               ", end="", flush=True )
 
             if DEBUG>0:
                 print  (f"\
       {WHITE}\
-\r\033[{start_row-2};{start_column+3}fthread\
+\r\033[{start_row-2};{start_column+3}fcpu\
 \r\033[{start_row-2};{start_column+15}fexamined\
 \r\033[{start_row-2};{start_column+33}faccepted\
 \r\033[{start_row-2};{start_column+48}flow_contrast\
@@ -572,15 +572,15 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
                 # ~ print ( f"{SAVE_CURSOR}{CLEAR_LINE}", end="" )
 
               print  (f"\
-{BRIGHT_GREEN if tiles_processed>=(0.95*n_tiles) else ORANGE if tiles_processed>=(0.75*n_tiles) else DULL_WHITE if tiles_processed<=(0.25*n_tiles) else BLEU}\
+{RESET}{BRIGHT_GREEN if tiles_processed>=(0.95*n_tiles) else ORANGE if tiles_processed>=(0.75*n_tiles) else DULL_WHITE if tiles_processed<=(0.25*n_tiles) else BLEU}\
 \r\033[{start_row+my_thread};{start_column}f{my_thread:^8d}      \
-\r\033[{start_row+my_thread};{start_column+12}f{tiles_considered_count:6d}    \
-  ({(tiles_processed/n_tiles*100):4.0f}%)\
-\r\033[{start_row+my_thread};{start_column+30}f{tiles_processed:6d}  ({tiles_processed/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:4.0f}%)  \
+\r\033[{start_row+my_thread};{start_column+12}f{tiles_considered_count:6d}  \
+  ({(tiles_processed/n_tiles*100):4.0f}%)  \
+\r\033[{start_row+my_thread};{start_column+30}f{tiles_processed:6d}  ({tiles_processed/[tiles_considered_count                 if tiles_considered_count>0 else .000000001][0] *100:4.0f}%)  \
 \r\033[{start_row+my_thread};{start_column+46}f{low_contrast_tile_count:6d}  ({low_contrast_tile_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:4.0f}%)  \
-\r\033[{start_row+my_thread};{start_column+62}f{degenerate_image_count:6d}  ({degenerate_image_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:4.0f}%)  \
-\r\033[{start_row+my_thread};{start_column+78}f{background_image_count:6d}  ({background_image_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:4.0f}%)  \
-{CLEAR_LINE}", flush=True, end="" )
+\r\033[{start_row+my_thread};{start_column+62}f{degenerate_image_count:6d}  ({degenerate_image_count/[tiles_considered_count   if tiles_considered_count>0 else .000000001][0] *100:4.0f}%)  \
+\r\033[{start_row+my_thread};{start_column+78}f{background_image_count:6d}  ({background_image_count/[tiles_considered_count   if tiles_considered_count>0 else .000000001][0] *100:4.0f}%)  \
+", flush=True, end="" )
 
               # ~ time.sleep(.25)
               print ( f"{RESTORE_CURSOR}", end="" )

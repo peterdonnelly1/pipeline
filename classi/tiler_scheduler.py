@@ -53,11 +53,11 @@ def tiler_scheduler( args, r_norm, flag, count, n_tiles, tile_size, batch_size, 
   dirs_which_have_flag = 0
   
   if ( ( just_test!='True' ) | ( multimode=='image_rna') ):                                                # training mode or multimode test mode
-    my_quota           = -(count//-num_cpus)                                                               #   how many slides each process has to handle
+    my_quota           = -(count//-num_cpus)                                                               # how many slides each process has to handle
     if count>10:
-      my_expanded_quota  = int (1.3 * my_quota)                                                            #   because some threads will be "luckier" than others in coming across slides with the correct flag
+      my_expanded_quota  = int (1.3 * my_quota)                                                            # because some threads will be "luckier" than others in coming across slides with the correct flag
     else:
-      my_expanded_quota  = int (3.  * my_quota)                                                            #   because some threads will be "luckier" than others in coming across slides with the correct flag
+      my_expanded_quota  = int (3.  * my_quota)                                                            # because some threads will be "luckier" than others in coming across slides with the correct flag
   else:                                                                                                    # test mode
     my_quota           = count
     my_expanded_quota  = my_quota
@@ -80,7 +80,7 @@ def tiler_scheduler( args, r_norm, flag, count, n_tiles, tile_size, batch_size, 
       else:
         fqd = f"{root}/{d}"
       
-        has_flag=False                                                                    # in this case, all image cases are candidates ('ALL_ELIGIBLE_CASES' aren't flagged as such)
+        has_flag=False                                                                                     # in this case, all image cases are candidates ('ALL_ELIGIBLE_CASES' aren't flagged as such)
         try:
           fqn = f"{root}/{d}/{flag}"        
           f = open( fqn, 'r' )
