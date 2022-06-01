@@ -368,7 +368,8 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
             if DEBUG>0:
                 print  (f"\
       {WHITE}\
-\r\033[{start_row-2};{start_column+8}fcpu\
+\r\033[{start_row-2};{start_column+0}fcpu\
+\r\033[{start_row-2};{start_column+8}frequired\
 \r\033[{start_row-2};{start_column+24}fexamined\
 \r\033[{start_row-2};{start_column+40}faccepted\
 \r\033[{start_row-2};{start_column+56}flow_contrast\
