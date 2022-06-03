@@ -38,9 +38,9 @@ def tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_nor
   
   num_cpus = multiprocessing.cpu_count()
 
-  start_column = 170
-  start_row    = 50-num_cpus
-
+  start_column = 120
+  start_row    = 60-num_cpus
+  
   random_array = [ random.random() for i in range(1, len(zoom_out_prob)+1 ) ]
   r_norm       = [ i/(sum(random_array)) for i in random_array ]                                           # make the vector add up to 1
 
@@ -76,6 +76,9 @@ def tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_nor
       print( f"TILER_THREADER: INFO: tile_size               = {CARRIBEAN_GREEN}{tile_size}{RESET}",       flush=True       )
       print( f"TILER_THREADER: INFO: batch_size              = {CARRIBEAN_GREEN}{batch_size}{RESET}",      flush=True       )
 
+    for row in range(start_row-1, start_row+num_cpus):
+      print ( f"{SAVE_CURSOR}\r\033[{row};0H{CLEAR_LINE}{RESTORE_CURSOR}", end="", flush=True )
+
     for n in range(0, num_cpus):
       task=executor.submit( tiler_scheduler, args, r_norm, flag, count, n_tiles, tile_size, batch_size, stain_norm, norm_method, n, num_cpus )
       tasks.append(task)
@@ -105,7 +108,7 @@ def tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_nor
 
 
   if DEBUG>0:
-    print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row+8};0H{CLEAR_LINE}total slides processed: {MIKADO}{sum(results) if ( ( just_test!='True' ) | ( multimode=='image_rna' ) ) else results} {MIKADO}{results}{RESET}{RESTORE_CURSOR}", flush=True, end=""  )                  
+    print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row-3};0H{CLEAR_LINE}total slides processed: {MIKADO}{sum(results) if ( ( just_test!='True' ) | ( multimode=='image_rna' ) ) else results} {MIKADO}{results}{RESET}{RESTORE_CURSOR}", flush=True, end=""  )                  
 
         
   return SUCCESS

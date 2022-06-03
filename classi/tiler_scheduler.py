@@ -46,27 +46,38 @@ def tiler_scheduler( args, r_norm, flag, count, n_tiles, tile_size, batch_size, 
 
   dir_count=0
 
-  if (DEBUG>12):
-    print ( f"TILER_SCHEDULER_{FG3}:         INFO:                          my_thread = {FG4}{my_thread:2d}{RESET}", flush=True ) 
+  if (DEBUG>1):
+    print ( f"TILER_SCHEDULER_{FG3}:         INFO:                          my_thread = {FG4}{my_thread:2d}{RESET}     ", flush=True ) 
+    print ( f"TILER_SCHEDULER_{FG3}:         INFO:                          count     = {FG4}{count:2d}{RESET}         ",     flush=True ) 
 
   slides_processed     = 0
   dirs_which_have_flag = 0
   
-  if ( ( just_test!='True' ) | ( multimode=='image_rna') ):                                                # training mode or multimode test mode
-    my_quota           = -(count//-num_cpus)                                                               # how many slides each process has to handle
-    if count>10:
-      my_expanded_quota  = int (1.3 * my_quota)                                                            # because some threads will be "luckier" than others in coming across slides with the correct flag
-    else:
-      my_expanded_quota  = int (3.  * my_quota)                                                            # because some threads will be "luckier" than others in coming across slides with the correct flag
-  else:                                                                                                    # test mode
-    my_quota           = count
-    my_expanded_quota  = my_quota
+
+  my_quota           = -(count*n_tiles//-num_cpus)                                                               # how many slides each process has to handle
+
+  if count>10:
+    my_expanded_quota  = int (1.3 * my_quota)                                                            # because some threads will be "luckier" than others in coming across slides with the correct flag
+  else:                                                                                                  # low count
+    my_expanded_quota  = int (3.  * my_quota)                                                            # because some threads will be "luckier" than others in coming across slides with the correct flag
+
+  if tile_size>=100:
+    my_expanded_quota  = int (3.  * my_quota)                                                            # the larger the file size, the fewer tiles will be avalable because of increased chance of hitting degenerate areas and background
+    
+  if just_test=='True':
+    my_expanded_quota  = int (3.  * my_quota)                                                            # the larger the file size, the fewer tiles will be avalable because of increased chance of hitting degenerate areas and background
+
+  if my_expanded_quota<3:
+    my_expanded_quota = 3
+
   
-  if DEBUG>4:
+  if DEBUG>0:
     # ~ if (my_thread>15) & (my_thread<20):
     if (my_thread>18):
-      print ( f"\r{RESET}TILER_SCHEDULER_{my_thread:2d}:      INFO:  my_quota          = {MIKADO}{my_quota}{RESET}{CLEAR_LINE}", flush=True ) 
-      print ( f"\r{RESET}TILER_SCHEDULER_{my_thread:2d}:      INFO:  my_expanded_quota = {AMETHYST}{my_expanded_quota}{RESET}{CLEAR_LINE}", flush=True ) 
+      print ( f"{SAVE_CURSOR}{RESET}\r\033[{start_row-6};0HTILER_SCHEDULER_thread_{my_thread:2d}:      INFO:  n_tiles                      = {MIKADO}{n_tiles}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}",            flush=True ) 
+      print ( f"{SAVE_CURSOR}{RESET}\r\033[{start_row-5};0HTILER_SCHEDULER_thread_{my_thread:2d}:      INFO:  qualifying slides count      = {MIKADO}{count}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}",            flush=True ) 
+      print ( f"{SAVE_CURSOR}{RESET}\r\033[{start_row-4};0HTILER_SCHEDULER_thread_{my_thread:2d}:      INFO:  my_quota                     = {MIKADO}{my_quota}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}",            flush=True ) 
+      print ( f"{SAVE_CURSOR}{RESET}\r\033[{start_row-3};0HTILER_SCHEDULER_thread_{my_thread:2d}:      INFO:  my_expanded_quota            = {MIKADO}{my_expanded_quota}  {RESET}{DULL_WHITE}<< because some threads will be 'luckier' than others in coming across slides with the correct flag{RESET}{CLEAR_LINE}{RESTORE_CURSOR}", flush=True ) 
   
   for root, dirs, files in walker:                                                                         # go through all the directories, but only tackle every my_thread'th directory
     
@@ -99,13 +110,15 @@ def tiler_scheduler( args, r_norm, flag, count, n_tiles, tile_size, batch_size, 
             if stain_norm=="spcn":                                                                         
               if ( f.endswith( "spcn" ) ):                                                                 # then the stain normalised version of the slide will have extension 'spcn'
                 pqn = f"{d}/{f}"
+                
                 result = tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, my_thread )
+                
                 if result==SUCCESS:
                   slides_processed+=1
                   if ( ( just_test=='True' ) & ( multimode!='image_rna') )  & (my_thread==0):
-                    print ( f"{SAVE_CURSOR}\r\033[{start_row-2};280H{RESET}{CARRIBEAN_GREEN}{slides_processed}/{my_quota}{RESET}{RESTORE_CURSOR}{CLEAR_LINE}", flush=True ) 
+                    print ( f"{SAVE_CURSOR}\r\033[{start_row-2};280H{RESET}{CARRIBEAN_GREEN}{slides_processed}/{my_expanded_quota}{RESET}{RESTORE_CURSOR}{CLEAR_LINE}", flush=True ) 
                   else:
-                    print ( f"{SAVE_CURSOR}\r\033[300C\033[{my_thread}B{RESET}{CARRIBEAN_GREEN}{slides_processed}/{my_quota}{RESET}{RESTORE_CURSOR}{CLEAR_LINE}", flush=True )                           
+                    print ( f"{SAVE_CURSOR}\r\033[300C\033[{my_thread}B{RESET}{CARRIBEAN_GREEN}{slides_processed}/{my_expanded_quota}{RESET}{RESTORE_CURSOR}{CLEAR_LINE}", flush=True )                           
                   if slides_processed>=my_expanded_quota:
                     break
                 else:
@@ -117,13 +130,15 @@ def tiler_scheduler( args, r_norm, flag, count, n_tiles, tile_size, batch_size, 
             else:                                                                                          # look for and use normal versions of the slides
               if ( f.endswith( "svs" ) ) | ( f.endswith( "SVS" ) ) | ( f.endswith( "tif" ) ) | ( f.endswith( "tif" ) )  | ( f.endswith( "TIF" ) ) | ( f.endswith( "TIFF" ) ):
                 pqn = f"{d}/{f}"
+                
                 result = tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, my_thread )
+                
                 if result==SUCCESS:
                   slides_processed+=1
                   if ( ( just_test=='True' ) & ( multimode!='image_rna') )  & (my_thread==0):
-                    print ( f"{SAVE_CURSOR}\r\033[{start_row-2};280H{RESET}{CARRIBEAN_GREEN}{slides_processed}/{my_quota}{RESET}{RESTORE_CURSOR}{CLEAR_LINE}", flush=True ) 
+                    print ( f"{SAVE_CURSOR}\r\033[{start_row-2};280H{RESET}{CARRIBEAN_GREEN}{slides_processed}/{my_expanded_quota}{RESET}{RESTORE_CURSOR}{CLEAR_LINE}", flush=True ) 
                   else:
-                    print ( f"{SAVE_CURSOR}\r\033[{start_row+my_thread};300H{RESET}{CARRIBEAN_GREEN}{slides_processed}/{my_quota}{RESET}{RESTORE_CURSOR}{CLEAR_LINE}", flush=True )                           
+                    print ( f"{SAVE_CURSOR}\r\033[{start_row+my_thread};300H{RESET}{CARRIBEAN_GREEN}{slides_processed}/{my_expanded_quota}{RESET}{RESTORE_CURSOR}{CLEAR_LINE}", flush=True )                           
                   if slides_processed>=my_expanded_quota:
                     break
                 else:
@@ -139,11 +154,11 @@ def tiler_scheduler( args, r_norm, flag, count, n_tiles, tile_size, batch_size, 
       break
                   
   if slides_processed==my_quota:
-    print ( f"\033[{start_row+my_thread};{start_column+94}f  {RESET}{GREEN}thread {MIKADO}{my_thread:2d}{RESET}{GREEN} exiting - on quota  {RESET}", flush=True  )
+    print ( f"\033[{start_row+my_thread};{start_column+72}f  {RESET}{GREEN  }thread {MIKADO}{my_thread:2d}{RESET}{GREEN  } exiting - on    (expanded) tiles/slide quota{RESET}", flush=True  )
   elif slides_processed>my_quota:
-    print ( f"\033[{start_row+my_thread};{start_column+94}f  {RESET}{MAGENTA}thread {MIKADO}{my_thread:2d}{RESET}{MAGENTA} exiting - over quota {RESET}", flush=True )
+    print ( f"\033[{start_row+my_thread};{start_column+72}f  {RESET}{MAGENTA}thread {MIKADO}{my_thread:2d}{RESET}{MAGENTA} exiting - over  (expanded) tiles/slide quota{RESET}", flush=True )
   else:
-    print ( f"\033[{start_row+my_thread};{start_column+94}f  {RESET}{RED}thread {MIKADO}{my_thread:2d}{RESET}{RED} exiting - under quota {RESET}", flush=True )
+    print ( f"\033[{start_row+my_thread};{start_column+72}f  {RESET}{RED    }thread {MIKADO}{my_thread:2d}{RESET}{RED    } exiting - under (expanded) tiles/slide quota{RESET}", flush=True )
 
 
   return(slides_processed)
