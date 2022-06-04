@@ -115,7 +115,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
           dataset       = cfg.get_dataset( args, which_dataset, gpu )
     
           if DEBUG>0:    
-            print( f"LOADER:         IINFO:        dataset {CYAN}{which_dataset}{RESET} now loaded" )     
+            print( f"LOADER:         INFO:        dataset {CYAN}{which_dataset}{RESET} now loaded" )     
                 
           train_inds = list(range(len( dataset )  )   )  
 

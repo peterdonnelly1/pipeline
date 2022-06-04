@@ -50,7 +50,7 @@ start_row    = 60-num_cpus
 
 thread_to_monitor = 7
 
-def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, my_thread ):
+def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, my_thread, r ):
 
   num_cpus = multiprocessing.cpu_count()
 
@@ -357,25 +357,32 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
 
             if DEBUG>0:
               if objective_power==0:
-                print( f"\r\033[{start_row+my_thread};0H{RESET}       objective_power = {ARYLIDE}{objective_power:2d}{RESET} (means it was not recorded. will assume 40x)", end="", flush=True )
+                print( f"\r\033[{start_row+my_thread};0H{RESET}        {ARYLIDE}{objective_power:2d}{RESET} (means it was not recorded. will assume 40x)", end="", flush=True )
               elif objective_power==20:
-                print( f"\r\033[{start_row+my_thread};0H{RESET}       objective_power = {ARYLIDE}{objective_power:2d}{RESET} (will extract double tile size then shrink)",  end="", flush=True )
+                print( f"\r\033[{start_row+my_thread};0H{RESET}        {AZURE}{objective_power:2d}{RESET} (will extract double tile size then shrink)",    end="", flush=True )
               else:
-                print( f"\r\033[{start_row+my_thread};0H{RESET}       objective_power = {CAMEL}{objective_power:2d}{RESET}",                                                end="", flush=True )                
-              print( f"\r\033[{start_row+my_thread};{start_column-20}H{RESET}zoom out = \
+                print( f"\r\033[{start_row+my_thread};0H{RESET}        {CAMEL}{objective_power:2d}{RESET}",                                                end="", flush=True )                
+              print( f"\r\033[{start_row+my_thread};{start_column-30}H{RESET} \
 {AMETHYST if multiplier==1 else MIKADO if multiplier==2 else CARRIBEAN_GREEN if 2<multiplier<=4 else BITTER_SWEET if 5<multiplier<=8 else CHARTREUSE if 5<multiplier<=8 else CAMEL}{multiplier}{RESET}", end="", flush=True )
 
             if DEBUG>0:
                 print  (f"\
       {WHITE}\
-\r\033[{start_row-2};{start_column+0+3}f{RESET}cpu\
-\r\033[{start_row-2};{start_column+6+3}fneeded/slide\
-\r\033[{start_row-2};{start_column+20+3}fhave/slide\
-\r\033[{start_row-2};{start_column+35+4}fexamined\
-\r\033[{start_row-2};{start_column+46+4}fof which >>  accepted\
-\r\033[{start_row-2};{start_column+68+10}f{RED}low_contrast{RESET}\
-\r\033[{start_row-2};{start_column+84+10}f{RED}degenerate{RESET}\
-\r\033[{start_row-2};{start_column+100+10}f{RED}background{RESET}\
+\r\033[{start_row-3};0f{RESET}{CLEAR_LINE}\
+\r\033[{start_row-2};0f{RESET}{CLEAR_LINE}                                                                                                                         --------------------------------------------------------------------------- this slide ---------------------------------------------------------------------------\
+\r\033[{start_row-2};{start_column+172}f{WHITE}overall thread progress{RESET}\
+\r\033[{start_row-1};{start_column-116}f{RESET}{CLEAR_LINE}optical magnification\
+\r\033[{start_row-1};{start_column-44}f{RESET}extraction\
+\r\033[{start_row-1};{start_column-32}f{RESET}applied magnifications\
+\r\033[{start_row-1};{start_column+0+2}f{RESET}cpu\
+\r\033[{start_row-1};{start_column+6+2}fneeded\
+\r\033[{start_row-1};{start_column+14+4}f{BOLD}{GREEN}have{RESET}\
+\r\033[{start_row-1};{start_column+25+1}fexamined\
+\r\033[{start_row-1};{start_column+25+14}f{GREEN}accepted{RESET}\
+\r\033[{start_row-1};{start_column+42+10}f{RED}low_contrast{RESET}\
+\r\033[{start_row-1};{start_column+58+10}f{RED}degenerate{RESET}\
+\r\033[{start_row-1};{start_column+74+10}f{RED}background{RESET}\
+\r\033[{start_row-1};{start_column+90+10}f{WHITE}currenty extracting tiles from this image file:{RESET}\
 ", flush=True, end="" )
 
 
@@ -389,7 +396,7 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
                 new_width = multiplier*2*tile_width_x
                 tile = oslide.read_region((x     ,  y     ),  level, (new_width, new_width))               # extract an area from the slide of size determined by the result returned by choose_mag_level
                 if (DEBUG>0):
-                  print ( f"\r\033[{start_row+my_thread};{start_column-40}f\033[{7*int(math.log2(multiplier))}C{CARRIBEAN_GREEN}{new_width}x{new_width}{RESET}" )
+                  print ( f"\r\033[{start_row+my_thread};{start_column-44}f\033[{7*int(math.log2(multiplier))}C{CARRIBEAN_GREEN}{new_width}x{new_width}{RESET}" )
                 if (DEBUG>5) & (my_thread==thread_to_monitor):
                   print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) after resizing = \n{GREEN}{np.array(tile)[0:20,0:20,0]}{RESET}",  flush=True        ) 
                 tile = tile.resize((tile_width_x,tile_width_x),Image.ANTIALIAS)                            # shrink it to tile_size
@@ -403,7 +410,7 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
                 new_width = multiplier*1*tile_width_x
                 tile = oslide.read_region((x     ,  y     ),  level, (new_width, new_width))               # extract an area from the slide of size determined by the result returned by choose_mag_level
                 if (DEBUG>0):
-                  print ( f"\r\033[{start_row+my_thread};{start_column-40}f\033[{7*int(math.log2(multiplier))}C{GREEN}{new_width}x{new_width}{RESET}" )
+                  print ( f"\r\033[{start_row+my_thread};{start_column-44}f\033[{7*int(math.log2(multiplier))}C{GREEN}{new_width}x{new_width}{RESET}" )
                 if (DEBUG>5) & (my_thread==thread_to_monitor):
                   print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) after resizing = \n{BITTER_SWEET}{np.array(tile)[0:10,0:10,0]}{RESET}",  flush=True        ) 
                 tile = tile.resize((tile_width_x,tile_width_x),Image.ANTIALIAS)                            # shrink it to tile_size
@@ -423,7 +430,7 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
                 new_width = multiplier*2*tile_width_x
                 tile = oslide.read_region((x_rand,  y_rand),  level, (new_width, new_width))               # extract an area from the slide of size determined by the result returned by choose_mag_level
                 if (DEBUG>0):
-                  print ( f"\r\033[{start_row+my_thread};{start_column-40}f\033[{7*int(math.log2(multiplier))}C{CARRIBEAN_GREEN}{new_width}x{new_width}{RESET}" )
+                  print ( f"\r\033[{start_row+my_thread};{start_column-44}f\033[{7*int(math.log2(multiplier))}C{CARRIBEAN_GREEN}{new_width}x{new_width}{RESET}" )
                 if (DEBUG>5) & (my_thread==thread_to_monitor):
                   print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) after resizing = \n{GREEN}{np.array(tile)[0:20,0:20,0]}{RESET}",  flush=True        ) 
                 tile = tile.resize((tile_width_x,tile_width_x),Image.ANTIALIAS)                            # shrink it to tile_size
@@ -441,7 +448,7 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
                 new_width = multiplier*1*tile_width_x
                 tile = oslide.read_region((x_rand,  y_rand),  level, (new_width, new_width))               # extract an area from the slide of size determined by the result returned by choose_mag_level
                 if (DEBUG>0):
-                  print ( f"\r\033[{start_row+my_thread};{start_column-40}f\033[{7*int(math.log2(multiplier))}C{BITTER_SWEET}{new_width}x{new_width}{RESET}" )
+                  print ( f"\r\033[{start_row+my_thread};{start_column-44}f\033[{7*int(math.log2(multiplier))}C{BITTER_SWEET}{new_width}x{new_width}{RESET}" )
                 if (DEBUG>5) & (my_thread==thread_to_monitor):
                   print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) after resizing = \n{CARRIBEAN_GREEN}{np.array(tile)[0:10,0:10,0]}{RESET}",  flush=True        ) 
                 tile = tile.resize((tile_width_x,tile_width_x),Image.ANTIALIAS)                            # shrink it to tile_size
@@ -575,17 +582,17 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
                 pass
                 # ~ print ( f"{SAVE_CURSOR}{CLEAR_LINE}", end="" )
 
-
               print  (f"\
 \r\033[{start_row+my_thread};{start_column+0 }f{CAMEL}{my_thread:^8d}{RESET}\
 \r\033[{start_row+my_thread};{start_column+6 }f{n_tiles:6d}\
-\r\033[{start_row+my_thread};{start_column+20}f{BRIGHT_GREEN if tiles_processed>=(0.95*n_tiles) else GREEN if tiles_processed>=(0.90*n_tiles) else ORANGE if tiles_processed>=(0.75*n_tiles) else BLEU if tiles_processed>=(0.50*n_tiles) else WHITE if tiles_processed>=(0.25*n_tiles) else WHITE}{tiles_processed:6d}{RESET}\
-\r\033[{start_row+my_thread};{start_column+35}f{tiles_considered_count:6d}\
+\r\033[{start_row+my_thread};{start_column+14+1}f{BRIGHT_GREEN if tiles_processed>=(0.95*n_tiles) else GREEN if tiles_processed>=(0.90*n_tiles) else ORANGE if tiles_processed>=(0.75*n_tiles) else BLEU if tiles_processed>=(0.50*n_tiles) else WHITE if tiles_processed>=(0.25*n_tiles) else WHITE}{tiles_processed:6d}{RESET}\
+\r\033[{start_row+my_thread};{start_column+25+1}f{tiles_considered_count:6d}\
 {BRIGHT_GREEN if tiles_processed>=(0.95*n_tiles) else GREEN if tiles_processed>=(0.90*n_tiles) else ORANGE if tiles_processed>=(0.75*n_tiles) else BLEU if tiles_processed>=(0.50*n_tiles) else WHITE if tiles_processed>=(0.25*n_tiles) else WHITE}\
-\r\033[{start_row+my_thread};{start_column+49+9}f{tiles_processed:6d}  ({tiles_processed/[tiles_considered_count                 if tiles_considered_count>0 else .000000001][0] *100:3.0f}%){RESET}\
-\r\033[{start_row+my_thread};{start_column+68+8}f{low_contrast_tile_count:6d}  ({low_contrast_tile_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:3.0f}%)\
-\r\033[{start_row+my_thread};{start_column+84+8}f{degenerate_image_count:6d}  ({degenerate_image_count/[tiles_considered_count   if tiles_considered_count>0 else .000000001][0] *100:3.0f}%)\
-\r\033[{start_row+my_thread};{start_column+100+8}f{background_image_count:6d}  ({background_image_count/[tiles_considered_count   if tiles_considered_count>0 else .000000001][0] *100:3.0f}%)\
+\r\033[{start_row+my_thread};{start_column+25+9}f{GREEN}{tiles_processed:6d}  ({tiles_processed/[tiles_considered_count                 if tiles_considered_count>0 else .000000001][0] *100:3.0f}%){RESET}\
+\r\033[{start_row+my_thread};{start_column+42+8}f{RED}{low_contrast_tile_count:6d}  ({low_contrast_tile_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:3.0f}%)\
+\r\033[{start_row+my_thread};{start_column+58+8}f{degenerate_image_count:6d}  ({degenerate_image_count/[tiles_considered_count   if tiles_considered_count>0 else .000000001][0] *100:3.0f}%)\
+\r\033[{start_row+my_thread};{start_column+74+8}f{background_image_count:6d}  ({background_image_count/[tiles_considered_count   if tiles_considered_count>0 else .000000001][0] *100:3.0f}%){RESET}\
+\r\033[{start_row+my_thread};{start_column+90+10}f{PALE_ORANGE if r<4 else DULL_YELLOW if r<7 else DULL_WHITE if r<10 else PURPLE}{f}{RESET}\
 ", flush=True, end="" )
 
               # ~ time.sleep(.25)

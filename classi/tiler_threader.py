@@ -108,7 +108,7 @@ def tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_nor
 
 
   if DEBUG>0:
-    print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row-3};0H{CLEAR_LINE}total slides processed: {MIKADO}{sum(results) if ( ( just_test!='True' ) | ( multimode=='image_rna' ) ) else results} {MIKADO}{results}{RESET}{RESTORE_CURSOR}", flush=True, end=""  )                  
+    print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row-7};0H{CLEAR_LINE}total slides processed: {MIKADO}{sum(results) if ( ( just_test!='True' ) | ( multimode=='image_rna' ) ) else results} {MIKADO}{results}{RESET}{RESTORE_CURSOR}", flush=True, end=""  )                  
 
         
   return SUCCESS
