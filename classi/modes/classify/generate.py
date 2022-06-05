@@ -235,9 +235,9 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
           
 
 
-  if DEBUG>0:
-      print( f"GENERATE:       INFO:    final class_counts   = {AMETHYST}{class_counts}{RESET}", flush=True  )
-      time.sleep(2.0)       
+    if DEBUG>0:
+        print( f"GENERATE:       INFO:    final class_counts   = {AMETHYST}{class_counts}{RESET}", flush=True  )
+        time.sleep(2.0)       
 
 
 
