@@ -353,9 +353,6 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
               multiplier = 1
 
             if DEBUG>0:
-              print( f"\r\033[{start_row-1}{CLEAR_LINE}" )
-
-            if DEBUG>0:
               if objective_power==0:
                 print( f"\r\033[{start_row+my_thread};0H{RESET}        {ARYLIDE}{objective_power:2d}{RESET} (means it was not recorded. will assume 40x)", end="", flush=True )
               elif objective_power==20:

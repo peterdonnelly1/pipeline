@@ -519,11 +519,6 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
   if  ( stain_norm[0]=='spcn' ):
     print( f"{MAGENTA}{BOLD}CLASSI:         INFO:  '{CYAN}{BOLD}stain_norm{RESET}{MAGENTA}'{BOLD} option '{CYAN}{BOLD}spcn{RESET}{MAGENTA}{BOLD}' is set. The spcn slide set will be used and the svs side set will be ignored{RESET}", flush=True)
 
-  
-  if (input_mode=='image') & (nn_type_img[0]=='INCEPT3') &  ( ( args.tile_size[0]!=299 ) | ( len(set(args.tile_size))!=1 )  ):
-    print( f"{RED}CLASSI:         FATAL:  For Inception 3 ('{CYAN}NN_TYPE_IMG={CYAN}{nn_type_img[0]}{RESET}{RED}' corresponding to python argument '{CYAN}--nn_type_img{RESET}{RED}') the only permitted tile size is {MIKADO}299{RESET}{RED}, however the tile size parameter ('{CYAN}TILE_SIZE{RESET}'{RED}) is currently set at {MIKADO}{tile_size[0]}{RESET}{RED}'", flush=True)
-    print( f"{RED}CLASSI:         FATAL: ... halting now{RESET}" )
-    sys.exit(0)
     
 
   if DEBUG>1:
@@ -928,6 +923,19 @@ f"\
     prob = ("_".join(str(z) for z in zoom_out_prob))
 
 
+    if (input_mode=='image') & (nn_type_img[0]=='INCEPT3') &  ( ( args.tile_size[0]!=299 ) | ( len(set(args.tile_size))!=1 )  ):
+      print( f"{RED}CLASSI:         FATAL:  For Inception 3 ('{CYAN}NN_TYPE_IMG={CYAN}{nn_type_img[0]}{RESET}{RED}' corresponding to python argument '{CYAN}--nn_type_img{RESET}{RED}') the only permitted tile size is {MIKADO}299{RESET}{RED}, however the tile size parameter ('{CYAN}TILE_SIZE{RESET}'{RED}) is currently set at {MIKADO}{tile_size[0]}{RESET}{RED}'", flush=True)
+      print( f"{RED}CLASSI:         FATAL: ... halting now{RESET}" )
+      sys.exit(0)
+
+
+    if (input_mode=='image') & (nn_type_img[0]=='VGGNN') &  ( float(int( (tile_size/16)**2 ) ) !=  (tile_size/16)**2  ):
+      print( f"{RED}CLASSI:         FATAL:  only certain tile sizes can be used for network type '{CYAN}VGGNN{RESET}'{RED}), and {MIKADO}{tile_size}{RESET}{RED}' is not an allowable tile size{RESET}", flush=True )
+      print( f"{RED}CLASSI:         FATAL:  the rule is as follows: {MIKADO}tile_size/16{RESET}{RED} must be an integer{RESET}",                                                                         flush=True )
+      print( f"{RED}CLASSI:         FATAL:  examples of acceptable tile sizes include: {MIKADO}16 ,32 ,48 ,64 ,80 ,96 ,112 ,128 ,144 ,160 ,176 ,192 ,208 ,224 ,240 ,256 ,272 ,288 ,304 ,320 ,336 ,352 ,368 ,384 ,400 ,416 ,432 ,448 ,464 ,480 ,496 ,512 ,528 ,544 ,560 ,576 ,592 ,608 ,624 ,640 ,656 ,672 ,688 ,704 ,720 ,736 ,752 ,768 ,784 ,800 ,816 ,832 ,848 ,864 ,880 ,896 ,912 ,928 ,944 ,960 ,976 ,992{RESET}{RED} must be an integer{RESET}",                                                                         flush=True )
+      print( f"{RED}CLASSI:         FATAL: ... cannot continue, halting now{RESET}" )
+      sys.exit(0)
+    
     if input_mode=='image':
       descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases[0:10]:_<23s}_{nn_type_img:_<9s}_{nn_optimizer:_<8s}_e_{args.n_epochs:03d}_N_{n_samples:04d}\
 _hicls_{n_classes:02d}_bat_{batch_size:03d}_test_{int(100*pct_test):03d}_lr_{lr:09.6f}_tiles_{n_tiles:04d}_tlsz_{tile_size:03d}__mags_{mags}__probs_{prob:_<30s}"

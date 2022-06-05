@@ -17,7 +17,7 @@ import torch.nn.functional as F
 from constants  import *
 
 
-DEBUG=0
+DEBUG=10
 
 
 configs = {
@@ -43,7 +43,7 @@ class VGGNN( nn.Module ):
         if DEBUG>2:
           print ( f"VGGNN:          INFO:   {CYAN}__init__(){RESET}:          features = \n{MIKADO}{self.features}{RESET}" )
  
-        first_fc_width=int(tile_size**2/2)                                                                 # PGD 200428 - first_fc_width was previously a hard wired value which meant could not use for diffferent tile sizes
+        first_fc_width=int(tile_size**2/2)                                                                 # PGD 200428 - first_fc_width was previously a hard wired value which meant it could not use for diffferent tile sizes
 
         if DEBUG>99:
           print ( f"VGGNN:          INFO:   {CYAN}__init__(){RESET}:    first_fc_width = {MIKADO}{first_fc_width}{RESET}" )        
@@ -65,20 +65,9 @@ class VGGNN( nn.Module ):
           print( f"{RED}VGGNN:           FATAL:  for the VGG models '{CYAN}TILE_SIZE{RESET}{RED}' (corresponding to python argument '{CYAN}--tile_size{RESET}{RED}') is not permitted to be less than {MIKADO}32{RESET}", flush=True)
           print( f"{RED}VGGNN:           FATAL: ... halting now{RESET}" )
           sys.exit(0)
-        elif 32<=tile_size<64:
-          first_fc_width=512
-        elif 64<=tile_size<95:
-          first_fc_width=2048
-        elif 96<=tile_size<128:
-          first_fc_width=4608
-        elif 128<=tile_size<160:
-          first_fc_width=8192 
-        elif 160<=tile_size<192:
-          first_fc_width=12800
-        elif 192<=tile_size<223:
-          first_fc_width=18432 
-        elif 224<=tile_size<1024:
-          first_fc_width=25088                   
+        
+        first_fc_width = int((tile_size/32)**2 * 512)
+        
            
         self.fc1 = nn.Linear(first_fc_width, 4096)
         self.fc2 = nn.Linear(4096, 4096)
@@ -129,6 +118,7 @@ class VGGNN( nn.Module ):
         if DEBUG>1:
           print ( f"VGGNN:          INFO:     forward(): after  F.relu(self.fc1(output)), output.size = {BLEU}{output.size()}{RESET}{CLEAR_LINE}" )
         output = self.Dropout(output)
+        
         output = self.fc2(output)
         embedding = output
         output = F.relu(output)
@@ -137,6 +127,7 @@ class VGGNN( nn.Module ):
         if DEBUG>88:
           print ( f"VGGNN:          INFO:     forward(): x[:,0:20]                                   = {BLEU}{x[:,0:20]}{RESET}{CLEAR_LINE}" )
         output = self.Dropout(output)
+        
         output = self.fc3(output)
         if DEBUG>1:
           print ( f"VGGNN:          INFO:     forward(): after  F.relu(self.fc3(output)), output.size = {BLEU}{output.size()}{RESET}{CLEAR_LINE}" )
