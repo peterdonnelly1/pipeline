@@ -934,7 +934,7 @@ f"\
       print ( f" -----------------------------------------------------------> {nn_type_img[0:3]}"                  )
 
     if (input_mode=='image') & (nn_type_img[0:3]=='VGG') &  ( float(int( (tile_size/32) ) ) !=  (tile_size/32)  ):
-      print( f"{RED}CLASSI:         FATAL:  for network type '{CYAN}VGGNN{RESET}'{RED}, the {MIKADO}{tile_size}{RESET}{RED}' must be a multiple of 32{RESET}", flush=True )
+      print( f"{RED}CLASSI:         FATAL:  for network type '{CYAN}VGGNN{RESET}'{RED}, tile size '{MIKADO}{tile_size}{RESET}{RED}' must be a multiple of 32{RESET}", flush=True )
       print( f"{RED}CLASSI:         FATAL:    ... cannot continue, halting now{RESET}" )
       sys.exit(0)
     
