@@ -928,13 +928,10 @@ f"\
       print( f"{RED}CLASSI:         FATAL: ... halting now{RESET}" )
       sys.exit(0)
 
-    if DEBUG>999:
-      print ( f" -----------------------------------------------------------> {float(int( (tile_size/16)**2 ) )}"  )
-      print ( f" -----------------------------------------------------------> {(tile_size/16)**2}"                 )
-      print ( f" -----------------------------------------------------------> {nn_type_img[0:3]}"                  )
 
     if (input_mode=='image') & (nn_type_img[0:3]=='VGG') &  ( float(int( (tile_size/32) ) ) !=  (tile_size/32)  ):
       print( f"{RED}CLASSI:         FATAL:  for network type '{CYAN}VGGNN{RESET}'{RED}, tile size (currently '{MIKADO}{tile_size}{RESET}{RED}') must be a multiple of 32{RESET}", flush=True )
+      print( f"{RED}CLASSI:         FATAL:  examples of acceptable tile sizes include: {MIKADO}32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448, 480, 512, 544, 576, 608, 640, 672, 704, 736, 768, 800, 832, 864, 896, 928, 960, 992, 1024, 1056, 1088, 1120, 1152, 1184, 1216, 1248, 1280, 1312, 1344, 1376, 1408, 1440, 1472, 1504, 1536, 1568, 1600{RESET}{RED}",  flush=True )
       print( f"{RED}CLASSI:         FATAL:    ... cannot continue, halting now{RESET}" )
       sys.exit(0)
     
