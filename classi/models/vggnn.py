@@ -17,7 +17,7 @@ import torch.nn.functional as F
 from constants  import *
 
 
-DEBUG=10
+DEBUG=0
 
 
 configs = {

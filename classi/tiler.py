@@ -354,11 +354,11 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
 
             if DEBUG>0:
               if objective_power==0:
-                print( f"\r\033[{start_row+my_thread};0H{RESET}        {ARYLIDE}{objective_power:2d}{RESET} (means it was not recorded. will assume 40x)", end="", flush=True )
+                print( f"\r\033[{start_row+my_thread};0H{RESET}        {ARYLIDE}{objective_power:2d}{RESET} (means it was not recorded. will assume 40x)",  end="", flush=True )
               elif objective_power==20:
-                print( f"\r\033[{start_row+my_thread};0H{RESET}        {AZURE}{objective_power:2d}{RESET} (will extract double tile size then shrink)",    end="", flush=True )
+                print( f"\r\033[{start_row+my_thread};0H{RESET}        {AZURE}{objective_power:2d}{RESET} (will extract double tile size then shrink)   ",  end="", flush=True )
               else:
-                print( f"\r\033[{start_row+my_thread};0H{RESET}        {CAMEL}{objective_power:2d}{RESET}",                                                end="", flush=True )                
+                print( f"\r\033[{start_row+my_thread};0H{RESET}        {CAMEL}{objective_power:2d}{RESET}                                               ",  end="", flush=True )                
               print( f"\r\033[{start_row+my_thread};{start_column-30}H{RESET} \
 {AMETHYST if multiplier==1 else MIKADO if multiplier==2 else CARRIBEAN_GREEN if 2<multiplier<=4 else BITTER_SWEET if 5<multiplier<=8 else CHARTREUSE if 5<multiplier<=8 else CAMEL}{multiplier}{RESET}", end="", flush=True )
 
@@ -366,8 +366,8 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
                 print  (f"\
       {WHITE}\
 \r\033[{start_row-3};0f{RESET}{CLEAR_LINE}\
-\r\033[{start_row-2};0f{RESET}{CLEAR_LINE}                                                                                                                         --------------------------------------------------------------------------- this slide ---------------------------------------------------------------------------\
-\r\033[{start_row-2};{start_column+172}f{WHITE}overall thread progress{RESET}\
+\r\033[{start_row-2};0f{RESET}{CLEAR_LINE}                                                                                                                         --------------------------------------------------------------- tiling stats for current image file --------------------------------------------------------------\
+\r\033[{start_row-2};{start_column+172}f{WHITE}overall progress{RESET}\
 \r\033[{start_row-1};{start_column-116}f{RESET}{CLEAR_LINE}optical magnification\
 \r\033[{start_row-1};{start_column-44}f{RESET}extraction\
 \r\033[{start_row-1};{start_column-32}f{RESET}applied magnifications\
@@ -393,7 +393,7 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
                 new_width = multiplier*2*tile_width_x
                 tile = oslide.read_region((x     ,  y     ),  level, (new_width, new_width))               # extract an area from the slide of size determined by the result returned by choose_mag_level
                 if (DEBUG>0):
-                  print ( f"\r\033[{start_row+my_thread};{start_column-44}f\033[{7*int(math.log2(multiplier))}C{CARRIBEAN_GREEN}{new_width}x{new_width}{RESET}" )
+                  print ( f"\r\033[{start_row+my_thread};{start_column-44}f\033[{7*int(math.log2(multiplier))}C{CARRIBEAN_GREEN}{new_width}x{new_width}  {RESET}" )
                 if (DEBUG>5) & (my_thread==thread_to_monitor):
                   print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) after resizing = \n{GREEN}{np.array(tile)[0:20,0:20,0]}{RESET}",  flush=True        ) 
                 tile = tile.resize((tile_width_x,tile_width_x),Image.ANTIALIAS)                            # shrink it to tile_size
@@ -407,7 +407,7 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
                 new_width = multiplier*1*tile_width_x
                 tile = oslide.read_region((x     ,  y     ),  level, (new_width, new_width))               # extract an area from the slide of size determined by the result returned by choose_mag_level
                 if (DEBUG>0):
-                  print ( f"\r\033[{start_row+my_thread};{start_column-44}f\033[{7*int(math.log2(multiplier))}C{GREEN}{new_width}x{new_width}{RESET}" )
+                  print ( f"\r\033[{start_row+my_thread};{start_column-44}f\033[{7*int(math.log2(multiplier))}C{GREEN}{new_width}x{new_width}  {RESET}" )
                 if (DEBUG>5) & (my_thread==thread_to_monitor):
                   print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) after resizing = \n{BITTER_SWEET}{np.array(tile)[0:10,0:10,0]}{RESET}",  flush=True        ) 
                 tile = tile.resize((tile_width_x,tile_width_x),Image.ANTIALIAS)                            # shrink it to tile_size
@@ -427,7 +427,7 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
                 new_width = multiplier*2*tile_width_x
                 tile = oslide.read_region((x_rand,  y_rand),  level, (new_width, new_width))               # extract an area from the slide of size determined by the result returned by choose_mag_level
                 if (DEBUG>0):
-                  print ( f"\r\033[{start_row+my_thread};{start_column-44}f\033[{7*int(math.log2(multiplier))}C{CARRIBEAN_GREEN}{new_width}x{new_width}{RESET}" )
+                  print ( f"\r\033[{start_row+my_thread};{start_column-44}f\033[{7*int(math.log2(multiplier))}C{CARRIBEAN_GREEN}{new_width}x{new_width}  {RESET}" )
                 if (DEBUG>5) & (my_thread==thread_to_monitor):
                   print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) after resizing = \n{GREEN}{np.array(tile)[0:20,0:20,0]}{RESET}",  flush=True        ) 
                 tile = tile.resize((tile_width_x,tile_width_x),Image.ANTIALIAS)                            # shrink it to tile_size
@@ -445,7 +445,7 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
                 new_width = multiplier*1*tile_width_x
                 tile = oslide.read_region((x_rand,  y_rand),  level, (new_width, new_width))               # extract an area from the slide of size determined by the result returned by choose_mag_level
                 if (DEBUG>0):
-                  print ( f"\r\033[{start_row+my_thread};{start_column-44}f\033[{7*int(math.log2(multiplier))}C{BITTER_SWEET}{new_width}x{new_width}{RESET}" )
+                  print ( f"\r\033[{start_row+my_thread};{start_column-44}f\033[{7*int(math.log2(multiplier))}C{BITTER_SWEET}{new_width}x{new_width}  {RESET}" )
                 if (DEBUG>5) & (my_thread==thread_to_monitor):
                   print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) after resizing = \n{CARRIBEAN_GREEN}{np.array(tile)[0:10,0:10,0]}{RESET}",  flush=True        ) 
                 tile = tile.resize((tile_width_x,tile_width_x),Image.ANTIALIAS)                            # shrink it to tile_size
