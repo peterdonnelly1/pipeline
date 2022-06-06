@@ -50,7 +50,7 @@ start_row    = 60-num_cpus
 
 thread_to_monitor = 7
 
-def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, my_thread, r ):
+def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method, d, f, my_thread, r ):
 
   num_cpus = multiprocessing.cpu_count()
 

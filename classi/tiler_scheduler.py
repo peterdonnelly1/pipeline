@@ -19,7 +19,7 @@ from constants  import *
 DEBUG=1
 
     
-def tiler_scheduler( args, r_norm, flag, count, n_tiles, tile_size, batch_size, stain_norm, norm_method, my_thread, num_threads ):
+def tiler_scheduler( args, r_norm, flag, count, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method, my_thread, num_threads ):
   
   num_cpus = multiprocessing.cpu_count()
 
@@ -115,7 +115,7 @@ def tiler_scheduler( args, r_norm, flag, count, n_tiles, tile_size, batch_size, 
               if ( f.endswith( "spcn" ) ):                                                                 # then the stain normalised version of the slide will have extension 'spcn'
                 pqn = f"{d}/{f}"
                 
-                result = tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, my_thread, r )
+                result = tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method, d, f, my_thread, r )
                 
                 if result==SUCCESS:
                   slides_processed+=1
@@ -135,7 +135,7 @@ def tiler_scheduler( args, r_norm, flag, count, n_tiles, tile_size, batch_size, 
               if ( f.endswith( "svs" ) ) | ( f.endswith( "SVS" ) ) | ( f.endswith( "tif" ) ) | ( f.endswith( "tif" ) )  | ( f.endswith( "TIF" ) ) | ( f.endswith( "TIFF" ) ):
                 pqn = f"{d}/{f}"
                 
-                result = tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, my_thread, r )
+                result = tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method, d, f, my_thread, r )
                 
                 if result==SUCCESS:
                   slides_processed+=1

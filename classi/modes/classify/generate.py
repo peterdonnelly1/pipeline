@@ -32,7 +32,7 @@ cols=26
 
 
 def generate( args, class_names, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, 
-              unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, tile_size, low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform ):
+              unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, top_up_factors, tile_size, low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform ):
 
   # DON'T USE args.n_samples or batch_size or args.n_tiles or args.gene_data_norm or args.tile_size or args.highest_class_number or args.low_expression_threshold or args.cutoff_percentile since these are job-level lists. Here we are just using one value of each, passed in as the parameters above
   just_test                    = args.just_test
@@ -165,79 +165,6 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
   # (2) process IMAGE data if applicable
   
 
-  # (2A) Extract sybtype statistics to use llater when re-balancing the dataset (so that all subtypes will be represented by the same number of tiles)
-  #      Just count of the number of cases for each cancer subtype (i.e class) within the chosen subset (i.e. args.cases)
-
-  if ( input_mode!='rna' ):
-
-    class_counts          = np.zeros( highest_class_number+1, dtype=np.int )
-  
-    if args.cases=='UNIMODE_CASE':
-      case_designation_flag =  'UNIMODE_CASE____IMAGE'                                                     # ratios should be the same as for 'ALL_ELIGIBLE_CASES', but just in case
-    elif args.cases=='ALL_ELIGIBLE_CASES':
-      case_designation_flag =  'HAS_IMAGE'
-    else:
-      case_designation_flag =  'HAS_IMAGE'                                                                 # use the overall ratio
-  
-    count_this_case_flag=False
-    
-    for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration takes us to a new directory under data_dir
-  
-      for d in dirs:
-  
-        if not (d==data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
-    
-          fqn = f"{dir_path}/{d}/{case_designation_flag}"
-          if DEBUG>100:
-            print ( f"\n\nGENERATE:       INFO:   fqn         {YELLOW}{fqn}{RESET}")
-  
-          count_this_case_flag=False
-          if case_designation_flag=='ALL_ELIGIBLE_CASES':
-            count_this_case_flag=True
-          try:
-            fqn = f"{dir_path}/{d}/{case_designation_flag}"
-            f = open( fqn, 'r' )
-            count_this_case_flag=True
-            if DEBUG>100:
-              print ( f"\n{GREEN}GENERATE:       INFO:         case '{CYAN}{fqn}{RESET}{GREEN}' \r\033[200X is     a case flagged as '{CYAN}{case_designation_flag}{RESET}{GREEN}' - - including{RESET}{CLEAR_LINE}",  flush=True )
-          except Exception:
-            if DEBUG>100:
-              print ( f"{RED}GENERATE:       INFO:   case       '{CYAN}{fqn}{RESET}{RED} \r\033[200C is not a case flagged as '{CYAN}{case_designation_flag}{RESET}{RED}' - - skipping{RESET}{CLEAR_LINE}",  flush=True )
-    
-          try:                                                                                                 # every tile has an associated label - the same label for every tile image in the directory
-            label_file = f"{dir_path}/{d}/{args.class_numpy_file_name}"
-            if DEBUG>100:
-              print ( f"GENERATE:       INFO:   label_file  {ASPARAGUS}{label_file}{RESET}")
-            label      = np.load( label_file )
-            if label[0]>highest_class_number:
-              count_this_case_flag=False
-              if DEBUG>2:
-                print ( f"{ORANGE}GENERATE:       INFO: label is greater than '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{ORANGE}' - - skipping this example (label = {MIKADO}{label[0]}{RESET}{ORANGE}){RESET}"      )
-              pass
-          except Exception as e:
-            print ( f"{RED}GENERATE:             FATAL: when processing: '{label_file}'{RESET}", flush=True)        
-            print ( f"{RED}GENERATE:                    reported error was: '{e}'{RESET}", flush=True)
-            print ( f"{RED}GENERATE:                    halting now{RESET}", flush=True)
-            sys.exit(0)
-        
-          
-          if ( count_this_case_flag==True ):
-            
-            class_counts[label[0]]+=1
-            
-            if DEBUG>100:
-              print( f"GENERATE:       INFO:     class_counts   = {MIKADO}{class_counts}{RESET}", flush=True  )
-  
-    if DEBUG>0:
-          np.set_printoptions(formatter={'int':   lambda x: "{:>6d}".format(x)})
-          print( f"GENERATE:       INFO:     final class_counts   = {AMETHYST}{class_counts}{RESET}",                       flush=True  )
-          np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})
-          print( f"GENERATE:       INFO:     relative ratios      = {AMETHYST}{class_counts/np.max(class_counts)}{RESET}",  flush=True  )
-          print( f"GENERATE:       INFO:     total slides counted = {AMETHYST}{np.sum(class_counts)}{RESET}",               flush=True  )
-
-
-  # (2B) process image data
-
   if ( input_mode=='image' ) & ( pretrain!='True' ):
 
     # check to see that there actually are tiles to process
@@ -268,7 +195,7 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
           print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) cases_required -------------------------------------------------------------------- = {MIKADO}{cases_required}{RESET}",         flush=True )
   
         class_counts = np.zeros( highest_class_number+1, dtype=np.int )
-        global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tile_size, class_counts )
+        global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tile_size, class_counts, top_up_factors )
 
         if DEBUG>0:
           print ( f"{DULL_WHITE}GENERATE:       INFO:    global_tiles_processed (this run)-------------------------------------------------- = {MIKADO}{global_tiles_processed}{RESET}{CLEAR_LINE}", flush=True )
@@ -287,7 +214,7 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
           print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) cases_required . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  = {MIKADO}{cases_required}{RESET}",         flush=True )
         
         class_counts = np.zeros( highest_class_number+1, dtype=np.int )        
-        global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tile_size, class_counts )
+        global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tile_size, class_counts, top_up_factors )
 
         if DEBUG>0:
           print ( f"{DULL_WHITE}GENERATE:       INFO:    global_tiles_processed  (this run). . . . . . . . . . . . . . . . . . . . . . . . . = {MIKADO}{global_tiles_processed}{RESET}{CLEAR_LINE}", flush=True )
@@ -333,7 +260,7 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
 
     
           class_counts = np.zeros( highest_class_number+1, dtype=np.int )        
-          global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tile_size, class_counts )
+          global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tile_size, class_counts, top_up_factors )
 
         if DEBUG>0:
           print ( f"{DULL_WHITE}GENERATE:       INFO:    global_tiles_processed  (this run)-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  . = {MIKADO}{global_tiles_processed}{RESET}{CLEAR_LINE}", flush=True )
@@ -357,7 +284,7 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
           print ( f"{DULL_WHITE}GENERATE:       INFO:    pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}{CLEAR_LINE}",               flush=True )
   
         class_counts = np.zeros( highest_class_number+1, dtype=np.int )        
-        global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tile_size, class_counts )
+        global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tile_size, class_counts, top_up_factors )
 
         if DEBUG>0:
           print ( f"{DULL_WHITE}GENERATE:       INFO:    global_tiles_processed  (this run)................................................. = {MIKADO}{global_tiles_processed}{RESET}{CLEAR_LINE}", flush=True )
@@ -1457,7 +1384,7 @@ def generate_rna_dataset ( args, class_names, target, cases_required, highest_cl
 
   
 #----------------------------------------------------------------------------------------------------------
-def generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tile_size, class_counts  ):
+def generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tile_size, class_counts, top_up_factors  ):
 
 
   tiles_required  = cases_required*n_tiles

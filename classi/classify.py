@@ -1095,8 +1095,94 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       print( "CLASSI:         INFO:   \033[3mTensorboard has been set up\033[m" )
 
 
+
+
     # (2) Potentially schedule and run tiler threads
     
+    
+    # (2A) But first, count the number images per cancer subtype in the dataset. This will be used in generate() to balance tiling so that all subtypes will be represented by the same number of tiles
+    #      The balancing is performed in 'generate()', however the counts must be performed now, before tiling, because the results are used to adjust the number of tiles extracted
+    #      Specifically, we count the number of images per subtype for the chosen subset (e.g. UNIMODE_CASE) and from this calculate 'top up factors' which are used in generate() 
+    #      to increase the number of tiles extracted for subtypes which have fewer images than the subtype with the most number of cases (images)
+  
+    if ( input_mode!='rna' ):
+
+      if DEBUG>0:
+        print( f"CLASSI:         INFO: n_classes               = {MAGENTA}{n_classes}{RESET}",        flush=True  )
+        
+      class_counts          = np.zeros( n_classes, dtype=int )
+    
+      if args.cases=='UNIMODE_CASE':
+        case_designation_flag =  'UNIMODE_CASE____IMAGE'                                                   # ratios should be the same as for 'ALL_ELIGIBLE_CASES', but just in case
+      elif args.cases=='ALL_ELIGIBLE_CASES':
+        case_designation_flag =  'HAS_IMAGE'
+      else:
+        case_designation_flag =  'HAS_IMAGE'                                                               # use the overall ratio
+    
+      count_this_case_flag=False
+      
+      for dir_path, dirs, files in os.walk( data_dir ):                                                    # each iteration takes us to a new directory under data_dir
+    
+        for d in dirs:
+    
+          if not (d==data_dir):                                                                            # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
+      
+            fqn = f"{dir_path}/{d}/{case_designation_flag}"
+            if DEBUG>100:
+              print ( f"\n\nCLASSI:         INFO:   fqn         {YELLOW}{fqn}{RESET}")
+    
+            count_this_case_flag=False
+            if case_designation_flag=='ALL_ELIGIBLE_CASES':
+              count_this_case_flag=True
+            try:
+              fqn = f"{dir_path}/{d}/{case_designation_flag}"
+              f = open( fqn, 'r' )
+              count_this_case_flag=True
+              if DEBUG>100:
+                print ( f"\n{GREEN}CLASSI:         INFO:         case '{CYAN}{fqn}{RESET}{GREEN}' \r\033[200X is     a case flagged as '{CYAN}{case_designation_flag}{RESET}{GREEN}' - - including{RESET}{CLEAR_LINE}",  flush=True )
+            except Exception:
+              if DEBUG>100:
+                print ( f"{RED}CLASSI:         INFO:   case       '{CYAN}{fqn}{RESET}{RED} \r\033[200C is not a case flagged as '{CYAN}{case_designation_flag}{RESET}{RED}' - - skipping{RESET}{CLEAR_LINE}",  flush=True )
+      
+            try:                                                                                               # every tile has an associated label - the same label for every tile image in the directory
+              label_file = f"{dir_path}/{d}/{args.class_numpy_file_name}"
+              if DEBUG>100:
+                print ( f"CLASSI:         INFO:   label_file  {ASPARAGUS}{label_file}{RESET}")
+              label      = np.load( label_file )
+              if label[0]>highest_class_number:
+                count_this_case_flag=False
+                if DEBUG>2:
+                  print ( f"{ORANGE}CLASSI:         INFO: label is greater than '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{ORANGE}' - - skipping this example (label = {MIKADO}{label[0]}{RESET}{ORANGE}){RESET}"      )
+                pass
+            except Exception as e:
+              print ( f"{RED}CLASSI:               FATAL: when processing: '{label_file}'{RESET}", flush=True)        
+              print ( f"{RED}CLASSI:                      reported error was: '{e}'{RESET}", flush=True)
+              print ( f"{RED}CLASSI:                      halting now{RESET}", flush=True)
+              sys.exit(0)
+            
+            if ( count_this_case_flag==True ):
+              class_counts[label[0]]+=1
+              
+              if DEBUG>100:
+                print( f"CLASSI:         INFO:     class_counts   = {MIKADO}{class_counts}{RESET}", flush=True  )
+    
+      if DEBUG>0:
+            np.set_printoptions(formatter={'int':   lambda x: "{:>6d}".format(x)})
+            print( f"CLASSI:         INFO:     final class_counts         = {AMETHYST}{class_counts}{RESET}",                               flush=True  )
+            print( f"CLASSI:         INFO:     total slides counted       = {AMETHYST}{np.sum(class_counts)}{RESET}",                       flush=True  )
+            np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})
+            relative_ratios = class_counts/np.max(class_counts)
+            print( f"CLASSI:         INFO:     relative ratios            = {AMETHYST}{relative_ratios}{RESET}",                            flush=True  )
+            top_up_factors  = np.divide(1,relative_ratios)
+            print( f"CLASSI:         INFO:     top up factors             = {AMETHYST}{top_up_factors}{RESET}",                             flush=True  )
+            np.set_printoptions(formatter={'int':   lambda x: "{:>6d}".format(x)})
+            print( f"CLASSI:         INFO:     check: revised tiles/slide = {AMETHYST}{(top_up_factors*class_counts).astype(int)}{RESET}",  flush=True  )
+
+
+
+
+    # (2B) Tiling
+
     # ~ if (input_mode=='image') & (multimode!='image_rna'):
     if (input_mode=='image'):
       
@@ -1152,7 +1238,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
                 count = n_samples
                 if DEBUG>1:
                   print( f"{SAVE_CURSOR}\r\033[{num_cpus}B{WHITE}CLASSI:         INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; count = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles = {MIKADO}{n_tiles}{RESET}{RESTORE_CURSOR}", flush=True )
-                slides_tiled_count = tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_norm, norm_method )
+                slides_tiled_count = tiler_threader( args, flag, count, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method )
 
               if (  args.cases == 'MULTIMODE____TEST' ):
                 
@@ -1160,7 +1246,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
                 count = cases_reserved_for_image_rna
                 if DEBUG>1:
                   print( f"{SAVE_CURSOR}\r\033[{num_cpus}B{WHITE}CLASSI:         INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; count = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles = {MIKADO}{n_tiles}{RESET}{RESTORE_CURSOR}", flush=True )
-                slides_tiled_count = tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_norm, norm_method )
+                slides_tiled_count = tiler_threader( args, flag, count, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method )
 
               if (  args.cases == 'ALL_ELIGIBLE_CASES' ):
                 
@@ -1170,7 +1256,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
               
                 if DEBUG>1:
                   print( f"{SAVE_CURSOR}\r\033[{num_cpus+1}B{WHITE}CLASSI:         INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; slides_to_be_tiled = {MIKADO}{slides_to_be_tiled:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
-                slides_tiled_count = tiler_threader( args, flag, slides_to_be_tiled, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
+                slides_tiled_count = tiler_threader( args, flag, slides_to_be_tiled, n_tiles_max, top_up_factors, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
 
 
           else:
@@ -1189,7 +1275,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
             
               if DEBUG>1:
                 print( f"{SAVE_CURSOR}\r\033[{num_cpus+1}B{WHITE}CLASSI:         INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; slides_to_be_tiled = {MIKADO}{slides_to_be_tiled:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
-              slides_tiled_count = tiler_threader( args, flag, slides_to_be_tiled, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
+              slides_tiled_count = tiler_threader( args, flag, slides_to_be_tiled, n_tiles_max, top_up_factors, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
 
               
             if (  args.cases == 'UNIMODE_CASE' ):
@@ -1208,12 +1294,12 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
               flag  = 'UNIMODE_CASE____IMAGE'
               if DEBUG>1:
                 print( f"{SAVE_CURSOR}\r{WHITE}CLASSI:         INFO: about to call {MAGENTA}tiler_threader{RESET}: flag={CYAN}{flag}{RESET}; train_count={MIKADO}{train_count:3d}{RESET}; %_test={MIKADO}{pct_test:2.2f}{RESET}; n_samples={MIKADO}{n_samples_max:3d}{RESET}; n_tiles={MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
-              slides_tiled_count = tiler_threader( args, flag, train_count, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
+              slides_tiled_count = tiler_threader( args, flag, train_count, n_tiles_max, top_up_factors, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
 
               flag  = 'UNIMODE_CASE____IMAGE_TEST'
               if DEBUG>1:
                 print( f"{SAVE_CURSOR}\r{WHITE}CLASSI:         INFO: about to call {MAGENTA}tiler_threader{RESET}: flag={CYAN}{flag}{RESET}; test_count={MIKADO}{test_count:3d}{RESET}; %_test={MIKADO}{pct_test:2.2f}{RESET}; n_samples={MIKADO}{n_samples_max:3d}{RESET}; n_tiles={MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
-              slides_tiled_count = tiler_threader( args, flag, test_count, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
+              slides_tiled_count = tiler_threader( args, flag, test_count, n_tiles_max, top_up_factors, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
               
 
           print ( f"{RESTORE_CURSOR}" )
@@ -1255,7 +1341,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         print( f"CLASSI:         INFO: gene_data_norm          = {MAGENTA}{gene_data_norm}{RESET}",   flush=True  )            
 
       highest_class_number = n_classes-1
-      _, _,  _ = generate( args, class_names, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, tile_size, low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform  ) 
+      _, _,  _ = generate( args, class_names, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, top_up_factors, tile_size, low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform  ) 
 
       if DEBUG>8:
         print( f"CLASSI:         INFO: n_samples               = {BLEU}{n_samples}{RESET}"       )
@@ -1278,7 +1364,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       highest_class_number = n_classes-1
       
       n_genes, n_samples, batch_size = generate( args, class_names, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, 
-                                                  unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, tile_size, 
+                                                  unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, top_up_factors, tile_size, 
                                                   low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform  
                                                )
 
