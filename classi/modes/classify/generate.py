@@ -1384,10 +1384,10 @@ def generate_rna_dataset ( args, class_names, target, cases_required, highest_cl
 
   
 #----------------------------------------------------------------------------------------------------------
-def generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tile_size, class_counts, top_up_factors  ):
+def generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles_base, tile_size, class_counts, top_up_factors  ):
 
 
-  tiles_required  = cases_required*n_tiles
+  tiles_required  = 2*cases_required*n_tiles_base
   
   images_new      = np.ones ( ( tiles_required,  3, tile_size, tile_size ), dtype=np.uint8   )              
   fnames_new      = np.zeros( ( tiles_required                           ), dtype=np.int64   )              # np.int64 is equiv of torch.long
@@ -1437,10 +1437,11 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
       try:                                                                                                 # every tile has an associated label - the same label for every tile image in the directory
         label_file = os.path.join(dir_path, args.class_numpy_file_name)
         label      = np.load( label_file )
-        if label[0]>highest_class_number:
+        subtype    = label[0] 
+        if subtype>highest_class_number:
           use_this_case_flag=False
           if DEBUG>2:
-            print ( f"{ORANGE}GENERATE:       INFO: label is greater than '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{ORANGE}' - - skipping this example (label = {MIKADO}{label[0]}{RESET}{ORANGE}){RESET}"      )
+            print ( f"{ORANGE}GENERATE:       INFO: label is greater than '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{ORANGE}' - - skipping this example (label = {MIKADO}{subtype}{RESET}{ORANGE}){RESET}"      )
           pass
       except Exception as e:
         print ( f"{RED}GENERATE:             FATAL: when processing: '{label_file}'{RESET}", flush=True)        
@@ -1449,11 +1450,37 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
         sys.exit(0)
     
     
+    
+    
     if ( use_this_case_flag==True ):
+      
+      # if user has requested 'MAKE_BALANCED', then adjust the number of tiles to be including according to the subtype using the 'top_up_factors' array
+      # the tiling process will have ensured that at least this many tiles is available
+      
+      if args.make_balanced=='True':
+ 
+        if DEBUG>0:
+          print ( f"\r{CLEAR_LINE}{BOLD}{CARRIBEAN_GREEN}GENERATE:       INFO:   base value of n_tiles       = {CYAN}{n_tiles_base}{RESET}"            )
+          np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})
+          print ( f"\r{CLEAR_LINE}{BOLD}{CARRIBEAN_GREEN}GENERATE:       INFO:   tile top_up_factors         = {CYAN}{top_up_factors}{RESET}"                  )
+          print ( f"\r{CLEAR_LINE}{BOLD}{CARRIBEAN_GREEN}GENERATE:       INFO:   applicable top up factor    = {CYAN}{top_up_factors[subtype]:<4.2f}{RESET}"   )
+      
+        if top_up_factors[subtype]==1.:                                                                        # no need to adjust n_tiles for the subtype which has the largest number of images
+          n_tiles = n_tiles_base
+        else:
+          n_tiles = int(top_up_factors[subtype] * n_tiles_base)
+    
+        if DEBUG>0:
+          print ( f"\r{CLEAR_LINE}{BOLD}{CARRIBEAN_GREEN}GENERATE:       INFO:   new value of n_tiles        = {CYAN}{n_tiles}{RESET}"       )
+          
+      else:
+        n_tiles = n_tiles_base
 
-      if DEBUG>3:
+
+
+
+      if DEBUG>0:
         print( f"{CARRIBEAN_GREEN}GENERATE:       INFO:   now processing case:           '{CAMEL}{dir_path}{RESET}'" )
-        
         
       # (2) Set up symlink
 
@@ -1658,9 +1685,9 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
 
   # trim, then convert everything into Torch style tensors
 
-  images_new      = images_new     [0:global_tiles_processed]
-  img_labels_new  = img_labels_new [0:global_tiles_processed]
-  fnames_new      = fnames_new     [0:global_tiles_processed]
+  images_new      = images_new     [0:global_tiles_processed]                                            # trim off all the unused positions in image_new
+  img_labels_new  = img_labels_new [0:global_tiles_processed]                                            # ditto
+  fnames_new      = fnames_new     [0:global_tiles_processed]                                            # ditto
   
   images_new      = torch.Tensor( images_new )
   fnames_new      = torch.Tensor( fnames_new ).long()
