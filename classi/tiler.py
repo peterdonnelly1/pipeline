@@ -126,11 +126,11 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
   try:                                                                                                   # every tile has an associated label - the same label for every tile image in the directory
     label_file = f"{data_dir}/{d}/{args.class_numpy_file_name}"
     if DEBUG>0:
-      print ( f"\r\033[{start_row-13};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   current image's label file  = {CYAN}{label_file}{RESET}",  end="" )
+      print ( f"\r\033[{start_row-13};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   current image's label file    = {CYAN}{label_file}{RESET}",  end="" )
     label   = np.load( label_file )
     subtype = label[0]
     if DEBUG>0:
-      print ( f"\r\033[{start_row-12};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   image is of subtype (class) = {MIKADO}{subtype}{RESET}",     end="" )
+      print ( f"\r\033[{start_row-12};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   image is of subtype (class)   = {MIKADO}{subtype}{RESET}",     end="" )
   except Exception as e:
     print ( f"{RED}TILER:               FATAL: when processing: '{label_file}'{RESET}", flush=True)        
     print ( f"{RED}TILER:                      reported error was: '{e}'{RESET}", flush=True)
@@ -142,10 +142,10 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
   if make_balanced=='True':
 
     if DEBUG>0:
-      print ( f"\r\033[{start_row-9};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   base value of n_tiles       = {CYAN}{n_tiles}{RESET}",                  end="" )
+      print ( f"\r\033[{start_row-9};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   base value of n_tiles         = {CYAN}{n_tiles}{RESET}",                  end="" )
       np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})
-      print ( f"\r\033[{start_row-11};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   tile top_up_factors         = {CYAN}{top_up_factors}{RESET}",           end="" )
-      print ( f"\r\033[{start_row-10};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   applicable top up factor    = {CYAN}{top_up_factors[subtype]:<4.2f}{RESET}",  end="" )
+      print ( f"\r\033[{start_row-11};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   tile top_up_factors           = {CYAN}{top_up_factors}{RESET}",           end="" )
+      print ( f"\r\033[{start_row-10};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   applicable top up factor      = {CYAN}{top_up_factors[subtype]:<4.2f}{RESET}",  end="" )
   
       if top_up_factors[subtype]==1.:                                                                        # no need to adjust n_tiles for the subtype which has the largest number of images
         pass
@@ -153,7 +153,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
         n_tiles = int(top_up_factors[subtype] * n_tiles)+1
   
       if DEBUG>0:
-        print ( f"\r\033[{start_row-8};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   new value of n_tiles        = {CYAN}{n_tiles}{RESET}",                 end="" )
+        print ( f"\r\033[{start_row-8};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   new value of n_tiles         = {CYAN}{n_tiles}{RESET}",                 end="" )
   
       
     
@@ -540,13 +540,16 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
             if IsDegenerate:
               degenerate_image_count+=1
 
-            if ( IsBackground | IsDegenerate | IsLowContrast ) & ( ( just_test!='True' ) | ( multimode=='True') ):                   # If 'just_test' = True, all tiles must be accepted
-              if (DEBUG>999):
-                print ( "TILER: INFO:               skipping this tile" ) 
+            if ( IsBackground | IsDegenerate | IsLowContrast ):
+            # ~ if ( IsBackground | IsDegenerate | IsLowContrast ) & ( ( just_test!='True' ) | ( multimode=='True') ):                   # If 'just_test' = True, all tiles must be accepted
+              if (DEBUG>0):
+                print ( f"\r\033[{start_row-17};0f{CLEAR_LINE}{RED}TILER:                          INFO:   skipping this tile candidate                                                                                              ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||{RESET}",     end="" )
               pass
       
 
             else:
+              print ( f"\r\033[{start_row-17};0f{CLEAR_LINE}{GREEN}TILER:                          INFO:   using    this tile candidate {BOLD}||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||{BOLD}",     end="" )
+
               # ~ if not stain_norm=="NONE":                                                               # then perform the selected stain normalization technique on the tile W
               if stain_norm=="reinhard":                                                                   # now handle 'spcn' at the slide level in the standalone process 'normalise_stain' 
 
@@ -761,15 +764,8 @@ def check_background( args, tile ):
   IsBackground=False
   if sample_sd<args.min_tile_sd:
     IsBackground=True
-
-    if (DEBUG>9):
-      print ( "\nTILER:            INFO: highest_uniques(): sample \033[94m\n{:}\033[m)".format   (    sample     ) )
-      print ( "TILER:            INFO: highest_uniques(): len(sample) \033[94;1m{:}\033[m".format ( len(sample)   ) )
-      print ( "TILER:            INFO: highest_uniques(): sample_mean \033[94;1m{:}\033[m".format (  sample_mean  ) )          
-      print ( "TILER:            INFO: highest_uniques(): sample_sd \033[94;1m{:}\033[m".format   (   sample_sd   ) )
-
-    if (DEBUG>9):
-      print ( f"TILER:            INFO: highest_uniques(): {RED}Yes, it's a background tile{RESET}",           flush=True )
+    if (DEBUG>0):
+      print ( f"\r\033[{start_row-15};0f{CLEAR_LINE}{BOLD}{BITTER_SWEET}TILER:                          INFO:   background:   {CYAN}sample_sd       =  {RESET}{BITTER_SWEET}{RESET}{MIKADO}{sample_sd:>4.2f}{RESET}{BITTER_SWEET} which is less than allowed user value for {CYAN}args.min_tile_sd{BITTER_SWEET} ({MIKADO}{args.min_tile_sd:<5.2f}{BITTER_SWEET} ){RESET}",  end="" )
   else:
     if (DEBUG>44):
       print ( f"TILER:            INFO: highest_uniques(): {BRIGHT_GREEN}No, it's not background tile{RESET}", flush=True )
@@ -793,8 +789,9 @@ def check_contrast( args, tile ):
     time.sleep(1)
     
   if GreyscaleRangeBad:
-    if (DEBUG>999):
-      print ( f"TILER:            INFO: highest_uniques(): Yes, it's a low contrast tile" )
+    if (DEBUG>0):
+      print ( f"\r\033[{start_row-14};0f{CLEAR_LINE}{BOLD}{BITTER_SWEET}TILER:                          INFO:   low contrast: {CYAN}greyscale_range ={RESET}{BITTER_SWEET}{RESET}{MIKADO}{greyscale_range:>6d}{RESET}{BITTER_SWEET} which is less than allowed user value for {CYAN}args.greyness {BITTER_SWEET}   ({MIKADO}{args.greyness:>5d}{BITTER_SWEET}){RESET}",  end="" )
+
       
   return GreyscaleRangeBad
   
@@ -803,8 +800,9 @@ def check_degeneracy( args, tile ):
 
   # check number of unique values in the image, which we will use as a proxy to discover degenerate (articial) images
   unique_values = len(np.unique(tile )) 
-  if (DEBUG>4):
-    print ( "TILER:            INFO: highest_uniques(): number of unique values in this tile = \033[94;1;4m{:>3}\033[m) and minimum required is \033[94;1;4m{:>3}\033[m)".format( unique_values, args.min_uniques ) )
+  if (DEBUG>0):
+    print ( f"\r\033[{start_row-16};0f{CLEAR_LINE}{BOLD}{BITTER_SWEET}TILER:                          INFO:   degeneracy:   {CYAN}unique_values   = {RESET}{BITTER_SWEET}{RESET}{MIKADO}{unique_values:>5d}{RESET}{BITTER_SWEET} which is less than allowed user value for {CYAN}args.min_uniques{BITTER_SWEET} ({MIKADO}{args.min_uniques:5d}{BITTER_SWEET} ){RESET}",  end="" )
+
   IsDegenerate = unique_values<args.min_uniques
 
   if DEBUG>44:

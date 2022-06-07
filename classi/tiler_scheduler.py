@@ -75,10 +75,10 @@ def tiler_scheduler( args, r_norm, flag, count, n_tiles, top_up_factors, tile_si
   if DEBUG>0:
     # ~ if (my_thread>15) & (my_thread<20):
     if (my_thread>18):
-      print ( f"{SAVE_CURSOR}{RESET}\r\033[{start_row-7};0HTILER_SCHEDULER_thread_{PINK}{my_thread:2d}{RESET}:      INFO:  tiles/slide                  = {MIKADO}{n_tiles}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}",            flush=True ) 
-      print ( f"{SAVE_CURSOR}{RESET}\r\033[{start_row-6};0HTILER_SCHEDULER_thread_{PINK}{my_thread:2d}{RESET}:      INFO:  qualifying slides count      = {MIKADO}{count}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}",            flush=True ) 
-      print ( f"{SAVE_CURSOR}{RESET}\r\033[{start_row-5};0HTILER_SCHEDULER_thread_{PINK}{my_thread:2d}{RESET}:      INFO:  my_slide_quota               = {MIKADO}{my_slide_quota}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}",            flush=True ) 
-      print ( f"{SAVE_CURSOR}{RESET}\r\033[{start_row-4};0HTILER_SCHEDULER_thread_{PINK}{my_thread:2d}{RESET}:      INFO:  my_expanded_slide_quota      = {MIKADO}{my_expanded_slide_quota}  {RESET}{DULL_WHITE}<< quantization introduced by threading means that some threads will be 'luckier' than others in coming across slides that belong to the required subset (e.g. 'UNIMODE_CASE') if not all slides are used{RESET}{CLEAR_LINE}{RESTORE_CURSOR}", flush=True ) 
+      print ( f"{SAVE_CURSOR}{RESET}\r\033[{start_row-7};0HTILER_SCHEDULER_thread_{PINK}{my_thread:2d}{RESET}:      INFO:  tiles/slide                    = {MIKADO}{n_tiles}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}",            flush=True ) 
+      print ( f"{SAVE_CURSOR}{RESET}\r\033[{start_row-6};0HTILER_SCHEDULER_thread_{PINK}{my_thread:2d}{RESET}:      INFO:  qualifying slides count        = {MIKADO}{count}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}",            flush=True ) 
+      print ( f"{SAVE_CURSOR}{RESET}\r\033[{start_row-5};0HTILER_SCHEDULER_thread_{PINK}{my_thread:2d}{RESET}:      INFO:  my_slide_quota                 = {MIKADO}{my_slide_quota}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}",            flush=True ) 
+      print ( f"{SAVE_CURSOR}{RESET}\r\033[{start_row-4};0HTILER_SCHEDULER_thread_{PINK}{my_thread:2d}{RESET}:      INFO:  my_expanded_slide_quota        = {MIKADO}{my_expanded_slide_quota}  {RESET}{DULL_WHITE}<< quantization introduced by threading means that some threads will be 'luckier' than others in coming across slides that belong to the required subset (e.g. 'UNIMODE_CASE') if not all slides are used{RESET}{CLEAR_LINE}{RESTORE_CURSOR}", flush=True ) 
   
   for root, dirs, files in walker:                                                                         # go through all the directories, but only tackle every my_thread'th directory
     
