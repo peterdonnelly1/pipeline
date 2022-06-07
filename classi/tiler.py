@@ -45,15 +45,16 @@ DEBUG=1
 
 num_cpus = multiprocessing.cpu_count()
 
-start_column = 120
+start_column = 112
 start_row    = 60-num_cpus
 
 thread_to_monitor = 7
 
 def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method, d, f, my_thread, r ):
 
-  num_cpus = multiprocessing.cpu_count()
+  start = time.time()
 
+  num_cpus = multiprocessing.cpu_count()
 
   SUCCESS=True
   FAIL=False
@@ -72,9 +73,10 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
   background_image_count          = 0
   stain_normalization_target_set  = False
   
-  # DON'T USE args.n_tiles or args.tile_size, since it is the JOB level list of numbers of tiles. Here we are just using one value of n_tiles, passed in as the parameter above  
+  # DON'T USE the args.n_tiles or args.tile_size arrays, since it is the JOB level list of numbers of tiles. Here we are just using one value of n_tiles, passed in as the parameter above  
   just_profile           = args.just_profile                                                               # display an analysis of image tiles then exit
   just_test              = args.just_test                                                                  # if set, suppress tile quality filters (i.e. accept every tile)
+  make_balanced          = args.make_balanced
   multimode              = args.multimode                                                                  # if set, suppress tile quality filters (i.e. accept every tile)
   data_dir               = args.data_dir
   log_dir                = args.log_dir
@@ -114,18 +116,56 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
   
   if (DEBUG>2):
     print ( f"TILER:          INFO: process:directory = {CYAN}{my_thread:2d}{RESET}:{d:100s} ", flush=True         )
+    
+    
+  # (1) if user has requested 'MAKE_BALANCED', then adjust the number of tiles to extract according to the subtype using the 'top_up_factors' array
   
-  ALLOW_REDUCED_WIDTH_EDGE_TILES = 0                                                                       # if 1, then smaller tiles will be generated, if required, at the right hand edge and bottom of the image to ensure that all of the image is tiled
+    
+  # (1A) determine this slide's subtype (class)
   
-  level            = 0
-  tile_size_40X    = 2100;                                                                                 # only used if resizing is enabled (tile_size=0)
+  try:                                                                                                   # every tile has an associated label - the same label for every tile image in the directory
+    label_file = f"{data_dir}/{d}/{args.class_numpy_file_name}"
+    if DEBUG>0:
+      print ( f"\r\033[{start_row-13};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   current image's label file  = {CYAN}{label_file}{RESET}",  end="" )
+    label   = np.load( label_file )
+    subtype = label[0]
+    if DEBUG>0:
+      print ( f"\r\033[{start_row-12};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   image is of subtype (class) = {MIKADO}{subtype}{RESET}",     end="" )
+  except Exception as e:
+    print ( f"{RED}TILER:               FATAL: when processing: '{label_file}'{RESET}", flush=True)        
+    print ( f"{RED}TILER:                      reported error was: '{e}'{RESET}", flush=True)
+    print ( f"{RED}TILER:                      halting now{RESET}", flush=True)
+    sys.exit(0)
+
+  # (1B) increase n_tiles accordingly
+
+  if make_balanced=='True':
+
+    if DEBUG>0:
+      print ( f"\r\033[{start_row-9};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   base value of n_tiles       = {CYAN}{n_tiles}{RESET}",                  end="" )
+      np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})
+      print ( f"\r\033[{start_row-11};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   tile top_up_factors         = {CYAN}{top_up_factors}{RESET}",           end="" )
+      print ( f"\r\033[{start_row-10};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   applicable top up factor    = {CYAN}{top_up_factors[subtype]:<4.2f}{RESET}",  end="" )
   
-  start = time.time()
+      if top_up_factors[subtype]==1.:                                                                        # no need to adjust n_tiles for the subtype which has the largest number of images
+        pass
+      else:
+        n_tiles = int(top_up_factors[subtype] * n_tiles)+1
+  
+      if DEBUG>0:
+        print ( f"\r\033[{start_row-8};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   new value of n_tiles        = {CYAN}{n_tiles}{RESET}",                 end="" )
+  
+      
+    
+
   
   if (DEBUG>2):  
     print('TILER:          INFO: now processing          {:}{:}{:}'.format( BB, fqn, RESET));
 
-  # (1) open the SVS image and inspect statistics
+  # (2) open the SVS image and inspect statistics
+
+  level            = 0
+  tile_size_40X    = 2100;                                                                                 # only used if resizing is enabled (tile_size=0)
   
   try:
     oslide = openslide.OpenSlide( fqn );                                                                   # open the file containing the image
@@ -216,7 +256,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
 
 
 
-  # (2a) [test mode] look for the best possible patch (of the requested size) to use
+  # (3a) [test mode] look for the best possible patch (of the requested size) to use
      
   if ( ( just_test=='True')  & ( multimode!='image_rna' ) ):
 
@@ -235,9 +275,10 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
 
     if DEBUG>2:
       print( f"{ORANGE}TILER:          INFO: CAUTION! 'just_test' flag is set (and multimode flag is not). (Super-)patch origin will be set to the following coordinates, chosen for good contrast: x={CYAN}{x_start}{RESET}{ORANGE}, y={CYAN}{y_start}{RESET}" )  
+
+
   
-  
-  # (2b) Set up parameters for selection of tiles (for training mode and multimode: random; for test mode: 2D contiguous patch taking into account the supergrid setting
+  # (3b) Set up parameters for selection of tiles (for training mode and multimode: random; for test mode: 2D contiguous patch taking into account the supergrid setting
   
   if ( ( just_test!='True' ) | ( multimode=='image_rna' ) ):
     x_start=0
@@ -274,7 +315,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
 
 
 
-  # (2c) [test mode] extract and save a copy of the entire un-tiled patch, for later use in the Tensorboard scattergram display
+  # (3c) [test mode] extract and save a copy of the entire un-tiled patch, for later use in the Tensorboard scattergram display
   
   if ( ( just_test=='True')  & ( multimode!='image_rna' ) ):  
             
@@ -296,7 +337,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
  # patch_norm = norm_method.normalizer( patch_rgb_npy )
   
   
-  # (3) extract the tiles
+  # (4) extract the tiles
 
   
   break_now=False
@@ -372,14 +413,15 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
 \r\033[{start_row-1};{start_column-44}f{RESET}extraction\
 \r\033[{start_row-1};{start_column-32}f{RESET}applied magnifications\
 \r\033[{start_row-1};{start_column+0+2}f{RESET}cpu\
-\r\033[{start_row-1};{start_column+6+2}fneeded\
-\r\033[{start_row-1};{start_column+14+4}f{BOLD}{GREEN}have{RESET}\
-\r\033[{start_row-1};{start_column+25+1}fexamined\
-\r\033[{start_row-1};{start_column+25+14}f{GREEN}accepted{RESET}\
-\r\033[{start_row-1};{start_column+42+10}f{RED}low_contrast{RESET}\
-\r\033[{start_row-1};{start_column+58+10}f{RED}degenerate{RESET}\
-\r\033[{start_row-1};{start_column+74+10}f{RED}background{RESET}\
-\r\033[{start_row-1};{start_column+90+10}f{WHITE}currenty extracting tiles from this image file:{RESET}\
+\r\033[{start_row-1};{start_column+6+1}f{RESET}subtype\
+\r\033[{start_row-1};{start_column+14+4}fneeded\
+\r\033[{start_row-1};{start_column+25+3}f{BOLD}have{RESET}\
+\r\033[{start_row-1};{start_column+25+12}fexamined\
+\r\033[{start_row-1};{start_column+42+8}f{GREEN}accepted{RESET}\
+\r\033[{start_row-1};{start_column+58+8}f{RED}low_contrast{RESET}\
+\r\033[{start_row-1};{start_column+74+8}f{RED}degenerate{RESET}\
+\r\033[{start_row-1};{start_column+90+7}f{RED}background{RESET}\
+\r\033[{start_row-1};{start_column+100+10}f{WHITE}currenty extracting tiles from this image file:{RESET}\
 ", flush=True, end="" )
 
 
@@ -581,15 +623,16 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
 
               print  (f"\
 \r\033[{start_row+my_thread};{start_column+0 }f{CAMEL}{my_thread:^8d}{RESET}\
-\r\033[{start_row+my_thread};{start_column+6 }f{n_tiles:6d}\
-\r\033[{start_row+my_thread};{start_column+14+1}f{BRIGHT_GREEN if tiles_processed>=(0.95*n_tiles) else GREEN if tiles_processed>=(0.90*n_tiles) else ORANGE if tiles_processed>=(0.75*n_tiles) else BLEU if tiles_processed>=(0.50*n_tiles) else WHITE if tiles_processed>=(0.25*n_tiles) else WHITE}{tiles_processed:6d}{RESET}\
-\r\033[{start_row+my_thread};{start_column+25+1}f{tiles_considered_count:6d}\
+\r\033[{start_row+my_thread};{start_column+6+3 }f{MIKADO}{subtype:^2d}{RESET}\
+\r\033[{start_row+my_thread};{start_column+14+2}f{n_tiles:6d}\
+\r\033[{start_row+my_thread};{start_column+25+0}f{BRIGHT_GREEN if tiles_processed>=(0.95*n_tiles) else GREEN if tiles_processed>=(0.90*n_tiles) else ORANGE if tiles_processed>=(0.75*n_tiles) else BLEU if tiles_processed>=(0.50*n_tiles) else WHITE if tiles_processed>=(0.25*n_tiles) else WHITE}{tiles_processed:6d}{RESET}\
+\r\033[{start_row+my_thread};{start_column+25+11}f{tiles_considered_count:6d}\
 {BRIGHT_GREEN if tiles_processed>=(0.95*n_tiles) else GREEN if tiles_processed>=(0.90*n_tiles) else ORANGE if tiles_processed>=(0.75*n_tiles) else BLEU if tiles_processed>=(0.50*n_tiles) else WHITE if tiles_processed>=(0.25*n_tiles) else WHITE}\
-\r\033[{start_row+my_thread};{start_column+25+9}f{GREEN}{tiles_processed:6d}  ({tiles_processed/[tiles_considered_count                 if tiles_considered_count>0 else .000000001][0] *100:3.0f}%){RESET}\
-\r\033[{start_row+my_thread};{start_column+42+8}f{RED}{low_contrast_tile_count:6d}  ({low_contrast_tile_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:3.0f}%)\
-\r\033[{start_row+my_thread};{start_column+58+8}f{degenerate_image_count:6d}  ({degenerate_image_count/[tiles_considered_count   if tiles_considered_count>0 else .000000001][0] *100:3.0f}%)\
-\r\033[{start_row+my_thread};{start_column+74+8}f{background_image_count:6d}  ({background_image_count/[tiles_considered_count   if tiles_considered_count>0 else .000000001][0] *100:3.0f}%){RESET}\
-\r\033[{start_row+my_thread};{start_column+90+10}f{PALE_ORANGE if r<4 else DULL_YELLOW if r<7 else DULL_WHITE if r<10 else PURPLE}{f}{RESET}\
+\r\033[{start_row+my_thread};{start_column+42+4}f{GREEN}{tiles_processed:6d}  ({tiles_processed/[tiles_considered_count                 if tiles_considered_count>0 else .000000001][0] *100:3.0f}%){RESET}\
+\r\033[{start_row+my_thread};{start_column+58+4}f{RED}{low_contrast_tile_count:6d}  ({low_contrast_tile_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:3.0f}%)\
+\r\033[{start_row+my_thread};{start_column+74+4}f{degenerate_image_count:6d}  ({degenerate_image_count/[tiles_considered_count   if tiles_considered_count>0 else .000000001][0] *100:3.0f}%)\
+\r\033[{start_row+my_thread};{start_column+90+4}f{background_image_count:6d}  ({background_image_count/[tiles_considered_count   if tiles_considered_count>0 else .000000001][0] *100:3.0f}%){RESET}\
+\r\033[{start_row+my_thread};{start_column+100+10}f{PALE_ORANGE if r<4 else DULL_YELLOW if r<7 else DULL_WHITE if r<10 else PURPLE}{f}{RESET}\
 ", flush=True, end="" )
 
               # ~ time.sleep(.25)

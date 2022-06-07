@@ -23,7 +23,7 @@ def tiler_scheduler( args, r_norm, flag, count, n_tiles, top_up_factors, tile_si
   
   num_cpus = multiprocessing.cpu_count()
 
-  start_column = 170
+  start_column = 112
   start_row    = 60-num_cpus
 
     
@@ -158,11 +158,11 @@ def tiler_scheduler( args, r_norm, flag, count, n_tiles, top_up_factors, tile_si
       break
                   
   if slides_processed==my_slide_quota:
-    print ( f"\033[{start_row+my_thread};{start_column+48}f  {RESET}{GREEN  }thread {MIKADO}{my_thread:2d}{RESET}{GREEN  } exiting - on    slide quota                           {RESET}", flush=True  )
+    print ( f"\033[{start_row+my_thread};{start_column+108}f  {RESET}{GREEN  }thread {MIKADO}{my_thread:2d}{RESET}{GREEN  } exiting - on    slide quota                           {RESET}", flush=True  )
   elif slides_processed>my_slide_quota:
-    print ( f"\033[{start_row+my_thread};{start_column+48}f  {RESET}{MAGENTA}thread {MIKADO}{my_thread:2d}{RESET}{MAGENTA} exiting - over  slide quota                           {RESET}", flush=True )
+    print ( f"\033[{start_row+my_thread};{start_column+108}f  {RESET}{MAGENTA}thread {MIKADO}{my_thread:2d}{RESET}{MAGENTA} exiting - over  slide quota                           {RESET}", flush=True )
   else:
-    print ( f"\033[{start_row+my_thread};{start_column+48}f  {RESET}{RED    }thread {MIKADO}{my_thread:2d}{RESET}{RED    } exiting - under slide quota                           {RESET}", flush=True )
+    print ( f"\033[{start_row+my_thread};{start_column+108}f  {RESET}{RED    }thread {MIKADO}{my_thread:2d}{RESET}{RED    } exiting - under slide quota                           {RESET}", flush=True )
 
 
   return(slides_processed)

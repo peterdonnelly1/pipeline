@@ -243,6 +243,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   nn_optimizer                  = args.optimizer
   n_samples                     = args.n_samples
   n_tiles                       = args.n_tiles
+  make_balanced                 = args.make_balanced
   n_iterations                  = args.n_iterations
   pct_test                      = args.pct_test
   batch_size                    = args.batch_size
@@ -1097,7 +1098,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
 
 
-    # (2) Potentially schedule and run tiler threads
+    # (2) Maybe schedule and run tiler threads
     
     
     # (2A) But first, count the number images per cancer subtype in the dataset. This will be used in generate() to balance tiling so that all subtypes will be represented by the same number of tiles
@@ -1305,11 +1306,12 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
           print ( f"{RESTORE_CURSOR}" )
 
 
-          if just_profile=='True':                                                                       # then we are all done
+          if just_profile=='True':                                                                         # then we are all done
             sys.exit(0)
 
 
-    # (3) Regenerate Torch '.pt' file, if required
+
+    # (3) Maybe Regenerate Torch '.pt' file
 
     if  (input_mode=='image') & ( skip_generation!='True' ):
       
@@ -1472,7 +1474,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
 
 
-    #(5) Load neural network
+    # (5) Load neural network
 
     if DEBUG>1:                                                                                                        
       print( f"CLASSI:         INFO: {BOLD}5 about to load network {MIKADO}{nn_type_img}{RESET}{BOLD} and {MIKADO}{nn_type_rna}{RESET}" )
@@ -3090,7 +3092,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
           print ( f"CLASSI:           INFO:  {BOLD}F1{RESET}                [{CHARTREUSE}{i}{RESET}] = {COQUELICOT}{ F1           :.3f}{RESET}",                                                  flush=True  ) 
 
         
-        # (1) use pandas to save as a csv file
+        # use pandas to save as a csv file
         
         class_name = class_names[i][:25]
         row_1_string   = f"Subtype: {class_name: <30s}"
@@ -5938,6 +5940,7 @@ if __name__ == '__main__':
   p.add_argument('--multimode',                                                     type=str,    default='NONE'                                 )
   p.add_argument('--n_samples',                                         nargs="+",  type=int,    default="101"                                  )                                    
   p.add_argument('--n_tiles',                                           nargs="+",  type=int,    default="50"                                   )       
+  p.add_argument('--make_balanced',                                                 type=str,    default='True'                                 )
   p.add_argument('--highest_class_number',                                          type=int,    default="777"                                  )                                                             
   p.add_argument('--supergrid_size',                                                type=int,    default=1                                      )                                      
   p.add_argument('--patch_points_to_sample',                                        type=int,    default=1000                                   )                                   

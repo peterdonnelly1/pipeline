@@ -82,6 +82,7 @@ JUST_CLUSTER="False"
 JUST_TEST="False"
 LABEL_SWAP_PCT=0                                                                                           # (no getopts option) Swap this percentage of truth labels to random. Used for testing.
 LEARNING_RATE=".0001"
+MAKE_BALANCED="True"
 MAKE_GREY_PCT="0.0"                                                                                        # (no getopts option) Proportion of tiles to convert to greyscale. Use to check effect of color on learning. 
 METRIC="manhattan"                                                                                         
 MIN_CLUSTER_SIZE="10"
@@ -138,7 +139,7 @@ SHOW_COLS=100                                                                   
 
 HIGHEST_CLASS_NUMBER=12345 
 
-while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:H:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:Q:r:R:s:S:t:T:u:U:v:V:w:W:x:X:y:Y:z:Z:0:1:2:3:4:5:6:7:8:9: option
+while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:H:h:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:Q:r:R:s:S:t:T:u:U:v:V:w:W:x:X:y:Y:z:Z:0:1:2:3:4:5:6:7:8:9: option
   do
     case "${option}"
     in
@@ -157,6 +158,7 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:H:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:Q:
     g) SKIP_GENERATION=${OPTARG};;                                                                         # 'True'   or 'False'. If True, skip generation of the pytorch dataset (to save time if it already exists)
     G) SUPERGRID_SIZE=${OPTARG};;                                                                          
     H) HIDDEN_LAYER_NEURONS=${OPTARG};;                                                                    
+    h) MAKE_BALANCED=${OPTARG};;                                                                           # If True, adjust tiling so that all subtypes will have as many tiles as the subtype which has the most number of images                                    
     i) INPUT_MODE=${OPTARG};;                                                                              
     I) USE_UNFILTERED_DATA=${OPTARG};;
     j) JUST_TEST=${OPTARG};;                                                                               
@@ -417,7 +419,7 @@ CUDA_LAUNCH_BLOCKING=1 python ${MAIN_APPLICATION_NAME} \
 --encoder_activation ${ENCODER_ACTIVATION} --optimizer ${NN_OPTIMIZER} --n_samples ${N_SAMPLES} --pct_test ${PCT_TEST} --n_tests ${N_TESTS} --final_test_batch_size ${FINAL_TEST_BATCH_SIZE} \
 --gene_data_norm ${GENE_DATA_NORM} --gene_data_transform ${GENE_DATA_TRANSFORM} --embedding_dimensions ${EMBEDDING_DIMENSIONS} --hidden_layer_neurons ${HIDDEN_LAYER_NEURONS} --hidden_layer_encoder_topology ${HIDDEN_LAYER_ENCODER_TOPOLOGY} \
 --cancer_type ${CANCER_TYPE} --cancer_type_long ${CANCER_TYPE_LONG} --class_names ${CLASS_NAMES} --long_class_names ${LONG_CLASS_NAMES} --class_colours ${CLASS_COLOURS} --colour_map ${COLOUR_MAP} \
---n_tiles ${TILES_PER_IMAGE} --rand_tiles ${RANDOM_TILES} --tile_size ${TILE_SIZE} --zoom_out_mags ${ZOOM_OUT_MAGS} --zoom_out_prob ${ZOOM_OUT_PROB} \
+--n_tiles ${TILES_PER_IMAGE} --make_balanced ${MAKE_BALANCED} --rand_tiles ${RANDOM_TILES} --tile_size ${TILE_SIZE} --zoom_out_mags ${ZOOM_OUT_MAGS} --zoom_out_prob ${ZOOM_OUT_PROB} \
 --n_epochs ${N_EPOCHS} --n_iterations ${N_ITERATIONS} --batch_size ${BATCH_SIZE} --learning_rate ${LEARNING_RATE} \
 --latent_dim ${LATENT_DIM} --max_consecutive_losses ${MAX_CONSECUTIVE_LOSSES} --min_uniques ${MINIMUM_PERMITTED_UNIQUE_VALUES} \
 --greyness ${MINIMUM_PERMITTED_GREYSCALE_RANGE} --make_grey_perunit ${MAKE_GREY_PCT}  --peer_noise_perunit ${PEER_NOISE_PCT} --label_swap_pct ${LABEL_SWAP_PCT} \
