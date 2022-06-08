@@ -153,7 +153,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
         n_tiles = int(top_up_factors[subtype] * n_tiles)+1
   
       if DEBUG>0:
-        print ( f"\r\033[{start_row-8};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   new value of n_tiles         = {CYAN}{n_tiles}{RESET}",                 end="" )
+        print ( f"\r\033[{start_row-8};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   new value of n_tiles          = {CYAN}{n_tiles}{RESET}",                 end="" )
   
       
     
@@ -204,8 +204,8 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
       PROPERTY_NAME_COMMENT = re.sub( r'\n' , ' ', PROPERTY_NAME_COMMENT )                                   # PROPERTY_NAME_COMMENT has an embedded carriage return and line feed so strip these out
       PROPERTY_NAME_COMMENT = re.sub( r'\r' , ' ', PROPERTY_NAME_COMMENT )  
       if (DEBUG>0):
-        print(f"{SAVE_CURSOR}", end="",                                flush=True )
-        print(f"\033[{start_row+num_cpus};0f\r{CLEAR_LINE}", end="", flush=True )
+        print(f"{SAVE_CURSOR}",                                end="", flush=True )
+        print(f"\033[{start_row+num_cpus};0f\r{CLEAR_LINE}",   end="", flush=True )
         print(f"\033[{start_row+num_cpus+1};0f\r{CLEAR_LINE}", end="", flush=True )
         print(f"\033[{start_row+num_cpus+3};0f\r{CLEAR_LINE}", end="", flush=True )
         print(f"\033[{start_row+num_cpus+4};0f\r{CLEAR_LINE}", end="", flush=True )
@@ -351,6 +351,8 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
       for y in y_span:
     
           tiles_considered_count+=1
+          
+          s = random.randint(1,5)
               
           if   ( ( just_test=='True' ) & ( multimode!='image_rna' ) ) & ( tiles_processed==n_tiles*(supergrid_size**2) ):
             break_now=True
@@ -395,12 +397,13 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
 
             if DEBUG>0:
               if objective_power==0:
-                print( f"\r\033[{start_row+my_thread};0H{RESET}        {ARYLIDE}{objective_power:2d}{RESET} (means it was not recorded. will assume 40x)",  end="", flush=True )
+                print( f"\r\033[{start_row+my_thread};12H{RESET}{ARYLIDE}{objective_power:2d}{RESET} (means it was not recorded. will assume 40x)",  end="", flush=True )
               elif objective_power==20:
-                print( f"\r\033[{start_row+my_thread};0H{RESET}        {AZURE}{objective_power:2d}{RESET} (will extract double tile size then shrink)   ",  end="", flush=True )
+                print( f"\r\033[{start_row+my_thread};12H{RESET}{AZURE}{objective_power:2d}{RESET} (will extract double tile size then shrink)   ",  end="", flush=True )
               else:
-                print( f"\r\033[{start_row+my_thread};0H{RESET}        {CAMEL}{objective_power:2d}{RESET}                                               ",  end="", flush=True )                
-              print( f"\r\033[{start_row+my_thread};{start_column-30}H{RESET} \
+                print( f"\r\033[{start_row+my_thread};12H{RESET}{CAMEL}{objective_power:2d}{RESET}                                               ",  end="", flush=True )                
+
+              print( f"\r\033[{start_row+my_thread};{start_column-50}H{RESET} \
 {AMETHYST if multiplier==1 else MIKADO if multiplier==2 else CARRIBEAN_GREEN if 2<multiplier<=4 else BITTER_SWEET if 5<multiplier<=8 else CHARTREUSE if 5<multiplier<=8 else CAMEL}{multiplier}{RESET}", end="", flush=True )
 
             if DEBUG>0:
@@ -408,11 +411,11 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
       {WHITE}\
 \r\033[{start_row-3};0f{RESET}{CLEAR_LINE}\
 \r\033[{start_row-2};0f{RESET}{CLEAR_LINE}                                                                                                                         --------------------------------------------------------------- tiling stats for current image file --------------------------------------------------------------\
-\r\033[{start_row-2};{start_column+172}f{WHITE}overall progress{RESET}\
-\r\033[{start_row-1};{start_column-116}f{RESET}{CLEAR_LINE}optical magnification\
-\r\033[{start_row-1};{start_column-44}f{RESET}extraction\
-\r\033[{start_row-1};{start_column-32}f{RESET}applied magnifications\
-\r\033[{start_row-1};{start_column+0+2}f{RESET}cpu\
+\r\033[{start_row-2};{start_column+180}f{WHITE}overall progress{RESET}\
+\r\033[{start_row-1};2f{RESET}cpu\
+\r\033[{start_row-1};12f{RESET}{CLEAR_LINE}optical magnification\
+\r\033[{start_row-1};{start_column-50}f{RESET}mag\
+\r\033[{start_row-1};{start_column-42}f{RESET}extraction dimensions\
 \r\033[{start_row-1};{start_column+6+1}f{RESET}subtype\
 \r\033[{start_row-1};{start_column+14+4}fneeded\
 \r\033[{start_row-1};{start_column+25+3}f{BOLD}have{RESET}\
@@ -421,86 +424,37 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
 \r\033[{start_row-1};{start_column+58+8}f{RED}low_contrast{RESET}\
 \r\033[{start_row-1};{start_column+74+8}f{RED}degenerate{RESET}\
 \r\033[{start_row-1};{start_column+90+7}f{RED}background{RESET}\
-\r\033[{start_row-1};{start_column+100+10}f{WHITE}currenty extracting tiles from this image file:{RESET}\
+\r\033[{start_row-1};{start_column+100+10}f{WHITE}currentLy extracting tiles from this image file:{RESET}\
 ", flush=True, end="" )
 
 
-
             if ( ( just_test=='True')  & ( multimode!='image_rna' ) ):
-              
-              if objective_power==20:
-
-                if (DEBUG>5) & (my_thread==thread_to_monitor):
-                  print( f"{CARRIBEAN_GREEN}TILER_{my_thread}:        INFO:  objective_power               = {GREEN}{objective_power}{RESET}     << Need to increase resolution of this tile",  flush=True  )
-                new_width = multiplier*2*tile_width_x
-                tile = oslide.read_region((x     ,  y     ),  level, (new_width, new_width))               # extract an area from the slide of size determined by the result returned by choose_mag_level
-                if (DEBUG>0):
-                  print ( f"\r\033[{start_row+my_thread};{start_column-44}f\033[{7*int(math.log2(multiplier))}C{CARRIBEAN_GREEN}{new_width}x{new_width}  {RESET}" )
-                if (DEBUG>5) & (my_thread==thread_to_monitor):
-                  print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) after resizing = \n{GREEN}{np.array(tile)[0:20,0:20,0]}{RESET}",  flush=True        ) 
-                tile = tile.resize((tile_width_x,tile_width_x),Image.ANTIALIAS)                            # shrink it to tile_size
-                if (DEBUG>5) & (my_thread==thread_to_monitor):
-                  print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) after resizing = \n{GOLD}{np.array(tile)[0:10,0:10,0]}{RESET}",  flush=True         )
-                  
-              else:
-
-                if (DEBUG>5) & (my_thread==thread_to_monitor):
-                  print( f"{CARRIBEAN_GREEN}TILER_{my_thread}:        INFO:  objective_power               = {GREEN}{objective_power}{RESET}     << NO need to increase resolution of this tile",  flush=True  )
-                new_width = multiplier*1*tile_width_x
-                tile = oslide.read_region((x     ,  y     ),  level, (new_width, new_width))               # extract an area from the slide of size determined by the result returned by choose_mag_level
-                if (DEBUG>0):
-                  print ( f"\r\033[{start_row+my_thread};{start_column-44}f\033[{7*int(math.log2(multiplier))}C{GREEN}{new_width}x{new_width}  {RESET}" )
-                if (DEBUG>5) & (my_thread==thread_to_monitor):
-                  print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) after resizing = \n{BITTER_SWEET}{np.array(tile)[0:10,0:10,0]}{RESET}",  flush=True        ) 
-                tile = tile.resize((tile_width_x,tile_width_x),Image.ANTIALIAS)                            # shrink it to tile_size
-                if (DEBUG>5) & (my_thread==thread_to_monitor):
-                  print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) after resizing = \n{BITTER_SWEET}{np.array(tile)[0:10,0:10,0]}{RESET}",  flush=True    )           
-
-              fname = '{0:}/{1:}/{2:06}_{3:06}.png'.format( data_dir, d, y, x)                             # use the tile's top-left coordinate to construct a unique filename
-     
-                 
-
+              extraction_x_coord = x
+              extraction_y_coord = y
             else:
+              extraction_x_coord = x_rand
+              extraction_y_coord = y_rand
               
-              if objective_power==20:
-                    
-                if (DEBUG>5) & (my_thread==thread_to_monitor):
-                  print( f"{CARRIBEAN_GREEN}TILER_{my_thread}:        INFO:  objective_power               = {GREEN}{objective_power}{RESET}     << Need to increase resolution of this tile",  flush=True  )
-                new_width = multiplier*2*tile_width_x
-                tile = oslide.read_region((x_rand,  y_rand),  level, (new_width, new_width))               # extract an area from the slide of size determined by the result returned by choose_mag_level
-                if (DEBUG>0):
-                  print ( f"\r\033[{start_row+my_thread};{start_column-44}f\033[{7*int(math.log2(multiplier))}C{CARRIBEAN_GREEN}{new_width}x{new_width}  {RESET}" )
-                if (DEBUG>5) & (my_thread==thread_to_monitor):
-                  print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) after resizing = \n{GREEN}{np.array(tile)[0:20,0:20,0]}{RESET}",  flush=True        ) 
-                tile = tile.resize((tile_width_x,tile_width_x),Image.ANTIALIAS)                            # shrink it to tile_size
-                if (DEBUG>5) & (my_thread==thread_to_monitor):
-                  print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) after resizing = \n{GOLD}{np.array(tile)[0:10,0:10,0]}{RESET}",  flush=True         )
+            if objective_power==20:
+              optical_mag_adjustment_factor=2
+            else:
+              optical_mag_adjustment_factor=1
+            
+            new_width = multiplier * optical_mag_adjustment_factor * tile_width_x                                       # extract an area from the slide of size determined by the result returned by choose_mag_level
+            tile = oslide.read_region( (extraction_x_coord,  extraction_y_coord),  level, (new_width, new_width))       # extract an area from the slide of size determined by the result returned by choose_mag_level
 
-                if (DEBUG>99):
-                  time.sleep(0.1)
+            if (DEBUG>0):
+              print ( f"{RESET}\r\033[{start_row+my_thread};{start_column-46}f\033[{8*int(math.log2(multiplier))+4}C{PALE_ORANGE if s<2 else DULL_YELLOW if s<3 else DULL_WHITE if s<4 else PURPLE}{new_width}x{new_width}{RESET}" )
+
+            if (DEBUG>5) & (my_thread==thread_to_monitor):
+              print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) before resizing = \n{GREEN}{np.array(tile)[0:10,0:10,0]}{RESET}",  flush=True        ) 
+            tile = tile.resize((tile_width_x, tile_width_x ),Image.ANTIALIAS)                              # shrink it to tile_size
+            if (DEBUG>5) & (my_thread==thread_to_monitor):
+              print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) after  resizing = \n{GOLD }{np.array(tile)[0:10,0:10,0]}{RESET}",  flush=True         )
                 
-
-              else:
+            fname = f"{data_dir}/{d}/{extraction_y_coord:06}_{extraction_x_coord:06}.png"                  # use the tile's top-left hand x,y coordinates to construct a unique filename for the tile
+     
                 
-                if (DEBUG>5) & (my_thread==thread_to_monitor):
-                  print( f"{CARRIBEAN_GREEN}TILER_{my_thread}:        INFO:  objective_power               = {GREEN}{objective_power}{RESET}     << NO need to increase resolution of this tile",  flush=True  )
-                new_width = multiplier*1*tile_width_x
-                tile = oslide.read_region((x_rand,  y_rand),  level, (new_width, new_width))               # extract an area from the slide of size determined by the result returned by choose_mag_level
-                if (DEBUG>0):
-                  print ( f"\r\033[{start_row+my_thread};{start_column-44}f\033[{7*int(math.log2(multiplier))}C{BITTER_SWEET}{new_width}x{new_width}  {RESET}" )
-                if (DEBUG>5) & (my_thread==thread_to_monitor):
-                  print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) after resizing = \n{CARRIBEAN_GREEN}{np.array(tile)[0:10,0:10,0]}{RESET}",  flush=True        ) 
-                tile = tile.resize((tile_width_x,tile_width_x),Image.ANTIALIAS)                            # shrink it to tile_size
-                if (DEBUG>5) & (my_thread==thread_to_monitor):
-                  print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) after resizing = \n{BITTER_SWEET}{np.array(tile)[0:10,0:10,0]}{RESET}",  flush=True    )
-
-                if (DEBUG>99):
-                  time.sleep(0.1)
-
-
-              fname = f'{data_dir:}/{d:}/{x_rand:06}_{y_rand:06}_{objective_power}_{new_width}x{new_width}.png'                    # use the tile's top-left coordinate to construct a unique filename
-
-
 
             if DEBUG>9:
               print ( f"{RESET}TILER_{my_thread}:          INFO: shape (tile as numpy array)  = {CYAN}{(np.array(tile)).shape}                    {RESET}" )
@@ -540,15 +494,17 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
             if IsDegenerate:
               degenerate_image_count+=1
 
+            print ( f"\r\033[{start_row-17};0f{CLEAR_LINE}",          end="" )
+
             if ( IsBackground | IsDegenerate | IsLowContrast ):
             # ~ if ( IsBackground | IsDegenerate | IsLowContrast ) & ( ( just_test!='True' ) | ( multimode=='True') ):                   # If 'just_test' = True, all tiles must be accepted
               if (DEBUG>0):
-                print ( f"\r\033[{start_row-17};0f{CLEAR_LINE}{RED}TILER:                          INFO:   skipping this tile candidate                                                                                              ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||{RESET}",     end="" )
+                print ( f"\r\033[{start_row-18};0f{CLEAR_LINE}{RED}TILER:                          INFO:   skipping this tile candidate                                                                                              ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||{RESET}",     end="" )
               pass
       
 
             else:
-              print ( f"\r\033[{start_row-17};0f{CLEAR_LINE}{GREEN}TILER:                          INFO:   using    this tile candidate {BOLD}||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||{BOLD}",     end="" )
+              print ( f"\r\033[{start_row-18};0f{CLEAR_LINE}{GREEN}TILER:                          INFO:   using    this tile candidate {BOLD}||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||{BOLD}",     end="" )
 
               # ~ if not stain_norm=="NONE":                                                               # then perform the selected stain normalization technique on the tile W
               if stain_norm=="reinhard":                                                                   # now handle 'spcn' at the slide level in the standalone process 'normalise_stain' 
@@ -625,7 +581,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
                 # ~ print ( f"{SAVE_CURSOR}{CLEAR_LINE}", end="" )
 
               print  (f"\
-\r\033[{start_row+my_thread};{start_column+0 }f{CAMEL}{my_thread:^8d}{RESET}\
+\r\033[{start_row+my_thread};3f{BOLD}{YELLOW}{my_thread:<8d}{RESET}\
 \r\033[{start_row+my_thread};{start_column+6+3 }f{MIKADO}{subtype:^2d}{RESET}\
 \r\033[{start_row+my_thread};{start_column+14+2}f{n_tiles:6d}\
 \r\033[{start_row+my_thread};{start_column+25+0}f{BRIGHT_GREEN if tiles_processed>=(0.95*n_tiles) else GREEN if tiles_processed>=(0.90*n_tiles) else ORANGE if tiles_processed>=(0.75*n_tiles) else BLEU if tiles_processed>=(0.50*n_tiles) else WHITE if tiles_processed>=(0.25*n_tiles) else WHITE}{tiles_processed:6d}{RESET}\
@@ -660,53 +616,6 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
 
 # ------------------------------------------------------------------------------
 # HELPER FUNCTIONS
-# ------------------------------------------------------------------------------
-
-def button_click_exit_mainloop (event):
-    event.widget.quit()                                                                                    # this will cause main loop to unblock.
-
-# ------------------------------------------------------------------------------
-
-# ~ def display_processed_tiles( the_dir, DEBUG ):
-
-# ~ # from: https://code.activestate.com/recipes/521918-pil-and-tkinter-to-display-images/
-
-  # ~ if (DEBUG>9):
-    # ~ print ( "TILER: INFO: at top of display_processed_tiles() and dir = \033[33;1m{:}\033[m".format( the_dir   ) )
-
-  # ~ dirlist         = os.listdir( the_dir )
-
-  # ~ for f in dirlist:
-    # ~ if (DEBUG>9):
-      # ~ print ( "TILER: INFO: display_processed_tiles() current file      = \033[33;1m{:}\033[m".format( f  ) )
-      # ~ try:
-          # ~ master = Tk()
-          # ~ master.bind("<Button>", button_click_exit_mainloop )
-          # ~ master.geometry('+%d+%d' % (1350,500))                                                           # set window position
-          # ~ old_label_image = None
-          # ~ image1 = Image.open(f)                                                                           # open the file
-          # ~ resized = image1.resize((512, 512),Image.ANTIALIAS)
-          # ~ master.geometry('%dx%d' % (resized.size[0],resized.size[1]))                                     # set the size to be the same dimensions as a tile
-          # ~ tkpi = ImageTk.PhotoImage(resized)                                                               # convert the png image into a canonical tkinter image object (tkinter doesn't natively support png)
-          # ~ label_image = tk.Label(master, image=tkpi)                                                       # create a tkinter 'Label' display object
-          # ~ label_image.tkpi=tkpi
-          # ~ label_image.pack()                                                                               # 
-          # ~ #label_image.place(x=0,y=0,width=image1.size[0],height=image1.size[1])                           #
-          # ~ master.title(f)                                                                                  # use the file name as the image title
-          # ~ if old_label_image is not None:
-              # ~ old_label_image.destroy()
-          # ~ old_label_image = label_image
-          # ~ master.mainloop()                                                                                # wait for user input (which we simulate with button_click_exit_mainloop())
-      # ~ except Exception as e:
-          # ~ if (DEBUG>9):
-            # ~ print ( "TILER: INFO: Exception                                   = {:}".format( e  ) )
-          # ~ # skip anything not an image
-          # ~ # Warning, this will hide other errors as well
-          # ~ pass
-
-  # ~ return SUCCESS
-                  
-
 # ------------------------------------------------------------------------------
 
 def stain_normalization( norm_method, tile ):
