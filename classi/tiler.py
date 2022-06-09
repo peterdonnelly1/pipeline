@@ -44,7 +44,6 @@ from constants  import *
 DEBUG=1
 
 num_cpus = multiprocessing.cpu_count()
-
 start_column = 112
 start_row    = 60-num_cpus
 
@@ -126,11 +125,11 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
   try:                                                                                                   # every tile has an associated label - the same label for every tile image in the directory
     label_file = f"{data_dir}/{d}/{args.class_numpy_file_name}"
     if DEBUG>0:
-      print ( f"\r\033[{start_row-13};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   current image's label file    = {CYAN}{label_file}{RESET}",  end="" )
+      print ( f"\r\033[{start_row-13};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   current image's label file    = {RESET}{CYAN}/{data_dir}/{COTTON_CANDY if r<7 else BITTER_SWEET}{d}/{args.class_numpy_file_name}{RESET}",  end="" )
     label   = np.load( label_file )
     subtype = label[0]
     if DEBUG>0:
-      print ( f"\r\033[{start_row-12};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   image is of subtype (class)   = {MIKADO}{subtype}{RESET}",     end="" )
+      print ( f"\r\033[{start_row-12};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   current image is of subtype   = {MIKADO}{subtype}{RESET}",     end="" )
   except Exception as e:
     print ( f"{RED}TILER:               FATAL: when processing: '{label_file}'{RESET}", flush=True)        
     print ( f"{RED}TILER:                      reported error was: '{e}'{RESET}", flush=True)
@@ -145,7 +144,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
       print ( f"\r\033[{start_row-9};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   base value of n_tiles         = {CYAN}{n_tiles}{RESET}",                  end="" )
       np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})
       print ( f"\r\033[{start_row-11};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   tile top_up_factors           = {CYAN}{top_up_factors}{RESET}",           end="" )
-      print ( f"\r\033[{start_row-10};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   applicable top up factor      = {CYAN}{top_up_factors[subtype]:<4.2f}{RESET}",  end="" )
+      print ( f"\r\033[{start_row-10};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   applicable top_up_factor      = {CYAN}{top_up_factors[subtype]:<4.2f}{RESET}",  end="" )
   
       if top_up_factors[subtype]==1.:                                                                        # no need to adjust n_tiles for the subtype which has the largest number of images
         pass
@@ -153,7 +152,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
         n_tiles = int(top_up_factors[subtype] * n_tiles)+1
   
       if DEBUG>0:
-        print ( f"\r\033[{start_row-8};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   new value of n_tiles          = {CYAN}{n_tiles}{RESET}",                 end="" )
+        print ( f"\r\033[{start_row-8};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   adjusted value of n_tiles     = {CYAN}{n_tiles}{RESET}",                 end="" )
   
       
     
@@ -444,7 +443,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
             tile = oslide.read_region( (extraction_x_coord,  extraction_y_coord),  level, (new_width, new_width))       # extract an area from the slide of size determined by the result returned by choose_mag_level
 
             if (DEBUG>0):
-              print ( f"{RESET}\r\033[{start_row+my_thread};{start_column-46}f\033[{8*int(math.log2(multiplier))+4}C{PALE_ORANGE if s<2 else DULL_YELLOW if s<3 else DULL_WHITE if s<4 else PURPLE}{new_width}x{new_width}{RESET}" )
+              print ( f"{RESET}\r\033[{start_row+my_thread};{start_column-42}f{CHARTREUSE if new_width<33 else ARYLIDE if new_width<65 else BLEU if new_width<129 else BRIGHT_GREEN if new_width<257 else COQUELICOT if new_width<513 else PURPLE}{new_width}x{new_width}    {RESET}" )
 
             if (DEBUG>5) & (my_thread==thread_to_monitor):
               print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) before resizing = \n{GREEN}{np.array(tile)[0:10,0:10,0]}{RESET}",  flush=True        ) 

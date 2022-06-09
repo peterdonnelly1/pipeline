@@ -58,7 +58,7 @@ def tiler_scheduler( args, r_norm, flag, count, n_tiles, top_up_factors, tile_si
   my_slide_quota             = -(count//-num_cpus)                                                                   # how many slides each process has to handle
 
   if count>10:
-    my_expanded_slide_quota  = int (1.3 * my_slide_quota)                                                            # because some threads will be "luckier" than others in coming across slides with the correct flag
+    my_expanded_slide_quota  = int (1. * my_slide_quota)                                                            # because some threads will be "luckier" than others in coming across slides with the correct flag
   else:                                                                                                              # low count
     my_expanded_slide_quota  = int (2.  * my_slide_quota)                                                            # because some threads will be "luckier" than others in coming across slides with the correct flag
 

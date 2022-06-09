@@ -1459,7 +1459,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
       
       if args.make_balanced=='True':
  
-        if DEBUG>0:
+        if DEBUG>2:
           print ( f"\r{CLEAR_LINE}{BOLD}{CARRIBEAN_GREEN}GENERATE:       INFO:   base value of n_tiles       = {CYAN}{n_tiles_base}{RESET}"            )
           np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})
           print ( f"\r{CLEAR_LINE}{BOLD}{CARRIBEAN_GREEN}GENERATE:       INFO:   tile top_up_factors         = {CYAN}{top_up_factors}{RESET}"                  )
@@ -1470,7 +1470,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
         else:
           n_tiles = int(top_up_factors[subtype] * n_tiles_base)
     
-        if DEBUG>0:
+        if DEBUG>2:
           print ( f"\r{CLEAR_LINE}{BOLD}{CARRIBEAN_GREEN}GENERATE:       INFO:   new value of n_tiles        = {CYAN}{n_tiles}{RESET}"       )
           
       else:
@@ -1479,7 +1479,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
 
 
 
-      if DEBUG>0:
+      if DEBUG>2:
         print( f"{CARRIBEAN_GREEN}GENERATE:       INFO:   now processing case:           '{CAMEL}{dir_path}{RESET}'" )
         
       # (2) Set up symlink
@@ -1645,9 +1645,9 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
       print( f"{CLEAR_LINE}{RED}GENERATE:       WARNG:   (test mode)   not halting, but this will likely cause problems",  flush=True      )
       time.sleep(4)
     else:
-      print( f"{CLEAR_LINE}{ORANGE}GENERATE:       WARNG:   (training mode) the number of cases found and processed ({MIKADO}{directories_processed}{RESET}{ORANGE}) is less than the number  required ({MIKADO}{cases_required}{RESET}{ORANGE})",  flush=True        ) 
-      print( f"{CLEAR_LINE}{ORANGE}GENERATE:       WARNG:   (training mode)   one possible explanation: if you set '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{ORANGE}' to a number less than the number of classes actually present in the dataset, none of the '{CYAN}{args.cases}{RESET}{ORANGE}' cases belonging to the classes you removed will be available to be used",  flush=True        )
-      print( f"{CLEAR_LINE}{ORANGE}GENERATE:       WARNG:   (training mode)   not halting, but this might cause problems",  flush=True      )
+      print( f"{CLEAR_LINE}{ORANGE}GENERATE:       WARNG:   the number of cases found and processed ({MIKADO}{directories_processed}{RESET}{ORANGE}) is less than the number  required ({MIKADO}{cases_required}{RESET}{ORANGE})",  flush=True        ) 
+      print( f"{CLEAR_LINE}{ORANGE}GENERATE:       WARNG:   one possible explanation: if you set '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{ORANGE}' to a number less than the number of classes actually present in the dataset, none of the '{CYAN}{args.cases}{RESET}{ORANGE}' cases belonging to the classes you removed will be available to be used",  flush=True        )
+      print( f"{CLEAR_LINE}{ORANGE}GENERATE:       WARNG:   not halting, but this might cause problems",  flush=True      )
   
 
   

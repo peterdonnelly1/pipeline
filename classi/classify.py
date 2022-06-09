@@ -106,6 +106,8 @@ pkmn_type_colors = ['#78C850',  # Grass
 
 device = cuda.device()
 num_cpus = multiprocessing.cpu_count()
+start_column = 112
+start_row    = 60-num_cpus
 
 #np.set_printoptions(edgeitems=200)
 np.set_printoptions(linewidth=1000)
@@ -1107,7 +1109,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   
     if ( input_mode!='rna' ):
 
-      if DEBUG>0:
+      if DEBUG>2:
         print( f"CLASSI:         INFO: n_classes               = {MAGENTA}{n_classes}{RESET}",        flush=True  )
         
       class_counts          = np.zeros( n_classes, dtype=int )
@@ -1168,7 +1170,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     
       if DEBUG>0:
             np.set_printoptions(formatter={'int':   lambda x: "{:>6d}".format(x)})
-            print( f"CLASSI:         INFO:     final class_counts         = {AMETHYST}{class_counts}{RESET}",                               flush=True  )
+            print( f"\r\033[{start_row-18};0f{CLEAR_LINE}CLASSI:         INFO:     final class_counts         = {AMETHYST}{class_counts}{RESET}",                               flush=True  )
             print( f"CLASSI:         INFO:     total slides counted       = {AMETHYST}{np.sum(class_counts)}{RESET}",                       flush=True  )
             np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})
             relative_ratios = class_counts/np.max(class_counts)
@@ -1177,7 +1179,6 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
             print( f"CLASSI:         INFO:     top up factors             = {AMETHYST}{top_up_factors}{RESET}",                             flush=True  )
             np.set_printoptions(formatter={'int':   lambda x: "{:>6d}".format(x)})
             print( f"CLASSI:         INFO:     check: revised tiles/slide = {AMETHYST}{(top_up_factors*class_counts).astype(int)}{RESET}",  flush=True  )
-
 
 
 

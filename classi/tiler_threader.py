@@ -108,8 +108,14 @@ def tiler_threader( args, flag, count, n_tiles, top_up_factors, tile_size, batch
 
 
   if DEBUG>0:
-    print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row-7};0H{CLEAR_LINE}total slides processed: {MIKADO}{sum(results) if ( ( just_test!='True' ) | ( multimode=='image_rna' ) ) else results} {MIKADO}{results}{RESET}{RESTORE_CURSOR}", flush=True, end=""  )                  
-
+    if flag == 'UNIMODE_CASE____IMAGE':
+      offset=22
+    else:
+      offset=21
+    
+    np.set_printoptions(formatter={'int': lambda x: "{:>5d}".format(x)})
+    print ( f"{SAVE_CURSOR}\r\033[{start_row-offset};0f{CLEAR_LINE}{RESET}TILER_THREADER: INFO: {CARRIBEAN_GREEN}total slides processed: total: {MIKADO}{sum(results) if ( ( just_test!='True' ) | ( multimode=='image_rna' ) ) else results:3d}; per thread: {MIKADO}{results}{RESET}{RESTORE_CURSOR}", flush=True, end=""  )                  
+    # ~ time.sleep(3)
         
   return SUCCESS
 
