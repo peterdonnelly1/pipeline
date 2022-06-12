@@ -173,7 +173,8 @@ def main(args):
   if infill=="no":                                                                                         # so don't skip cases we already have
 
     if DEBUG>0:
-      print( f"\nGDC-FETCH:  {BOLD} STEP 1:{RESET} about to retrieve case UUIDs of cases that meet the search criteria provided{RESET}" )
+      print( f"\nGDC-FETCH:    INFO:   {BOLD}STEP 1:{RESET} about to retrieve case UUIDs of cases that meet the search criteria provided{RESET}" )
+
     
     fields = [
         "case_id"
@@ -183,12 +184,16 @@ def main(args):
   
     with open( case_filter, 'r') as file:
       filters = json.load(file)
+      
+    if DEBUG>0:
+      print( f"GDC-FETCH:    INFO:   filters:   {CYAN}{filters}{RESET}" )  
+      print( f"GDC-FETCH:    INFO:   max_cases: {CYAN}{args.max_cases}{RESET}" )  
   
     params1 = {
         "filters": json.dumps(filters),
         "fields": fields,
         "format": "JSON",
-        "size": args.max_cases
+        "size":   args.max_cases
         }
     
     try:
@@ -200,8 +205,8 @@ def main(args):
     for case_entry in json.loads( response.content.decode("utf-8")) ["data"]["hits"]:
         cases_uuid_list.append(case_entry["case_id"])
     
-    if DEBUG>1:
-      print( "GDC-FETCH:  response (should be a json struct of the fields we requested. We are only interested in 'case_id') = {:}\033[m".format( response.text ) )
+    if DEBUG>0:
+      print( f"GDC-FETCH:    INFO:   response (should be a json struct of the fields we requested. We are only interested in 'case_id') = {response.text}{RESET}"   )
 
   else:                                                                                                    # 'infill' mode. I.e. download additional files; but ONLY for cases we already have. Build our own cases_uuid_list
     walker = os.walk( output_dir, topdown=True )
@@ -209,17 +214,17 @@ def main(args):
       for d in dirs:
         fqd = root + '/' + d
         if DEBUG>0:
-          print( "GDC-FETCH:        infill mode: now examining: \033[1m{:}\033[m".format( fqd ) )
+          print( f"GDC-FETCH:    INFO:   infill mode: now examining: {CYAN}{fqd}{RESET}" )
         if( os.path.isdir( fqd )):
           if fqd.endswith( already_have_suffix ):
             regex = r'.*\/(.*).*_all_downloaded_ok'
             matches = re.search( regex, fqd )
             case_uuid = matches.group(1)
             if DEBUG>0:
-              print( "GDC-FETCH:        case from already_have_flag:      \033[1m{:}\033[m".format( case_uuid ) )          
+              print( "GDC-FETCH:    INFO:   case from already_have_flag:      \033[1m{:}\033[m".format( case_uuid ) )          
             try:
               if DEBUG>0:
-                print( "GDC-FETCH:        infill mode and found case:      \033[1m{:}\033[m".format( case_uuid ) )
+                print( "GDC-FETCH:    INFO:   infill mode and found case:      \033[1m{:}\033[m".format( case_uuid ) )
               cases_uuid_list.append(  case_uuid   )
             except:
               pass
@@ -341,9 +346,9 @@ def main(args):
           RESULT = FOUND
         
         if RESULT==FOUND:
-          RESULT, case_files = fetch_case_file_ids   ( RAND, DEBUG,                        case,                portal,  file_filter,  uberlay,  infill, already_have_flag  )
+          RESULT, case_files = fetch_case_file_ids     ( RAND, DEBUG,                        case,                portal,  file_filter,  uberlay,  infill, already_have_flag   )
           if RESULT == SUCCESS:
-            tarfile = download                       ( RAND, DEBUG, output_dir, case_path, case,  case_files,   portal                                                       )
+            tarfile = download                         ( RAND, DEBUG, output_dir, case_path, case,  case_files,   portal                                                       )
             if tarfile != FAIL:
               result  = unpack_tarball                 ( RAND, DEBUG,             case_path,        tarfile,                                                                   )
               result  = decompress_gz_files            ( RAND, DEBUG,             case_path                                                                                    )
@@ -475,10 +480,10 @@ def fetch_case_file_ids( RAND, DEBUG, case, portal, file_filter, uberlay, infill
       "size": args.max_files
       }
 
-  case_files = requests.get(files_endpt, params=params2)
+  case_files = requests.get( files_endpt, params=params2 )
   
-  if DEBUG>99:
-    print( "GDC-FETCH:          response (json list of file ids of hits)  =   {:}{:}\033[m".format(RAND, case_files.text ) )
+  if DEBUG>0:
+    print( "GDC-FETCH:    INFO:   response (json list of file ids of hits)  =   {:}{:}\033[m".format(RAND, case_files.text ) )
 
   hits = json.loads( case_files.content.decode("utf-8"))["data"]["hits"]
   
@@ -490,17 +495,17 @@ def fetch_case_file_ids( RAND, DEBUG, case, portal, file_filter, uberlay, infill
       print ( 'GDC-FETCH:          already_have_flag:                           \033[32;1m{:}\033[m'.format( already_have_flag )   )
 
     if ( infill=="yes" ) | ( uberlay=="yes" ) :
-      if Path( already_have_flag ).is_dir():	                                                           # uberlay or infill mode and there are new files, so delete the already have flag to ensure integrity checking for this download	      
+      if Path( already_have_flag ).is_dir():	                                                             # uberlay or infill mode and there are new files, so delete the already have flag to ensure integrity checking for this download	      
         os.rmdir ( already_have_flag )
 
-      if DEBUG>2:
-        print ( 'GDC-FETCH:    INFO:   new files to be downloaded so deleting:      \033[32;1m{:}\033[m'.format( already_have_flag )   )
+      if DEBUG>0:
+        print ( f'GDC-FETCH:    INFO:   {GREEN}new files to be downloaded so deleting:      {CYAN}{already_have_flag}{RESET}'  )
 
     return SUCCESS, case_files
 
   else:
     if DEBUG>0:
-      print ( 'GDC-FETCH:          no new files for this case - skipping' ) 
+      print ( f'GDC-FETCH:    INFO:   {PALE_RED}no new files for this case - skipping{RESET}' ) 
        
     return FAIL, case_files
 

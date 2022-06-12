@@ -147,7 +147,7 @@ def tiler_scheduler( args, r_norm, flag, count, n_tiles, top_up_factors, tile_si
                     break
                 else:
                   print(f"{ORANGE}TILER_SCHEDULER_{FG3}: WARNING: not enough qualifying tiles ! Slide will be skipped. {MIKADO}{slides_processed}{RESET}{ORANGE} slides have been processed{RESET}", flush=True)
-                  if slides_processed<n_samples:
+                  if slides_processed<args.n_samples[0]:
                     print( f"{RED}TILER_SCHEDULER_{FG3}: FATAL:  n_samples has been reduced to {CYAN}{n_samples}{RESET}{RED} ... halting{RESET}" )
                     n_samples=slides_processed
   

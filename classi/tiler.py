@@ -125,7 +125,8 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
   try:                                                                                                   # every tile has an associated label - the same label for every tile image in the directory
     label_file = f"{data_dir}/{d}/{args.class_numpy_file_name}"
     if DEBUG>0:
-      print ( f"\r\033[{start_row-13};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   current image's label file    = {RESET}{CYAN}/{data_dir}/{COTTON_CANDY if r<7 else BITTER_SWEET}{d}/{args.class_numpy_file_name}{RESET}",  end="" )
+      print ( f"\r\033[{start_row-13};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   current image's label file    = \
+{RESET}{CYAN}{data_dir}/{PALE_ORANGE if r<4 else DULL_YELLOW if r<7 else DULL_WHITE if r<10 else PURPLE}{d}/{RESET}{CYAN}{args.class_numpy_file_name}{RESET}",  end="" )
     label   = np.load( label_file )
     subtype = label[0]
     if DEBUG>0:
@@ -673,7 +674,7 @@ def check_background( args, tile ):
   if sample_sd<args.min_tile_sd:
     IsBackground=True
     if (DEBUG>0):
-      print ( f"\r\033[{start_row-15};0f{CLEAR_LINE}{BOLD}{BITTER_SWEET}TILER:                          INFO:   background:   {CYAN}sample_sd       =  {RESET}{BITTER_SWEET}{RESET}{MIKADO}{sample_sd:>4.2f}{RESET}{BITTER_SWEET} which is less than allowed user value for {CYAN}args.min_tile_sd{BITTER_SWEET} ({MIKADO}{args.min_tile_sd:<5.2f}{BITTER_SWEET} ){RESET}",  end="" )
+      print ( f"\r\033[{start_row-14};0f{CLEAR_LINE}{RESET}{RED}TILER:                          INFO:   background:   {CYAN}sample_sd       =  {RESET}{BITTER_SWEET}{RESET}{MIKADO}{sample_sd:>4.2f}{RESET}{DIM_WHITE} which is less than allowed user value for {CYAN}args.min_tile_sd{BITTER_SWEET} ({MIKADO}{args.min_tile_sd:>4.2f}{BITTER_SWEET}){RESET}",  end="" )
   else:
     if (DEBUG>44):
       print ( f"TILER:            INFO: highest_uniques(): {BRIGHT_GREEN}No, it's not background tile{RESET}", flush=True )
@@ -698,7 +699,7 @@ def check_contrast( args, tile ):
     
   if GreyscaleRangeBad:
     if (DEBUG>0):
-      print ( f"\r\033[{start_row-14};0f{CLEAR_LINE}{BOLD}{BITTER_SWEET}TILER:                          INFO:   low contrast: {CYAN}greyscale_range ={RESET}{BITTER_SWEET}{RESET}{MIKADO}{greyscale_range:>6d}{RESET}{BITTER_SWEET} which is less than allowed user value for {CYAN}args.greyness {BITTER_SWEET}   ({MIKADO}{args.greyness:>5d}{BITTER_SWEET}){RESET}",  end="" )
+      print ( f"\r\033[{start_row-16};0f{CLEAR_LINE}{RESET}{RED}TILER:                          INFO:   low contrast: {CYAN}greyscale_range ={RESET}{BITTER_SWEET}{RESET}{MIKADO}{greyscale_range:>6d}{RESET}{DIM_WHITE} which is less than allowed user value for {CYAN}args.greyness {BITTER_SWEET}   ({MIKADO}{args.greyness:>5d}{BITTER_SWEET}){RESET}",  end="" )
 
       
   return GreyscaleRangeBad
@@ -708,8 +709,6 @@ def check_degeneracy( args, tile ):
 
   # check number of unique values in the image, which we will use as a proxy to discover degenerate (articial) images
   unique_values = len(np.unique(tile )) 
-  if (DEBUG>0):
-    print ( f"\r\033[{start_row-16};0f{CLEAR_LINE}{BOLD}{BITTER_SWEET}TILER:                          INFO:   degeneracy:   {CYAN}unique_values   = {RESET}{BITTER_SWEET}{RESET}{MIKADO}{unique_values:>5d}{RESET}{BITTER_SWEET} which is less than allowed user value for {CYAN}args.min_uniques{BITTER_SWEET} ({MIKADO}{args.min_uniques:5d}{BITTER_SWEET} ){RESET}",  end="" )
 
   IsDegenerate = unique_values<args.min_uniques
 
@@ -719,8 +718,8 @@ def check_degeneracy( args, tile ):
     
     
   if IsDegenerate:
-    if (DEBUG>999):
-      print ( f"TILER:            INFO: highest_uniques(): Yes, it's a degenerate tile" )
+    if (DEBUG>0):
+      print ( f"\r\033[{start_row-15};0f{CLEAR_LINE}{RESET}{RED}TILER:                          INFO:   degeneracy:   {CYAN}unique_values   = {RESET}{BITTER_SWEET}{RESET}{MIKADO}{unique_values:>5d}{RESET}{DIM_WHITE} which is less than allowed user value for {CYAN}args.min_uniques{BITTER_SWEET} ({MIKADO}{args.min_uniques:5d}{BITTER_SWEET} ){RESET}",  end="" )
       
   return IsDegenerate
   
