@@ -1,0 +1,46 @@
+{
+  "op": "and", 
+  "content":
+  [
+    {
+      "op": "in",
+      "content":
+      {
+        "field": "cases.case_id",
+        "value": "DUMMY_PLACEHOLDER"
+      }
+    },
+    {
+      "op": "in",
+      "content":
+      {
+        "field": "cases.project.project_id", 
+        "value": ["TCGA-KICH"]
+      }
+    },
+    {
+      "op": "in",
+      "content":
+      {
+        "field": "files.file_name",
+        "value": ["*svs"]
+      }
+    },
+    {
+      "op": "in",
+      "content":
+      {
+        "field": "files.access",
+        "value": "open"
+      }
+    },
+    {
+      "op": "in",
+      "content":
+      {
+        "field": "files.experimental_strategy",
+        "value": ["Diagnostic Slide"]
+      }
+    }        
+  ]
+}

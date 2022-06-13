@@ -21,53 +21,7 @@ import pandas as pd
 import shutil as sh
 from   pathlib  import Path
 
-WHITE           ='\033[37;1m'
-PURPLE          ='\033[35;1m'
-DIM_WHITE       ='\033[37;2m'
-CYAN            ='\033[36;1m'
-PALE_RED        ='\033[31m'
-PALE_GREEN      ='\033[32m'
-AUREOLIN        ='\033[38;2;253;238;0m' 
-DULL_WHITE      ='\033[38;2;140;140;140m'
-MIKADO          ='\033[38;2;255;196;12m'
-AZURE           ='\033[38;2;0;127;255m'
-AMETHYST        ='\033[38;2;153;102;204m'
-ASPARAGUS       ='\033[38;2;135;169;107m'
-CHARTREUSE      ='\033[38;2;223;255;0m'
-COQUELICOT      ='\033[38;2;255;56;0m'
-COTTON_CANDY    ='\033[38;2;255;188;217m'
-HOT_PINK        ='\033[38;2;255;105;180m'
-CAMEL           ='\033[38;2;193;154;107m'
-MAGENTA         ='\033[38;2;255;0;255m'
-YELLOW          ='\033[38;2;255;255;0m'
-DULL_YELLOW     ='\033[38;2;179;179;0m'
-ARYLIDE         ='\033[38;2;233;214;107m'
-BLEU            ='\033[38;2;49;140;231m'
-DULL_BLUE       ='\033[38;2;0;102;204m'
-RED             ='\033[38;2;255;0;0m'
-PINK            ='\033[38;2;255;192;203m'
-BITTER_SWEET    ='\033[38;2;254;111;94m'
-DARK_RED        ='\033[38;2;120;0;0m'
-ORANGE          ='\033[38;2;255;103;0m'
-PALE_ORANGE     ='\033[38;2;127;63;0m'
-GOLD            ='\033[38;2;255;215;0m'
-GREEN           ='\033[38;2;19;136;8m'
-BRIGHT_GREEN    ='\033[38;2;102;255;0m'
-CARRIBEAN_GREEN ='\033[38;2;0;204;153m'
-GREY_BACKGROUND ='\033[48;2;60;60;60m'
-
-
-BOLD='\033[1m'
-ITALICS='\033[3m'
-UNDER='\033[4m'
-BLINK='\033[5m'
-RESET='\033[m'
-
-CLEAR_LINE='\033[0K'
-UP_ARROW='\u25B2'
-DOWN_ARROW='\u25BC'
-SAVE_CURSOR='\033[s'
-RESTORE_CURSOR='\033[u'
+from classi.constants  import *
 
 FAIL    = 0
 SUCCESS = 1
@@ -95,14 +49,15 @@ def main(args):
 
   
   if(os.path.isdir( output_dir )):
-    user_input = input( "\033[1mWARNING: output directory \033[31;1;4m{:}\033[m\033[1m already exists, perhaps from a previous interrupted run. \
-\n\033[31;1;4mf\033[m\033[1minish previous download or \
-\n\033[31;1;4mp\033[m\033[1mromote all leaf files to their correct positions and delete all empty directories or \
-\n\033[31;1;4mc\033[m\033[1mlean up unwanted files or \
-\n\033[31;1;4mi\033[m\033[1mnfill.  Download new examples for existing cases only. Ignore cases which don't already exist locally\033[m or \
-\n\033[31;1;4mu\033[m\033[1mberlay Download new cases / examples\033[m or \
+    user_input = input( f"\033[1mWARNING: output directory \033[31;1;4m{output_dir}\033[m\033[1m already exists, perhaps from a previous interrupted run. \
+\n\noptions: \
+\n\033[31;1;4mf\033[m\033[1minish previous download {RESET}{ITALICS}or{RESET} \
+\n\033[31;1;4mp\033[m\033[1mromote all leaf files to their correct positions and delete all empty directories {RESET}{ITALICS}or{RESET} \
+\n\033[31;1;4mc\033[m\033[1mlean up unwanted files {RESET}{ITALICS}or{RESET} \
+\n\033[31;1;4mi\033[m\033[1mnfill.  Download new examples for existing cases only. Ignore cases which don't already exist locally\033[m {RESET}{ITALICS}or{RESET} \
+\n\033[31;1;4mu\033[m\033[1mberlay Download new cases / examples\033[m {RESET}{ITALICS}or{RESET} \
 \n\033[31;1;4md\033[m\033[1melete directory if it exists and start afresh?  \
-\033[m".format(output_dir) )
+\033[m")
   
     while True:
       if user_input=='f':
@@ -205,7 +160,7 @@ def main(args):
     for case_entry in json.loads( response.content.decode("utf-8")) ["data"]["hits"]:
         cases_uuid_list.append(case_entry["case_id"])
     
-    if DEBUG>0:
+    if DEBUG>2:
       print( f"GDC-FETCH:    INFO:   response (should be a json struct of the fields we requested. We are only interested in 'case_id') = {response.text}{RESET}"   )
 
   else:                                                                                                    # 'infill' mode. I.e. download additional files; but ONLY for cases we already have. Build our own cases_uuid_list
@@ -462,23 +417,29 @@ def fetch_case_file_ids( RAND, DEBUG, case, portal, file_filter, uberlay, infill
     print( "\nGDC-FETCH:  \033[1mNo GDC endpoint corresponds to that URL\033[m " )
 
   
-  with open( file_filter, 'r') as file:
-   filters = json.load(file)
+  with open( file_filter, 'r') as this_file:
+    
+    filters = json.load(this_file)
  
-   if DEBUG>99:
-     print ( filters['content'][0]['content']['value'] )
-   
-   filters['content'][0]['content']['value']  = case
+    if DEBUG>99:
+      print ( filters['content'][0]['content']['value'] )
 
-   if DEBUG>99:
-     print ( filters['content'][0]['content']['value'] )
+    if ( infill=="yes") | ( uberlay=="yes"):   
+      filters['content'][0]['content']['field']  = 'cases.case_id'
+      filters['content'][0]['content']['value']  = case
+
   
   params2 = {
       "filters": json.dumps(filters),
       "fields": "file_id",
       "format": "JSON",
-      "size": args.max_files
+      "size":    args.max_files
       }
+
+  if DEBUG>0:
+    # ~ print ( filters['content'][0]['content']['value'] )
+    print ( f"{CARRIBEAN_GREEN}{filters}{RESET}" )
+
 
   case_files = requests.get( files_endpt, params=params2 )
   
