@@ -505,7 +505,7 @@ def download( RAND, DEBUG, output_dir, case_path, case, case_files, portal ):
   
   params = {"ids": file_uuid_list}
  
-  if DEBUG>10:
+  if DEBUG>0:
     print( f"GDC-FETCH:    INFO:   params           =  {CYAN}{params}{RESET}",            flush=True)
     print( f"GDC-FETCH:    INFO:   data_endpt       =  {CYAN}{data_endpt}{RESET}",        flush=True)
   
@@ -513,7 +513,7 @@ def download( RAND, DEBUG, output_dir, case_path, case, case_files, portal ):
 
   response_head_cd = response.headers["Content-Disposition"]
 
-  if DEBUG>10:
+  if DEBUG>0:
     print( f"GDC-FETCH:    INFO:   response.headers =  {CYAN}{response.headers}{RESET}",  flush=True)
   
   # ~ if response.headers["Access-Control-Expose-Headers"] == "Content-Disposition":
@@ -521,12 +521,12 @@ def download( RAND, DEBUG, output_dir, case_path, case, case_files, portal ):
       # ~ print( f"{BOLD}{ORANGE}GDC-FETCH:    WARN:   tag 'response.headers[Content-Disposition]' is blank! It was expected to contain the filename of the file to be downloaded. Cannot continue - moving to to next file{RESET}", flush=True )
     # ~ return FAIL    
 
-  if DEBUG>10:
+  if DEBUG>0:
     print( "GDC-FETCH:    INFO:   response.headers[Content-Type]             = {:}'{:}'\033[m".format( RAND, response_head_cd ) )
   
   download_file_name = re.findall("filename=(.+)", response_head_cd)[0]                                    # extract filename from HTTP response header using regular expression
  
-  if DEBUG>99:
+  if DEBUG>0:
     print( "GDC-FETCH:    INFO:   response.headers[Content-Disposition]     = {:}'{:}'\033[m".format( RAND, download_file_name ) )
     print( "GDC-FETCH:    INFO:   download_file_subdir_name                 = {:}'{:}'\033[m".format( RAND, case_path ) )
 
@@ -535,7 +535,7 @@ def download( RAND, DEBUG, output_dir, case_path, case, case_files, portal ):
   
   download_file_fq_name = "{:}/{:}".format( case_path, download_file_name )
 
-  if DEBUG>99:
+  if DEBUG>0:
     print( "GDC-FETCH:    INFO:   download_file_fq_name                     = {:}'{:}'\033[m".format( RAND, download_file_fq_name ) )
 
   with open(download_file_fq_name, "wb") as output_file_handle:                                            # save the downloaded file
