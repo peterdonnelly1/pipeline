@@ -504,7 +504,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
       
 
             else:
-              print ( f"\r\033[{start_row-18};0f{CLEAR_LINE}{GREEN}TILER:                          INFO:   using    this tile candidate {BOLD}||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||{BOLD}",     end="" )
+              print ( f"\r\033[{start_row-18};0f{CLEAR_LINE}{GREEN}TILER:                          INFO:   using    this tile candidate {BOLD}|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||{BOLD}",     end="" )
 
               # ~ if not stain_norm=="NONE":                                                               # then perform the selected stain normalization technique on the tile W
               if stain_norm=="reinhard":                                                                   # now handle 'spcn' at the slide level in the standalone process 'normalise_stain' 
@@ -699,7 +699,7 @@ def check_contrast( args, tile ):
     
   if GreyscaleRangeBad:
     if (DEBUG>0):
-      print ( f"\r\033[{start_row-16};0f{CLEAR_LINE}{RESET}{RED}TILER:                          INFO:   low contrast: {CYAN}greyscale_range ={RESET}{BITTER_SWEET}{RESET}{MIKADO}{greyscale_range:>6d}{RESET}{DIM_WHITE} which is less than allowed user value for {CYAN}args.greyness {BITTER_SWEET}   ({MIKADO}{args.greyness:>5d}{BITTER_SWEET}){RESET}",  end="" )
+      print ( f"\r\033[{start_row-16};0f{CLEAR_LINE}{RESET}{RED}TILER:                          INFO:   low contrast: {CYAN}greyscale_range ={RESET}{BITTER_SWEET}{RESET}{MIKADO}{greyscale_range:>6d}{RESET}{DIM_WHITE} which is less than allowed user value for {CYAN}args.greyness {BITTER_SWEET}   ({MIKADO}{args.greyness:>4d}{BITTER_SWEET}){RESET}",  end="" )
 
       
   return GreyscaleRangeBad
@@ -719,7 +719,7 @@ def check_degeneracy( args, tile ):
     
   if IsDegenerate:
     if (DEBUG>0):
-      print ( f"\r\033[{start_row-15};0f{CLEAR_LINE}{RESET}{RED}TILER:                          INFO:   degeneracy:   {CYAN}unique_values   = {RESET}{BITTER_SWEET}{RESET}{MIKADO}{unique_values:>5d}{RESET}{DIM_WHITE} which is less than allowed user value for {CYAN}args.min_uniques{BITTER_SWEET} ({MIKADO}{args.min_uniques:5d}{BITTER_SWEET} ){RESET}",  end="" )
+      print ( f"\r\033[{start_row-15};0f{CLEAR_LINE}{RESET}{RED}TILER:                          INFO:   degeneracy:   {CYAN}unique_values   = {RESET}{BITTER_SWEET}{RESET}{MIKADO}{unique_values:>5d}{RESET}{DIM_WHITE} which is less than allowed user value for {CYAN}args.min_uniques{BITTER_SWEET} ({MIKADO}{args.min_uniques:4d}{BITTER_SWEET}){RESET}",  end="" )
       
   return IsDegenerate
   

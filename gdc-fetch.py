@@ -440,8 +440,11 @@ def fetch_case_file_ids( RAND, DEBUG, case, portal, file_filter, uberlay, infill
     # ~ print ( filters['content'][0]['content']['value'] )
     print ( f"{CARRIBEAN_GREEN}{filters}{RESET}" )
 
-
-  case_files = requests.get( files_endpt, params=params2 )
+  try:
+    case_files = requests.get( files_endpt, params=params2 )
+  except Exception as e:
+    print ( f"{RED}GDC-FETCH:   FATAL:  no internet connection? - cannot continue - halting now{RESET}" )                 
+    sys.exit(0)
   
   if DEBUG>0:
     print( "GDC-FETCH:    INFO:   response (json list of file ids of hits)  =   {:}{:}\033[m".format(RAND, case_files.text ) )

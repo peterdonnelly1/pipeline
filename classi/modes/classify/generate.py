@@ -1681,6 +1681,9 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
     fqn =  f"{args.base_dir}/logs/all_image_labels__from_last_run_of_generate"
     np.save ( fqn, img_labels_new )
 
+    if DEBUG>0:
+      time.sleep(0.5)
+      print( f"\r\033[1AGENERATE:       INFO:    {BRIGHT_GREEN}numpy version of image and labels arrays saved for possible subsequent use by clustering functions{RESET}{CLEAR_LINE}\033[1B")
 
 
   # trim, then convert everything into Torch style tensors
@@ -1708,7 +1711,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
 
   fqn =  f"{args.base_dir}/{args.application_dir}/modes/{args.mode}/dataset_{target}.pth"
   
-  if DEBUG>8:  
+  if DEBUG>0:  
     print( f"GENERATE:       INFO:    {PINK}now saving as Torch dictionary (this can take some time in the case of images){RESET}{CLEAR_LINE}")
   
   torch.save({

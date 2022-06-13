@@ -925,8 +925,8 @@ f"\
     prob = ("_".join(str(z) for z in zoom_out_prob))
 
 
-    if (input_mode=='image') & (nn_type_img=='INCEPT3') &  ( ( args.tile_size[0]!=299 ) | ( len(set(args.tile_size))!=1 )  ):
-      print( f"{RED}CLASSI:         FATAL:  for Inception 3 ('{CYAN}NN_TYPE_IMG={CYAN}{nn_type_img[0]}{RESET}{RED}' corresponding to python argument '{CYAN}--nn_type_img{RESET}{RED}') the only permitted tile size is {MIKADO}299{RESET}{RED}, however the tile size parameter ('{CYAN}TILE_SIZE{RESET}'{RED}) is currently set at {MIKADO}{tile_size[0]}{RESET}{RED}'", flush=True)
+    if (input_mode=='image') & (nn_type_img=='INCEPT3') &  ( ( tile_size!=299 ) ):
+      print( f"{RED}CLASSI:         FATAL:  for Inception 3 ('{CYAN}NN_TYPE_IMG={MIKADO}{nn_type_img}{RESET}{RED}' corresponding to python argument '{CYAN}--nn_type_img{RESET}{RED}') the only permitted tile size is {MIKADO}299{RESET}{RED}, however the tile size parameter ('{CYAN}TILE_SIZE{RESET}'{RED}) is currently {MIKADO}{tile_size}{RESET}{RED}", flush=True)
       print( f"{RED}CLASSI:         FATAL: ... halting now{RESET}" )
       sys.exit(0)
 
