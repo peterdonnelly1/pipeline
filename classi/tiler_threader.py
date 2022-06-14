@@ -59,7 +59,7 @@ def tiler_threader( args, flag, count, n_tiles, top_up_factors, tile_size, batch
 
   # configure an appropriate number of 'tiler_scheduler' processes    
   num_cpus = multiprocessing.cpu_count()
-  executor = ProcessPoolExecutor(max_workers=num_cpus)
+  executor = ProcessPoolExecutor( max_workers=num_cpus )
   tasks = []
 
 
@@ -67,8 +67,8 @@ def tiler_threader( args, flag, count, n_tiles, top_up_factors, tile_size, batch
     print( f"{ORANGE}TILER_THREADER: INFO: CAUTION! 'just_test' flag is set (and multimode flag not set). Only one process will be used (to ensure the same tiles aren't selected more than one time){RESET}" )     
     task=executor.submit( tiler_scheduler, args, r_norm, flag, count, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method, 0, 1)
     tasks.append(task)
-  else:
-    if DEBUG>2:
+  else:  # train
+    if DEBUG>0:
       print ( f"TILER_THREADER: INFO: about to launch {MIKADO}{num_cpus}{RESET} tiler_scheduler threads",  flush=True       )
     if DEBUG>20:
       print( f"TILER_THREADER: INFO: number of image samples = {CARRIBEAN_GREEN}{count}{RESET}",           flush=True       )

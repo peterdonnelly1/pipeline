@@ -1,6 +1,7 @@
 import os
 import sys
 import random
+import psutil
 import numpy as np
 import multiprocessing
 from pathlib import Path
@@ -16,7 +17,7 @@ FG6="\033[38;5;220m"
 
 from constants  import *
 
-DEBUG=1
+DEBUG=0
 
     
 def tiler_scheduler( args, r_norm, flag, count, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method, my_thread, num_threads ):
@@ -120,9 +121,11 @@ def tiler_scheduler( args, r_norm, flag, count, n_tiles, top_up_factors, tile_si
                 if result==SUCCESS:
                   slides_processed+=1
                   if ( ( just_test=='True' ) & ( multimode!='image_rna') )  & (my_thread==0):
-                    print ( f"{SAVE_CURSOR}\r\033[{start_row-2};272H{RESET}{CARRIBEAN_GREEN}{slides_processed} slide{s if slides_processed>1 else ' '} done (quota {my_slide_quota}){RESET}{RESTORE_CURSOR}{CLEAR_LINE}", flush=True ) 
+                    if DEBUG>0:
+                      print ( f"{SAVE_CURSOR}\r\033[{start_row-2};272H{RESET}{CARRIBEAN_GREEN}{slides_processed} slide{s if slides_processed>1 else ' '} done (quota {my_slide_quota}){RESET}{RESTORE_CURSOR}{CLEAR_LINE}", flush=True ) 
                   else:
-                    print ( f"{SAVE_CURSOR}\r\033[300C\033[{my_thread}B{RESET}{CARRIBEAN_GREEN}{slides_processed} slide{s if slides_processed>1 else ' '} done (quota {my_slide_quota}){RESET}{RESTORE_CURSOR}{CLEAR_LINE}", flush=True )                           
+                    if DEBUG>0:
+                      print ( f"{SAVE_CURSOR}\r\033[300C\033[{my_thread}B{RESET}{CARRIBEAN_GREEN}{slides_processed} slide{s if slides_processed>1 else ' '} done (quota {my_slide_quota}){RESET}{RESTORE_CURSOR}{CLEAR_LINE}", flush=True )                           
                   if slides_processed>=my_expanded_slide_quota:
                     break
                 else:
@@ -140,9 +143,11 @@ def tiler_scheduler( args, r_norm, flag, count, n_tiles, top_up_factors, tile_si
                 if result==SUCCESS:
                   slides_processed+=1
                   if ( ( just_test=='True' ) & ( multimode!='image_rna') )  & (my_thread==0):
-                    print ( f"{SAVE_CURSOR}\r\033[{start_row-2};272H{RESET}{CARRIBEAN_GREEN}{slides_processed} slide{s if slides_processed>1 else ' '} done (quota {my_slide_quota}){RESET}{RESTORE_CURSOR}{CLEAR_LINE}", flush=True ) 
+                    if DEBUG>0:
+                      print ( f"{SAVE_CURSOR}\r\033[{start_row-2};272H{RESET}{CARRIBEAN_GREEN}{slides_processed} slide{s if slides_processed>1 else ' '} done (quota {my_slide_quota}){RESET}{RESTORE_CURSOR}{CLEAR_LINE}", flush=True ) 
                   else:
-                    print ( f"{SAVE_CURSOR}\r\033[{start_row+my_thread};292H{RESET}{CARRIBEAN_GREEN}{slides_processed} slide{s if slides_processed>1 else ' '} done (quota {my_slide_quota}){RESET}{RESTORE_CURSOR}{CLEAR_LINE}", flush=True )                           
+                    if DEBUG>0:
+                      print ( f"{SAVE_CURSOR}\r\033[{start_row+my_thread};292H{RESET}{CARRIBEAN_GREEN}{slides_processed} slide{s if slides_processed>1 else ' '} done (quota {my_slide_quota}){RESET}{RESTORE_CURSOR}{CLEAR_LINE}", flush=True )                           
                   if slides_processed>=my_expanded_slide_quota:
                     break
                 else:
@@ -156,13 +161,14 @@ def tiler_scheduler( args, r_norm, flag, count, n_tiles, top_up_factors, tile_si
 
     if slides_processed>=my_expanded_slide_quota:
       break
-                  
-  if slides_processed==my_slide_quota:
-    print ( f"\033[{start_row+my_thread};{start_column+130}f       {RESET}{GREEN  }thread {MIKADO}{my_thread:2d}{RESET}{GREEN  } exiting - on    slide quota{RESET}", flush=True  )
-  elif slides_processed>my_slide_quota:
-    print ( f"\033[{start_row+my_thread};{start_column+130}f       {RESET}{MAGENTA}thread {MIKADO}{my_thread:2d}{RESET}{MAGENTA} exiting - over  slide quota{RESET}", flush=True )
-  else:
-    print ( f"\033[{start_row+my_thread};{start_column+130}f       {RESET}{RED    }thread {MIKADO}{my_thread:2d}{RESET}{RED    } exiting - under slide quota{RESET}", flush=True )
+
+  if DEBUG>0:
+    if slides_processed==my_slide_quota:
+      print ( f"\033[{start_row+my_thread};{start_column+130}f       {RESET}{GREEN  }thread {MIKADO}{my_thread:2d}{RESET}{GREEN  } exiting - on    slide quota{RESET}", flush=True  )
+    elif slides_processed>my_slide_quota:
+      print ( f"\033[{start_row+my_thread};{start_column+130}f       {RESET}{MAGENTA}thread {MIKADO}{my_thread:2d}{RESET}{MAGENTA} exiting - over  slide quota{RESET}", flush=True )
+    else:
+      print ( f"\033[{start_row+my_thread};{start_column+130}f       {RESET}{RED    }thread {MIKADO}{my_thread:2d}{RESET}{RED    } exiting - under slide quota{RESET}", flush=True )
 
 
   return(slides_processed)

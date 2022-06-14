@@ -127,7 +127,9 @@ final_test_batch_size = 0
 #@profile
 def main(args):
   
-  os.system("taskset -p 0xffffffff %d" % os.getpid())
+  if DEBUG>0:
+    print  ( f"pid = {os.getpid()}" )
+  os.system( f"taskset -p 0xFFFFFFFF {os.getpid()}")
   
   now = time.localtime(time.time())
   print(time.strftime( f"CLASSI:         INFO:  start time = %Y-%m-%d %H:%M:%S %Z", now ))
