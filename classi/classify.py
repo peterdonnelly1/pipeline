@@ -129,7 +129,7 @@ def main(args):
   
   if DEBUG>0:
     print  ( f"pid = {os.getpid()}" )
-  os.system( f"taskset -p 0xFFFFFFFF {os.getpid()}")
+  os.system("taskset -p 0xfffff %d" % os.getpid())
   
   now = time.localtime(time.time())
   print(time.strftime( f"CLASSI:         INFO:  start time = %Y-%m-%d %H:%M:%S %Z", now ))
