@@ -17,7 +17,7 @@ FG6="\033[38;5;220m"
 
 from constants  import *
 
-DEBUG=0
+DEBUG=1
 
     
 def tiler_scheduler( args, r_norm, flag, count, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method, my_thread, num_threads ):
