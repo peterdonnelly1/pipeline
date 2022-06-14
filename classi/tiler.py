@@ -61,7 +61,8 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
   process   = psutil.Process(pid)
   memoryUse = process.memory_info()[0]/2.**30  # memory use in GB...I think
   affinity  = os.sched_getaffinity(pid)
-  print( f'{SAVE_CURSOR}{CLEAR_LINE}{RESET}\r\033[{my_thread};1H   my_thread {MIKADO}{my_thread:2d}{RESET}   status {MIKADO}{process.status()}{RESET}  affinity {MIKADO}{affinity}{RESET}  pid {MIKADO}{pid:>6d}{RESET}   memory use: {MIKADO}{100*memoryUse:3.1f}{RESET}%   {CLEAR_LINE}{RESTORE_CURSOR}')
+  if DEBUG>1:
+    print( f'{SAVE_CURSOR}{CLEAR_LINE}{RESET}\r\033[{my_thread};1H   my_thread {MIKADO}{my_thread:2d}{RESET}   status {MIKADO}{process.status()}{RESET}  affinity {MIKADO}{affinity}{RESET}  pid {MIKADO}{pid:>6d}{RESET}   memory use: {MIKADO}{100*memoryUse:3.1f}{RESET}%   {CLEAR_LINE}{RESTORE_CURSOR}')
   
   # added this in Jun 2022 because my AMD computer started using only one of the 32 available CPUs
   # apparently others have had this issue:see e.g. https://stackoverflow.com/questions/15639779/why-does-multiprocessing-use-only-a-single-core-after-i-import-numpy
