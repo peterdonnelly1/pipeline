@@ -63,6 +63,8 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
   affinity  = os.sched_getaffinity(pid)
   print( f'{SAVE_CURSOR}{RESET}\r\033[{my_thread};1H   my_thread {MIKADO}{my_thread:2d}{RESET}   status {MIKADO}{process.status()}{RESET}  affinity {MIKADO}{affinity}{RESET}  pid {MIKADO}{pid:>6d}{RESET}   memory use: {MIKADO}{100*memoryUse:3.1f}{RESET}%   {RESTORE_CURSOR}{RESET}')
   
+  x = {i for i in range(num_cpus)}
+  os.sched_setaffinity( pid, x)
   
   a = random.choice( range(150+2*my_thread,255) )
   b = random.choice( range(50,225) )
