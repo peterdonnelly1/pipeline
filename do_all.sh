@@ -310,7 +310,8 @@ fi
 
 #~ echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '*${RNA_FILE_REDUCED_SUFFIX}'"
 #~ find ${DATA_DIR} -type f -name *${RNA_FILE_REDUCED_SUFFIX} -delete
-if [[ ${SKIP_RNA_PREPROCESSING} != 'True' ]]; then
+
+if [[ ${SKIP_RNA_PREPROCESSING} != "True" &&  ${SKIP_GENERATION} != "True" && ${SKIP_TILING} != "True" ]] ; then
   #~ echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '${CLASS_NUMPY_FILENAME}'"
   find ${DATA_DIR} -type f -name ${CLASS_NUMPY_FILENAME}     -delete
 fi
@@ -388,12 +389,16 @@ echo "=====> STEP 2 OF 3: PRE-PROCESS TRUTH VALUES (TRUE SUBTYPES) AND IF APPLIC
     
     echo "=====> STEP 2B OF 3: (IF APPLICABLE) PRE-PROCESSING CLASS (GROUND TRUTH) INFORMATION AND SAVING AS NUMPY FILES"
     
-    if [[ ${SKIP_RNA_PREPROCESSING} != 'True' ]]; then
+    if [[ ${SKIP_RNA_PREPROCESSING} != "True" &&  ${SKIP_GENERATION} != "True" && ${SKIP_TILING} != "True" ]] ; then
+
       sleep ${SLEEP_TIME}
       cp ${GLOBAL_DATA}/${MAPPING_FILE_NAME}                                    ${DATA_DIR}
       cp ${GLOBAL_DATA}/${ENSG_REFERENCE_FILE_NAME}                             ${DATA_DIR}
-      python process_classes.py  --data_dir ${DATA_DIR} --dataset ${DATASET} --global_data ${GLOBAL_DATA} --class_numpy_filename ${CLASS_NUMPY_FILENAME} --mapping_file ${MAPPING_FILE} \
-  --mapping_file_name ${MAPPING_FILE_NAME} --names_column=${NAMES_COLUMN} --case_column ${CASE_COLUMN} --class_column=${CLASS_COLUMN}  --skip_rna_preprocessing  ${SKIP_RNA_PREPROCESSING}
+      
+      python process_classes.py  --data_dir ${DATA_DIR} --dataset ${DATASET} --global_data ${GLOBAL_DATA}   --class_numpy_filename ${CLASS_NUMPY_FILENAME} --mapping_file ${MAPPING_FILE} \
+                                 --mapping_file_name ${MAPPING_FILE_NAME}    --names_column=${NAMES_COLUMN} --case_column ${CASE_COLUMN}                   --class_column=${CLASS_COLUMN} \
+                                 --skip_rna_preprocessing  ${SKIP_RNA_PREPROCESSING}
+    
     else
       echo -e "${ORANGE}DO_ALL.SH: ${CYAN}SKIP_RNA_PREPROCESSING${RESET}${ORANGE} flag is set, so ${CYAN}process_classes${RESET}${ORANGE}      will not be called${RESET}"    
     fi

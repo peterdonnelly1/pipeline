@@ -8,11 +8,11 @@ import numpy as np
 import torch
 from   torchvision.utils import save_image
 
-from   models import LENET5, VGG, VGGNN, INCEPT3, DENSE, DEEPDENSE, CONV1D                                 # supported conventional networks
+from   models import LENET5, VGG, VGGNN, INCEPT3, ResNet, DENSE, DEEPDENSE, CONV1D                         # supported conventional networks
 from   models import AELINEAR, AEDENSE, AEDENSEPOSITIVE, AEDEEPDENSE, DCGANAE128, TTVAE                    # supported non-convolutional autoencoders  (for 1D data like RNA-Seq vectors )
 from   models import AEVGG16, AE3LAYERCONV2D, AEDCECCAE_3, AEDCECCAE_5                                     # supported convolutional encoders          (for 2D data like images )
-from   models.vggnn import vgg11_bn, vgg13_bn, vgg16_bn, vgg19_bn, make_layers, configs
-#from   models.incept3 import incept3
+from   models.vggnn  import vgg11_bn, vgg13_bn, vgg16_bn, vgg19_bn, make_layers, configs
+from   models.resnet import resnet18, resnet34, resnet50, resnet101, resnet152, resnext50_32x4d, resnext101_32x8d, wide_resnet50_2, wide_resnet101_2
 from modes.classify.dataset import classifyDataset
 from modes.config import Config
 
@@ -49,31 +49,51 @@ class classifyConfig(Config):
         print( f"CONFIG:         INFO:     at {CYAN}get_image_net(){RESET}:   nn_type_img  = {CYAN}{nn_type_img}{RESET}" )
 
       if   nn_type_img=='LENET5':
-        return LENET5         ( self, args, n_classes, tile_size )
+        return LENET5           ( self, args, n_classes, tile_size )
       elif nn_type_img=='VGG':
         return VGG( self )
       elif nn_type_img=='VGG11':
-        return vgg11_bn       ( self, args, n_classes, tile_size )
+        return vgg11_bn         ( self, args, n_classes, tile_size )
       elif nn_type_img=='VGG13':
-        return vgg13_bn       ( self, args, n_classes, tile_size )       
+        return vgg13_bn         ( self, args, n_classes, tile_size )       
       elif nn_type_img=='VGG16':
-        return vgg16_bn       ( self, args, n_classes, tile_size )
+        return vgg16_bn         ( self, args, n_classes, tile_size )
       elif nn_type_img=='VGG19':
-        return vgg19_bn       ( self, args, n_classes, tile_size )
+        return vgg19_bn         ( self, args, n_classes, tile_size )
       elif nn_type_img=='INCEPT3':
-        return INCEPT3        ( self, args, n_classes, tile_size )
+        return INCEPT3          ( self, args, n_classes, tile_size )
+      elif nn_type_img=='RESNET18':
+        return resnet18         ( self, args, n_classes, tile_size )
+      elif nn_type_img=='RESNET34':
+        return resnet34         ( self, args, n_classes, tile_size )
+      elif nn_type_img=='RESNET50':
+        return resnet50         ( self, args, n_classes, tile_size )
+      elif nn_type_img=='RESNET101':
+        return resnet101        ( self, args, n_classes, tile_size )
+      elif nn_type_img=='RESNET152':
+        return resnet152        ( self, args, n_classes, tile_size )
+      elif nn_type_img=='RESNEXT50_32X4D':
+        return resnext50_32x4d  ( self, args, n_classes, tile_size )
+      elif nn_type_img=='RESNEXT101_32X8D':
+        return resnext101_32x8d ( self, args, n_classes, tile_size )
+      elif nn_type_img=='WIDE_RESNET50_2':
+        return wide_resnet50_2  ( self, args, n_classes, tile_size )
+      elif nn_type_img=='WIDE_RESNET101_2':
+        return wide_resnet101_2 ( self, args, n_classes, tile_size )
       elif nn_type_img=='AE3LAYERCONV2D':
-        return AE3LAYERCONV2D ( self, args, n_classes, tile_size )
+        return AE3LAYERCONV2D   ( self, args, n_classes, tile_size )
       elif nn_type_img=='AEDCECCAE_3':
-        return AEDCECCAE_3    ( self, args, n_classes, tile_size )
+        return AEDCECCAE_3      ( self, args, n_classes, tile_size )
       elif nn_type_img=='AEDCECCAE_5':
-        return AEDCECCAE_5    ( self, args, n_classes, tile_size )
+        return AEDCECCAE_5      ( self, args, n_classes, tile_size )
       elif nn_type_img=='AEVGG16':
-        return AEVGG16        ( self, args, n_classes, tile_size )
+        return AEVGG16          ( self, args, n_classes, tile_size )
       else: 
         print( f"{BOLD}{RED}CONFIG:              FATAL:  Sorry, there is no neural network model available for {CYAN}image{RESET}{RED} processing named: '{CYAN}{nn_type_img}{RESET}{RED}' ... halting now.{RESET}" )        
         sys.exit(0)
 
+    
+    
 # ------------------------------------------------------------------------------
 
     def get_genes_net( self, args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, nn_dense_dropout_1, nn_dense_dropout_2  ):

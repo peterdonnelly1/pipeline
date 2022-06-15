@@ -24,7 +24,7 @@ class COMMON( nn.Module ):
     
     if ( input_mode=='image' ):
       
-      if DEBUG>1:
+      if DEBUG>10:
         print ( f"COMMON:         INFO:       about to call model for image processing{RESET}", flush=True )                 # get_image_net method is in config. Will try to call init on the selected model (e.g. TTVAE) with these parameters 
       self.image_net  = cfg.get_image_net( args, input_mode, nn_type_img, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, nn_dense_dropout_1, nn_dense_dropout_2, tile_size )            # METHOD:   get_image_net will return DCGANAE128(self) so self.image_net = self.DCGANAE128
 

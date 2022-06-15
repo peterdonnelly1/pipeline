@@ -1484,12 +1484,12 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
     # (5) Load neural network
 
-    if DEBUG>1:                                                                                                        
-      print( f"CLASSI:         INFO: {BOLD}5 about to load network {MIKADO}{nn_type_img}{RESET}{BOLD} and {MIKADO}{nn_type_rna}{RESET}" )
+    if DEBUG>100:                                                                                                        
+      print( f"CLASSI:         INFO: {BOLD}5 about to load network {MIKADO}{nn_type_img}{RESET}{BOLD} or {MIKADO}{nn_type_rna}{RESET}" )
       
     model = COMMON( args, cfg, input_mode, nn_type_img, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, dropout_1, dropout_2, tile_size, args.latent_dim, args.em_iters  )
 
-    if DEBUG>1: 
+    if DEBUG>100: 
       print( f"CLASSI:         INFO:    {ITALICS}network loaded{RESET}" )
 
 
@@ -3235,6 +3235,7 @@ def train( args, epoch, train_loader, model, optimizer, loss_function, loss_type
         
         if args.input_mode=='image':
           y1_hat, y2_hat, embedding = model.forward( [ batch_images, 0          ,  batch_fnames] , gpu, args  )          # perform a step. y1_hat = image outputs; y2_hat = rna outputs
+          
         elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
           if DEBUG>9:
             print ( f"CLASSI:         INFO:     train: batch_genes.size()                = {batch_genes.size}" )

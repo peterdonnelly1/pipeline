@@ -3,10 +3,10 @@ from __future__ import division
 from collections import namedtuple
 import warnings
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from torch.jit.annotations import Optional
-from torch import Tensor
+import torch.nn              as nn
+import torch.nn.functional   as F
+from   torch.jit.annotations import Optional
+from   torch import Tensor
 
 from constants  import *
 

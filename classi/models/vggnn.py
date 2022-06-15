@@ -17,7 +17,7 @@ import torch.nn.functional as F
 from constants  import *
 
 
-DEBUG=0
+DEBUG=1
 
 
 configs = {
@@ -37,7 +37,7 @@ class VGGNN( nn.Module ):
 
         self.features = features                                                                           # features = make_layers( configs['X'] = torch.nn.Sequential(*layers)
 
-        if DEBUG>-1:
+        if DEBUG>0:
           print ( f"VGGNN:          INFO:   {CYAN}__init__(){RESET}: number of classes = {MIKADO}{n_classes}{RESET}" )        
 
         if DEBUG>2:
@@ -86,58 +86,63 @@ class VGGNN( nn.Module ):
           print ( f"VGGNN:          INFO:     forward(): type(self)                                  = {MIKADO}{type(self)}{RESET}", flush=True   )
 
 
-        if DEBUG>99:
+        if DEBUG>10:
           print ( f"VGGNN:          INFO:     forward(): contents of batch_fnames = {MAGENTA}{batch_fnames}{RESET}" )
-          batch_fnames_npy = batch_fnames.numpy()                                                # batch_fnames was set up during dataset generation: it contains a link to the SVS file corresponding to the tile it was extracted from - refer to generate() for details
+          batch_fnames_npy = batch_fnames.numpy()                                                          # batch_fnames was set up during dataset generation: it contains a link to the SVS file corresponding to the tile it was extracted from - refer to generate() for details
           np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
           print ( f"VGGNN:          INFO:     forward():       batch_fnames_npy.shape      = {batch_fnames_npy.shape:}" )        
           print ( f"VGGNN:          INFO:     forward():       batch_fnames_npy            = {batch_fnames_npy:}"       )
 #          fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
-          fq_link = f"/home/peter/git/pipeline/dataset/{batch_fnames_npy[0]}.fqln"
+          fq_link = f"/home/peter/git/pipeline/working_data/{batch_fnames_npy[0]}.fqln"
           np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
           print ( f"VGGNN:          INFO:     forward():       fq_link                     = {PINK}{fq_link:}{RESET}"                )
           print ( f"VGGNN:          INFO:     forward():       file fq_link points to      = {PINK}{os.readlink(fq_link)}{RESET}"    )
 
-        if DEBUG>0:
+        if DEBUG>10:
           print ( f"VGGNN:          INFO:     forward(): before all convolutional layers, x.size      = {BITTER_SWEET}{x.size()}{RESET}{CLEAR_LINE}" )
           
         output = self.features(x)        # features = make_layers( configs['X'] = torch.nn.Sequential(*layers) => output = self.features(x) = VGGNN.features(x)
+        
+        if DEBUG>10:
+          print ( f" {MIKADO}self.type={type(self)}{RESET}" )
+        
 
-        if DEBUG>0:
+        if DEBUG>10:
           print ( f"VGGNN:          INFO:     forward(): after  all convolutional layers, x.size      = {MIKADO}{x.size()}{RESET}{CLEAR_LINE}" )
 
         output = output.view(output.size()[0], -1)
 
-        if DEBUG>1:
+        if DEBUG>10:
           print ( f"VGGNN:          INFO:     forward(): after  flatenning,               x.size      = {BLEU}{output.size()}{RESET}{CLEAR_LINE}" )
 
 #       output = self.classifier(output)
     
         output = self.fc1(output)
         output = F.relu(output)
-        if DEBUG>1:
+        if DEBUG>10:
           print ( f"VGGNN:          INFO:     forward(): after  F.relu(self.fc1(output)), output.size = {BLEU}{output.size()}{RESET}{CLEAR_LINE}" )
         output = self.Dropout(output)
         
         output = self.fc2(output)
         embedding = output
         output = F.relu(output)
-        if DEBUG>1:
-          print ( f"VGGNN:          INFO:     forward(): after  F.relu(self.fc2(output)), output.size = {BLEU}{output.size()}{RESET}{CLEAR_LINE}" )
+        if DEBUG>10:
+          print ( f"VGGNN:          INFO:     forward(): after  F.relu(self.fc2(output)), output.size = {BLEU}{output.size()}{RESET}{CLEAR_LINE}"            )
         if DEBUG>88:
-          print ( f"VGGNN:          INFO:     forward(): x[:,0:20]                                   = {BLEU}{x[:,0:20]}{RESET}{CLEAR_LINE}" )
+          print ( f"VGGNN:          INFO:     forward(): x[:,0:20]                                   = {BLEU}{x[:,0:20]}{RESET}{CLEAR_LINE}"                 )
+
         output = self.Dropout(output)
         
         output = self.fc3(output)
-        if DEBUG>1:
-          print ( f"VGGNN:          INFO:     forward(): after  F.relu(self.fc3(output)), output.size = {BLEU}{output.size()}{RESET}{CLEAR_LINE}" )
-
-        if DEBUG>1:
+        if DEBUG>10:
+          print ( f"VGGNN:          INFO:     forward(): after  F.relu(self.fc3(output)), output.size = {BLEU}{output.size()}{RESET}{CLEAR_LINE}"            )
           print ( f"VGGNN:          INFO:     forward(): after  all fully connected layers, x.size    = {CARRIBEAN_GREEN}{output.size()}{RESET}{CLEAR_LINE}" )
+          print ( f"VGGNN:          INFO:     forward(): counter                                      = {MIKADO}{counter}{RESET}{CLEAR_LINE}"                )
 
-        if DEBUG>8 :
-          print ( f"VGGNN:          INFO:     forward(): counter                                      = {MIKADO}{counter}{RESET}{CLEAR_LINE}" )
-              
+
+        if DEBUG>0:
+          print ( f"VGGNN:          INFO:     forward():                                  output.size = {BLEU}{output.size()}{RESET}{CLEAR_LINE}"            )
+
         return output, embedding
 
 

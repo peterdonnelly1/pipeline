@@ -82,7 +82,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
 
     # 2 Fetch dataset(s)
     
-    if DEBUG>0:
+    if DEBUG>100:
       print( f"{RESET}LOADER:         INFO:    about to load applicable dataset(s)" )
 
     if input_mode=='image':
@@ -95,7 +95,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
         # equates via cfg.get_dataset to: dataset = classifyDataset( cfg, which_dataset, args ), i.e. make an object of class classifyDataset using it's __init__() constructor
         # and dataset_image_test.images = data_image_test['images'] etc.; noting that 'data_image_test' is a tensor: see dataset() where data = torch.load(f"data/classify/{which_dataset}.pth"
         
-        if DEBUG>2:    
+        if DEBUG>100:    
           print( f"LOADER:         INFO:        dataset {CYAN}{which_dataset}{RESET} now loaded" )      
   
         test_inds = list(range(len( dataset_image_test )  )   )
@@ -113,7 +113,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
           which_dataset = 'dataset_image_train'
           dataset       = cfg.get_dataset( args, which_dataset, gpu )
     
-          if DEBUG>0:    
+          if DEBUG>2:    
             print( f"LOADER:         INFO:        dataset {CYAN}{which_dataset}{RESET} now loaded" )     
                 
           train_inds = list(range(len( dataset )  )   )  
@@ -178,7 +178,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
         dataset_rna_test       = cfg.get_dataset( args, 'dataset_rna_test',       gpu )
         test_inds = list(range(len( dataset_rna_test )  )   )
         
-        if DEBUG>0:
+        if DEBUG>10:
           print( f"LOADER:         INFO:    test_inds  = \n{MIKADO}{test_inds}{RESET}" ) 
                   
         if just_test!='True':                                                                              # in training mode, it's critical that both the training and test sets are shuffled
@@ -190,7 +190,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
           dataset    = cfg.get_dataset( args, 'dataset_rna_train',        gpu )
           train_inds = list(range(len( dataset )  )   )
 
-          if DEBUG>0:
+          if DEBUG>10:
             print( f"LOADER:         INFO:    train_inds  = \n{MIKADO}{train_inds}{RESET}"                 )
             
           random.shuffle(train_inds)                                                                       # in training mode, it's critical that both the training and test sets are shuffled

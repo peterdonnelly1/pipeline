@@ -21,6 +21,7 @@ from   models.analysedata     import ANALYSEDATA      #                         
 from   models.lenet5          import LENET5           #                                                           200105 - PGD Added. Analgous to LeNet5AE or DCGANAE128 or AELinear
 from   models.vgg             import VGG              #                                                           200215 - PGD Added
 from   models.vggnn           import VGGNN            #                                                           200217 - PGD Added
+from   models.resnet          import ResNet           #                                                           220614 - PGD Added
 from   models.incept3         import INCEPT3          #                                                           200218 - PGD Added
 from   models.dense           import DENSE            #                                                           200229 - PGD Added
 from   models.deepdense       import DEEPDENSE        #                                                           210520 - PGD Added
