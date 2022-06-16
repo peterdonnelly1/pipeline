@@ -30,7 +30,7 @@ class COMMON( nn.Module ):
 
     if ( input_mode=='image_rna' ) | ( input_mode=='rna' ):
       
-      if DEBUG>0:
+      if DEBUG>10:
         print ( f"COMMON:             INFO:    about to call model for genes/embeddings processing{RESET}", flush=True )      # get_image_net method is in config. Will try to call init on the selected model (e.g. TTVAE) with these parameters 
       self.genes_net  = cfg.get_genes_net( args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, nn_dense_dropout_1, nn_dense_dropout_2             )            # METHOD:   get_genes_net will return DENSE(self)   so model.genes_net = get_genes_net(...)
 

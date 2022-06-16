@@ -89,7 +89,10 @@ class classifyConfig(Config):
       elif nn_type_img=='AEVGG16':
         return AEVGG16          ( self, args, n_classes, tile_size )
       else: 
-        print( f"{BOLD}{RED}CONFIG:              FATAL:  Sorry, there is no neural network model available for {CYAN}image{RESET}{RED} processing named: '{CYAN}{nn_type_img}{RESET}{RED}' ... halting now.{RESET}" )        
+        print( f"{BOLD}{RED}CONFIG:              FATAL:  sorry, there is no image neural network model named: '{CYAN}{nn_type_img}{RESET}{RED}'{RESET}" )        
+        print( f"{BOLD}{RED}CONFIG:                      available image classifier   models:{RESET}{CYAN} LENET5,  VGG11, VGG13, VGG16, VGG19,  INCEPT3, RESNET18, RESNET34, RESNET50, RESNET152, RESNEXT50_32X4D, RESNEXT101_32X8D, WIDE_RESNET50_2, WIDE_RESNET101_2{RESET}" )        
+        print( f"{BOLD}{RED}CONFIG:                      available image autoencoders:       {RESET}{CYAN} AEVGG16,  AEDCECCAE_3, AEDCECCAE_5, AE3LAYERCONV2D, VGG19,  INCEPT3, RESNET18, RESNET34, RESNET50, RESNET152, RESNEXT50_32X4D, RESNEXT101_32X8D, WIDE_RESNET50_2, WIDE_RESNET101_2{RESET}" )        
+        print( f"{BOLD}{RED}CONFIG:                      ... halting now.{RESET}" )        
         sys.exit(0)
 
     
@@ -122,9 +125,13 @@ class classifyConfig(Config):
       elif nn_type_rna=='TTVAE':
         return TTVAE           ( self, args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, nn_dense_dropout_1, nn_dense_dropout_2   )
 
-      else:
-        print( f"{BOLD}{RED}CONFIG:         FATAL: sorry, there is no neural network model available for {CYAN}rna{RESET}{RED} processing named: '{MIKADO}{nn_type_rna}{RESET}{RED}' ... halting now.{RESET}" )        
+      else: 
+        print( f"{BOLD}{RED}CONFIG:              FATAL:  sorry, there is no neural network model named: '{CYAN}{nn_type_rna}{RESET}{RED}'{RESET}" )        
+        print( f"{BOLD}{RED}CONFIG:                      available rna-seq classifier models:{RESET}{CYAN} DENSE, DEEPDENSE, CONV1D, DENSEPOSITIVE{RESET}" )        
+        print( f"{BOLD}{RED}CONFIG:                      available rna-seq autoencoders:     {RESET}{CYAN} AELINEAR, AEDENSE, AEDENSEPOSITIVE, AEDEEPDENSE, TTVAE, DCGANAE128{RESET}" )        
+        print( f"{BOLD}{RED}CONFIG:                      ... halting now.{RESET}" )        
         sys.exit(0)
+        
 # ------------------------------------------------------------------------------
 
     def get_dataset( self, args, which_dataset, gpu ):

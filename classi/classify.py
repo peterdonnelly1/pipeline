@@ -1371,6 +1371,8 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       
     if ( input_mode=='rna' ) | ( input_mode=='image_rna' ) :
       
+      top_up_factors = 0
+      
       highest_class_number = n_classes-1
       
       n_genes, n_samples, batch_size = generate( args, class_names, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, 
