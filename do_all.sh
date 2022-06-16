@@ -400,7 +400,7 @@ echo "=====> STEP 2 OF 3: PRE-PROCESS TRUTH VALUES (TRUE SUBTYPES) AND IF APPLIC
                                  --skip_rna_preprocessing  ${SKIP_RNA_PREPROCESSING}
     
     else
-      echo -e "${ORANGE}DO_ALL.SH: ${CYAN}SKIP_RNA_PREPROCESSING${RESET}${ORANGE} flag is set, so ${CYAN}process_classes${RESET}${ORANGE}      will not be called${RESET}"    
+      echo -e "${ORANGE}DO_ALL.SH: ${CYAN}SKIP_RNA_PREPROCESSING${RESET}${ORANGE} flag is set, so ${CYAN}process_classes${RESET}${ORANGE} will not be called${RESET}"    
     fi
 
 

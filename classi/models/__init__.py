@@ -23,6 +23,7 @@ from   models.vgg             import VGG              #                         
 from   models.vggnn           import VGGNN            #                                                           200217 - PGD Added
 from   models.resnet          import ResNet           #                                                           220614 - PGD Added
 from   models.incept3         import INCEPT3          #                                                           200218 - PGD Added
+from   models.incept4         import InceptionV4      #                                                           220616 - PGD Added
 from   models.dense           import DENSE            #                                                           200229 - PGD Added
 from   models.deepdense       import DEEPDENSE        #                                                           210520 - PGD Added
 from   models.densepositive   import DENSEPOSITIVE    # used by pre_compress                                      200723 - PGD Added

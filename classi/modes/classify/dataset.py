@@ -32,7 +32,7 @@ class classifyDataset( Dataset ):
         fqn = f"{args.base_dir}/{args.application_dir}/modes/{args.mode}/{which_dataset}.pth"
 
         if DEBUG>0:
-          print( f"DATASET:        INFO:  loading {CYAN}{which_dataset:18s}{RESET} dataset from {MAGENTA}{fqn}{RESET}{CLEAR_LINE}" )
+          print( f"DATASET:        INFO:  loading {CYAN}{which_dataset:18s}{RESET} \r\033[50C dataset from {MAGENTA}{fqn}{RESET}{CLEAR_LINE}" )
         try:
           data             = torch.load(fqn)
         except Exception as e:
