@@ -97,56 +97,7 @@ pd.set_option('display.max_colwidth', 99 )
 
 # ------------------------------------------------------------------------------
 
-WHITE           ='\033[37;1m'
-PURPLE          ='\033[35;1m'
-DIM_WHITE       ='\033[37;2m'
-CYAN            ='\033[36;1m'
-PALE_RED        ='\033[31m'
-PALE_GREEN      ='\033[32m'
-AUREOLIN        ='\033[38;2;253;238;0m' 
-DULL_WHITE      ='\033[38;2;140;140;140m'
-MIKADO          ='\033[38;2;255;196;12m'
-AZURE           ='\033[38;2;0;127;255m'
-AMETHYST        ='\033[38;2;153;102;204m'
-ASPARAGUS       ='\033[38;2;135;169;107m'
-CHARTREUSE      ='\033[38;2;223;255;0m'
-COQUELICOT      ='\033[38;2;255;56;0m'
-COTTON_CANDY    ='\033[38;2;255;188;217m'
-HOT_PINK        ='\033[38;2;255;105;180m'
-CAMEL           ='\033[38;2;193;154;107m'
-MAGENTA         ='\033[38;2;255;0;255m'
-YELLOW          ='\033[38;2;255;255;0m'
-DULL_YELLOW     ='\033[38;2;179;179;0m'
-ARYLIDE         ='\033[38;2;233;214;107m'
-BLEU            ='\033[38;2;49;140;231m'
-DULL_BLUE       ='\033[38;2;0;102;204m'
-RED             ='\033[38;2;255;0;0m'
-PINK            ='\033[38;2;255;192;203m'
-BITTER_SWEET    ='\033[38;2;254;111;94m'
-DARK_RED        ='\033[38;2;120;0;0m'
-ORANGE          ='\033[38;2;255;103;0m'
-PALE_ORANGE     ='\033[38;2;127;63;0m'
-GOLD            ='\033[38;2;255;215;0m'
-GREEN           ='\033[38;2;19;136;8m'
-BRIGHT_GREEN    ='\033[38;2;102;255;0m'
-CARRIBEAN_GREEN ='\033[38;2;0;204;153m'
-GREY_BACKGROUND ='\033[48;2;60;60;60m'
-
-
-BOLD='\033[1m'
-ITALICS='\033[3m'
-UNDER='\033[4m'
-BLINK='\033[5m'
-RESET='\033[m'
-
-CLEAR_LINE='\033[0K'
-UP_ARROW='\u25B2'
-DOWN_ARROW='\u25BC'
-SAVE_CURSOR='\033[s'
-RESTORE_CURSOR='\033[u'
-
-FAIL    = 0
-SUCCESS = 1
+from classi.constants import *
 
 DEBUG   = 1
 
@@ -159,13 +110,15 @@ def main(args):
   start_time = time.time()
 
   base_dir            = args.base_dir
+  data_source         = args.data_source  
+  global_data_dir     = args.global_data_dir  
   dataset             = args.dataset
   case_column         = args.case_column
   class_column        = args.class_column
+ 
+ 
   image_column        = 3
   rna_seq_column      = 4
-
-  #n_classes=len(class_names)
 
 
   # Global settings --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
@@ -183,8 +136,9 @@ def main(args):
 
 
   cancer_class                          = dataset
-  class_specific_dataset_files_location = f"{base_dir}/{dataset}"
-  class_specific_global_data_location   = f"{base_dir}/{dataset}_global"
+  class_specific_global_data_location   = f"{global_data_dir}/{dataset}_global"
+  class_specific_dataset_files_location = f"{data_source}/{dataset}"
+  
   print ( f"CREATE_MASTER:     INFO:    cancer class (from TCGA master spreadsheet as edited)  =  {CYAN}{cancer_class}{RESET}" )
   print ( f"CREATE_MASTER:     INFO:    class_specific_global_data_location                    =  {CYAN}{class_specific_global_data_location}{RESET}" )    
   print ( f"CREATE_MASTER:     INFO:    class_specific_dataset_files_location                  =  {CYAN}{class_specific_dataset_files_location}{RESET}" )   
@@ -456,7 +410,9 @@ if __name__ == '__main__':
     p = argparse.ArgumentParser()
 
     p.add_argument('--base_dir',                            type=str, default="/home/peter/git/pipeline"            )
+    p.add_argument('--data_source',                         type=str                                                )
     p.add_argument('--data_dir',                            type=str                                                )
+    p.add_argument('--global_data_dir',                     type=str                                                )
     p.add_argument('--dataset',                             type=str,                            required=True      )
     p.add_argument('--mapping_file_name',                   type=str                                                )
     p.add_argument('--case_column',                         type=str, default="bcr_patient_uuid"                    )
