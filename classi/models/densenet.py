@@ -171,7 +171,7 @@ class DenseNet(nn.Module):
 
 
         if DEBUG>0:
-          print ( f"{BRIGHT_GREEN}DENSENET:       INFO:     at ResNet / __init__{RESET}" )
+          print ( f"{BRIGHT_GREEN}DENSENET:       INFO:     at DenseNet / __init__{RESET}" )
           print ( f"{BRIGHT_GREEN}DENSENET:       INFO:     n_classes  = {MIKADO}{n_classes}{RESET}{CLEAR_LINE}" )
           
           
