@@ -366,7 +366,7 @@ def _resnet( cfg, args, n_classes, tile_size,
     if DEBUG>100:
       print ( f" {BRIGHT_GREEN}at ResNet / _resnet{RESET}" )
           
-    model = ResNet(n_classes, block, layers, **kwargs)
+    model = ResNet ( n_classes, block, layers, **kwargs)
     if pretrained:
         state_dict = load_state_dict_from_url(model_urls[arch], progress=progress)
         model.load_state_dict(state_dict)

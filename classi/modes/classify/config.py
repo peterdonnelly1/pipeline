@@ -15,8 +15,9 @@ from   models import LENET5, VGG, VGGNN, INCEPT3, InceptionV4, ResNet, DENSE, DE
 from   models import AELINEAR, AEDENSE, AEDENSEPOSITIVE, AEDEEPDENSE, DCGANAE128, TTVAE                    # supported non-convolutional autoencoders  (for 1D data like RNA-Seq vectors )
 from   models import AEVGG16, AE3LAYERCONV2D, AEDCECCAE_3, AEDCECCAE_5                                     # supported convolutional encoders          (for 2D data like images )
 from   models.vggnn  import vgg11_bn, vgg13_bn, vgg16_bn, vgg19_bn, make_layers, configs
-from   models.resnet  import resnet18, resnet34, resnet50, resnet101, resnet152, resnext50_32x4d, resnext101_32x8d, wide_resnet50_2, wide_resnet101_2
-from   models.incept4 import inceptionv4
+from   models.resnet    import resnet18, resnet34, resnet50, resnet101, resnet152, resnext50_32x4d, resnext101_32x8d, wide_resnet50_2, wide_resnet101_2
+from   models.densenet  import densenet121, densenet161, densenet169, densenet201
+from   models.incept4   import inceptionv4
 
 from constants  import *
 
@@ -68,6 +69,14 @@ class classifyConfig(Config):
         return inceptionv4      ( self, args, n_classes, tile_size, pretrained=None )
       elif nn_type_img=='RESNET18':
         return resnet18         ( self, args, n_classes, tile_size )
+      elif nn_type_img=='DENSENET121':
+        return densenet121      ( self, args, n_classes, tile_size )
+      elif nn_type_img=='DENSENET161':
+        return densenet161      ( self, args, n_classes, tile_size )
+      elif nn_type_img=='DENSENET169':
+        return densenet169      ( self, args, n_classes, tile_size )
+      elif nn_type_img=='DENSENET201':
+        return densenet201      ( self, args, n_classes, tile_size )
       elif nn_type_img=='RESNET34':
         return resnet34         ( self, args, n_classes, tile_size )
       elif nn_type_img=='RESNET50':
@@ -94,7 +103,8 @@ class classifyConfig(Config):
         return AEVGG16          ( self, args, n_classes, tile_size )
       else: 
         print( f"{BOLD}{RED}CONFIG:              FATAL:  sorry, there is no image neural network model named: '{CYAN}{nn_type_img}{RESET}{RED}'{RESET}" )        
-        print( f"{BOLD}{RED}CONFIG:                      available image classifier   models:{RESET}{CYAN} LENET5,  VGG11, VGG13, VGG16, VGG19,  INCEPT3, INCEPT4, RESNET18, RESNET34, RESNET50, RESNET152, RESNEXT50_32X4D, RESNEXT101_32X8D, WIDE_RESNET50_2, WIDE_RESNET101_2{RESET}" )        
+        print( f"{BOLD}{RED}CONFIG:                      available image classifier   models:{RESET}{CYAN} LENET5,  VGG11, VGG13, VGG16, VGG19,  INCEPT3, INCEPT4, DENSENENT121, DENSENENT161, DENSENENT169, DENSENENT201, {RESET}" )        
+        print( f"{BOLD}{RED}CONFIG:                      available image classifier   models:{RESET}{CYAN} RESNET18, RESNET34, RESNET50, RESNET152, RESNEXT50_32X4D, RESNEXT101_32X8D, WIDE_RESNET50_2, WIDE_RESNET101_2{RESET}" )        
         print( f"{BOLD}{RED}CONFIG:                      available image autoencoders:       {RESET}{CYAN} AEVGG16,  AEDCECCAE_3, AEDCECCAE_5, AE3LAYERCONV2D, VGG19,  INCEPT3, RESNET18, RESNET34, RESNET50, RESNET152, RESNEXT50_32X4D, RESNEXT101_32X8D, WIDE_RESNET50_2, WIDE_RESNET101_2{RESET}" )        
         print( f"{BOLD}{RED}CONFIG:                      ... halting now.{RESET}" )        
         sys.exit(0)

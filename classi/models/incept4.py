@@ -368,14 +368,15 @@ def inceptionv4( cfg, args, n_classes, tile_size, num_classes=1000, pretrained='
             model.last_linear = new_last_linear
 
         model.input_space = settings['input_space']
-        model.input_size = settings['input_size']
+        model.input_size  = settings['input_size']
         model.input_range = settings['input_range']
-        model.mean = settings['mean']
-        model.std = settings['std']
+        model.mean        = settings['mean']
+        model.std         = settings['std']
     else:
         if DEBUG>0:
           print ( f"INCEPT4:        INFO:     forward():                                       mode      = {BRIGHT_GREEN}non-pretrained{RESET}" )
         model = InceptionV4( cfg, args, n_classes, num_classes=num_classes )
+
     return model
 
 
