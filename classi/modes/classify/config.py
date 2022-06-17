@@ -104,10 +104,10 @@ class classifyConfig(Config):
       else: 
         print( f"{BOLD}{RED}CONFIG:              FATAL:  sorry, there is no image neural network model named: '{CYAN}{nn_type_img}{RESET}{RED}'{RESET}" )        
         print( f"{BOLD}{RED}CONFIG:                      available image classifier   models:{RESET}{CYAN} LENET5{RESET}" )
-        print( f"{BOLD}{RED}CONFIG:                      available image classifier   models:{RESET}{CYAN} INCEPT3, INCEPT4{RESET}" )                
+        print( f"{BOLD}{RED}CONFIG:                      available image classifier   models:{RESET}{CYAN} INCEPT3, INCEPT4,{RESET}" )                
         print( f"{BOLD}{RED}CONFIG:                      available image classifier   models:{RESET}{CYAN} VGG11, VGG13, VGG16, VGG19{RESET}" )        
-        print( f"{BOLD}{RED}CONFIG:                      available image classifier   models:{RESET}{CYAN} DENSENENT121, DENSENENT161, DENSENENT169, DENSENENT201, {RESET}" )        
-        print( f"{BOLD}{RED}CONFIG:                      available image classifier   models:{RESET}{CYAN} RESNET18, RESNET34, RESNET50, RESNET152, RESNEXT50_32X4D, RESNEXT101_32X8D, WIDE_RESNET50_2, WIDE_RESNET101_2{RESET}" )        
+        print( f"{BOLD}{RED}CONFIG:                      available image classifier   models:{RESET}{CYAN} DENSENET121, DENSENET161, DENSENET169, DENSENET201,{RESET}" )        
+        print( f"{BOLD}{RED}CONFIG:                      available image classifier   models:{RESET}{CYAN} RESNET18, RESNET34, RESNET50, RESNET152, RESNEXT50_32X4D, RESNEXT101_32X8D, WIDE_RESNET50_2, WIDE_RESNET101_2,{RESET}" )        
         print( f"{BOLD}{RED}CONFIG:                      available image autoencoders:       {RESET}{CYAN} AEVGG16,  AEDCECCAE_3, AEDCECCAE_5, AE3LAYERCONV2D{RESET}" )        
         print( f"{BOLD}{RED}CONFIG:                      ... halting now.{RESET}" )        
         sys.exit(0)
