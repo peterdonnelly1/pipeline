@@ -1034,7 +1034,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 \r\033[{start_column+3*offset}C{batch_size:<5d}\
 \r\033[{start_column+4*offset}C{n_tiles:<5d}\
 \r\033[{start_column+5*offset}C{n_classes:<2d}\
-\r\033[{start_column+6*offset}C{tile_size:<3d}\
+\r\033[{start_column+6*offset}C{tile_size:<3d}x{tile_size:<3d}\
 \r\033[{start_column+7*offset}C{rand_tiles:<5s}\
 \r\033[{start_column+8*offset}C{nn_type_img:<10s}\
 \r\033[{start_column+9*offset}C{nn_optimizer:<8s}\
