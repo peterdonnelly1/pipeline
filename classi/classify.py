@@ -789,14 +789,14 @@ f"\
 \r\033[{start_column+2*offset}Csamples\
 \r\033[{start_column+3*offset}Cbatch_size\
 \r\033[{start_column+4*offset}Ctiles/image\
-\r\033[{start_column+5*offset}Cimage_headings\
+\r\033[{start_column+5*offset}Cnum_classes\
 \r\033[{start_column+6*offset}Ctile_size\
 \r\033[{start_column+7*offset}Crand_tiles\
 \r\033[{start_column+8*offset}Cnet_img\
 \r\033[{start_column+9*offset}Coptimizer\
 \r\033[{start_column+10*offset}Cstain_norm\
-\r\033[{start_column+11*offset}Clabel_swap\
-\r\033[{start_column+12*offset}Cgreyscale\
+\r\033[{start_column+12*offset}Clabel_swap\
+\r\033[{start_column+13*offset}Cgreyscale\
 \r\033[{start_column+13*offset}Cjitter vector\
 "
 
@@ -827,19 +827,22 @@ f"\
         print( f"{CARRIBEAN_GREEN}\
 \r\033[2C\
 \r\033[{start_column+0*offset}C{lr:<9.6f}\
-\r\033[{start_column+1*offset}C{100*pct_test:<9.0f}\
+\r\033[{start_column+1*offset}C{pct_test:<9.6f}\
 \r\033[{start_column+2*offset}C{n_samples:<5d}\
 \r\033[{start_column+3*offset}C{batch_size:<5d}\
 \r\033[{start_column+4*offset}C{n_tiles:<5d}\
+\r\033[{start_column+5*offset}C{n_classes:<2d}\
 \r\033[{start_column+6*offset}C{tile_size:<3d}\
-\r\033[{start_column+6*offset}C{rand_tiles:<5s}\
-\r\033[{start_column+7*offset}C{nn_type_img:<10s}\
-\r\033[{start_column+8*offset}C{nn_optimizer:<8s}\
-\r\033[{start_column+9*offset}C{stain_norm:<10s}\
-\r\033[{start_column+10*offset}C{label_swap_pct:<6.1f}\
-\r\033[{start_column+11*offset}C{make_grey_pct:<5.1f}\
-\r\033[{start_column+12*offset}C{jitter:}\
-{RESET}" )  
+\r\033[{start_column+7*offset}C{rand_tiles:<5s}\
+\r\033[{start_column+8*offset}C{nn_type_img:<10s}\
+\r\033[{start_column+9*offset}C{nn_optimizer:<8s}\
+\r\033[{start_column+10*offset}C{stain_norm:<10s}\
+\r\033[{start_column+11*offset}C{label_swap_pct:<6.1f}\
+\r\033[{start_column+12*offset}C{make_grey_pct:<5.1f}\
+\r\033[{start_column+13*offset}C{jitter:}\
+{RESET}" )
+
+
 
     elif input_mode=='rna':
       print(f"\n{UNDER}JOB:{RESET}")
