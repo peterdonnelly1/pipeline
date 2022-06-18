@@ -789,15 +789,15 @@ f"\
 \r\033[{start_column+2*offset}Csamples\
 \r\033[{start_column+3*offset}Cbatch_size\
 \r\033[{start_column+4*offset}Ctiles/image\
-\r\033[{start_column+4*offset}Cimage_headings\
-\r\033[{start_column+5*offset}Ctile_size\
-\r\033[{start_column+6*offset}Crand_tiles\
-\r\033[{start_column+7*offset}Cnet_img\
-\r\033[{start_column+8*offset}Coptimizer\
-\r\033[{start_column+9*offset}Cstain_norm\
-\r\033[{start_column+10*offset}Clabel_swap\
-\r\033[{start_column+11*offset}Cgreyscale\
-\r\033[{start_column+12*offset}Cjitter vector\
+\r\033[{start_column+5*offset}Cimage_headings\
+\r\033[{start_column+6*offset}Ctile_size\
+\r\033[{start_column+7*offset}Crand_tiles\
+\r\033[{start_column+8*offset}Cnet_img\
+\r\033[{start_column+9*offset}Coptimizer\
+\r\033[{start_column+10*offset}Cstain_norm\
+\r\033[{start_column+11*offset}Clabel_swap\
+\r\033[{start_column+12*offset}Cgreyscale\
+\r\033[{start_column+13*offset}Cjitter vector\
 "
 
   rna_headings =\
