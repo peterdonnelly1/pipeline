@@ -295,7 +295,7 @@ if [[ ${SKIP_TILING}  != 'True' ]];  then
     #~ echo "DO_ALL.SH: INFO: recursively deleting residual                  '.gz'  files"
     find ${DATA_DIR} -type f -name "*.gz"                      -delete
     #~ echo "DO_ALL.SH: INFO: recursively deleting                           '.spcn'            files created in earlier runs"
-    find ${DATA_DIR} -type l -name "*.spcn"                    -delete
+    #~ find ${DATA_DIR} -type l -name "*.spcn"                    -delete                                  # DON'T DELETE THEM. THEY TAKE A VERY LONG TIME TO CREATE!
     #~ echo "DO_ALL.SH: INFO: recursively deleting                           '.fqln'            files created in earlier runs"
     find ${DATA_DIR} -type l -name "*.fqln"                    -delete
     #~ echo "DO_ALL.SH: INFO: recursively deleting                           'entire_patch.npy' files created in earlier runs"

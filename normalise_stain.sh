@@ -4,13 +4,14 @@
 # set -e
 
 # all code used for spcn stain normalisation is due to:
+#
 #     D. Anand, G. Ramakrishnan, A. Sethi
 #     and is an implementation of spcn described in their paper:
 #        "Fast GPU-enabled color normalization for digital pathology"
 #        International Conference on Systems, Signals and Image Processing, Osijek, Croatia (2019), pp. 219-224
 #
 #
-# the code I used (trivially modified by me) may be found here:
+# the code (trivially modified by me) may be found here:
 #     https://github.com/goutham7r/spcn
 #
 #

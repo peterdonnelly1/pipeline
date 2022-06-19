@@ -28,7 +28,7 @@
 #   2`stain normalisation of svs files, which are typically very large, likewise can take a long time - e.g 10-30 minutes per image
 #   2 the program performing spcn stain normalisation uses tensorflow rather than pytorch
 #   3 since it uses some of the same libraries as CLASSI, but at different version levels, it should be run in a different virtual environment to CLASSI (I use conda)
-#   4 here are the dependencies:
+#   4 here are the (original) dependencies:
 #        python              3.6.13
 #        tensorflow          1.15.0
 #        numpy               1.19.5
@@ -145,7 +145,7 @@ def main(args):
 
         if ( f.endswith( 'spcn' )  ):                                                                      # this folder has already been handled, so set a flag
           if (DEBUG>0):
-            print ( f"{ORANGE}NORMALISE_STAIN:        INFO: a file with extension {CYAN}spcn{RESET}{ORANGE} exists in this folder, so will move on to the next folder",  flush=True )
+            print ( f"{BOLD}{ORANGE}NORMALISE_STAIN:        INFO: a file with extension {CYAN}spcn{RESET}{ORANGE} exists in this folder, so will move on to the next folder"{RESET},  flush=True )
           already_processed_this_slide=True 
 
 

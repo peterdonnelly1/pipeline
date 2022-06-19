@@ -67,6 +67,10 @@ class classifyConfig(Config):
         return INCEPT3          ( self, args, n_classes, tile_size )
       elif nn_type_img=='INCEPT4':
         return inceptionv4      ( self, args, n_classes, tile_size, pretrained=None )
+      elif nn_type_img=='INCEPT4_PRETRAINED':
+        return inceptionv4      ( self, args, n_classes, tile_size, pretrained='imagenet' )
+      elif nn_type_img=='INCEPT4_PRETRAINED+BACKGROUND':
+        return inceptionv4      ( self, args, n_classes, tile_size, pretrained='imagenet+background' )        
       elif nn_type_img=='RESNET18':
         return resnet18         ( self, args, n_classes, tile_size )
       elif nn_type_img=='DENSENET121':

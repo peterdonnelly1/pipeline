@@ -343,7 +343,7 @@ class InceptionV4(nn.Module):
         return x, embedding_placeholder
 
 
-def inceptionv4( cfg, args, n_classes, tile_size, num_classes=1000, pretrained='imagenet'):
+def inceptionv4( cfg, args, n_classes, tile_size, num_classes=1000, pretrained=None):
     
     DEBUG=1
     if DEBUG>0:
