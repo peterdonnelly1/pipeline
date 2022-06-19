@@ -145,7 +145,7 @@ def main(args):
 
         if ( f.endswith( 'spcn' )  ):                                                                      # this folder has already been handled, so set a flag
           if (DEBUG>0):
-            print ( f"{BOLD}{ORANGE}NORMALISE_STAIN:        INFO: a file with extension {CYAN}spcn{RESET}{ORANGE} exists in this folder, so will move on to the next folder"{RESET},  flush=True )
+            print ( f"{BOLD}{ORANGE}NORMALISE_STAIN:        INFO: a file with extension {CYAN}spcn{RESET}{ORANGE} exists in this folder, so will move on to the next folder{RESET}",  flush=True )
           already_processed_this_slide=True 
 
 
