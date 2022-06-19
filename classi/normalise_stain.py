@@ -43,6 +43,7 @@ import os
 import sys
 import ast
 import psutil
+import numpy as np
 import argparse
 import multiprocessing
 
@@ -106,7 +107,8 @@ def main(args):
   config = tf.ConfigProto( log_device_placement=False, gpu_options=gpu_options )
 
   target_i0             = 12
-  Wi_target             = 13
+  # ~ Wi_target             = 13
+  Wi_target             = np.random( ( 3, 3) dtype=np.int )
   Htarget_Rmax          = 14
   normalisation_factor  = 15
 
