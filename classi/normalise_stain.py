@@ -111,8 +111,7 @@ def main(args):
 
   reference_file_characterisation_file_name = f"{reference_file}.spcn_characterisation_details.txt"
 
-  reference_file_characterisation = 
-  {
+  reference_file_characterisation =  {
     'target_i0':              target_i0,
     'Wi_target':              Wi_target,
     'Htarget_Rmax':           Htarget_Rmax, 
