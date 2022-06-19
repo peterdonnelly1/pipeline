@@ -57,6 +57,7 @@ dtype_to_format = {
 def run_batch_colornorm ( slide_type, source_filename, reference_filename, nstains, lamb,  dir_path, img_level, background_correction, target_i0,  Wi_target, Htarget_Rmax, _normalisation_factor, config ):  
  
   # there are only two slide_types
+  
   REFERENCE_SLIDE        = 0
   SLIDE_FOR_NORMALISING  = 1
   

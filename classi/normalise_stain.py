@@ -95,8 +95,8 @@ def main(args):
   # ~ reference_file = f"{data_dir}/TCGA-IP-7968-11A-01-TS1.aa84dfd6-6660-4488-b7d6-7652445a6f35.svs"
 
   if os.path.isfile(reference_file)!=True:
-    print ( f"{RED}CLASSI:        FATAL:  the image reference file you provided ('{CYAN}{reference_file}{RESET}{RED}') does not exist.{RESET}" )
-    print ( f"{RED}CLASSI:        FATAL:  cannot continue - halting now{RESET}" )                 
+    print ( f"{BOLD}{RED}CLASSI:        FATAL:  the image reference file you provided ('{CYAN}{reference_file}{RESET}{RED}') does not exist.{RESET}" )
+    print ( f"{BOLD}{RED}CLASSI:        FATAL:  cannot continue - halting now{RESET}" )                 
     sys.exit(0)
 
 
@@ -104,19 +104,43 @@ def main(args):
   # config = tf.ConfigProto(device_count={'GPU': 1},log_device_placement=False,gpu_options=gpu_options)
   config = tf.ConfigProto( log_device_placement=False, gpu_options=gpu_options )
 
+  target_i0             = 12
+  Wi_target             = 13
+  Htarget_Rmax          = 14
+  normalisation_factor  = 15
+
+  reference_file_characterisation_file_name = f"{reference_file}.spcn_characterisation_details.txt"
+
+  reference_file_characterisation = 
+  {
+    'target_i0':              target_i0,
+    'Wi_target':              Wi_target,
+    'Htarget_Rmax':           Htarget_Rmax, 
+    'normalisation_factor':   normalisation_factor           
+  }
+  
+  f = open(reference_file_characterisation_file_name,"w")
+  f.write( str(reference_file_characterisation) )
+  f.close()  
+
+
+
 
   nstains               = 2                                                                                # number of stains
   lamb                  = 0.01                                                                             # default value sparsity regularization parameter. lamb=0 equivalent to NMF
   level                 = 0
   background_correction = True
 
-  is_reference_file = 0
+  is_reference_file = 0                                                                                    # 0=reference file; 1=any other svs file
   
   if (DEBUG>0):
     print ( f"NORMALISE_STAIN:        INFO: about to characterise designated reference file:   {CARRIBEAN_GREEN}{reference_file}{RESET}",  flush=True ) 
   target_i0,  Wi_target, Htarget_Rmax, normalisation_factor =  run_batch_colornorm  ( is_reference_file,  reference_file, reference_file,  nstains,  lamb,  data_dir, level, background_correction, 0,0,0,0,     config  )
   if (DEBUG>0):
-    print ( f"NORMALISE_STAIN:        INFO: reference file characterised                       {CARRIBEAN_GREEN}{reference_file}{RESET}",  flush=True ) 
+    print ( f"{MAGENTA}NORMALISE_STAIN:        INFO: reference file has now been characterised                       {MAGENTA}{reference_file}{RESET}",  flush=True ) 
+
+  
+
 
   display_separator()
 
@@ -145,7 +169,7 @@ def main(args):
 
         if ( f.endswith( 'spcn' )  ):                                                                      # this folder has already been handled, so set a flag
           if (DEBUG>0):
-            print ( f"{BOLD}{ORANGE}NORMALISE_STAIN:        INFO: a file with extension {CYAN}spcn{RESET}{ORANGE} exists in this folder, so will move on to the next folder{RESET}",  flush=True )
+            print ( f"{BOLD}{ORANGE}NORMALISE_STAIN:        INFO: a file with extension {BOLD}{CYAN}.spcn{RESET}{BOLD}{ORANGE} exists in this folder, so will skip and move to the next folder{RESET}",  flush=True )
           already_processed_this_slide=True 
 
 
