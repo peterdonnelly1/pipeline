@@ -109,17 +109,27 @@ def main(args):
   Htarget_Rmax          = 14
   normalisation_factor  = 15
 
-  reference_file_characterisation_file_name = f"{reference_file}.spcn_characterisation_details.txt"
+  ref_file_characterisation_fname = f"{reference_file}.spcn_characterisation_details.txt"
+  
+  if os.exists (ref_file_characterisation_fname ):
+    f = open(ref_file_characterisation_fname,"r")
+    ref_file_characterisation = ast.literal_eval(f.read())
+    f.close()  
+  
+  if (DEBUG>0):
+    for key,value in ref_file_characterisation.items():
+      print( key, ':', value )
 
-  reference_file_characterisation =  {
+  
+  ref_file_characterisation =  {
     'target_i0':              target_i0,
     'Wi_target':              Wi_target,
     'Htarget_Rmax':           Htarget_Rmax, 
     'normalisation_factor':   normalisation_factor           
   }
   
-  f = open(reference_file_characterisation_file_name,"w")
-  f.write( str(reference_file_characterisation) )
+  f = open(ref_file_characterisation_fname,"w")
+  f.write( str(ref_file_characterisation) )
   f.close()  
 
 
