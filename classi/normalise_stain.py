@@ -130,9 +130,10 @@ def main(args):
 
     if DEBUG>0:
       print ( f"{ORANGE}CLASSI:        INFO:      target_i0            = {MIKADO}{target_i0}{RESET}" ) 
-      print ( f"{ORANGE}CLASSI:        INFO:      Wi_target            = {MIKADO}{Wi_target}{RESET}" ) 
       print ( f"{ORANGE}CLASSI:        INFO:      Htarget_Rmax         = {MIKADO}{Htarget_Rmax}{RESET}" ) 
       print ( f"{ORANGE}CLASSI:        INFO:      normalisation_factor = {MIKADO}{normalisation_factor}{RESET}" ) 
+      print ( f"{ORANGE}CLASSI:        INFO:      Wi_target            = \n{MIKADO}{Wi_target}{RESET}" ) 
+
 
 
   target_i0             = 12
@@ -146,10 +147,11 @@ def main(args):
     print ( f"{BOLD}{PINK}CLASSI:        INFO:  about to save image characterisation details for this svs file for possible future use, in file: ('{CYAN}{ref_file_characterisation_fname}{RESET}{PINK}'){RESET}" )    
 
   if DEBUG>0:
-    print ( f"{PINK}CLASSI:        INFO:      target_i0            = {MIKADO}{target_i0}{RESET}" ) 
-    print ( f"{PINK}CLASSI:        INFO:      Wi_target            = {MIKADO}{Wi_target}{RESET}" ) 
-    print ( f"{PINK}CLASSI:        INFO:      Htarget_Rmax         = {MIKADO}{Htarget_Rmax}{RESET}" ) 
-    print ( f"{PINK}CLASSI:        INFO:      normalisation_factor = {MIKADO}{normalisation_factor}{RESET}" ) 
+    print ( f"{BLEU}CLASSI:        INFO:      target_i0            = {MIKADO}{target_i0}{RESET}" ) 
+    print ( f"{BLEU}CLASSI:        INFO:      Htarget_Rmax         = {MIKADO}{Htarget_Rmax}{RESET}" ) 
+    print ( f"{BLEU}CLASSI:        INFO:      normalisation_factor = {MIKADO}{normalisation_factor}{RESET}" ) 
+    print ( f"{BLEU}CLASSI:        INFO:      Wi_target            = \n{MIKADO}{Wi_target}{RESET}" ) 
+
 
   ref_file_characterisation =  {
     'target_i0':              target_i0,
