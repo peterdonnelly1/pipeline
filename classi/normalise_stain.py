@@ -43,6 +43,7 @@ import os
 import sys
 import ast
 import psutil
+import pickle
 import numpy as np
 import argparse
 import multiprocessing
@@ -112,16 +113,15 @@ def main(args):
   Htarget_Rmax          = 14
   normalisation_factor  = 15
 
-  ref_file_characterisation_fname = f"{reference_file}.spcn_characterisation_details.txt"
+  ref_file_characterisation_fname = f"{reference_file}.spcn_characterisation_details"
   
   if os.path.exists (ref_file_characterisation_fname ):
     if DEBUG>0:
       print ( f"{BOLD}{ORANGE}CLASSI:        INFO:  image characterisation details for this svs file exist from and earlier run, in file: ('{CYAN}{ref_file_characterisation_fname}{RESET}{ORANGE}'){RESET}" )    
       print ( f"{BOLD}{ORANGE}CLASSI:        INFO:  these will be loaded and used{RESET}" ) 
       
-    f = open(ref_file_characterisation_fname,"r")
-    ref_file_characterisation = ast.literal_eval(f.read())
-    f.close()  
+    with open( f"{ref_file_characterisation_fname}.pickle", "rb") as file:
+      ref_file_characterisation = pickle.load(file)    
 
     target_i0            = ref_file_characterisation["target_i0"]
     Wi_target            = ref_file_characterisation["Wi_target"]
@@ -158,9 +158,8 @@ def main(args):
     'normalisation_factor':   normalisation_factor           
   }
   
-  f = open(ref_file_characterisation_fname,"w")
-  f.write( str(ref_file_characterisation) )
-  f.close()  
+  with open("{ref_file_characterisation_fname}.pickle", "wb") as file:
+    pickle.dump(ref_file_characterisation, file, pickle.HIGHEST_PROTOCOL)
 
 
 
