@@ -108,7 +108,7 @@ def main(args):
 
   target_i0             = 12
   # ~ Wi_target             = 13
-  Wi_target             = np.random( ( 3, 3) dtype=np.int )
+  Wi_target             = np.random.rand( 3, 3 )
   Htarget_Rmax          = 14
   normalisation_factor  = 15
 
@@ -135,7 +135,21 @@ def main(args):
       print ( f"{ORANGE}CLASSI:        INFO:      normalisation_factor = {MIKADO}{normalisation_factor}{RESET}" ) 
 
 
+  target_i0             = 12
+  # ~ Wi_target             = 13
+  Wi_target             = np.random.rand( 3, 3 )
+  Htarget_Rmax          = 14
+  normalisation_factor  = 15
 
+
+  if DEBUG>0:
+    print ( f"{BOLD}{PINK}CLASSI:        INFO:  about to save image characterisation details for this svs file for possible future use, in file: ('{CYAN}{ref_file_characterisation_fname}{RESET}{PINK}'){RESET}" )    
+
+  if DEBUG>0:
+    print ( f"{PINK}CLASSI:        INFO:      target_i0            = {MIKADO}{target_i0}{RESET}" ) 
+    print ( f"{PINK}CLASSI:        INFO:      Wi_target            = {MIKADO}{Wi_target}{RESET}" ) 
+    print ( f"{PINK}CLASSI:        INFO:      Htarget_Rmax         = {MIKADO}{Htarget_Rmax}{RESET}" ) 
+    print ( f"{PINK}CLASSI:        INFO:      normalisation_factor = {MIKADO}{normalisation_factor}{RESET}" ) 
 
   ref_file_characterisation =  {
     'target_i0':              target_i0,
