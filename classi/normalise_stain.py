@@ -111,7 +111,7 @@ def main(args):
 
   ref_file_characterisation_fname = f"{reference_file}.spcn_characterisation_details.txt"
   
-  if os.exists (ref_file_characterisation_fname ):
+  if os.path.exists (ref_file_characterisation_fname ):
     f = open(ref_file_characterisation_fname,"r")
     ref_file_characterisation = ast.literal_eval(f.read())
     f.close()  
