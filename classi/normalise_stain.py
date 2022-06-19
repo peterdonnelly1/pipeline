@@ -113,13 +113,26 @@ def main(args):
   ref_file_characterisation_fname = f"{reference_file}.spcn_characterisation_details.txt"
   
   if os.path.exists (ref_file_characterisation_fname ):
+    if DEBUG>0:
+      print ( f"{BOLD}{ORANGE}CLASSI:        INFO:  image characterisation details for this svs file exist from and earlier run, in file: ('{CYAN}{ref_file_characterisation_fname}{RESET}{ORANGE}'){RESET}" )    
+      print ( f"{BOLD}{ORANGE}CLASSI:        INFO:  these will be loaded and used{RESET}" ) 
+      
     f = open(ref_file_characterisation_fname,"r")
     ref_file_characterisation = ast.literal_eval(f.read())
     f.close()  
-  
-  if (DEBUG>0):
-    for key,value in ref_file_characterisation.items():
-      print( key, ':', value )
+
+    target_i0            = ref_file_characterisation["target_i0"]
+    Wi_target            = ref_file_characterisation["Wi_target"]
+    Htarget_Rmax         = ref_file_characterisation["Htarget_Rmax"]
+    normalisation_factor = ref_file_characterisation["normalisation_factor"]
+
+    if DEBUG>0:
+      print ( f"{BOLD}{ORANGE}CLASSI:        INFO:  target_i0            = {MIKADO}{target_i0}{RESET}" ) 
+      print ( f"{BOLD}{ORANGE}CLASSI:        INFO:  Wi_target            = {MIKADO}{Wi_target}{RESET}" ) 
+      print ( f"{BOLD}{ORANGE}CLASSI:        INFO:  Htarget_Rmax         = {MIKADO}{Htarget_Rmax}{RESET}" ) 
+      print ( f"{BOLD}{ORANGE}CLASSI:        INFO:  normalisation_factor = {MIKADO}{normalisation_factor}{RESET}" ) 
+
+
 
   
   ref_file_characterisation =  {
