@@ -97,13 +97,14 @@ def main(args):
   reference_file = f"{data_source}/{args.reference_file}"
 
   if DEBUG>0:
-    print ( f"{BOLD}{ORANGE}NORMALISE_STAIN:        INFO:  data_source    = ('{CYAN}{data_source}{RESET}{ORANGE}'){RESET}" )    
-    print ( f"{BOLD}{ORANGE}NORMALISE_STAIN:        INFO:  reference_file = ('{CYAN}{reference_file}{RESET}{ORANGE}'){RESET}" )    
+    print ( f"{BOLD}{ORANGE}NORMALISE_STAIN:        INFO: data_source    = {CYAN}{data_source}{RESET}{ORANGE}{RESET}" )    
+    print ( f"{BOLD}{ORANGE}NORMALISE_STAIN:        INFO: reference_file = {CYAN}{reference_file}{RESET}{ORANGE}{RESET}" )    
 
   gpu_options = tf.GPUOptions( per_process_gpu_memory_fraction=1 )
   # config = tf.ConfigProto(device_count={'GPU': 1},log_device_placement=False,gpu_options=gpu_options)
   config      = tf.ConfigProto( log_device_placement=False, gpu_options=gpu_options )
   
+
 
   nstains               = 2                                                                                # number of stains
   lamb                  = 0.01                                                                             # default value sparsity regularization parameter. lamb=0 equivalent to NMF
@@ -111,11 +112,13 @@ def main(args):
   background_correction = True
 
 
+
+  # (1) MAYBE CHARACTERISE THE REFERENCE FILE (WHICH IS JUST AN SVS FILE CHOSEN BY THE USER TO BE SUITABLE REPRESENTATIVE OF ALL THE SLIDES
+
   if os.path.isfile(reference_file)!=True:
     print ( f"{BOLD}{RED}NORMALISE_STAIN:        FATAL:  the image reference file provided ('{CYAN}{reference_file}{RESET}{RED}') does not exist.{RESET}" )
     print ( f"{BOLD}{RED}NORMALISE_STAIN:        FATAL:  cannot continue - halting now{RESET}" )                 
     sys.exit(0)
-
 
   ref_file_characterisation_fname = f"{reference_file}.spcn_characterisation_details.pickle"
   
@@ -134,30 +137,29 @@ def main(args):
     normalisation_factor = ref_file_characterisation["normalisation_factor"]
 
     if DEBUG>0:
-      print ( f"{ORANGE}NORMALISE_STAIN:        INFO:      target_i0            = {MIKADO}{target_i0}{RESET}" ) 
-      print ( f"{ORANGE}NORMALISE_STAIN:        INFO:      Htarget_Rmax         = {MIKADO}{Htarget_Rmax}{RESET}" ) 
+      print ( f"{ORANGE}NORMALISE_STAIN:        INFO:      target_i0            = {MIKADO}{target_i0}{RESET}"            ) 
+      print ( f"{ORANGE}NORMALISE_STAIN:        INFO:      Htarget_Rmax         = {MIKADO}{Htarget_Rmax}{RESET}"         ) 
       print ( f"{ORANGE}NORMALISE_STAIN:        INFO:      normalisation_factor = {MIKADO}{normalisation_factor}{RESET}" ) 
-      print ( f"{ORANGE}NORMALISE_STAIN:        INFO:      Wi_target            = \n{MIKADO}{Wi_target}{RESET}" ) 
+      print ( f"{ORANGE}NORMALISE_STAIN:        INFO:      Wi_target            = \n{MIKADO}{Wi_target}{RESET}"          ) 
 
-
-  else:                                                                                                    # user's selected reference file has not previously been characterised, so we characterise it
+  else:                                                                                                    # user's selected reference file has not previously been characterised, so we characterise it now
     
     if DEBUG>0:
-      print ( f"{BOLD}{ORANGE}NORMALISE_STAIN:        INFO: the chosen reference file has not been previously characterised{RESET}" )    
-      print ( f"NORMALISE_STAIN:        INFO: about to characterise designated reference file:   {CYAN}{reference_file}{RESET}",  flush=True ) 
+      print ( f"{BOLD}{ORANGE}NORMALISE_STAIN:        INFO: the chosen reference file has not been previously characterised{RESET}"    )    
+      print ( f"NORMALISE_STAIN:        INFO: about to characterise designated reference file:   {CYAN}{reference_file}{RESET}"        ) 
 
     is_reference_file = 0                                                                                  # 0=reference file; 1=any other svs file
-    target_i0,  Wi_target, Htarget_Rmax, normalisation_factor =  run_batch_colornorm  ( is_reference_file,  reference_file, reference_file,  nstains,  lamb,  data_source, level, background_correction, 0,0,0,0,     config  )
+    target_i0,  Wi_target, Htarget_Rmax, normalisation_factor =  run_batch_colornorm  ( is_reference_file,  reference_file, reference_file,  nstains,  lamb,  data_source, level, background_correction, 0,0,0,0,  config  )
 
     if (DEBUG>0):
-      print ( f"{CAMEL}NORMALISE_STAIN:        INFO: reference file has now been characterised                       {MAGENTA}{reference_file}{RESET}",  flush=True ) 
+      print ( f"{CAMEL}NORMALISE_STAIN:        INFO: reference file has now been characterised                       {MAGENTA}{reference_file}{RESET}"  ) 
   
     if DEBUG>0:
       print ( f"{CAMEL}NORMALISE_STAIN:        INFO:  about to save image characterisation details for this svs file for possible future use, in file: ('{CYAN}{ref_file_characterisation_fname}{RESET}{PINK}'){RESET}" )    
-      print ( f"{CAMEL}NORMALISE_STAIN:        INFO:      target_i0            = {MIKADO}{target_i0}{RESET}" ) 
-      print ( f"{CAMEL}NORMALISE_STAIN:        INFO:      Htarget_Rmax         = {MIKADO}{Htarget_Rmax}{RESET}" ) 
+      print ( f"{CAMEL}NORMALISE_STAIN:        INFO:      target_i0            = {MIKADO}{target_i0}{RESET}"            ) 
+      print ( f"{CAMEL}NORMALISE_STAIN:        INFO:      Htarget_Rmax         = {MIKADO}{Htarget_Rmax}{RESET}"         ) 
       print ( f"{CAMEL}NORMALISE_STAIN:        INFO:      normalisation_factor = {MIKADO}{normalisation_factor}{RESET}" ) 
-      print ( f"{CAMEL}NORMALISE_STAIN:        INFO:      Wi_target            = \n{MIKADO}{Wi_target}{RESET}" ) 
+      print ( f"{CAMEL}NORMALISE_STAIN:        INFO:      Wi_target            = \n{MIKADO}{Wi_target}{RESET}"          ) 
   
   
     ref_file_characterisation =  {
@@ -172,14 +174,15 @@ def main(args):
 
 
 
+  # (1) NORMALISE EVERY OTHER SVS FILE
+
   display_separator()
 
   if (DEBUG>0):
     print ( f"NORMALISE_STAIN:        INFO: will look recursively under:                       {MAGENTA}{data_source}{RESET} for slide files (files ending with either 'svs' or 'SVS')\n",  flush=True ) 
 
   slide_file_found  = 0
-  is_reference_file = 1
-  
+  is_reference_file = 1                                                                                    # 0=reference file; 1=any other svs file                    
     
   for dir_path, __, files in os.walk( data_source ):
 
@@ -197,7 +200,7 @@ def main(args):
           print ( f"NORMALISE_STAIN:        INFO: (reference_file)                                   {DULL_BLUE}{reference_file}{RESET}",  flush=True )
           # ~ print ( f"NORMALISE_STAIN:        INFO: ( reference_file[-40:])                        {DULL_BLUE}{ reference_file[-40:]}{RESET}",  flush=True )
 
-        if ( f.endswith( 'spcn' )  ):                                                                      # this folder has already been handled, so set a flag
+        if ( f.endswith( 'spcn' )  ):                                                                      # this file has already been handled, so skip
           if (DEBUG>0):
             print ( f"{BOLD}{ORANGE}NORMALISE_STAIN:        INFO: a file with extension {BOLD}{CYAN}.spcn{RESET}{BOLD}{ORANGE} exists in this folder, so will skip and move to the next folder{RESET}",  flush=True )
           already_processed_this_slide=True 
