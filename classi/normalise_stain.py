@@ -202,7 +202,8 @@ def main(args):
 
         if ( f.endswith( 'spcn' )  ):                                                                      # this file has already been handled, so skip
           if (DEBUG>0):
-            print ( f"{ORANGE}NORMALISE_STAIN:        INFO: current_file              = {BOLD}{CYAN}{current_file}{RESET}",  flush=True )
+            print ( f"{ORANGE}NORMALISE_STAIN:        INFO: in dir_path {BOLD}{CYAN}{dir_path}{RESET}",  flush=True )
+            print ( f"{ORANGE}NORMALISE_STAIN:        INFO: found file {BOLD}{CYAN}{current_file}{RESET}",  flush=True )
             print ( f"{BOLD}{ORANGE}NORMALISE_STAIN:        INFO: a file with extension {BOLD}{CYAN}.spcn{RESET}{BOLD}{ORANGE} exists in this folder, so will skip and move to the next folder{RESET}",  flush=True )
           already_processed_this_slide=True 
           display_separator()
