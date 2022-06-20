@@ -83,7 +83,8 @@ def main(args):
   process   = psutil.Process(pid)
   memoryUse = process.memory_info()[0]/2.**30  # memory use in GB...I think
   affinity  = os.sched_getaffinity(pid)
-  
+   
+            
   if DEBUG>0:
     print( f'{SAVE_CURSOR}{CLEAR_LINE}{RESET}  status {MIKADO}{process.status()}{RESET}  affinity {MIKADO}{affinity}{RESET}  pid {MIKADO}{pid:>6d}{RESET}   memory use: {MIKADO}{100*memoryUse:3.1f}{RESET}%   {CLEAR_LINE}{RESTORE_CURSOR}')
   
@@ -95,6 +96,11 @@ def main(args):
   dataset        = args.dataset
   data_source    = f"{args.data_source}/{dataset}"
   reference_file = f"{data_source}/{args.reference_file}"
+
+
+  if (DEBUG>0):
+    print ( f"{BOLD}{MAGENTA}NORMALISE_STAIN:        IMPORTANT: if you have changed reference file, you must manually delete all existing files with extension '{BOLD}{CYAN}.spcn{RESET}{BOLD}{MAGENTA}' in {BOLD}{CYAN}{data_source}{RESET}",  flush=True )
+         
 
   if DEBUG>0:
     print ( f"{BOLD}{ORANGE}NORMALISE_STAIN:        INFO: data_source    = {CYAN}{data_source}{RESET}{ORANGE}{RESET}" )    
@@ -203,8 +209,8 @@ def main(args):
         if ( f.endswith( 'spcn' )  ):                                                                      # this file has already been handled, so skip
           if (DEBUG>0):
             print ( f"{ORANGE}NORMALISE_STAIN:        INFO: in dir_path {BOLD}{CYAN}{dir_path}{RESET}",  flush=True )
-            print ( f"{ORANGE}NORMALISE_STAIN:        INFO: found file {BOLD}{CYAN}{current_file}{RESET}",  flush=True )
-            print ( f"{BOLD}{ORANGE}NORMALISE_STAIN:        INFO: a file with extension {BOLD}{CYAN}.spcn{RESET}{BOLD}{ORANGE} exists in this folder, so will skip and move to the next folder{RESET}",  flush=True )
+            print ( f"{ORANGE}NORMALISE_STAIN:        INFO: found file  {BOLD}{CYAN}{current_file}{RESET}",  flush=True )
+            print ( f"{BOLD}{ORANGE}NORMALISE_STAIN:        INFO: a file with extension {BOLD}{CYAN}.spcn{RESET}{BOLD}{ORANGE} already exists, so will skip and move to the next folder{RESET}",  flush=True )
           already_processed_this_slide=True 
           display_separator()
 
