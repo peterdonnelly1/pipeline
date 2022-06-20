@@ -94,33 +94,34 @@ def main(args):
 
   data_dir       = args.data_dir
   reference_file = f"{data_dir}/{args.reference_file}"
+
+  gpu_options = tf.GPUOptions( per_process_gpu_memory_fraction=1 )
+  # config = tf.ConfigProto(device_count={'GPU': 1},log_device_placement=False,gpu_options=gpu_options)
+  config      = tf.ConfigProto( log_device_placement=False, gpu_options=gpu_options )
   
   # ~ reference_file = f"{data_dir}/TCGA-IP-7968-11A-01-TS1.aa84dfd6-6660-4488-b7d6-7652445a6f35.svs"
 
+  nstains               = 2                                                                                # number of stains
+  lamb                  = 0.01                                                                             # default value sparsity regularization parameter. lamb=0 equivalent to NMF
+  level                 = 0
+  background_correction = True
+
+
   if os.path.isfile(reference_file)!=True:
-    print ( f"{BOLD}{RED}CLASSI:        FATAL:  the image reference file you provided ('{CYAN}{reference_file}{RESET}{RED}') does not exist.{RESET}" )
-    print ( f"{BOLD}{RED}CLASSI:        FATAL:  cannot continue - halting now{RESET}" )                 
+    print ( f"{BOLD}{RED}NORMALISE_STAIN:        FATAL:  the image reference file provided ('{CYAN}{reference_file}{RESET}{RED}') does not exist.{RESET}" )
+    print ( f"{BOLD}{RED}NORMALISE_STAIN:        FATAL:  cannot continue - halting now{RESET}" )                 
     sys.exit(0)
 
 
-  gpu_options=tf.GPUOptions( per_process_gpu_memory_fraction=1 )
-  # config = tf.ConfigProto(device_count={'GPU': 1},log_device_placement=False,gpu_options=gpu_options)
-  config = tf.ConfigProto( log_device_placement=False, gpu_options=gpu_options )
-
-  target_i0             = 12
-  # ~ Wi_target             = 13
-  Wi_target             = np.random.rand( 3, 3 )
-  Htarget_Rmax          = 14
-  normalisation_factor  = 15
-
-  ref_file_characterisation_fname = f"{reference_file}.spcn_characterisation_details"
+  ref_file_characterisation_fname = f"{reference_file}.spcn_characterisation_details.pickle"
   
-  if os.path.exists (ref_file_characterisation_fname ):
+  if os.path.exists (ref_file_characterisation_fname ):                                                    # user's selected reference file has previously been characterised, so we use existing characterisation, (saves about 30 minutes) 
+    
     if DEBUG>0:
-      print ( f"{BOLD}{ORANGE}CLASSI:        INFO:  image characterisation details for this svs file exist from and earlier run, in file: ('{CYAN}{ref_file_characterisation_fname}{RESET}{ORANGE}'){RESET}" )    
-      print ( f"{BOLD}{ORANGE}CLASSI:        INFO:  these will be loaded and used{RESET}" ) 
+      print ( f"{BOLD}{ORANGE}NORMALISE_STAIN:        INFO:  image characterisation details for this svs file exist from and earlier run, in file: ('{CYAN}{ref_file_characterisation_fname}{RESET}{ORANGE}'){RESET}" )    
+      print ( f"{BOLD}{ORANGE}NORMALISE_STAIN:        INFO:  these will be loaded and used{RESET}" ) 
       
-    with open( f"{ref_file_characterisation_fname}.pickle", "rb") as file:
+    with open( f"{ref_file_characterisation_fname}", "rb") as file:
       ref_file_characterisation = pickle.load(file)    
 
     target_i0            = ref_file_characterisation["target_i0"]
@@ -129,57 +130,41 @@ def main(args):
     normalisation_factor = ref_file_characterisation["normalisation_factor"]
 
     if DEBUG>0:
-      print ( f"{ORANGE}CLASSI:        INFO:      target_i0            = {MIKADO}{target_i0}{RESET}" ) 
-      print ( f"{ORANGE}CLASSI:        INFO:      Htarget_Rmax         = {MIKADO}{Htarget_Rmax}{RESET}" ) 
-      print ( f"{ORANGE}CLASSI:        INFO:      normalisation_factor = {MIKADO}{normalisation_factor}{RESET}" ) 
-      print ( f"{ORANGE}CLASSI:        INFO:      Wi_target            = \n{MIKADO}{Wi_target}{RESET}" ) 
+      print ( f"{ORANGE}NORMALISE_STAIN:        INFO:      target_i0            = {MIKADO}{target_i0}{RESET}" ) 
+      print ( f"{ORANGE}NORMALISE_STAIN:        INFO:      Htarget_Rmax         = {MIKADO}{Htarget_Rmax}{RESET}" ) 
+      print ( f"{ORANGE}NORMALISE_STAIN:        INFO:      normalisation_factor = {MIKADO}{normalisation_factor}{RESET}" ) 
+      print ( f"{ORANGE}NORMALISE_STAIN:        INFO:      Wi_target            = \n{MIKADO}{Wi_target}{RESET}" ) 
 
 
+  else:                                                                                                    # user's selected reference file has not previously been characterised, so we characterise it
+    
+    if (DEBUG>0):
+      print ( f"NORMALISE_STAIN:        INFO: about to characterise designated reference file:   {CARRIBEAN_GREEN}{reference_file}{RESET}",  flush=True ) 
 
-  target_i0             = 12
-  # ~ Wi_target             = 13
-  Wi_target             = np.random.rand( 3, 3 )
-  Htarget_Rmax          = 14
-  normalisation_factor  = 15
+    is_reference_file = 0                                                                                  # 0=reference file; 1=any other svs file
+    target_i0,  Wi_target, Htarget_Rmax, normalisation_factor =  run_batch_colornorm  ( is_reference_file,  reference_file, reference_file,  nstains,  lamb,  data_dir, level, background_correction, 0,0,0,0,     config  )
 
-
-  if DEBUG>0:
-    print ( f"{BOLD}{PINK}CLASSI:        INFO:  about to save image characterisation details for this svs file for possible future use, in file: ('{CYAN}{ref_file_characterisation_fname}{RESET}{PINK}'){RESET}" )    
-
-  if DEBUG>0:
-    print ( f"{BLEU}CLASSI:        INFO:      target_i0            = {MIKADO}{target_i0}{RESET}" ) 
-    print ( f"{BLEU}CLASSI:        INFO:      Htarget_Rmax         = {MIKADO}{Htarget_Rmax}{RESET}" ) 
-    print ( f"{BLEU}CLASSI:        INFO:      normalisation_factor = {MIKADO}{normalisation_factor}{RESET}" ) 
-    print ( f"{BLEU}CLASSI:        INFO:      Wi_target            = \n{MIKADO}{Wi_target}{RESET}" ) 
-
-
-  ref_file_characterisation =  {
-    'target_i0':              target_i0,
-    'Wi_target':              Wi_target,
-    'Htarget_Rmax':           Htarget_Rmax, 
-    'normalisation_factor':   normalisation_factor           
-  }
+    if (DEBUG>0):
+      print ( f"{CAMEL}NORMALISE_STAIN:        INFO: reference file has now been characterised                       {MAGENTA}{reference_file}{RESET}",  flush=True ) 
   
-  with open("{ref_file_characterisation_fname}.pickle", "wb") as file:
-    pickle.dump(ref_file_characterisation, file, pickle.HIGHEST_PROTOCOL)
-
-
-
-
-  nstains               = 2                                                                                # number of stains
-  lamb                  = 0.01                                                                             # default value sparsity regularization parameter. lamb=0 equivalent to NMF
-  level                 = 0
-  background_correction = True
-
-  is_reference_file = 0                                                                                    # 0=reference file; 1=any other svs file
+    if DEBUG>0:
+      print ( f"{CAMEL}NORMALISE_STAIN:        INFO:  about to save image characterisation details for this svs file for possible future use, in file: ('{CYAN}{ref_file_characterisation_fname}{RESET}{PINK}'){RESET}" )    
+      print ( f"{CAMEL}NORMALISE_STAIN:        INFO:      target_i0            = {MIKADO}{target_i0}{RESET}" ) 
+      print ( f"{CAMEL}NORMALISE_STAIN:        INFO:      Htarget_Rmax         = {MIKADO}{Htarget_Rmax}{RESET}" ) 
+      print ( f"{CAMEL}NORMALISE_STAIN:        INFO:      normalisation_factor = {MIKADO}{normalisation_factor}{RESET}" ) 
+      print ( f"{CAMEL}NORMALISE_STAIN:        INFO:      Wi_target            = \n{MIKADO}{Wi_target}{RESET}" ) 
   
-  if (DEBUG>0):
-    print ( f"NORMALISE_STAIN:        INFO: about to characterise designated reference file:   {CARRIBEAN_GREEN}{reference_file}{RESET}",  flush=True ) 
-  target_i0,  Wi_target, Htarget_Rmax, normalisation_factor =  run_batch_colornorm  ( is_reference_file,  reference_file, reference_file,  nstains,  lamb,  data_dir, level, background_correction, 0,0,0,0,     config  )
-  if (DEBUG>0):
-    print ( f"{MAGENTA}NORMALISE_STAIN:        INFO: reference file has now been characterised                       {MAGENTA}{reference_file}{RESET}",  flush=True ) 
-
   
+    ref_file_characterisation =  {
+      'target_i0':              target_i0,
+      'Wi_target':              Wi_target,
+      'Htarget_Rmax':           Htarget_Rmax, 
+      'normalisation_factor':   normalisation_factor           
+    }
+    
+    with open( f"{ref_file_characterisation_fname}", "wb") as file:
+      pickle.dump(ref_file_characterisation, file, pickle.HIGHEST_PROTOCOL)
+
 
 
   display_separator()
