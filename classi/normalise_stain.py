@@ -138,8 +138,9 @@ def main(args):
 
   else:                                                                                                    # user's selected reference file has not previously been characterised, so we characterise it
     
-    if (DEBUG>0):
-      print ( f"NORMALISE_STAIN:        INFO: about to characterise designated reference file:   {CARRIBEAN_GREEN}{reference_file}{RESET}",  flush=True ) 
+    if DEBUG>0:
+      print ( f"{BOLD}{ORANGE}NORMALISE_STAIN:        INFO:  the chosen reference file has not been previously characterised{RESET}" )    
+      print ( f"NORMALISE_STAIN:        INFO: about to characterise designated reference file:   {CYAN}{reference_file}{RESET}",  flush=True ) 
 
     is_reference_file = 0                                                                                  # 0=reference file; 1=any other svs file
     target_i0,  Wi_target, Htarget_Rmax, normalisation_factor =  run_batch_colornorm  ( is_reference_file,  reference_file, reference_file,  nstains,  lamb,  data_dir, level, background_correction, 0,0,0,0,     config  )
