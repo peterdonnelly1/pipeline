@@ -78,8 +78,8 @@ DEBUG   = 1
 def main(args):
 
 
-  num_cpus = multiprocessing.cpu_count()
-  pid = os.getpid()
+  num_cpus  = multiprocessing.cpu_count()
+  pid       = os.getpid()
   process   = psutil.Process(pid)
   memoryUse = process.memory_info()[0]/2.**30  # memory use in GB...I think
   affinity  = os.sched_getaffinity(pid)
@@ -87,19 +87,22 @@ def main(args):
   if DEBUG>0:
     print( f'{SAVE_CURSOR}{CLEAR_LINE}{RESET}  status {MIKADO}{process.status()}{RESET}  affinity {MIKADO}{affinity}{RESET}  pid {MIKADO}{pid:>6d}{RESET}   memory use: {MIKADO}{100*memoryUse:3.1f}{RESET}%   {CLEAR_LINE}{RESTORE_CURSOR}')
   
-  # added this in Jun 2022 because my AMD computer started using only one of the 32 available CPUs
+  # added this in Jun 2022 because my AMD computer started using only one of the 32 available cores
   # apparently others have had this issue:see e.g. https://stackoverflow.com/questions/15639779/why-does-multiprocessing-use-only-a-single-core-after-i-import-numpy
   x = {i for i in range(num_cpus)}
   os.sched_setaffinity( pid, x)
 
-  data_dir       = args.data_dir
-  reference_file = f"{data_dir}/{args.reference_file}"
+  data_source    = f"{args.data_source}/{dataset}"
+  reference_file = f"{data_source}/{args.reference_file}"
+
+  if DEBUG>0:
+    print ( f"{BOLD}{ORANGE}NORMALISE_STAIN:        INFO:  data_source    = ('{CYAN}{data_source}{RESET}{ORANGE}'){RESET}" )    
+    print ( f"{BOLD}{ORANGE}NORMALISE_STAIN:        INFO:  reference_file = ('{CYAN}{reference_file}{RESET}{ORANGE}'){RESET}" )    
 
   gpu_options = tf.GPUOptions( per_process_gpu_memory_fraction=1 )
   # config = tf.ConfigProto(device_count={'GPU': 1},log_device_placement=False,gpu_options=gpu_options)
   config      = tf.ConfigProto( log_device_placement=False, gpu_options=gpu_options )
   
-  # ~ reference_file = f"{data_dir}/TCGA-IP-7968-11A-01-TS1.aa84dfd6-6660-4488-b7d6-7652445a6f35.svs"
 
   nstains               = 2                                                                                # number of stains
   lamb                  = 0.01                                                                             # default value sparsity regularization parameter. lamb=0 equivalent to NMF
@@ -139,11 +142,11 @@ def main(args):
   else:                                                                                                    # user's selected reference file has not previously been characterised, so we characterise it
     
     if DEBUG>0:
-      print ( f"{BOLD}{ORANGE}NORMALISE_STAIN:        INFO:  the chosen reference file has not been previously characterised{RESET}" )    
+      print ( f"{BOLD}{ORANGE}NORMALISE_STAIN:        INFO: the chosen reference file has not been previously characterised{RESET}" )    
       print ( f"NORMALISE_STAIN:        INFO: about to characterise designated reference file:   {CYAN}{reference_file}{RESET}",  flush=True ) 
 
     is_reference_file = 0                                                                                  # 0=reference file; 1=any other svs file
-    target_i0,  Wi_target, Htarget_Rmax, normalisation_factor =  run_batch_colornorm  ( is_reference_file,  reference_file, reference_file,  nstains,  lamb,  data_dir, level, background_correction, 0,0,0,0,     config  )
+    target_i0,  Wi_target, Htarget_Rmax, normalisation_factor =  run_batch_colornorm  ( is_reference_file,  reference_file, reference_file,  nstains,  lamb,  data_source, level, background_correction, 0,0,0,0,     config  )
 
     if (DEBUG>0):
       print ( f"{CAMEL}NORMALISE_STAIN:        INFO: reference file has now been characterised                       {MAGENTA}{reference_file}{RESET}",  flush=True ) 
@@ -171,15 +174,15 @@ def main(args):
   display_separator()
 
   if (DEBUG>0):
-    print ( f"NORMALISE_STAIN:        INFO: will look recursively under:                       {MAGENTA}{data_dir}{RESET} for slide files (files ending with either 'svs' or 'SVS')\n",  flush=True ) 
+    print ( f"NORMALISE_STAIN:        INFO: will look recursively under:                       {MAGENTA}{data_source}{RESET} for slide files (files ending with either 'svs' or 'SVS')\n",  flush=True ) 
 
   slide_file_found  = 0
   is_reference_file = 1
   
     
-  for dir_path, __, files in os.walk( data_dir):
+  for dir_path, __, files in os.walk( data_source ):
 
-    if not (dir_path==args.data_dir):                                                                      # the top level directory (dataset) has to be skipped because it contains the reference svs file    
+    if not (dir_path==args.data_source):                                                                   # the top level directory (dataset) has to be skipped because it contains the reference svs file    
           
       already_processed_this_slide=False
           
@@ -250,9 +253,10 @@ if __name__ == '__main__':
 	
   p = argparse.ArgumentParser()
 
-  p.add_argument('--data_dir',                      type=str, default="/home/peter/git/pipeline/working_data" )
-  p.add_argument('--reference_file',                type=str                                                  )
-  
+  p.add_argument('--data_source',                   type=str  )
+  p.add_argument('--dataset',                       type=str  )
+  p.add_argument('--reference_file',                type=str  )
+
   args, _ = p.parse_known_args()
 
   main(args)

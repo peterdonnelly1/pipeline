@@ -21,9 +21,6 @@
 #         "Structure-preserving color normalization and sparse stain separation for histological images" 
 #         IEEE Trans. Med. Imaging. 35, 1962–1971 (2016).
 #
-#
-#
-#
 #  Notes:
 #   spcn stain normalisation takes place outside of the CLASSI framework
 #   it is run prior to using CLASSI, and creates a new, stain normalised version of each SVS file it finds in the working data directory and places it in the same directory
@@ -45,13 +42,26 @@
 #        spams               2.6.1
 #        scikit-learn        0.23.2
 
-
-  
-BASE_DIR=/home/peter/git/pipeline                                       # root directory for everything (shell scripts, code, datasets, logs ...)
-APPLICATION_DIR=classi
-DATA_ROOT=working_data                                                  # holds working copy of the dataset. Cleaned each time if "do_all" script used. Fully regenerated if "regen" option specified. Not cleaned if "just_.. or _only_ scripts used (to save time. Regeneration i particular can take a lot of time)
+BASE_DIR=/home/peter/git/pipeline                                                                          # root directory for everything (shell scripts, code, datasets, logs ...)
+DATA_ROOT=working_data                                                                                     # holds working copy of the dataset.  Cleaned each time if "do_all" script used. Fully regenerated if "regen" option specified. Not cleaned if "just_.. or _only_ scripts used (to save time. Regeneration i particular can take a lot of time)
 DATA_DIR=${BASE_DIR}/${DATA_ROOT}
+DATA_SOURCE=${BASE_DIR}/source_data/${DATASET}                                                             # structured directory containing dataset. A copy is made to DATA_ROOT. DATA_SOURCE is left untouched
+
+
+APPLICATION_DIR=classi
+DATASET="stad"                                                                                             # default only - user may change with -d option
+REFERENCE_FILE="46874009-4b32-43ff-a36a-236a3ca28fef_1/TCGA-VQ-AA69-01Z-00-DX1.1EEF2AD7-6470-44B5-9E87-E77AE47262F0.svs"
+
+while getopts d: option
+  do
+    case "${option}"
+    in
+    d) DATASET=${OPTARG};;                                                                                 # TCGA cancer class abbreviation: stad, tcl, dlbcl, thym ...
+    esac
+  done
+
+
 
 cd ${APPLICATION_DIR}
 
-python normalise_stain.py  --data_dir ${DATA_DIR}  --reference_file "46874009-4b32-43ff-a36a-236a3ca28fef_1/TCGA-VQ-AA69-01Z-00-DX1.1EEF2AD7-6470-44B5-9E87-E77AE47262F0.svs"
+python normalise_stain.py --data_source ${DATA_SOURCE}  --data_dir ${DATA_DIR}  --dataset ${DATASET}   --reference_file ${REFERENCE_FILE}
