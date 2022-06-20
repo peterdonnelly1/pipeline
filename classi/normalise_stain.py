@@ -99,7 +99,7 @@ def main(args):
 
 
   if (DEBUG>0):
-    print ( f"{BOLD}{MAGENTA}NORMALISE_STAIN:        IMPORTANT: if you have changed reference file, you must manually delete all existing files with extension '{BOLD}{CYAN}.spcn{RESET}{BOLD}{MAGENTA}' in {BOLD}{CYAN}{data_source}{RESET}",  flush=True )
+    print ( f"{BOLD}{MAGENTA}NORMALISE_STAIN:        IMPORTANT: if you have changed reference file, you must manually delete all existing files with extension '{BOLD}{CYAN}.spcn{RESET}{BOLD}{MAGENTA}' in the applicable source data directory, namely: {BOLD}{CYAN}{data_source}{RESET}",  flush=True )
          
 
   if DEBUG>0:
