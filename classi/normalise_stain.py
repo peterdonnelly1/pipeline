@@ -92,6 +92,7 @@ def main(args):
   x = {i for i in range(num_cpus)}
   os.sched_setaffinity( pid, x)
 
+  dataset        = args.dataset
   data_source    = f"{args.data_source}/{dataset}"
   reference_file = f"{data_source}/{args.reference_file}"
 
