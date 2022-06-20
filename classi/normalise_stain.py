@@ -99,7 +99,7 @@ def main(args):
 
 
   if (DEBUG>0):
-    print ( f"{BOLD}{MAGENTA}NORMALISE_STAIN:        IMPORTANT: if you have changed reference file, you must manually delete all existing files with extension '{BOLD}{CYAN}.spcn{RESET}{BOLD}{MAGENTA}' in the applicable source data directory, namely: {BOLD}{CYAN}{data_source}{RESET}",  flush=True )
+    print ( f"{BOLD}{MAGENTA}NORMALISE_STAIN:        IMPORTANT: if you have changed the svs reference file, you must manually delete all existing files with extension '{BOLD}{CYAN}.spcn{RESET}{BOLD}{MAGENTA}' in the applicable source data directory, namely: {BOLD}{CYAN}{data_source}{RESET}",  flush=True )
          
 
   if DEBUG>0:
@@ -131,7 +131,7 @@ def main(args):
   if os.path.exists (ref_file_characterisation_fname ):                                                    # user's selected reference file has previously been characterised, so we use existing characterisation, (saves about 30 minutes) 
     
     if DEBUG>0:
-      print ( f"{BOLD}{ORANGE}NORMALISE_STAIN:        INFO:  image characterisation details for this svs file exist from and earlier run, in file: ('{CYAN}{ref_file_characterisation_fname}{RESET}{ORANGE}'){RESET}" )    
+      print ( f"{BOLD}{ORANGE}NORMALISE_STAIN:        INFO:  image characterisation details for this svs file exists from an earlier run; in file: {CYAN}{ref_file_characterisation_fname}{RESET}" )    
       print ( f"{BOLD}{ORANGE}NORMALISE_STAIN:        INFO:  these will be loaded and used{RESET}" ) 
       
     with open( f"{ref_file_characterisation_fname}", "rb") as file:
@@ -185,7 +185,7 @@ def main(args):
   display_separator()
 
   if (DEBUG>0):
-    print ( f"NORMALISE_STAIN:        INFO: will look recursively under:                       {MAGENTA}{data_source}{RESET} for slide files (files ending with either 'svs' or 'SVS')\n",  flush=True ) 
+    print ( f"NORMALISE_STAIN:        INFO: will look recursively under:                       {CYAN}{data_source}{RESET} for slide files (files ending with either 'svs' or 'SVS')\n",  flush=True ) 
 
   slide_file_found  = 0
   is_reference_file = 1                                                                                    # 0=reference file; 1=any other svs file                    
