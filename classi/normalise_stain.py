@@ -155,7 +155,7 @@ def main(args):
       print ( f"{CAMEL}NORMALISE_STAIN:        INFO: reference file has now been characterised                       {MAGENTA}{reference_file}{RESET}"  ) 
   
     if DEBUG>0:
-      print ( f"{CAMEL}NORMALISE_STAIN:        INFO:  about to save image characterisation details for this svs file for possible future use, in file: ('{CYAN}{ref_file_characterisation_fname}{RESET}{PINK}'){RESET}" )    
+      print ( f"{CAMEL}NORMALISE_STAIN:        INFO:  about to save image characterisation details for possible future use, to file: {CYAN}{ref_file_characterisation_fname}{RESET}" )    
       print ( f"{CAMEL}NORMALISE_STAIN:        INFO:      target_i0            = {MIKADO}{target_i0}{RESET}"            ) 
       print ( f"{CAMEL}NORMALISE_STAIN:        INFO:      Htarget_Rmax         = {MIKADO}{Htarget_Rmax}{RESET}"         ) 
       print ( f"{CAMEL}NORMALISE_STAIN:        INFO:      normalisation_factor = {MIKADO}{normalisation_factor}{RESET}" ) 
@@ -204,7 +204,7 @@ def main(args):
           if (DEBUG>0):
             print ( f"{BOLD}{ORANGE}NORMALISE_STAIN:        INFO: a file with extension {BOLD}{CYAN}.spcn{RESET}{BOLD}{ORANGE} exists in this folder, so will skip and move to the next folder{RESET}",  flush=True )
           already_processed_this_slide=True 
-
+          display_separator()
 
       for f in sorted(files):
 
