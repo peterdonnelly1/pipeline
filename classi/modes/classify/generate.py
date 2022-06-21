@@ -1398,8 +1398,8 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
   img_labels_new  = np.zeros( ( tiles_required,                          ), dtype=np.int_    )              # img_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
 
   if DEBUG>0:
-    print( f"{CLEAR_LINE}GENERATE:       INFO:     n_tiles_base                   = {PINK}{n_tiles_base.shape}{RESET}",           flush=True       ) 
-    print( f"{CLEAR_LINE}GENERATE:       INFO:     tiles_required                 = {PINK}{tiles_required.shape}{RESET}",         flush=True       ) 
+    print( f"{CLEAR_LINE}GENERATE:       INFO:     n_tiles_base                   = {PINK}{n_tiles_base}{RESET}",           flush=True       ) 
+    print( f"{CLEAR_LINE}GENERATE:       INFO:     tiles_required                 = {PINK}{tiles_required}{RESET}",         flush=True       ) 
     print( f"{CLEAR_LINE}GENERATE:       INFO:     images_new.shape               = {PINK}{images_new.shape}{RESET}",             flush=True       ) 
     print( f"{CLEAR_LINE}GENERATE:       INFO:     img_labels_new.shape           = {PINK}{img_labels_new.shape}{RESET}",         flush=True       ) 
     print( f"{CLEAR_LINE}GENERATE:       INFO:     fnames_new.shape               = {PINK}{fnames_new.shape}{RESET}",             flush=True       )
