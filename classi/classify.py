@@ -3482,7 +3482,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
             
             if args.scattergram=='True':
               if DEBUG>0:
-                  print ( f"CLASSI:         INFO:      test:         global_batch_count {DIM_WHITE}(super-patch number){RESET} = {global_batch_count+1:5d}  {DIM_WHITE}({((global_batch_count+1)/(args.supergrid_size**2)):04.2f}){RESET}" )
+                  print ( f"CLASSI:         INFO:      test:           global_batch_count {DIM_WHITE}(super-patch number){RESET} = {global_batch_count+1:5d}  {DIM_WHITE}({((global_batch_count+1)/(args.supergrid_size**2)):04.2f}){RESET}" )
                         
             if global_batch_count%(args.supergrid_size**2)==0:                                                                                 # establish grid arrays on the FIRST batch of each grid
               grid_images                = batch_images.cpu().numpy()
@@ -3539,9 +3539,9 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
                   print ( f"CLASSI:         INFO:      test:             (image) index                                                  = {ASPARAGUS}{index}{RESET}"                                 )
                   print ( f"CLASSI:         INFO:      test:             supergrid_size                                                 = {ASPARAGUS}{args.supergrid_size}{RESET} hence image dimensions (tiles*tiles*batch_size = {args.supergrid_size}*{args.supergrid_size}*{batch_size}={image_tile_width}) will be {BLEU}{image_tile_width}x{image_tile_width}{RESET}{CLEAR_LINE}"  )
                   print ( f"CLASSI:         INFO:      test:             n_samples                                                      = {ASPARAGUS}{args.n_samples[0]}{RESET}" )
+                if DEBUG>10:
                   print ( f"CLASSI:         INFO:      test:             len(patches_true_classes)                                      = {ASPARAGUS}{len(patches_true_classes)}{RESET}" )
                   print ( f"CLASSI:         INFO:      test:             patches_true_classes                                           = {ASPARAGUS}{patches_true_classes}{RESET}" )
-                if DEBUG>10:
                   print ( f"CLASSI:         INFO:      test:             batch_fnames_npy                                               = {ASPARAGUS}{batch_fnames_npy}{RESET}" )
                   print ( f"CLASSI:         INFO:      test:             fq_link                                                        = {ASPARAGUS}{fq_link}{RESET}" )
 
