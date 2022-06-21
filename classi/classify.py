@@ -3517,8 +3517,8 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
 
               if DEBUG>0:
                 print ( f"CLASSI:         INFO:      test:                                                   i                        = {MIKADO}{i}{RESET}"                                                   )
-                print ( f"CLASSI:         INFO:      test:                                      supergrid_size                        = {MIKADO}{args.supergrid_size}{RESET} hence image dimensions (tiles*tiles*batch_size = {args.supergrid_size}*{args.supergrid_size}*{batch_size}={image_tile_width}) will be {BLEU}{image_tile_width}x{image_tile_width}{RESET}{CLEAR_LINE}"  )
               if DEBUG>90:
+                print ( f"CLASSI:         INFO:      test:             supergrid_size                                                 = {MIKADO}{args.supergrid_size}{RESET} hence image dimensions (tiles*tiles*batch_size = {args.supergrid_size}*{args.supergrid_size}*{batch_size}={image_tile_width}) will be {BLEU}{image_tile_width}x{image_tile_width}{RESET}{CLEAR_LINE}"  )
                 print ( f"CLASSI:         INFO:      test:             grid_labels.shape                                              = {MIKADO}{grid_labels.shape}{RESET}"                                   )
                 print ( f"CLASSI:         INFO:      test:             grid_preds.shape                                               = {MIKADO}{grid_preds.shape}{RESET}"                                    )
                 print ( f"CLASSI:         INFO:      test:             grid_p_highest.shape                                           = {MIKADO}{grid_p_highest.shape}{RESET}"                                )            
