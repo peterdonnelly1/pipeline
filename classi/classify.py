@@ -3553,11 +3553,11 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
                 aggregate_tile_probabilities_matrix[index] = grid_tile_probabs_totals_by_class
                 aggregate_tile_level_winners_matrix[index] = grid_tile_winners_totals_by_class + random.uniform( 0.001, 0.01)                  # necessary to make all the tile totals unique when we go looking for them later. ugly but it works
 
-                if DEBUG>1:
+                if DEBUG>0:
                   np.set_printoptions(formatter={'float': lambda x:   "{:>6.2f}".format(x)})
                   print ( f"CLASSI:         INFO:      test:             aggregate_tile_probabilities_matrix[{ASPARAGUS}{index}{RESET}]                         = {BOLD}{ASPARAGUS}{aggregate_tile_probabilities_matrix[index]}{RESET}", flush=True  )
                   print ( f"CLASSI:         INFO:      test:             aggregate_tile_level_winners_matrix[{ASPARAGUS}{index}{RESET}]                         = {BOLD}{ASPARAGUS}{aggregate_tile_level_winners_matrix[index]}{RESET}",  flush=True  )
-                if DEBUG>0:
+                if DEBUG>2:
                   np.set_printoptions(formatter={'float': lambda x:   "{:>6.2f}".format(x)})
                   print ( f"CLASSI:         INFO:      test:             grid_p_full_softmax_matrix{ASPARAGUS}{RESET}                                     = \n{BOLD}{ASPARAGUS}{grid_p_full_softmax_matrix}{RESET}", flush=True  )
                   print ( f"CLASSI:         INFO:      test:             aggregate_tile_probabilities_matrix{ASPARAGUS}{RESET}                            = \n{BOLD}{ASPARAGUS}{aggregate_tile_probabilities_matrix}{RESET}", flush=True  )
