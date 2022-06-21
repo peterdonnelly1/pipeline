@@ -3481,7 +3481,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
           if ( args.input_mode=='image' ) & ( args.just_test=='True' ):
             
             if args.scattergram=='True':
-              if DEBUG>10:
+              if DEBUG>0:
                   print ( f"CLASSI:         INFO:      test:         global_batch_count {DIM_WHITE}(super-patch number){RESET} = {global_batch_count+1:5d}  {DIM_WHITE}({((global_batch_count+1)/(args.supergrid_size**2)):04.2f}){RESET}" )
                         
             if global_batch_count%(args.supergrid_size**2)==0:                                                                                 # establish grid arrays on the FIRST batch of each grid
@@ -3495,7 +3495,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
               image_tile_width           = args.supergrid_size**2*batch_size
 
               if DEBUG>0:
-                print ( f"CLASSI:         INFO:      test:             i                                                              = {BLEU}{i}{RESET}{CLEAR_LINE}"                                    )
+                # ~ print ( f"CLASSI:         INFO:      test:             i                                                              = {BLEU}{i}{RESET}{CLEAR_LINE}"                                    )
                 print ( f"CLASSI:         INFO:      test:             supergrid_size                                                 = {BLEU}{args.supergrid_size}{RESET} hence image dimensions (tiles*tiles*batch_size = {args.supergrid_size}*{args.supergrid_size}*{batch_size}={image_tile_width}) will be {BLEU}{image_tile_width}x{image_tile_width}{RESET}{CLEAR_LINE}"  )
               if DEBUG>90:
                 print ( f"CLASSI:         INFO:      test:             grid_labels.shape                                              = {BLEU}{grid_labels.shape}{RESET}{CLEAR_LINE}"                    )
@@ -3516,7 +3516,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
 
 
               if DEBUG>0:
-                print ( f"CLASSI:         INFO:      test:             i                                                              = {MIKADO}{i}{RESET}"                                                   )
+                # ~ print ( f"CLASSI:         INFO:      test:             i                                                              = {MIKADO}{i}{RESET}"                                                   )
                 print ( f"CLASSI:         INFO:      test:             supergrid_size                                                 = {MIKADO}{args.supergrid_size}{RESET} hence image dimensions (tiles*tiles*batch_size = {args.supergrid_size}*{args.supergrid_size}*{batch_size}={image_tile_width}) will be {BLEU}{image_tile_width}x{image_tile_width}{RESET}{CLEAR_LINE}"  )
               if DEBUG>90:
                 print ( f"CLASSI:         INFO:      test:             grid_labels.shape                                              = {MIKADO}{grid_labels.shape}{RESET}"                                   )
