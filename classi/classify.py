@@ -3516,8 +3516,8 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
 
 
               if DEBUG>0:
-                print ( f"CLASSI:         INFO:      test:             i                                                              = {MIKADO}{i}{RESET}"                                                   )
-                print ( f"CLASSI:         INFO:      test:             supergrid_size                                                 = {MIKADO}{args.supergrid_size}{RESET} hence image dimensions (tiles*tiles*batch_size = {args.supergrid_size}*{args.supergrid_size}*{batch_size}={image_tile_width}) will be {BLEU}{image_tile_width}x{image_tile_width}{RESET}{CLEAR_LINE}"  )
+                print ( f"CLASSI:         INFO:      test:                                                   i                        = {MIKADO}{i}{RESET}"                                                   )
+                print ( f"CLASSI:         INFO:      test:                                      supergrid_size                        = {MIKADO}{args.supergrid_size}{RESET} hence image dimensions (tiles*tiles*batch_size = {args.supergrid_size}*{args.supergrid_size}*{batch_size}={image_tile_width}) will be {BLEU}{image_tile_width}x{image_tile_width}{RESET}{CLEAR_LINE}"  )
               if DEBUG>90:
                 print ( f"CLASSI:         INFO:      test:             grid_labels.shape                                              = {MIKADO}{grid_labels.shape}{RESET}"                                   )
                 print ( f"CLASSI:         INFO:      test:             grid_preds.shape                                               = {MIKADO}{grid_preds.shape}{RESET}"                                    )
@@ -3535,15 +3535,15 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
                 fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
 
                 if DEBUG>0:
-                  print ( f"CLASSI:         INFO:      test:             i                                                              = {ASPARAGUS}{i} (last batch for this epoch and therefore for the batches that make up this super-image{RESET})"                                                   )
-                  print ( f"CLASSI:         INFO:      test:             (image) index                                                  = {ASPARAGUS}{index}{RESET}"                                 )
-                  print ( f"CLASSI:         INFO:      test:             supergrid_size                                                 = {ASPARAGUS}{args.supergrid_size}{RESET} hence image dimensions (tiles*tiles*batch_size = {args.supergrid_size}*{args.supergrid_size}*{batch_size}={image_tile_width}) will be {BLEU}{image_tile_width}x{image_tile_width}{RESET}{CLEAR_LINE}"  )
-                  print ( f"CLASSI:         INFO:      test:             n_samples                                                      = {ASPARAGUS}{args.n_samples[0]}{RESET}" )
+                  print ( f"{ASPARAGUS}CLASSI:         INFO:      test:             i                                                              = {ASPARAGUS}{i} (last batch for this epoch and therefore for the batches that make up this super-image{RESET})"                                                   )
+                  print ( f"{ASPARAGUS}CLASSI:         INFO:      test:             (image) index                                                  = {ASPARAGUS}{index}{RESET}"                                 )
+                  print ( f"{ASPARAGUS}CLASSI:         INFO:      test:             supergrid_size                                                 = {ASPARAGUS}{args.supergrid_size}{RESET} hence image dimensions (tiles*tiles*batch_size = {args.supergrid_size}*{args.supergrid_size}*{batch_size}={image_tile_width}) will be {BLEU}{image_tile_width}x{image_tile_width}{RESET}{CLEAR_LINE}"  )
+                  print ( f"{ASPARAGUS}CLASSI:         INFO:      test:             n_samples                                                      = {ASPARAGUS}{args.n_samples[0]}{RESET}" )
                 if DEBUG>10:
-                  print ( f"CLASSI:         INFO:      test:             len(patches_true_classes)                                      = {ASPARAGUS}{len(patches_true_classes)}{RESET}" )
-                  print ( f"CLASSI:         INFO:      test:             patches_true_classes                                           = {ASPARAGUS}{patches_true_classes}{RESET}" )
-                  print ( f"CLASSI:         INFO:      test:             batch_fnames_npy                                               = {ASPARAGUS}{batch_fnames_npy}{RESET}" )
-                  print ( f"CLASSI:         INFO:      test:             fq_link                                                        = {ASPARAGUS}{fq_link}{RESET}" )
+                  print ( f"{ASPARAGUS}CLASSI:         INFO:      test:             len(patches_true_classes)                                      = {ASPARAGUS}{len(patches_true_classes)}{RESET}" )
+                  print ( f"{ASPARAGUS}CLASSI:         INFO:      test:             patches_true_classes                                           = {ASPARAGUS}{patches_true_classes}{RESET}" )
+                  print ( f"{ASPARAGUS}CLASSI:         INFO:      test:             batch_fnames_npy                                               = {ASPARAGUS}{batch_fnames_npy}{RESET}" )
+                  print ( f"{ASPARAGUS}CLASSI:         INFO:      test:             fq_link                                                        = {ASPARAGUS}{fq_link}{RESET}" )
 
                 patches_true_classes[index]                = image_labels.cpu().detach().numpy()[0]                                            # all tiles in a patch belong to the same case, so we can chose any of them - we choose the zero'th
                 patches_case_id     [index]                = batch_fnames_npy[0]                                                               # all tiles in a patch belong to the same case, so we can chose any of them - we choose the zero'th
