@@ -1387,13 +1387,19 @@ def generate_rna_dataset ( args, class_names, target, cases_required, highest_cl
 def generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles_base, tile_size, class_counts, top_up_factors  ):
 
 
-  tiles_required  = 2*cases_required*n_tiles_base
+  if n_tiles_base<=100:
+    tiles_required  = 2*cases_required*n_tiles_base
+  else:
+    tiles_required  = 3*cases_required*n_tiles_base
+    
   
   images_new      = np.ones ( ( tiles_required,  3, tile_size, tile_size ), dtype=np.uint8   )              
   fnames_new      = np.zeros( ( tiles_required                           ), dtype=np.int64   )              # np.int64 is equiv of torch.long
   img_labels_new  = np.zeros( ( tiles_required,                          ), dtype=np.int_    )              # img_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
 
   if DEBUG>0:
+    print( f"{CLEAR_LINE}GENERATE:       INFO:     n_tiles_base                   = {PINK}{n_tiles_base.shape}{RESET}",           flush=True       ) 
+    print( f"{CLEAR_LINE}GENERATE:       INFO:     tiles_required                 = {PINK}{tiles_required.shape}{RESET}",         flush=True       ) 
     print( f"{CLEAR_LINE}GENERATE:       INFO:     images_new.shape               = {PINK}{images_new.shape}{RESET}",             flush=True       ) 
     print( f"{CLEAR_LINE}GENERATE:       INFO:     img_labels_new.shape           = {PINK}{img_labels_new.shape}{RESET}",         flush=True       ) 
     print( f"{CLEAR_LINE}GENERATE:       INFO:     fnames_new.shape               = {PINK}{fnames_new.shape}{RESET}",             flush=True       )

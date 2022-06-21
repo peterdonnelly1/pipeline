@@ -113,7 +113,7 @@ SKIP_TILING="False"                                                             
 SKIP_TRAINING="False"
 SUPERGRID_SIZE="4"
 TILES_PER_IMAGE="10"
-TILE_SIZE="36"
+TILE_SIZE="64"
 USE_AUTOENCODER_OUTPUT="False"
 
 HIDDEN_LAYER_ENCODER_TOPOLOGY="40 20"
