@@ -3481,7 +3481,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
           if ( args.input_mode=='image' ) & ( args.just_test=='True' ):
             
             if args.scattergram=='True':
-              if DEBUG>0:
+              if DEBUG>10:
                   print ( f"CLASSI:         INFO:      test:         global_batch_count {DIM_WHITE}(super-patch number){RESET} = {global_batch_count+1:5d}  {DIM_WHITE}({((global_batch_count+1)/(args.supergrid_size**2)):04.2f}){RESET}" )
                         
             if global_batch_count%(args.supergrid_size**2)==0:                                                                                 # establish grid arrays on the FIRST batch of each grid
