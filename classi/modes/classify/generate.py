@@ -1605,7 +1605,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
     
           the_class=img_labels_new[global_tiles_processed]
           if the_class>3000:
-              print ( f"{RED}GENERATE:       FATAL: Ludicrously large class value detected (class={MIKADO}{the_class}{RESET}{RED}) for tile '{MAGENTA}{image_file}{RESET}" )
+              print ( f"{RED}GENERATE:       FATAL: ludicrously large class value detected (class={MIKADO}{the_class}{RESET}{RED}) for tile '{MAGENTA}{image_file}{RESET}" )
               print ( f"{RED}GENERATE:       FATAL: hanting now [1718]{RESET}" )
               sys.exit(0)
               
