@@ -42,7 +42,7 @@ def main(args):
  
   all_classes=[]
 
-  if (DEBUG>0):    
+  if DEBUG>0:    
     print ( f"PROCESS_CLASSES:        INFO: about to open:                           {MAGENTA}{mapping_file}{RESET}")
 
   try:
@@ -68,7 +68,7 @@ def main(args):
 
     cases_reviewed_count += 1
 
-    if (DEBUG>0):    
+    if (DEBUG>2):    
       print ( f"PROCESS_CLASSES:        INFO: row[case_column] = {BLEU}{row[case_column]}{RESET}, row[class_column] = {MIKADO}{row[class_column]}{RESET}", flush=True )
 
     case        =   row[case_column ]

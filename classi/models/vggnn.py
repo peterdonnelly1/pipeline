@@ -140,7 +140,7 @@ class VGGNN( nn.Module ):
           print ( f"VGGNN:          INFO:     forward(): counter                                      = {MIKADO}{counter}{RESET}{CLEAR_LINE}"                )
 
 
-        if DEBUG>0:
+        if DEBUG>9:
           print ( f"VGGNN:          INFO:     forward():                                  output.size = {BLEU}{output.size()}{RESET}{CLEAR_LINE}"            )
 
         return output, embedding

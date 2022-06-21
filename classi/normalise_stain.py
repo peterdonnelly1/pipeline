@@ -210,7 +210,7 @@ def main(args):
           if (DEBUG>0):
             print ( f"{ORANGE}NORMALISE_STAIN:        INFO: in dir_path {BOLD}{CYAN}{dir_path}{RESET}",  flush=True )
             print ( f"{ORANGE}NORMALISE_STAIN:        INFO: found file  {BOLD}{CYAN}{current_file}{RESET}",  flush=True )
-            print ( f"{BOLD}{ORANGE}NORMALISE_STAIN:        INFO: a file with extension {BOLD}{CYAN}.spcn{RESET}{BOLD}{ORANGE} already exists, so will skip and move to the next folder{RESET}",  flush=True )
+            print ( f"{BOLD}{ORANGE}NORMALISE_STAIN:        INFO: see above. A file with extension {BOLD}{CYAN}.spcn{RESET}{BOLD}{ORANGE} already exists, so will skip and move to the next folder{RESET}",  flush=True )
           already_processed_this_slide=True 
           display_separator()
 

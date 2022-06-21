@@ -3028,7 +3028,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   
   
   
-    # (F)  MAYBE PROCESS AND GENERATE AND SAVE AND MAYBE DISPLAY JOB LEVEL CONFUSION MATRIX AND BOX PLOTS
+    # (F)  MAYBE PROCESS AND GENERATE AND SAVE (AND MAYBE DISPLAY) JOB LEVEL CONFUSION MATRIX AND BOX PLOTS
     
     if (args.just_test!='True') & (total_runs_in_job>1) & (run==total_runs_in_job):
       

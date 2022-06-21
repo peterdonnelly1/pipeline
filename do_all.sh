@@ -57,7 +57,7 @@ BOX_PLOT="True"                                                                 
 BOX_PLOT_SHOW="False"                                                                                      # If true, present the graphic using pyplot
 MAX_CONSECUTIVE_LOSSES=5                                                                                   # training will stop after this many consecutive losses, regardless of nthe value of N_EPOCHS
 ZOOM_OUT_MAGS="1"                                                                                          # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_PROB
-ZOOM_OUT_PROB="1.0"                                                                                          # image only. Chosen for magnification according to these probabilities, which must add up to 1
+ZOOM_OUT_PROB="1.0"                                                                                        # image only. Chosen for magnification according to these probabilities, which must add up to 1
 
 COLOUR_MAP="tab20"                                                                                         # see 'https://matplotlib.org/3.3.3/tutorials/colors/colormaps.html' for allowed COLOUR_MAPs (Pastel1', 'Pastel2', 'Accent', 'Dark2' etc.)
 #~ COLOUR_MAP="tab40"                                                                                      # see 'https://matplotlib.org/3.3.3/tutorials/colors/colormaps.html' for allowed COLOUR_MAPs (Pastel1', 'Pastel2', 'Accent', 'Dark2' etc.)
