@@ -3541,6 +3541,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
                   print ( f"CLASSI:         INFO:      test:             n_samples                                                      = {ASPARAGUS}{args.n_samples[0]}{RESET}" )
                   print ( f"CLASSI:         INFO:      test:             len(patches_true_classes)                                      = {ASPARAGUS}{len(patches_true_classes)}{RESET}" )
                   print ( f"CLASSI:         INFO:      test:             patches_true_classes                                           = {ASPARAGUS}{patches_true_classes}{RESET}" )
+                if DEBUG>10:
                   print ( f"CLASSI:         INFO:      test:             batch_fnames_npy                                               = {ASPARAGUS}{batch_fnames_npy}{RESET}" )
                   print ( f"CLASSI:         INFO:      test:             fq_link                                                        = {ASPARAGUS}{fq_link}{RESET}" )
 
