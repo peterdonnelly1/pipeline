@@ -490,25 +490,30 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
               tile = tile.resize((x_resize, y_resize), Image.ANTIALIAS)                                    # resize the tile; use anti-aliasing option
 
 
-            # decide by means of a heuristic whether the tile contains is background or else contains too much background
-            IsBackground   = check_background( args, tile )
-            if IsBackground:
-              background_image_count+=1
-            
-            # decide by means of a heuristic whether the tile is of low contrast
-            IsLowContrast = check_contrast   ( args, tile )
-            if IsLowContrast:
-              low_contrast_tile_count       +=1
+            IsBackground  = False
+            IsLowContrast = False
+            IsLowContrast = False
 
-            # check the number of unique values in the image, tile we will use as a proxy to discover degenerate (images)
-            IsDegenerate  = check_degeneracy ( args, tile )
-            if IsDegenerate:
-              degenerate_image_count+=1
+            if( ( just_test!='True' ) | ( multimode=='True') ):                   # If 'just_test' = True, all tiles must be accepted
+  
+              # decide by means of a heuristic whether the tile contains is background or else contains too much background
+              IsBackground   = check_background( args, tile )
+              if IsBackground:
+                background_image_count+=1
+              
+              # decide by means of a heuristic whether the tile is of low contrast
+              IsLowContrast = check_contrast   ( args, tile )
+              if IsLowContrast:
+                low_contrast_tile_count       +=1
+  
+              # check the number of unique values in the image, tile we will use as a proxy to discover degenerate (images)
+              IsDegenerate  = check_degeneracy ( args, tile )
+              if IsDegenerate:
+                degenerate_image_count+=1
 
             print ( f"\r\033[{start_row-17};0f{CLEAR_LINE}",          end="" )
 
-            # ~ if ( IsBackground | IsDegenerate | IsLowContrast ):
-            if ( IsBackground | IsDegenerate | IsLowContrast ) & ( ( just_test!='True' ) | ( multimode=='True') ):                   # If 'just_test' = True, all tiles must be accepted
+            if ( IsBackground | IsDegenerate | IsLowContrast )
               if (DEBUG>0):
                 print ( f"\r\033[{start_row-18};0f{CLEAR_LINE}{RED}TILER:                          INFO:   skipping this tile candidate                                                                                              ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||{RESET}",     end="" )
               pass

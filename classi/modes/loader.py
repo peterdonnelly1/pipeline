@@ -412,7 +412,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
         print( f"{CLEAR_LINE}LOADER:         INFO: (just_test)                                                                                      mini-batch size: {MIKADO}{batch_size:>5d}{RESET}"                                        , flush=True )
         print( f"{CLEAR_LINE}LOADER:         INFO: (just_test)                                                                                   for {MIKADO}{pct_test*100:>3.0f}%{RESET}  examples: {MIKADO}{len(test_inds):>5d}{RESET}"    , flush=True )
         if args.input_mode == 'image':
-          print( f"{CLEAR_LINE}LOADER:         INFO: (just_test)                                                                                      tiles per batch: {MIKADO}{int(len(test_inds)/n_tiles[0]):>5d}{RESET}"                  , flush=True )
+          print( f"{CLEAR_LINE}LOADER:         INFO: (just_test)                                                                                        tiles per batch: {MIKADO}{int(len(test_inds)/n_tiles[0]):>5d}{RESET}"                  , flush=True )
 
       number_of_test_batches  = len(test_inds)//batch_size
 

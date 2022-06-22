@@ -3557,10 +3557,10 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
                   np.set_printoptions(formatter={'float': lambda x:   "{:>6.2f}".format(x)})
                   print ( f"{ASPARAGUS}CLASSI:         INFO:      test:             aggregate_tile_probabilities_matrix[{ASPARAGUS}{index}{RESET}]                         = {BOLD}{ASPARAGUS}{aggregate_tile_probabilities_matrix[index]}{RESET}", flush=True  )
                   print ( f"{ASPARAGUS}CLASSI:         INFO:      test:             aggregate_tile_level_winners_matrix[{ASPARAGUS}{index}{RESET}]                         = {BOLD}{ASPARAGUS}{aggregate_tile_level_winners_matrix[index]}{RESET}",  flush=True  )
-                if DEBUG>0:
+                if DEBUG>2:
                   np.set_printoptions(formatter={'float': lambda x:   "{:>6.2f}".format(x)})
                   print ( f"{SAVE_CURSOR}\033[0;200Hgrid_p_full_softmax_matrix{ASPARAGUS}{RESET}{RESTORE_CURSOR}",   flush=True  )
-                  print ( f"{SAVE_CURSOR}\033[1;200H{ASPARAGUS}{grid_p_full_softmax_matrix.tolist()}{RESET}{RESTORE_CURSOR}", flush=True  )
+                  print ( f"{SAVE_CURSOR}\033[1;200H{ASPARAGUS}{grid_p_full_softmax_matrix}{RESET}{RESTORE_CURSOR}", flush=True  )
                 if DEBUG>2:
                   np.set_printoptions(formatter={'float': lambda x:   "{:>6.2f}".format(x)})
                   print ( f"CLASSI:         INFO:      test:             aggregate_tile_probabilities_matrix{ASPARAGUS}{RESET}                            = \n{BOLD}{ASPARAGUS}{aggregate_tile_probabilities_matrix}{RESET}", flush=True  )
