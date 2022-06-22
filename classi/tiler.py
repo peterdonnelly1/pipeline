@@ -492,10 +492,10 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
 
             IsBackground  = False
             IsLowContrast = False
-            IsLowContrast = False
+            IsDegenerate  = False
 
-            if( ( just_test!='True' ) | ( multimode=='True') ):                   # If 'just_test' = True, all tiles must be accepted
-  
+            if( args.just_test!='True' ):                                                                  # If 'just_test' = True, all tiles must be accepted
+
               # decide by means of a heuristic whether the tile contains is background or else contains too much background
               IsBackground   = check_background( args, tile )
               if IsBackground:
@@ -513,7 +513,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
 
             print ( f"\r\033[{start_row-17};0f{CLEAR_LINE}",          end="" )
 
-            if ( IsBackground | IsDegenerate | IsLowContrast )
+            if ( IsBackground | IsDegenerate | IsLowContrast ):
               if (DEBUG>0):
                 print ( f"\r\033[{start_row-18};0f{CLEAR_LINE}{RED}TILER:                          INFO:   skipping this tile candidate                                                                                              ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||{RESET}",     end="" )
               pass
@@ -784,8 +784,8 @@ def highest_uniques(args, oslide, level, slide_width, slide_height, tile_size, s
     
     uniques = len(np.unique(tile ))
 
-    if (DEBUG>99):
-      print ( f"TILER:            INFO: uniques(): (n={n:3d}) a tile with \r\033[68C{GREEN}{uniques:4d}{RESET} uniques at x=\r\033[162C{CYAN}{x:7d}{RESET}, y=\r\033[172C{CYAN}{y:7d}{RESET}" )
+    if (DEBUG>0):
+      print ( f"{SAVE_CURSOR}\033[11;0H{CLEAR_LINE}\033[32Csearching image for coordinates of a good quality patch :  uniques(): (n={n:3d}) a tile with {BRIGHT_GREEN}{uniques:4d}{RESET} uniques at x={CYAN}{x:7d}{RESET}, y={CYAN}{y:7d}{RESET}     <<<< checking {CYAN}POINTS_TO_SAMPLE{RESET}={MIKADO}{args.points_to_sample}{RESET} potential patches and selecting the best of these" )
 
 
     if ( uniques>high_uniques ):                                                                                    # then check the tiles at the other three corners of the putative sqaure
