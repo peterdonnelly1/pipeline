@@ -1387,22 +1387,24 @@ def generate_rna_dataset ( args, class_names, target, cases_required, highest_cl
 def generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles_base, tile_size, class_counts, top_up_factors  ):
 
 
-  if n_tiles_base<=100:
-    tiles_required  = 2*cases_required*n_tiles_base
+  if n_tiles_base<=33:
+    uplift_factor = 2
   else:
-    tiles_required  = 3*cases_required*n_tiles_base
+    uplift_factor = 1.3
+
+  tiles_allowed_for  = uplift_factor*cases_required*n_tiles_base
     
   
-  images_new      = np.ones ( ( tiles_required,  3, tile_size, tile_size ), dtype=np.uint8   )              
-  fnames_new      = np.zeros( ( tiles_required                           ), dtype=np.int64   )              # np.int64 is equiv of torch.long
-  img_labels_new  = np.zeros( ( tiles_required,                          ), dtype=np.int_    )              # img_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
+  images_new      = np.ones ( ( tiles_allowed_for,  3, tile_size, tile_size ), dtype=np.uint8   )              
+  fnames_new      = np.zeros( ( tiles_allowed_for                           ), dtype=np.int64   )              # np.int64 is equiv of torch.long
+  img_labels_new  = np.zeros( ( tiles_allowed_for,                          ), dtype=np.int_    )              # img_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
 
   if DEBUG>0:
-    print( f"{CLEAR_LINE}GENERATE:       INFO:     n_tiles_base                   = {PINK}{n_tiles_base}{RESET}",           flush=True       ) 
-    print( f"{CLEAR_LINE}GENERATE:       INFO:     tiles_required                 = {PINK}{tiles_required}{RESET}",         flush=True       ) 
-    print( f"{CLEAR_LINE}GENERATE:       INFO:     images_new.shape               = {PINK}{images_new.shape}{RESET}",             flush=True       ) 
-    print( f"{CLEAR_LINE}GENERATE:       INFO:     img_labels_new.shape           = {PINK}{img_labels_new.shape}{RESET}",         flush=True       ) 
-    print( f"{CLEAR_LINE}GENERATE:       INFO:     fnames_new.shape               = {PINK}{fnames_new.shape}{RESET}",             flush=True       )
+    print( f"{CLEAR_LINE}GENERATE:       INFO:     n_tiles_base                                                  = {PINK}{n_tiles_base}{RESET}",           flush=True       ) 
+    print( f"{CLEAR_LINE}GENERATE:       INFO:     tiles_allowed_for = uplift_factor*cases_required*n_tiles_base = {PINK}{uplift_factor}*{cases_required}*{n_tiles_base}{RESET}",           flush=True       )     
+    print( f"{CLEAR_LINE}GENERATE:       INFO:     images_new.shape                                              = {PINK}{images_new.shape}{RESET}",             flush=True       ) 
+    print( f"{CLEAR_LINE}GENERATE:       INFO:     img_labels_new.shape                                          = {PINK}{img_labels_new.shape}{RESET}",         flush=True       ) 
+    print( f"{CLEAR_LINE}GENERATE:       INFO:     fnames_new.shape                                              = {PINK}{fnames_new.shape}{RESET}",             flush=True       )
 
 
   global_tiles_processed  = 0
