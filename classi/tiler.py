@@ -507,8 +507,8 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
 
             print ( f"\r\033[{start_row-17};0f{CLEAR_LINE}",          end="" )
 
-            if ( IsBackground | IsDegenerate | IsLowContrast ):
-            # ~ if ( IsBackground | IsDegenerate | IsLowContrast ) & ( ( just_test!='True' ) | ( multimode=='True') ):                   # If 'just_test' = True, all tiles must be accepted
+            # ~ if ( IsBackground | IsDegenerate | IsLowContrast ):
+            if ( IsBackground | IsDegenerate | IsLowContrast ) & ( ( just_test!='True' ) | ( multimode=='True') ):                   # If 'just_test' = True, all tiles must be accepted
               if (DEBUG>0):
                 print ( f"\r\033[{start_row-18};0f{CLEAR_LINE}{RED}TILER:                          INFO:   skipping this tile candidate                                                                                              ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||{RESET}",     end="" )
               pass
