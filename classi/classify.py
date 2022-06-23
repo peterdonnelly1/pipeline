@@ -1175,21 +1175,21 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
               if DEBUG>100:
                 print( f"CLASSI:         INFO:     class_counts   = {MIKADO}{class_counts}{RESET}", flush=True  )
     
-      if DEBUG>0:
+      if DEBUG>2:
         np.set_printoptions(formatter={'int':   lambda x: "{:>6d}".format(x)})
         print( f"\033[0;220f  {CLEAR_LINE}CLASSI:         INFO:     final class_counts           = {AMETHYST}{class_counts}{RESET}",                               flush=True  )
         print( f"\033[1;220f  {CLEAR_LINE}CLASSI:         INFO:     total slides counted         = {AMETHYST}{np.sum(class_counts)}{RESET}",                       flush=True  )
 
       relative_ratios = class_counts/np.max(class_counts)
 
-      if DEBUG>0:
+      if DEBUG>2:
         np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})
         print( f"\033[2;220f  {CLEAR_LINE}CLASSI:         INFO:     relative class ratios        = {AMETHYST}{relative_ratios}{RESET}",                            flush=True  )
 
       top_up_factors        = np.divide(1,relative_ratios)
       estimated_total_tiles = (np.sum(top_up_factors*class_counts*n_tiles)).astype(int)
 
-      if DEBUG>0:
+      if DEBUG>2:
         np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})
         print( f"\033[3;220f  {CLEAR_LINE}CLASSI:         INFO:     top up factors               = {AMETHYST}{top_up_factors}{RESET}",                             flush=True  )
         np.set_printoptions(formatter={'int':   lambda x: "{:>6d}".format(x)})
