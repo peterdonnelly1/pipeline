@@ -25,13 +25,13 @@ np.set_printoptions( linewidth=240 )
 
 from constants  import *
 
-DEBUG   = 2
+DEBUG   = 1
 
 rows=26
 cols=26
 
 
-def generate( args, class_names, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, 
+def generate( args, class_names, n_samples, estimated_total_tiles, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, 
               unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, top_up_factors, tile_size, low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform ):
 
   # DON'T USE args.n_samples or batch_size or args.n_tiles or args.gene_data_norm or args.tile_size or args.highest_class_number or args.low_expression_threshold or args.cutoff_percentile since these are job-level lists. Here we are just using one value of each, passed in as the parameters above
@@ -195,7 +195,7 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
           print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) cases_required -------------------------------------------------------------------- = {MIKADO}{cases_required}{RESET}",         flush=True )
   
         class_counts = np.zeros( highest_class_number+1, dtype=np.int )
-        global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tile_size, class_counts, top_up_factors )
+        global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, estimated_total_tiles, tile_size, class_counts, top_up_factors )
 
         if DEBUG>0:
           print ( f"{DULL_WHITE}GENERATE:       INFO:    global_tiles_processed (this run)-------------------------------------------------- = {MIKADO}{global_tiles_processed}{RESET}{CLEAR_LINE}", flush=True )
@@ -214,7 +214,7 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
           print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) cases_required . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  = {MIKADO}{cases_required}{RESET}",         flush=True )
         
         class_counts = np.zeros( highest_class_number+1, dtype=np.int )        
-        global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tile_size, class_counts, top_up_factors )
+        global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, estimated_total_tiles, tile_size, class_counts, top_up_factors )
 
         if DEBUG>0:
           print ( f"{DULL_WHITE}GENERATE:       INFO:    global_tiles_processed  (this run). . . . . . . . . . . . . . . . . . . . . . . . . = {MIKADO}{global_tiles_processed}{RESET}{CLEAR_LINE}", flush=True )
@@ -260,7 +260,7 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
 
     
           class_counts = np.zeros( highest_class_number+1, dtype=np.int )        
-          global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tile_size, class_counts, top_up_factors )
+          global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, estimated_total_tiles, tile_size, class_counts, top_up_factors )
 
         if DEBUG>0:
           print ( f"{DULL_WHITE}GENERATE:       INFO:    global_tiles_processed  (this run)-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  . = {MIKADO}{global_tiles_processed}{RESET}{CLEAR_LINE}", flush=True )
@@ -284,7 +284,7 @@ def generate( args, class_names, n_samples, batch_size, highest_class_number, mu
           print ( f"{DULL_WHITE}GENERATE:       INFO:    pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}{CLEAR_LINE}",               flush=True )
   
         class_counts = np.zeros( highest_class_number+1, dtype=np.int )        
-        global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tile_size, class_counts, top_up_factors )
+        global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, estimated_total_tiles, tile_size, class_counts, top_up_factors )
 
         if DEBUG>0:
           print ( f"{DULL_WHITE}GENERATE:       INFO:    global_tiles_processed  (this run)................................................. = {MIKADO}{global_tiles_processed}{RESET}{CLEAR_LINE}", flush=True )
@@ -1384,27 +1384,20 @@ def generate_rna_dataset ( args, class_names, target, cases_required, highest_cl
 
   
 #----------------------------------------------------------------------------------------------------------
-def generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles_base, tile_size, class_counts, top_up_factors  ):
-
-
-  if n_tiles_base<=33:
-    uplift_factor = 2
-  else:
-    uplift_factor = 1.3
-
-  tiles_allowed_for  = uplift_factor*cases_required*n_tiles_base
-    
-  
-  images_new      = np.ones ( ( tiles_allowed_for,  3, tile_size, tile_size ), dtype=np.uint8   )              
-  fnames_new      = np.zeros( ( tiles_allowed_for                           ), dtype=np.int64   )              # np.int64 is equiv of torch.long
-  img_labels_new  = np.zeros( ( tiles_allowed_for,                          ), dtype=np.int_    )              # img_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
+def generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles_base, estimated_total_tiles, tile_size, class_counts, top_up_factors  ):
 
   if DEBUG>0:
-    print( f"{CLEAR_LINE}GENERATE:       INFO:     n_tiles_base                                                  = {PINK}{n_tiles_base}{RESET}",           flush=True       ) 
-    print( f"{CLEAR_LINE}GENERATE:       INFO:     tiles_allowed_for = uplift_factor*cases_required*n_tiles_base = {PINK}{uplift_factor}*{cases_required}*{n_tiles_base} = {uplift_factor*cases_required*n_tiles_base}{RESET}",           flush=True       )     
-    print( f"{CLEAR_LINE}GENERATE:       INFO:     images_new.shape                                              = {PINK}{images_new.shape}{RESET}",             flush=True       ) 
-    print( f"{CLEAR_LINE}GENERATE:       INFO:     img_labels_new.shape                                          = {PINK}{img_labels_new.shape}{RESET}",         flush=True       ) 
-    print( f"{CLEAR_LINE}GENERATE:       INFO:     fnames_new.shape                                              = {PINK}{fnames_new.shape}{RESET}",             flush=True       )
+    print( f"{CLEAR_LINE}GENERATE:       INFO:     estimated_total_tiles                                         = {PINK}{estimated_total_tiles}{RESET}",        flush=True       ) 
+
+  
+  images_new      = np.ones ( ( estimated_total_tiles,  3, tile_size, tile_size ), dtype=np.uint8   )              
+  fnames_new      = np.zeros( ( estimated_total_tiles                           ), dtype=np.int64   )              # np.int64 is equiv of torch.long
+  img_labels_new  = np.zeros( ( estimated_total_tiles,                          ), dtype=np.int_    )              # img_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
+
+  if DEBUG>0:
+    print( f"{CLEAR_LINE}GENERATE:       INFO:     making empty images_new.shape                                 = {PINK}{images_new.shape}{RESET}",             flush=True       ) 
+    print( f"{CLEAR_LINE}GENERATE:       INFO:     making empty img_labels_new.shape                             = {PINK}{img_labels_new.shape}{RESET}",         flush=True       ) 
+    print( f"{CLEAR_LINE}GENERATE:       INFO:     making empty fnames_new.shape                                 = {PINK}{fnames_new.shape}{RESET}",             flush=True       )
 
 
   global_tiles_processed  = 0
@@ -1663,7 +1656,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
     print( f"{CLEAR_LINE}{ASPARAGUS}GENERATE:       INFO:   directories_processed = {MIKADO}{directories_processed:<4d}{RESET}",  flush=True        )   
 
   if DEBUG>2:
-    print( f"\n{RESET}GENERATE:       INFO:     images_new.shape               = {MIKADO}{images_new.shape}{RESET}",             flush=True       ) 
+    print( f"\n{RESET}GENERATE:       INFO:     images_new.shape               = {MIKADO}{images_new.shape}{RESET}",    flush=True       ) 
     print( f"GENERATE:       INFO:     fnames_new.shape               = {MIKADO}{fnames_new.shape}{RESET}",             flush=True       )
     print( f"GENERATE:       INFO:     img_labels_new.shape           = {MIKADO}{img_labels_new.shape}{RESET}",         flush=True       )
   if DEBUG>2:
@@ -1671,7 +1664,9 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
 
 
   if DEBUG>0:
-    print( f"{CLEAR_LINE}GENERATE:       INFO:    tiles drawn from each of the {MIKADO}{highest_class_number}{RESET} cancer types = {MIKADO}{class_counts}{RESET}",             flush=True       )
+    print( f"{CLEAR_LINE}GENERATE:       INFO:    tiles drawn from each of the {MIKADO}{highest_class_number}{RESET} cancer types                                     = {MIKADO}{class_counts}{RESET}",             flush=True       )
+    print( f"{CLEAR_LINE}GENERATE:       INFO:    total tiles generated (actual)                                                  = {MIKADO}{np.sum(class_counts)}{RESET}",     flush=True       )
+    print( f"{CLEAR_LINE}GENERATE:       INFO:    for reference, space was allocated for this many tiles                            {MIKADO}{estimated_total_tiles}{RESET}",     flush=True       )
 
 
 

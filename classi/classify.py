@@ -1104,7 +1104,6 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
 
 
-
     # (2) Maybe schedule and run tiler threads
     
     
@@ -1112,7 +1111,9 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     #      The balancing is performed in 'generate()', however the counts must be performed now, before tiling, because the results are used to adjust the number of tiles extracted
     #      Specifically, we count the number of images per subtype for the chosen subset (e.g. UNIMODE_CASE) and from this calculate 'top up factors' which are used in generate() 
     #      to increase the number of tiles extracted for subtypes which have fewer images than the subtype with the most number of cases (images)
-  
+
+    estimated_total_tiles = 0
+    
     if ( input_mode!='rna' ):
 
       if DEBUG>2:
@@ -1176,22 +1177,23 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     
       if DEBUG>2:
         np.set_printoptions(formatter={'int':   lambda x: "{:>6d}".format(x)})
-        print( f"\r\033[{start_row-18};0f{CLEAR_LINE}CLASSI:         INFO:     final class_counts         = {AMETHYST}{class_counts}{RESET}",                               flush=True  )
-        print( f"CLASSI:         INFO:     total slides counted       = {AMETHYST}{np.sum(class_counts)}{RESET}",                       flush=True  )
+        print( f"{CLEAR_LINE}\r\033[{start_row-18};0f{CLEAR_LINE}CLASSI:         INFO:     final class_counts           = {AMETHYST}{class_counts}{RESET}",                               flush=True  )
+        print( f"{CLEAR_LINE}CLASSI:         INFO:     total slides counted         = {AMETHYST}{np.sum(class_counts)}{RESET}",                       flush=True  )
 
       relative_ratios = class_counts/np.max(class_counts)
 
       if DEBUG>2:
         np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})
-        print( f"CLASSI:         INFO:     relative ratios            = {AMETHYST}{relative_ratios}{RESET}",                            flush=True  )
+        print( f"{CLEAR_LINE}CLASSI:         INFO:     relative ratios              = {AMETHYST}{relative_ratios}{RESET}",                            flush=True  )
 
-      top_up_factors  = np.divide(1,relative_ratios)
+      top_up_factors        = np.divide(1,relative_ratios)
+      estimated_total_tiles = (np.sum(top_up_factors*class_counts*n_tiles)).astype(int)
 
       if DEBUG>2:
-        print( f"CLASSI:         INFO:     top up factors             = {AMETHYST}{top_up_factors}{RESET}",                             flush=True  )
+        np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})
+        print( f"{CLEAR_LINE}CLASSI:         INFO:     top up factors               = {AMETHYST}{top_up_factors}{RESET}",                             flush=True  )
         np.set_printoptions(formatter={'int':   lambda x: "{:>6d}".format(x)})
-        print( f"CLASSI:         INFO:     check: revised tiles/slide = {AMETHYST}{(top_up_factors*class_counts).astype(int)}{RESET}",  flush=True  )
-  
+        print( f"{CLEAR_LINE}CLASSI:         INFO:     estimated_total_tiles        = {AMETHYST}{estimated_total_tiles}{RESET}",                      flush=True  )
   
   
     # (2B) Tiling
@@ -1355,7 +1357,10 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         print( f"CLASSI:         INFO: gene_data_norm          = {MAGENTA}{gene_data_norm}{RESET}",   flush=True  )            
 
       highest_class_number = n_classes-1
-      _, _,  _ = generate( args, class_names, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, top_up_factors, tile_size, low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform  ) 
+      _, _,  _ = generate( args, class_names, n_samples, estimated_total_tiles, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, 
+                           unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, top_up_factors, tile_size, 
+                           low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform  
+                         ) 
 
       if DEBUG>8:
         print( f"CLASSI:         INFO: n_samples               = {BLEU}{n_samples}{RESET}"       )
@@ -1379,7 +1384,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       
       highest_class_number = n_classes-1
       
-      n_genes, n_samples, batch_size = generate( args, class_names, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, 
+      n_genes, n_samples, batch_size = generate( args, class_names, n_samples, estimated_total_tiles, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, 
                                                   unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, top_up_factors, tile_size, 
                                                   low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform  
                                                )
