@@ -1664,7 +1664,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
 
 
   if DEBUG>0:
-    print( f"{CLEAR_LINE}GENERATE:       INFO:    tiles drawn from each of the {MIKADO}{highest_class_number}{RESET} cancer types                                     = {MIKADO}{class_counts}{RESET}",             flush=True       )
+    print( f"{CLEAR_LINE}GENERATE:       INFO:    tiles drawn from each of the {MIKADO}{highest_class_number+1}{RESET} cancer types                                     = {MIKADO}{class_counts}{RESET}",             flush=True       )
     print( f"{CLEAR_LINE}GENERATE:       INFO:    total tiles generated (actual)                                                  = {MIKADO}{np.sum(class_counts)}{RESET}",     flush=True       )
     print( f"{CLEAR_LINE}GENERATE:       INFO:    for reference, space was allocated for this many tiles                            {MIKADO}{estimated_total_tiles}{RESET}",     flush=True       )
 
