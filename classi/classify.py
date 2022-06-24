@@ -392,7 +392,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   if highest_class_number > len(subtype_names_as_list)-1:
     print( f"{BOLD}{ORANGE}CLASSI:         WARNG: config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{BOLD}{ORANGE}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{BOLD}{ORANGE}') = \
 {MIKADO}{highest_class_number}{RESET}{BOLD}{ORANGE}, which is greater than the highest class (subtype) in the dataset ({MIKADO}{len(subtype_names_as_list)-1}{RESET}{BOLD}{ORANGE}) (note that class numbers start at zero){RESET}", flush=True)
-    print( f"{BOLD}{ORANGE}CLASSI:         WARNG: therefore this config setting will be ignored. Continuing ...{RESET}", flush=True)
+    print( f"{BOLD}{ORANGE}CLASSI:         WARNG:   therefore this config setting will be ignored. Continuing ...{RESET}", flush=True)
   
   if highest_class_number < 2:
     print( f"{BOLD}{RED}CLASSI:         FATAL: config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{BOLD}{RED}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{BOLD}{RED}') = \
@@ -458,7 +458,7 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
       if just_test != True:
         if svs_file_count<np.max(args.n_samples):
           print( f"{BOLD}{ORANGE}CLASSI:         WARNG: there aren't enough samples. A file count reveals a total of {MIKADO}{svs_file_count}{RESET}{BOLD}{ORANGE} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}{BOLD}{ORANGE}, whereas the largest value in user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{BOLD}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
-          print( f"{BOLD}{ORANGE}CLASSI:         WARNG: changing values of '{CYAN}N_SAMPLES{RESET}{BOLD}{ORANGE} that are greater than {RESET}{MIKADO}{svs_file_count}{RESET}{BOLD}{ORANGE} to exactly {MIKADO}{svs_file_count}{RESET}{BOLD}{ORANGE} and continuing{RESET}" )
+          print( f"{BOLD}{ORANGE}CLASSI:         WARNG:   changing values of '{CYAN}N_SAMPLES{RESET}{BOLD}{ORANGE} that are greater than {RESET}{MIKADO}{svs_file_count}{RESET}{BOLD}{ORANGE} to exactly {MIKADO}{svs_file_count}{RESET}{BOLD}{ORANGE} and continuing{RESET}" )
           args.n_samples = [  el if el<=svs_file_count else svs_file_count for el in args.n_samples   ]
           n_samples = args.n_samples
         else:
@@ -1745,25 +1745,13 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
     last_epoch_loss_increased              = True
 
-    train_total_loss_sum_ave_last          = 99999                       # used to determine whether total loss is increasing or decreasing
-    train_lowest_total_loss_observed       = 99999                       # used to track lowest total loss
-    train_lowest_total_loss_observed_epoch = 0                           # used to track lowest total loss
+    train_total_loss_sum_ave_last                 = 99999                                                  # used to determine whether total loss is increasing or decreasing
+    train_lowest_total_loss_observed              = 99999                                                  # keeps ongiing track of the lowest total training loss ...
+    train_lowest_total_loss_observed_epoch        = 0                                                      # ... and the epoch it occurred at
 
-    train_images_loss_sum_ave_last         = 99999
-    train_lowest_image_loss_observed       = 99999
-    train_lowest_image_loss_observed_epoch = 0
-
-    test_total_loss_sum_ave_last           = 99999                                                         # used to determine whether total loss is increasing or decreasing
-    test_lowest_total_loss_observed        = 99999
-    test_lowest_total_loss_observed_epoch  = 0
-
-    test_image_loss_sum_ave_last           = 99999
-    test_lowest_image_loss_observed        = 99999    
-    test_lowest_image_loss_observed_epoch  = 0     
-
-    test_genes_loss_sum_ave_last           = 99999 
-    test_lowest_genes_loss_observed        = 99999      
-    test_lowest_genes_loss_observed_epoch  = 0 
+    test_total_loss_sum_ave_last                  = 99999
+    test_lowest_total_loss_observed_so_far        = 99999
+    test_lowest_total_loss_observed_so_far_epoch  = 0
 
 
     # (12) Prep for embeddings accumulation (Autoencoder only) 
@@ -1802,7 +1790,8 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         if just_test=='True':                                                                              # skip training in 'test mode'
           pass
         
-        # DO TRAINING
+        # DO TRAINING (AS MANY BATCHES AS ARE NECESSARY TO WORK THROUGH EVERY EXAMPLE)
+        
         else:
     
           train_loss_images_sum_ave, train_loss_genes_sum_ave, train_l1_loss_sum_ave, train_total_loss_sum_ave =\
@@ -1812,10 +1801,6 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
             train_lowest_total_loss_observed       = train_total_loss_sum_ave
             train_lowest_total_loss_observed_epoch = epoch
     
-          if train_loss_images_sum_ave < train_lowest_image_loss_observed:
-            train_lowest_image_loss_observed       = train_loss_images_sum_ave
-            train_lowest_image_loss_observed_epoch = epoch
-
           if ( (train_total_loss_sum_ave < train_total_loss_sum_ave_last) | (epoch==1) ):
             consecutive_training_loss_increases = 0
             last_epoch_loss_increased = False
@@ -1828,7 +1813,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   \r\033[1C{CLEAR_LINE}{DULL_WHITE}\
   \r\033[27Ctrain:\
   \r\033[49Closs_images={train_loss_images_sum_ave:5.2f}\
-  \r\033[120CBATCH AVE OVER EPOCH={PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{train_total_loss_sum_ave:9.4f}{DULL_WHITE}\
+  \r\033[120CBATCH AVE OVER EPOCH (LOSS PER 100 TILES) ={PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{train_total_loss_sum_ave*100/batch_size:9.4f}{DULL_WHITE}\
   \r\033[250Cmin loss: {train_lowest_total_loss_observed:>6.2f} at epoch {train_lowest_total_loss_observed_epoch:<2d}"
   , end=''  )
             elif ( input_mode=='rna' ):
@@ -1865,6 +1850,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         else:  
     
           show_all_test_examples=False
+          
           embeddings_accum, labels_accum, test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min, embedding     =\
                         test ( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loader,  model,  tile_size, loss_function, loss_type, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
                                                                                       test_loss_min, show_all_test_examples, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours)
@@ -1877,7 +1863,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
             print( f"CLASSI:           INFO:   global_number_tested              = {MIKADO}{global_number_tested}{RESET:>}")
             print( f"CLASSI:           INFO:   global_percent_correct            = {MIKADO}{global_correct_prediction_count/global_number_tested*100:<3.0f}%{RESET}")                    
           
-          if ( (test_total_loss_sum_ave <= ( test_total_loss_sum_ave_last )) | (epoch==1) ):
+          if ( (test_total_loss_sum_ave <= ( test_total_loss_sum_ave_last )) | (epoch==1) ):               # if this epoch had a lower average per batch ...
             consecutive_test_loss_increases = 0
             last_epoch_loss_increased = False
           else:
@@ -1889,9 +1875,8 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   \r\033[1C\033[2K{DULL_WHITE}\
   \r\033[27Ctest:\
   \r\033[49Closs_images={CARRIBEAN_GREEN}{test_loss_images_sum_ave:5.2f}{DULL_WHITE}\
-  \r\033[120CBATCH AVE OVER EPOCH={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:9.4f}{DULL_WHITE}\
-  \r\033[250Cmin loss: {test_lowest_total_loss_observed*100/batch_size:6.2f} at {WHITE}epoch {test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE}\
-  \r\033[204Cimage:{CARRIBEAN_GREEN}{test_lowest_image_loss_observed*100/batch_size:>6.2f} at epoch {test_lowest_image_loss_observed_epoch:<2d}{DULL_WHITE}\
+  \r\033[120CBATCH AVE OVER EPOCH (LOSS PER 100 TILES)={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave*100/batch_size:9.4f}{DULL_WHITE}\
+  \r\033[250Cmin loss: {test_lowest_total_loss_observed_so_far*100/batch_size:6.2f} at {WHITE}epoch {test_lowest_total_loss_observed_so_far_epoch:<2d}{DULL_WHITE}\
   \033[5B\
   ", end=''  )
           elif ( input_mode=='rna' ):
@@ -1901,7 +1886,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   \r\033[27Ctest:\
   \r\033[73Closs_rna={BITTER_SWEET}{test_loss_genes_sum_ave:5.2f}{DULL_WHITE}\
   \r\033[120CBATCH AVE OVER EPOCH={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:9.4f}{DULL_WHITE}\
-  \r\033[250Cmin loss: {test_lowest_total_loss_observed*100/batch_size:6.2f} at {WHITE}epoch {test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} \
+  \r\033[250Cmin loss: {test_lowest_total_loss_observed_so_far*100/batch_size:6.2f} at {WHITE}epoch {test_lowest_total_loss_observed_so_far_epoch:<2d}{DULL_WHITE} \
   \033[5B\
   ", end=''  )
   
@@ -1930,9 +1915,9 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   
           test_total_loss_sum_ave_last = test_total_loss_sum_ave
           
-          if test_total_loss_sum_ave < test_lowest_total_loss_observed:
-            test_lowest_total_loss_observed       = test_total_loss_sum_ave
-            test_lowest_total_loss_observed_epoch = epoch
+          if test_total_loss_sum_ave < test_lowest_total_loss_observed_so_far:
+            test_lowest_total_loss_observed_so_far       = test_total_loss_sum_ave
+            test_lowest_total_loss_observed_so_far_epoch = epoch
             if DEBUG>0:
               print ( "\033[5A", end='' )
               print ( f"\r\033[280C\033[0K{BRIGHT_GREEN} < new global low/saving model{RESET}", end='' )
@@ -3892,7 +3877,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
     loss_images_sum_ave = loss_images_sum / (i+1)                                                          # average batch loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
     loss_genes_sum_ave  = loss_genes_sum  / (i+1)                                                          # average genes loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
     l1_loss_sum_ave     = l1_loss_sum     / (i+1)                                                          # average l1    loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
-    total_loss_ave      = total_loss_sum  / (i+1)                                                          # average total loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
+    total_loss_ave      = total_loss_sum  / (i+1)                                                          # average total loss per batch for the entire epoch (divide cumulative loss by number of batches in the epoch)
 
     if total_loss_sum    <  test_loss_min:
        test_loss_min     =  total_loss_sum
