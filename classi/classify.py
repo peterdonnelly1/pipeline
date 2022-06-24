@@ -1813,7 +1813,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   \r\033[1C{CLEAR_LINE}{DULL_WHITE}\
   \r\033[27Ctrain:\
   \r\033[49Closs_images={train_loss_images_sum_ave:5.2f}\
-  \r\033[120CBATCH AVE OVER EPOCH (LOSS PER 100 TILES) = {PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{train_total_loss_sum_ave*100/batch_size:9.4f}{DULL_WHITE}\
+  \r\033[120CBATCH AVE LOSS OVER EPOCH (LOSS PER 100 TILES) = {PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{train_total_loss_sum_ave*100/batch_size:9.4f}{DULL_WHITE}\
   \r\033[250Cmin loss: {train_lowest_total_loss_observed*100/batch_size:>6.2f} at epoch {train_lowest_total_loss_observed_epoch:<2d}"
   , end=''  )
             elif ( input_mode=='rna' ):
@@ -1821,7 +1821,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   \r\033[1C{CLEAR_LINE}{DULL_WHITE}\
   \r\033[27Ctrain:\
   \r\033[73Closs_rna={train_loss_genes_sum_ave:5.2f}\
-  \r\033[120CBATCH AVE OVER EPOCH (LOSS PER 100 EXAMPLES) = {PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{train_total_loss_sum_ave*100/batch_size:9.4f}{DULL_WHITE}\
+  \r\033[120CBATCH AVE LOSS OVER EPOCH (LOSS PER 100 EXAMPLES) = {PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{train_total_loss_sum_ave*100/batch_size:9.4f}{DULL_WHITE}\
   \r\033[250Cmin loss: {train_lowest_total_loss_observed*100/batch_size:>6.2f} at epoch {train_lowest_total_loss_observed_epoch:<2d}"
   , end=''  )
   
@@ -1875,7 +1875,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   \r\033[1C\033[2K{DULL_WHITE}\
   \r\033[27Ctest:\
   \r\033[49Closs_images={CARRIBEAN_GREEN}{test_loss_images_sum_ave:5.2f}{DULL_WHITE}\
-  \r\033[120CBATCH AVE OVER EPOCH (LOSS PER 100 TILES) ={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave*100/batch_size:9.4f}{DULL_WHITE}\
+  \r\033[120CBATCH AVE LOSS OVER EPOCH (LOSS PER 100 TILES) ={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave*100/batch_size:9.4f}{DULL_WHITE}\
   \r\033[250Cmin loss: {test_lowest_total_loss_observed_so_far*100/batch_size:6.2f} at {WHITE}epoch {test_lowest_total_loss_observed_so_far_epoch:<2d}{DULL_WHITE}\
   \033[5B\
   ", end=''  )
@@ -1885,7 +1885,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   \r\033[1C\033[2K{DULL_WHITE}\
   \r\033[27Ctest:\
   \r\033[73Closs_rna={BITTER_SWEET}{test_loss_genes_sum_ave:5.2f}{DULL_WHITE}\
-  \r\033[120CBATCH AVE OVER EPOCH (LOSS PER 100 EXAMPLES) ={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave*100/batch_size:9.4f}{DULL_WHITE}\
+  \r\033[120CBATCH AVE LOSS OVER EPOCH (LOSS PER 100 EXAMPLES) ={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave*100/batch_size:9.4f}{DULL_WHITE}\
   \r\033[250Cmin loss: {test_lowest_total_loss_observed_so_far*100/batch_size:6.2f} at {WHITE}epoch {test_lowest_total_loss_observed_so_far_epoch:<2d}{DULL_WHITE} \
   \033[5B\
   ", end=''  )
@@ -3296,7 +3296,7 @@ def train( args, epoch, train_loader, model, optimizer, loss_function, loss_type
 \033[2K\r\033[27C{DULL_WHITE}train:\
 \r\033[40Cn={i+1:>3d}{CLEAR_LINE}\
 \r\033[49Closs_images={ loss_images_value:5.2f}\
-\r\033[120CBATCH AVE LOSS (LOSS PER 100 TILES)      = \r\033[\
+\r\033[120CBATCH AVE LOSS            (LOSS PER 100 TILES)      = \r\033[\
 {156+5*int((TL*5)//1) if TL<1 else 156+6*int((TL*1)//1) if TL<12 else 250}C{PALE_GREEN if TL<1 else PALE_ORANGE if 1<=TL<2 else PALE_RED}{TL*100/batch_size:9.4f}{RESET}" )
             print ( "\033[2A" )
           elif (args.input_mode=='rna') | (args.input_mode=='image_rna'):
@@ -3304,7 +3304,7 @@ def train( args, epoch, train_loader, model, optimizer, loss_function, loss_type
 \033[2K\r\033[27C{DULL_WHITE}train:\
 \r\033[40Cn={i+1:>3d}{CLEAR_LINE}\
 \r\033[73Closs_rna={loss_genes_value:5.2f}\
-\r\033[120CBATCH AVE LOSS (LOSS PER 100 EXAMPLES)      = \r\033[\
+\r\033[120CBATCH AVE LOSS            (LOSS PER 100 EXAMPLES)      = \r\033[\
 {156+5*int((TL*5)//1) if TL<1 else 156+6*int((TL*1)//1) if TL<12 else 250}C{PALE_GREEN if TL<1 else PALE_ORANGE if 1<=TL<2 else PALE_RED}{TL*100/batch_size:9.4f}{RESET}" )
             print ( "\033[2A" )          
 
@@ -3680,14 +3680,14 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
 \033[2K\r\033[27Ctest:\
 \r\033[40C{DULL_WHITE}n={i+1:>3d}{CLEAR_LINE}\
 \r\033[49Closs_images={loss_images_value:5.2f}\
-\r\033[120CBATCH AVE LOSS (LOSS PER 100 TILES)     = \r\033[{150+5*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss*100/batch_size:9.4f}{RESET}" )
+\r\033[120CBATCH AVE LOSS            (LOSS PER 100 TILES)     = \r\033[{150+5*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss*100/batch_size:9.4f}{RESET}" )
             print ( "\033[2A" )
           elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
             print ( f"\
 \033[2K\r\033[27Ctest:\
 \r\033[40C{DULL_WHITE}n={i+1:>3d}{CLEAR_LINE}\
 \r\033[73Closs_rna={loss_genes_value:5.2f}\
-\r\033[120CBATCH AVE LOSS (LOSS PER 100 EXAMPLES)      = \r\033[{150+5*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss*100/batch_size:9.4f}{RESET}" )
+\r\033[120CBATCH AVE LOSS            (LOSS PER 100 EXAMPLES)      = \r\033[{150+5*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss*100/batch_size:9.4f}{RESET}" )
             print ( "\033[2A" )
 
 
