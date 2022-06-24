@@ -943,8 +943,8 @@ f"\
       print( f"{RED}CLASSI:         FATAL:    ... cannot continue, halting now{RESET}" )
       sys.exit(0)
 
-    if (input_mode=='image') & (nn_type_img[0:5]=='INCEPT') &  tile_size<75:
-      print( f"{RED}CLASSI:         FATAL:  for network type '{CYAN}INCEPT3{RESET}'{RED} and '{CYAN}INCEPT3{RESET}'{RED}, tile size (currently '{MIKADO}{tile_size}{RESET}{RED}') must be a greater than or equal to 75  (i.e. 75x75){RESET}", flush=True )
+    if (input_mode=='image') & (nn_type_img[0:5]=='INCEPT') & (tile_size<75):
+      print( f"{RED}CLASSI:         FATAL:  for network type '{CYAN}INCEPT3{RESET}'{RED} and '{CYAN}INCEPT4{RESET}'{RED}, tile size (currently '{MIKADO}{tile_size}{RESET}{RED}') must be greater than or equal to 75  (i.e. 75x75){RESET}", flush=True )
       print( f"{RED}CLASSI:         FATAL:    ... cannot continue, halting now{RESET}" )
       sys.exit(0)
 
