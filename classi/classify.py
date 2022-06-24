@@ -942,7 +942,12 @@ f"\
       print( f"{RED}CLASSI:         FATAL:  examples of acceptable tile sizes include: {MIKADO}32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448, 480, 512, 544, 576, 608, 640, 672, 704, 736, 768, 800, 832, 864, 896, 928, 960, 992, 1024, 1056, 1088, 1120, 1152, 1184, 1216, 1248, 1280, 1312, 1344, 1376, 1408, 1440, 1472, 1504, 1536, 1568, 1600{RESET}{RED}",  flush=True )
       print( f"{RED}CLASSI:         FATAL:    ... cannot continue, halting now{RESET}" )
       sys.exit(0)
-    
+
+    if (input_mode=='image') & (nn_type_img[0:5]=='INCEPT') &  tile_size<75:
+      print( f"{RED}CLASSI:         FATAL:  for network type '{CYAN}INCEPT3{RESET}'{RED} and '{CYAN}INCEPT3{RESET}'{RED}, tile size (currently '{MIKADO}{tile_size}{RESET}{RED}') must be a greater than or equal to 75  (i.e. 75x75){RESET}", flush=True )
+      print( f"{RED}CLASSI:         FATAL:    ... cannot continue, halting now{RESET}" )
+      sys.exit(0)
+
     if input_mode=='image':
       descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases[0:10]:_<23s}_{nn_type_img:_<9s}_{nn_optimizer:_<8s}_e_{args.n_epochs:03d}_N_{n_samples:04d}\
 _hicls_{n_classes:02d}_bat_{batch_size:03d}_test_{int(100*pct_test):03d}_lr_{lr:09.6f}_tiles_{n_tiles:04d}_tlsz_{tile_size:03d}__mags_{mags}__probs_{prob:_<30s}"
