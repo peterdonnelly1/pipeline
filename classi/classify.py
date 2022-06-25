@@ -1676,8 +1676,8 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     last_epoch_loss_increased              = True
 
     train_total_loss_sum_ave_last                 = 99999                                                  # used to determine whether total loss is increasing or decreasing
-    train_lowest_total_loss_observed_so_far              = 99999                                                  # keeps ongiing track of the lowest total training loss ...
-    train_lowest_total_loss_observed_so_far_epoch        = 0                                                      # ... and the epoch it occurred at
+    train_lowest_total_loss_observed_so_far       = 99999                                                  # keeps ongiing track of the lowest total training loss ...
+    train_lowest_total_loss_observed_so_far_epoch = 0                                                      # ... and the epoch it occurred at
 
     test_total_loss_sum_ave_last                  = 99999
     test_lowest_total_loss_observed_so_far        = 99999
@@ -1743,7 +1743,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   \r\033[1C{CLEAR_LINE}{DULL_WHITE}\
   \r\033[27Ctrain:\
   \r\033[49Closs_images={train_loss_images_sum_ave:5.2f}\
-  \r\033[120CBATCH AVE LOSS OVER EPOCH (LOSS PER 100 TILES) = {PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{train_total_loss_sum_ave*100/batch_size:6.2f}{DULL_WHITE}\
+  \r\033[120CBATCH AVE LOSS OVER EPOCH (LOSS PER 1000 TILES) = {PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{train_total_loss_sum_ave*1000/batch_size:6.1f}{DULL_WHITE}\
   \r\033[250C{BLACK if epoch<2 else WHITE}min loss: {train_lowest_total_loss_observed_so_far*100/batch_size:>6.2f} at epoch {train_lowest_total_loss_observed_so_far_epoch+1:<2d}"
   , end=''  )
             elif ( input_mode=='rna' ):
@@ -1751,7 +1751,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   \r\033[1C{CLEAR_LINE}{DULL_WHITE}\
   \r\033[27Ctrain:\
   \r\033[73Closs_rna={train_loss_genes_sum_ave:5.2f}\
-  \r\033[120CBATCH AVE LOSS OVER EPOCH (LOSS PER 100 EXAMPLES) = {PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{train_total_loss_sum_ave*100/batch_size:6.2f}{DULL_WHITE}\
+  \r\033[120CBATCH AVE LOSS OVER EPOCH (LOSS PER 1000 EXAMPLES) = {PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{train_total_loss_sum_ave*1000/batch_size:6.1f}{DULL_WHITE}\
   \r\033[250C{BLACK if epoch<2 else WHITE}min loss: {train_lowest_total_loss_observed_so_far*100/batch_size:>6.2f} at epoch {train_lowest_total_loss_observed_so_far_epoch+1:<2d}"
   , end=''  )
   
@@ -1805,7 +1805,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   \r\033[1C\033[2K{DULL_WHITE}\
   \r\033[27Ctest:\
   \r\033[49Closs_images={CARRIBEAN_GREEN}{test_loss_images_sum_ave:5.2f}{DULL_WHITE}\
-  \r\033[120CBATCH AVE LOSS OVER EPOCH (LOSS PER 100 TILES) = {GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave*100/batch_size:6.2f}{DULL_WHITE}\
+  \r\033[120CBATCH AVE LOSS OVER EPOCH (LOSS PER 1000 TILES) = {GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave*1000/batch_size:6.1f}{DULL_WHITE}\
   \r\033[250C{BLACK if epoch<2 else WHITE}min loss: {test_lowest_total_loss_observed_so_far*100/batch_size:6.2f} at epoch {test_lowest_total_loss_observed_so_far_epoch+1:<2d}{DULL_WHITE}\
   \033[5B\
   ", end=''  )
@@ -3203,12 +3203,12 @@ def train( args, epoch, train_loader, model, optimizer, loss_function, loss_type
             y2_hat_numpy = (y2_hat.cpu().data).numpy()
             print ( "CLASSI:         INFO:      test:       y2_hat_numpy                      = \n{:}".format( y2_hat_numpy) )
 
-          if loss_type == 'mean_squared_error':                                                                           # autoencoders use mean squared error. The function needs to be provided with both the input and the output to calculate mean_squared_error 
+          if loss_type == 'mean_squared_error':                                                            # autoencoders use mean squared error. The function needs to be provided with both the input and the output to calculate mean_squared_error 
             loss_genes        = loss_function( y2_hat, batch_genes.squeeze() )            
           else:
             loss_genes        = loss_function( y2_hat, rna_labels            )
         
-          loss_genes_value  = loss_genes.item()                                                              # use .item() to extract value from tensor: don't create multiple new tensors each of which will have gradient histories
+          loss_genes_value  = loss_genes.item()                                                            # use .item() to extract value from tensor: don't create multiple new tensors each of which will have gradient histories
 
         # ~ l1_loss          = l1_penalty(model, args.l1_coef)
         l1_loss           = 0
@@ -3227,16 +3227,16 @@ def train( args, epoch, train_loader, model, optimizer, loss_function, loss_type
 \033[2K\r\033[27C{DULL_WHITE}train:\
 \r\033[40Cn={i+1:>3d}{CLEAR_LINE}\
 \r\033[49Closs_images={ loss_images_value:5.2f}\
-\r\033[120CBATCH AVE LOSS            (LOSS PER 100 TILES) = \r\033[\
-{offset+10*int((TL*5)//1) if TL<1 else offset+16*int((TL*1)//1) if TL<12 else 250}C{PALE_GREEN if TL<1 else PALE_ORANGE if 1<=TL<2 else PALE_RED}{TL*100/batch_size:6.2f}{RESET}" )
+\r\033[120CBATCH AVE LOSS            (LOSS PER 1000 TILES) = \r\033[\
+{offset+10*int((TL*5)//1) if TL<1 else offset+16*int((TL*1)//1) if TL<12 else 250}C{PALE_GREEN if TL<1 else PALE_ORANGE if 1<=TL<2 else PALE_RED}{TL*1000/batch_size:6.1f}{RESET}" )
             print ( "\033[2A" )
           elif (args.input_mode=='rna') | (args.input_mode=='image_rna'):
             print ( f"\
 \033[2K\r\033[27C{DULL_WHITE}train:\
 \r\033[40Cn={i+1:>3d}{CLEAR_LINE}\
 \r\033[73Closs_rna={loss_genes_value:5.2f}\
-\r\033[120CBATCH AVE LOSS            (LOSS PER 100 EXAMPLES) = \r\033[\
-{offset+5*int((TL*5)//1) if TL<1 else offset+6*int((TL*1)//1) if TL<12 else 250}C{PALE_GREEN if TL<1 else PALE_ORANGE if 1<=TL<2 else PALE_RED}{TL*100/batch_size:6.2f}{RESET}" )
+\r\033[120CBATCH AVE LOSS            (LOSS PER 1000 EXAMPLES) = \r\033[\
+{offset+5*int((TL*5)//1) if TL<1 else offset+6*int((TL*1)//1) if TL<12 else 250}C{PALE_GREEN if TL<1 else PALE_ORANGE if 1<=TL<2 else PALE_RED}{TL*1000/batch_size:6.1f}{RESET}" )
             print ( "\033[2A" )          
 
 
@@ -3280,7 +3280,7 @@ def train( args, epoch, train_loader, model, optimizer, loss_function, loss_type
     loss_images_sum_ave = loss_images_sum / (i+1)                                                          # average batch loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
     loss_genes_sum_ave  = loss_genes_sum  / (i+1)                                                          # average genes loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
     l1_loss_sum_ave     = l1_loss_sum     / (i+1)                                                          # average l1    loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
-    total_loss_ave      = total_loss_sum  / (i+1)                                                          # average total loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
+    total_loss_sum_ave  = total_loss_sum  / (i+1)                                                          # average total loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
 
     if total_loss_sum < train_loss_min:
       train_loss_min = total_loss_sum
@@ -3289,7 +3289,7 @@ def train( args, epoch, train_loader, model, optimizer, loss_function, loss_type
       writer.add_scalar( 'loss_train',      total_loss_sum, epoch )
       writer.add_scalar( 'loss_train_min',  train_loss_min, epoch )
 
-    return loss_images_sum_ave, loss_genes_sum_ave, l1_loss_sum_ave, total_loss_ave
+    return loss_images_sum_ave, loss_genes_sum_ave, l1_loss_sum_ave, total_loss_sum_ave
 
 
 
@@ -3612,14 +3612,14 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
 \033[2K\r\033[27Ctest:\
 \r\033[40C{DULL_WHITE}n={i+1:>3d}{CLEAR_LINE}\
 \r\033[49Closs_images={loss_images_value:5.2f}\
-\r\033[120CBATCH AVE LOSS            (LOSS PER 100 TILES) = \r\033[{offset+10*int((total_loss*5)//1) if total_loss<1 else offset+16*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss*100/batch_size:6.2f}{RESET}" )
+\r\033[120CBATCH AVE LOSS            (LOSS PER 1000 TILES) = \r\033[{offset+10*int((total_loss*5)//1) if total_loss<1 else offset+16*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss*1000/batch_size:6.1f}{RESET}" )
             print ( "\033[2A" )
           elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
             print ( f"\
 \033[2K\r\033[27Ctest:\
 \r\033[40C{DULL_WHITE}n={i+1:>3d}{CLEAR_LINE}\
 \r\033[73Closs_rna={loss_genes_value:5.2f}\
-\r\033[120CBATCH AVE LOSS            (LOSS PER 100 EXAMPLES) = \r\033[{offset+10*int((total_loss*5)//1) if total_loss<1 else offset+16*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss*100/batch_size:6.2f}{RESET}" )
+\r\033[120CBATCH AVE LOSS            (LOSS PER 1000 EXAMPLES) = \r\033[{offset+10*int((total_loss*5)//1) if total_loss<1 else offset+16*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss*1000/batch_size:6.1f}{RESET}" )
             print ( "\033[2A" )
 
 
@@ -3809,12 +3809,12 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
     loss_images_sum_ave = loss_images_sum / (i+1)                                                          # average batch loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
     loss_genes_sum_ave  = loss_genes_sum  / (i+1)                                                          # average genes loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
     l1_loss_sum_ave     = l1_loss_sum     / (i+1)                                                          # average l1    loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
-    total_loss_ave      = total_loss_sum  / (i+1)                                                          # average total loss per batch for the entire epoch (divide cumulative loss by number of batches in the epoch)
+    total_loss_sum_ave  = total_loss_sum  / (i+1)                                                          # average total loss per batch for the entire epoch (divide cumulative loss by number of batches in the epoch)
 
     if total_loss_sum    <  test_loss_min:
        test_loss_min     =  total_loss_sum
 
-    normalised_test_loss            = total_loss_ave * 1000 / batch_size
+    normalised_test_loss            = total_loss_sum_ave * 1000 / batch_size
     trunctated_normalised_test_loss = normalised_test_loss if (normalised_test_loss<1000) else 1000
 
 
@@ -3826,7 +3826,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
       if pct_correct       >  max_percent_correct:
         max_percent_correct    =  pct_correct
             
-      writer.add_scalar( '1a_ave_batch_test_loss',                           total_loss_ave,                   epoch )
+      writer.add_scalar( '1a_ave_batch_test_loss',                           total_loss_sum_ave,               epoch )
       writer.add_scalar( '1b_ave_batch_test_loss_per_1000_tiles',            normalised_test_loss,             epoch )
       writer.add_scalar( '1c_ave_batch_test_loss_per_1000_tiles_trunctated', trunctated_normalised_test_loss,  epoch )
       writer.add_scalar( '1d_1a_ave_batch_test_loss____minimums',            test_loss_min/(i+1),              epoch )    
@@ -3836,7 +3836,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
       writer.add_scalar( '1h_max_percent_correct',                           max_percent_correct,              epoch ) 
     
     else:                                                                                                  # only these learning curves are relevant for autoencoders
-      writer.add_scalar( '1a_ave_batch_test_loss',                           total_loss_ave,                   epoch )
+      writer.add_scalar( '1a_ave_batch_test_loss',                           total_loss_sum_ave,               epoch )
       writer.add_scalar( '1b_ave_batch_test_loss_per_1000_tiles',            normalised_test_loss,             epoch )
       writer.add_scalar( '1c_ave_batch_test_loss_per_1000_tiles_trunctated', trunctated_normalised_test_loss,  epoch )
       writer.add_scalar( '1d_ave_batch_test_loss_running_minimum',           test_loss_min/(i+1),              epoch )   
@@ -3877,7 +3877,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
       max_percent_correct     = 0
       
       
-    return embeddings_accum, labels_accum, loss_images_sum_ave, loss_genes_sum_ave, l1_loss_sum_ave, total_loss_ave, correct_predictions, batch_size, max_correct_predictions, max_percent_correct, test_loss_min, embedding
+    return embeddings_accum, labels_accum, loss_images_sum_ave, loss_genes_sum_ave, l1_loss_sum_ave, total_loss_sum_ave, correct_predictions, batch_size, max_correct_predictions, max_percent_correct, test_loss_min, embedding
 
 
 
