@@ -3814,8 +3814,8 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
     if total_loss_sum    <  test_loss_min:
        test_loss_min     =  total_loss_sum
 
-    normalised_test_loss            = total_loss_ave * 100 / batch_size
-    trunctated_normalised_test_loss = normalised_test_loss if (normalised_test_loss<100) else 100
+    normalised_test_loss            = total_loss_ave * 1000 / batch_size
+    trunctated_normalised_test_loss = normalised_test_loss if (normalised_test_loss<1000) else 1000
 
 
     if loss_type != 'mean_squared_error':                                                                                 # the following only make sense if we are classifying, so skip for autoencoders 
@@ -3826,20 +3826,20 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
       if pct_correct       >  max_percent_correct:
         max_percent_correct    =  pct_correct
             
-      writer.add_scalar( '1a_ave_batch_test_loss_over_epoch',                          total_loss_ave,                   epoch )
-      writer.add_scalar( '1b_ave_batch_test_loss_over_epoch_per_100_tiles',            normalised_test_loss,             epoch )
-      writer.add_scalar( '1c_ave_batch_test_loss_over_epoch_per_100_tiles_trunctated', trunctated_normalised_test_loss,  epoch )
-      writer.add_scalar( '1d_1a_ave_batch_test_loss_over_epoch_minimums',              test_loss_min/(i+1),              epoch )    
-      writer.add_scalar( '1e_num_correct',                                             correct_predictions,              epoch )
-      writer.add_scalar( '1f_num_correct_max',                                         max_correct_predictions,          epoch )
-      writer.add_scalar( '1g_pct_correct',                                             pct_correct,                      epoch ) 
-      writer.add_scalar( '1h_max_percent_correct',                                     max_percent_correct,              epoch ) 
+      writer.add_scalar( '1a_ave_batch_test_loss',                           total_loss_ave,                   epoch )
+      writer.add_scalar( '1b_ave_batch_test_loss_per_1000_tiles',            normalised_test_loss,             epoch )
+      writer.add_scalar( '1c_ave_batch_test_loss_per_1000_tiles_trunctated', trunctated_normalised_test_loss,  epoch )
+      writer.add_scalar( '1d_1a_ave_batch_test_loss____minimums',            test_loss_min/(i+1),              epoch )    
+      writer.add_scalar( '1e_num_correct',                                   correct_predictions,              epoch )
+      writer.add_scalar( '1f_num_correct_max',                               max_correct_predictions,          epoch )
+      writer.add_scalar( '1g_pct_correct',                                   pct_correct,                      epoch ) 
+      writer.add_scalar( '1h_max_percent_correct',                           max_percent_correct,              epoch ) 
     
     else:                                                                                                  # only these learning curves are relevant for autoencoders
-      writer.add_scalar( '1a_ave_batch_test_loss_over_epoch',                          total_loss_ave,                   epoch )
-      writer.add_scalar( '1b_ave_batch_test_loss_over_epoch_per_100_tiles',            normalised_test_loss,             epoch )
-      writer.add_scalar( '1c_ave_batch_test_loss_over_epoch_per_100_tiles_trunctated', trunctated_normalised_test_loss,  epoch )
-      writer.add_scalar( '1d_1a_ave_batch_test_loss_over_epoch_minimums',              test_loss_min/(i+1),              epoch )   
+      writer.add_scalar( '1a_ave_batch_test_loss',                           total_loss_ave,                   epoch )
+      writer.add_scalar( '1b_ave_batch_test_loss_per_1000_tiles',            normalised_test_loss,             epoch )
+      writer.add_scalar( '1c_ave_batch_test_loss_per_1000_tiles_trunctated', trunctated_normalised_test_loss,  epoch )
+      writer.add_scalar( '1d_ave_batch_test_loss_running_minimum',           test_loss_min/(i+1),              epoch )   
       
     
     if DEBUG>9:
