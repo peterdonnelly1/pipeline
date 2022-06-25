@@ -31,8 +31,9 @@ rows=26
 cols=26
 
 
-def generate( args, class_names, n_samples, estimated_total_tiles, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, 
-              unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, top_up_factors, tile_size, low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform ):
+def generate( args, class_names, n_samples, estimated_total_tiles_train, estimated_total_tiles_test, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, 
+              unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, top_up_factors_train, top_up_factors_test, tile_size, 
+              low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform ):
 
   # DON'T USE args.n_samples or batch_size or args.n_tiles or args.gene_data_norm or args.tile_size or args.highest_class_number or args.low_expression_threshold or args.cutoff_percentile since these are job-level lists. Here we are just using one value of each, passed in as the parameters above
   just_test                    = args.just_test
@@ -186,6 +187,8 @@ def generate( args, class_names, n_samples, estimated_total_tiles, batch_size, h
         target                = 'image_test'
         test_cases            = n_samples                                                                  # for 'just_test', n_samples is the number of cases user wants to be processed (i.e NOT n_samples * pct_test, which would be the case in training mode)
         cases_required        = test_cases 
+        estimated_total_tiles = estimated_total_tiles_test
+        top_up_factors        =  top_up_factors_test
         case_designation_flag = args.cases
         
         if DEBUG>0:
@@ -202,9 +205,10 @@ def generate( args, class_names, n_samples, estimated_total_tiles, batch_size, h
 
 
       elif args.cases == 'MULTIMODE____TEST':
-
         target                = 'image_test'
         cases_required        = cases_reserved_for_image_rna
+        estimated_total_tiles = estimated_total_tiles_test
+        top_up_factors        =  top_up_factors_test
         case_designation_flag = args.cases
         
         if DEBUG>0:
@@ -236,6 +240,8 @@ def generate( args, class_names, n_samples, estimated_total_tiles, batch_size, h
     
           if target=='image_train':
             cases_required        =  training_cases
+            estimated_total_tiles =  estimated_total_tiles_train
+            top_up_factors        =  top_up_factors_train
             case_designation_flag =  'UNIMODE_CASE____IMAGE'
             if DEBUG>0:
               print ( f"{CLEAR_LINE}{WHITE}GENERATE:       INFO:  about to generate {CYAN}{target}{RESET} dataset:", flush=True )
@@ -245,18 +251,23 @@ def generate( args, class_names, n_samples, estimated_total_tiles, batch_size, h
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}",                                 flush=True )
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) cases_required (training cases = int(n_samples * (1 - pct_test ) ) ................ = {MIKADO}{cases_required}{RESET}",                           flush=True )
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) hence tiles required for training = cases_required * n_tiles ) .................... = {MIKADO}{cases_required * n_tiles}{RESET}",                 flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) estimated_total_tiles ............................................................. = {MIKADO}{estimated_total_tiles}{RESET}",                           flush=True )
+
 
           if target=='image_test':
             cases_required        =  test_cases
+            estimated_total_tiles =  estimated_total_tiles_test
+            top_up_factors        =  top_up_factors_test
             case_designation_flag =  'UNIMODE_CASE____IMAGE_TEST'
             if DEBUG>0:
               print ( f"{CLEAR_LINE}{WHITE}GENERATE:       INFO:  about to generate {CYAN}{target}{RESET} dataset:", flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) case_designation_flag-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  .. = {MIKADO}{case_designation_flag}{RESET}",                    flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) case_designation_flag-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  = {MIKADO}{case_designation_flag}{RESET}",                    flush=True )
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) n_samples (this run)-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -   = {MIKADO}{n_samples}{RESET}",                                flush=True )
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) n_tiles   (this run)-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -   = {MIKADO}{n_tiles}{RESET}",                                  flush=True )
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) pct_test  (this run)-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -   = {MIKADO}{pct_test}{RESET}",                                 flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) cases_required (test cases = n_samples - training_cases) -  -  -  -  -  -  -  -  .. = {MIKADO}{cases_required}{RESET}",                           flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) hence tiles required for in-training testing = test cases * n_tiles ) -  -  -  -   = {MIKADO}{cases_required * n_tiles}{RESET}",                 flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) cases_required (test cases = n_samples - training_cases) -  -  -  -  -  -  -  -  -  = {MIKADO}{cases_required}{RESET}",                           flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) hence tiles required for in-training testing = test cases * n_tiles ) -  -  -  -  - = {MIKADO}{cases_required * n_tiles}{RESET}",                 flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) estimated_total_tiles-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  = {MIKADO}{estimated_total_tiles}{RESET}",                           flush=True )
 
     
           class_counts = np.zeros( highest_class_number+1, dtype=np.int )        
@@ -273,8 +284,10 @@ def generate( args, class_names, n_samples, estimated_total_tiles, batch_size, h
       elif args.cases == 'ALL_ELIGIBLE_CASES':
 
         target                = 'image_train'
+        estimated_total_tiles =  estimated_total_tiles_train
+        top_up_factors        =  top_up_factors_train
         cases_required        =  n_samples
-        case_designation_flag = args.cases
+        case_designation_flag =  args.cases
         
         if DEBUG>2:
           print ( f"{WHITE}GENERATE:       INFO:  about to generate {CYAN}{target}{RESET} dataset", flush=True )

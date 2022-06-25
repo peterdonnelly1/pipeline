@@ -884,7 +884,7 @@ f"\
       
       if just_test=='False':                                                                      
         multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count =  segment_cases( pct_test )  # boils down to setting flags in the directories of certain cases, esp. 'MULTIMODE_CASE_FLAG'
-        time.sleep(5)
+        time.sleep(3)
       else:
         print( f"{RED}CLASSI:         FATAL: user option  {CYAN}-v ('args.cases'){RESET}{RED} is not allowed in test mode ({CYAN}JUST_TEST=True{RESET}, {CYAN}--just_test 'True'{RESET}){RED}{RESET}" )
         print( f"{RED}CLASSI:         FATAL: explanation:  it will resegment the cases, meaning there is every chance cases you've trained on will end up in the test set{RESET}" )
@@ -1110,97 +1110,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
 
     # (2) Maybe schedule and run tiler threads
-    
-    
-    # (2A) But first, count the number images per cancer subtype in the dataset. This will be used in generate() to balance tiling so that all subtypes will be represented by the same number of tiles
-    #      The balancing is performed in 'generate()', however the counts must be performed now, before tiling, because the results are used to adjust the number of tiles extracted
-    #      Specifically, we count the number of images per subtype for the chosen subset (e.g. UNIMODE_CASE) and from this calculate 'top up factors' which are used in generate() 
-    #      to increase the number of tiles extracted for subtypes which have fewer images than the subtype with the most number of cases (images)
 
-    estimated_total_tiles = 0
-    
-    if ( input_mode!='rna' ):
-
-      if DEBUG>2:
-        print( f"CLASSI:         INFO: n_classes               = {MAGENTA}{n_classes}{RESET}",        flush=True  )
-        
-      class_counts          = np.zeros( n_classes, dtype=int )
-    
-      if args.cases=='UNIMODE_CASE':
-        case_designation_flag =  'UNIMODE_CASE____IMAGE'                                                   # ratios should be the same as for 'ALL_ELIGIBLE_CASES', but just in case
-      elif args.cases=='ALL_ELIGIBLE_CASES':
-        case_designation_flag =  'HAS_IMAGE'
-      else:
-        case_designation_flag =  'HAS_IMAGE'                                                               # use the overall ratio
-    
-      count_this_case_flag=False
-      
-      for dir_path, dirs, files in os.walk( data_dir ):                                                    # each iteration takes us to a new directory under data_dir
-    
-        for d in dirs:
-    
-          if not (d==data_dir):                                                                            # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
-      
-            fqn = f"{dir_path}/{d}/{case_designation_flag}"
-            if DEBUG>100:
-              print ( f"\n\nCLASSI:         INFO:   fqn         {YELLOW}{fqn}{RESET}")
-    
-            count_this_case_flag=False
-            if case_designation_flag=='ALL_ELIGIBLE_CASES':
-              count_this_case_flag=True
-            try:
-              fqn = f"{dir_path}/{d}/{case_designation_flag}"
-              f = open( fqn, 'r' )
-              count_this_case_flag=True
-              if DEBUG>100:
-                print ( f"\n{GREEN}CLASSI:         INFO:         case '{CYAN}{fqn}{RESET}{GREEN}' \r\033[200X is     a case flagged as '{CYAN}{case_designation_flag}{RESET}{GREEN}' - - including{RESET}{CLEAR_LINE}",  flush=True )
-            except Exception:
-              if DEBUG>100:
-                print ( f"{RED}CLASSI:         INFO:   case       '{CYAN}{fqn}{RESET}{RED} \r\033[200C is not a case flagged as '{CYAN}{case_designation_flag}{RESET}{RED}' - - skipping{RESET}{CLEAR_LINE}",  flush=True )
-      
-            try:                                                                                               # every tile has an associated label - the same label for every tile image in the directory
-              label_file = f"{dir_path}/{d}/{args.class_numpy_file_name}"
-              if DEBUG>100:
-                print ( f"CLASSI:         INFO:   label_file  {ASPARAGUS}{label_file}{RESET}")
-              label      = np.load( label_file )
-              if label[0]>highest_class_number:
-                count_this_case_flag=False
-                if DEBUG>2:
-                  print ( f"{ORANGE}CLASSI:         INFO: label is greater than '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{ORANGE}' - - skipping this example (label = {MIKADO}{label[0]}{RESET}{ORANGE}){RESET}"      )
-                pass
-            except Exception as e:
-              print ( f"{RED}CLASSI:               FATAL: when processing: '{label_file}'{RESET}", flush=True)        
-              print ( f"{RED}CLASSI:                      reported error was: '{e}'{RESET}", flush=True)
-              print ( f"{RED}CLASSI:                      halting now{RESET}", flush=True)
-              sys.exit(0)
-            
-            if ( count_this_case_flag==True ):
-              class_counts[label[0]]+=1
-              
-              if DEBUG>100:
-                print( f"CLASSI:         INFO:     class_counts   = {MIKADO}{class_counts}{RESET}", flush=True  )
-    
-      if DEBUG>2:
-        np.set_printoptions(formatter={'int':   lambda x: "{:>6d}".format(x)})
-        print( f"\033[0;220f  {CLEAR_LINE}CLASSI:         INFO:     final class_counts           = {AMETHYST}{class_counts}{RESET}",                               flush=True  )
-        print( f"\033[1;220f  {CLEAR_LINE}CLASSI:         INFO:     total slides counted         = {AMETHYST}{np.sum(class_counts)}{RESET}",                       flush=True  )
-
-      relative_ratios = class_counts/np.max(class_counts)
-
-      if DEBUG>2:
-        np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})
-        print( f"\033[2;220f  {CLEAR_LINE}CLASSI:         INFO:     relative class ratios        = {AMETHYST}{relative_ratios}{RESET}",                            flush=True  )
-
-      top_up_factors        = np.divide(1,relative_ratios)
-      estimated_total_tiles = (np.sum(top_up_factors*class_counts*n_tiles)).astype(int)
-
-      if DEBUG>2:
-        np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})
-        print( f"\033[3;220f  {CLEAR_LINE}CLASSI:         INFO:     top up factors               = {AMETHYST}{top_up_factors}{RESET}",                             flush=True  )
-        np.set_printoptions(formatter={'int':   lambda x: "{:>6d}".format(x)})
-        print( f"\033[4;220f  {CLEAR_LINE}CLASSI:         INFO:     estimated_total_tiles        = {AMETHYST}{estimated_total_tiles:,}{RESET}",                    flush=True  )
-  
-    # (2B) Tiling
 
     # ~ if (input_mode=='image') & (multimode!='image_rna'):
     if (input_mode=='image'):
@@ -1240,6 +1150,10 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
               print( f"CLASSI:         FATAL:    for {MIKADO}{stain_norm}{RESET} an SVS file must be provided from which the stain normalization target will be extracted" )
               sys.exit(0)
 
+          estimated_total_tiles_train = 0
+          estimated_total_tiles_test  = 0
+          top_up_factors_train        = np.zeros( n_classes, dtype=int )
+          top_up_factors_test         = np.zeros( n_classes, dtype=int )
 
           print ( f"{SAVE_CURSOR}" )
             
@@ -1254,28 +1168,36 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
               if (  args.cases == 'UNIMODE_CASE' ):
                 
                 flag  = 'UNIMODE_CASE____IMAGE_TEST'
+                estimated_total_tiles_test, top_up_factors_test  = determine_top_up_factors ( args, n_classes, n_tiles, flag )
                 count = n_samples
+
                 if DEBUG>1:
                   print( f"{SAVE_CURSOR}\r\033[{num_cpus}B{WHITE}CLASSI:         INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; count = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles = {MIKADO}{n_tiles}{RESET}{RESTORE_CURSOR}", flush=True )
-                slides_tiled_count = tiler_threader( args, flag, count, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method )
+
+                slides_tiled_count = tiler_threader( args, flag, count, n_tiles, top_up_factors_test, tile_size, batch_size, stain_norm, norm_method )
 
               if (  args.cases == 'MULTIMODE____TEST' ):
                 
                 flag  = 'MULTIMODE____TEST'
+                estimated_total_tiles_test, top_up_factors_test  = determine_top_up_factors ( args, n_classes, n_tiles, flag )
                 count = cases_reserved_for_image_rna
+
                 if DEBUG>1:
                   print( f"{SAVE_CURSOR}\r\033[{num_cpus}B{WHITE}CLASSI:         INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; count = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles = {MIKADO}{n_tiles}{RESET}{RESTORE_CURSOR}", flush=True )
-                slides_tiled_count = tiler_threader( args, flag, count, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method )
+
+                slides_tiled_count = tiler_threader( args, flag, count, n_tiles, top_up_factors_test, tile_size, batch_size, stain_norm, norm_method )
 
               if (  args.cases == 'ALL_ELIGIBLE_CASES' ):
                 
                 slides_to_be_tiled = n_samples
   
                 flag  = 'HAS_IMAGE'
+                estimated_total_tiles_test, top_up_factors_test  = determine_top_up_factors ( args, n_classes, n_tiles, flag )
               
                 if DEBUG>1:
                   print( f"{SAVE_CURSOR}\r\033[{num_cpus+1}B{WHITE}CLASSI:         INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; slides_to_be_tiled = {MIKADO}{slides_to_be_tiled:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
-                slides_tiled_count = tiler_threader( args, flag, slides_to_be_tiled, n_tiles_max, top_up_factors, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
+
+                slides_tiled_count = tiler_threader( args, flag, slides_to_be_tiled, n_tiles_max, top_up_factors_test, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
 
 
           else:
@@ -1291,10 +1213,11 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
                 pass
 
               flag  = 'HAS_IMAGE'
+              estimated_total_tiles_train, top_up_factors_train  = determine_top_up_factors ( args, n_classes, n_tiles, flag )
             
               if DEBUG>1:
                 print( f"{SAVE_CURSOR}\r\033[{num_cpus+1}B{WHITE}CLASSI:         INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; slides_to_be_tiled = {MIKADO}{slides_to_be_tiled:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
-              slides_tiled_count = tiler_threader( args, flag, slides_to_be_tiled, n_tiles_max, top_up_factors, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
+              slides_tiled_count = tiler_threader( args, flag, slides_to_be_tiled, n_tiles_max, top_up_factors_train, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
 
               
             if (  args.cases == 'UNIMODE_CASE' ):
@@ -1311,14 +1234,21 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
                 pass
 
               flag  = 'UNIMODE_CASE____IMAGE'
-              if DEBUG>1:
-                print( f"{SAVE_CURSOR}\r{WHITE}CLASSI:         INFO: about to call {MAGENTA}tiler_threader{RESET}: flag={CYAN}{flag}{RESET}; train_count={MIKADO}{train_count:3d}{RESET}; %_test={MIKADO}{pct_test:2.2f}{RESET}; n_samples={MIKADO}{n_samples_max:3d}{RESET}; n_tiles={MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
-              slides_tiled_count = tiler_threader( args, flag, train_count, n_tiles_max, top_up_factors, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
+              estimated_total_tiles_train, top_up_factors_train  = determine_top_up_factors ( args, n_classes, n_tiles, flag )
+
+              if DEBUG>0:
+                np.set_printoptions(formatter={'float': lambda x: "{:>.2f}".format(x)})
+                print( f"\r{WHITE}CLASSI:         INFO: about to call {MAGENTA}tiler_threader{RESET}: flag={CYAN}{flag}{RESET}; train_count={MIKADO}{train_count:3d}{RESET}; top_up_factors_train  = {MIKADO}{top_up_factors_train}{RESET}; %_test={MIKADO}{pct_test:2.2f}{RESET}; n_samples={MIKADO}{n_samples_max:3d}{RESET}; n_tiles={MIKADO}{n_tiles_max}{RESET}", flush=True )
+
+              slides_tiled_count = tiler_threader( args, flag, train_count, n_tiles_max, top_up_factors_train, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
 
               flag  = 'UNIMODE_CASE____IMAGE_TEST'
-              if DEBUG>1:
-                print( f"{SAVE_CURSOR}\r{WHITE}CLASSI:         INFO: about to call {MAGENTA}tiler_threader{RESET}: flag={CYAN}{flag}{RESET}; test_count={MIKADO}{test_count:3d}{RESET}; %_test={MIKADO}{pct_test:2.2f}{RESET}; n_samples={MIKADO}{n_samples_max:3d}{RESET}; n_tiles={MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
-              slides_tiled_count = tiler_threader( args, flag, test_count, n_tiles_max, top_up_factors, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
+              estimated_total_tiles_test, top_up_factors_test  = determine_top_up_factors ( args, n_classes, n_tiles, flag )
+
+              if DEBUG>0:
+                np.set_printoptions(formatter={'float': lambda x: "{:>.2f}".format(x)})
+                print( f"\r{WHITE}CLASSI:         INFO: about to call {MAGENTA}tiler_threader{RESET}: flag={CYAN}{flag}{RESET}; test_count={MIKADO}{test_count:3d}{RESET}; top_up_factors_train  = {MIKADO}{top_up_factors_train}{RESET}; %_test={MIKADO}{pct_test:2.2f}{RESET}; n_samples={MIKADO}{n_samples_max:3d}{RESET}; n_tiles={MIKADO}{n_tiles_max}{RESET}", flush=True )
+              slides_tiled_count = tiler_threader( args, flag, test_count, n_tiles_max, top_up_factors_train, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
               
 
           print ( f"{RESTORE_CURSOR}" )
@@ -1361,8 +1291,8 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         print( f"CLASSI:         INFO: gene_data_norm          = {MAGENTA}{gene_data_norm}{RESET}",   flush=True  )            
 
       highest_class_number = n_classes-1
-      _, _,  _ = generate( args, class_names, n_samples, estimated_total_tiles, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, 
-                           unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, top_up_factors, tile_size, 
+      _, _,  _ = generate( args, class_names, n_samples, estimated_total_tiles_train, estimated_total_tiles_test, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, 
+                           unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, top_up_factors_train, top_up_factors_test, tile_size, 
                            low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform  
                          ) 
 
@@ -1388,8 +1318,8 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       
       highest_class_number = n_classes-1
       
-      n_genes, n_samples, batch_size = generate( args, class_names, n_samples, estimated_total_tiles, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, 
-                                                  unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, top_up_factors, tile_size, 
+      n_genes, n_samples, batch_size = generate( args, class_names, n_samples, estimated_total_tiles_train, estimated_total_tiles_test, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, 
+                                                  unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, top_up_factors_train, top_up_factors_test, tile_size, 
                                                   low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform  
                                                )
 
@@ -1746,8 +1676,8 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     last_epoch_loss_increased              = True
 
     train_total_loss_sum_ave_last                 = 99999                                                  # used to determine whether total loss is increasing or decreasing
-    train_lowest_total_loss_observed              = 99999                                                  # keeps ongiing track of the lowest total training loss ...
-    train_lowest_total_loss_observed_epoch        = 0                                                      # ... and the epoch it occurred at
+    train_lowest_total_loss_observed_so_far              = 99999                                                  # keeps ongiing track of the lowest total training loss ...
+    train_lowest_total_loss_observed_so_far_epoch        = 0                                                      # ... and the epoch it occurred at
 
     test_total_loss_sum_ave_last                  = 99999
     test_lowest_total_loss_observed_so_far        = 99999
@@ -1797,9 +1727,9 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
           train_loss_images_sum_ave, train_loss_genes_sum_ave, train_l1_loss_sum_ave, train_total_loss_sum_ave =\
                                                                                                        train ( args, epoch, train_loader, model, optimizer, loss_function, loss_type, writer, train_loss_min, batch_size )
     
-          if train_total_loss_sum_ave < train_lowest_total_loss_observed:
-            train_lowest_total_loss_observed       = train_total_loss_sum_ave
-            train_lowest_total_loss_observed_epoch = epoch
+          if train_total_loss_sum_ave < train_lowest_total_loss_observed_so_far:
+            train_lowest_total_loss_observed_so_far       = train_total_loss_sum_ave
+            train_lowest_total_loss_observed_so_far_epoch = epoch
     
           if ( (train_total_loss_sum_ave < train_total_loss_sum_ave_last) | (epoch==1) ):
             consecutive_training_loss_increases = 0
@@ -1813,16 +1743,16 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   \r\033[1C{CLEAR_LINE}{DULL_WHITE}\
   \r\033[27Ctrain:\
   \r\033[49Closs_images={train_loss_images_sum_ave:5.2f}\
-  \r\033[120CBATCH AVE LOSS OVER EPOCH (LOSS PER 100 TILES) = {PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{train_total_loss_sum_ave*100/batch_size:9.4f}{DULL_WHITE}\
-  \r\033[250Cmin loss: {train_lowest_total_loss_observed*100/batch_size:>6.2f} at epoch {train_lowest_total_loss_observed_epoch:<2d}"
+  \r\033[120CBATCH AVE LOSS OVER EPOCH (LOSS PER 100 TILES) = {PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{train_total_loss_sum_ave*100/batch_size:6.2f}{DULL_WHITE}\
+  \r\033[250C{BLACK if epoch<2 else WHITE}min loss: {train_lowest_total_loss_observed_so_far*100/batch_size:>6.2f} at epoch {train_lowest_total_loss_observed_so_far_epoch+1:<2d}"
   , end=''  )
             elif ( input_mode=='rna' ):
               print ( f"\
   \r\033[1C{CLEAR_LINE}{DULL_WHITE}\
   \r\033[27Ctrain:\
   \r\033[73Closs_rna={train_loss_genes_sum_ave:5.2f}\
-  \r\033[120CBATCH AVE LOSS OVER EPOCH (LOSS PER 100 EXAMPLES) = {PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{train_total_loss_sum_ave*100/batch_size:9.4f}{DULL_WHITE}\
-  \r\033[250Cmin loss: {train_lowest_total_loss_observed*100/batch_size:>6.2f} at epoch {train_lowest_total_loss_observed_epoch:<2d}"
+  \r\033[120CBATCH AVE LOSS OVER EPOCH (LOSS PER 100 EXAMPLES) = {PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{train_total_loss_sum_ave*100/batch_size:6.2f}{DULL_WHITE}\
+  \r\033[250C{BLACK if epoch<2 else WHITE}min loss: {train_lowest_total_loss_observed_so_far*100/batch_size:>6.2f} at epoch {train_lowest_total_loss_observed_so_far_epoch+1:<2d}"
   , end=''  )
   
   
@@ -1875,8 +1805,8 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   \r\033[1C\033[2K{DULL_WHITE}\
   \r\033[27Ctest:\
   \r\033[49Closs_images={CARRIBEAN_GREEN}{test_loss_images_sum_ave:5.2f}{DULL_WHITE}\
-  \r\033[120CBATCH AVE LOSS OVER EPOCH (LOSS PER 100 TILES) ={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave*100/batch_size:9.4f}{DULL_WHITE}\
-  \r\033[250Cmin loss: {test_lowest_total_loss_observed_so_far*100/batch_size:6.2f} at {WHITE}epoch {test_lowest_total_loss_observed_so_far_epoch:<2d}{DULL_WHITE}\
+  \r\033[120CBATCH AVE LOSS OVER EPOCH (LOSS PER 100 TILES) = {GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave*100/batch_size:6.2f}{DULL_WHITE}\
+  \r\033[250C{BLACK if epoch<2 else WHITE}min loss: {test_lowest_total_loss_observed_so_far*100/batch_size:6.2f} at epoch {test_lowest_total_loss_observed_so_far_epoch+1:<2d}{DULL_WHITE}\
   \033[5B\
   ", end=''  )
           elif ( input_mode=='rna' ):
@@ -1885,8 +1815,8 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   \r\033[1C\033[2K{DULL_WHITE}\
   \r\033[27Ctest:\
   \r\033[73Closs_rna={BITTER_SWEET}{test_loss_genes_sum_ave:5.2f}{DULL_WHITE}\
-  \r\033[120CBATCH AVE LOSS OVER EPOCH (LOSS PER 100 EXAMPLES) ={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave*100/batch_size:9.4f}{DULL_WHITE}\
-  \r\033[250Cmin loss: {test_lowest_total_loss_observed_so_far*100/batch_size:6.2f} at {WHITE}epoch {test_lowest_total_loss_observed_so_far_epoch:<2d}{DULL_WHITE} \
+  \r\033[120CBATCH AVE LOSS OVER EPOCH (LOSS PER 100 EXAMPLES) = {GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave*100/batch_size:6.2f}{DULL_WHITE}\
+  \r\033[250C{BLACK if epoch<2 else WHITE}min loss: {test_lowest_total_loss_observed_so_far*100/batch_size:6.2f} at epoch {test_lowest_total_loss_observed_so_far_epoch+1:<2d}{DULL_WHITE} \
   \033[5B\
   ", end=''  )
   
@@ -3292,20 +3222,21 @@ def train( args, epoch, train_loader, model, optimizer, loss_function, loss_type
         
         if DEBUG>0:
           if ( args.input_mode=='image' ):
+            offset=162
             print ( f"\
 \033[2K\r\033[27C{DULL_WHITE}train:\
 \r\033[40Cn={i+1:>3d}{CLEAR_LINE}\
 \r\033[49Closs_images={ loss_images_value:5.2f}\
-\r\033[120CBATCH AVE LOSS            (LOSS PER 100 TILES)      = \r\033[\
-{156+5*int((TL*5)//1) if TL<1 else 156+6*int((TL*1)//1) if TL<12 else 250}C{PALE_GREEN if TL<1 else PALE_ORANGE if 1<=TL<2 else PALE_RED}{TL*100/batch_size:9.4f}{RESET}" )
+\r\033[120CBATCH AVE LOSS            (LOSS PER 100 TILES) = \r\033[\
+{offset+10*int((TL*5)//1) if TL<1 else offset+16*int((TL*1)//1) if TL<12 else 250}C{PALE_GREEN if TL<1 else PALE_ORANGE if 1<=TL<2 else PALE_RED}{TL*100/batch_size:6.2f}{RESET}" )
             print ( "\033[2A" )
           elif (args.input_mode=='rna') | (args.input_mode=='image_rna'):
             print ( f"\
 \033[2K\r\033[27C{DULL_WHITE}train:\
 \r\033[40Cn={i+1:>3d}{CLEAR_LINE}\
 \r\033[73Closs_rna={loss_genes_value:5.2f}\
-\r\033[120CBATCH AVE LOSS            (LOSS PER 100 EXAMPLES)      = \r\033[\
-{156+5*int((TL*5)//1) if TL<1 else 156+6*int((TL*1)//1) if TL<12 else 250}C{PALE_GREEN if TL<1 else PALE_ORANGE if 1<=TL<2 else PALE_RED}{TL*100/batch_size:9.4f}{RESET}" )
+\r\033[120CBATCH AVE LOSS            (LOSS PER 100 EXAMPLES) = \r\033[\
+{offset+5*int((TL*5)//1) if TL<1 else offset+6*int((TL*1)//1) if TL<12 else 250}C{PALE_GREEN if TL<1 else PALE_ORANGE if 1<=TL<2 else PALE_RED}{TL*100/batch_size:6.2f}{RESET}" )
             print ( "\033[2A" )          
 
 
@@ -3676,18 +3607,19 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
 
         if DEBUG>0:
           if ( args.input_mode=='image' ):
+            offset=162
             print ( f"\
 \033[2K\r\033[27Ctest:\
 \r\033[40C{DULL_WHITE}n={i+1:>3d}{CLEAR_LINE}\
 \r\033[49Closs_images={loss_images_value:5.2f}\
-\r\033[120CBATCH AVE LOSS            (LOSS PER 100 TILES)     = \r\033[{150+5*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss*100/batch_size:9.4f}{RESET}" )
+\r\033[120CBATCH AVE LOSS            (LOSS PER 100 TILES) = \r\033[{offset+10*int((total_loss*5)//1) if total_loss<1 else offset+16*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss*100/batch_size:6.2f}{RESET}" )
             print ( "\033[2A" )
           elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
             print ( f"\
 \033[2K\r\033[27Ctest:\
 \r\033[40C{DULL_WHITE}n={i+1:>3d}{CLEAR_LINE}\
 \r\033[73Closs_rna={loss_genes_value:5.2f}\
-\r\033[120CBATCH AVE LOSS            (LOSS PER 100 EXAMPLES)      = \r\033[{150+5*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss*100/batch_size:9.4f}{RESET}" )
+\r\033[120CBATCH AVE LOSS            (LOSS PER 100 EXAMPLES) = \r\033[{offset+10*int((total_loss*5)//1) if total_loss<1 else offset+16*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss*100/batch_size:6.2f}{RESET}" )
             print ( "\033[2A" )
 
 
@@ -3765,7 +3697,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
     ( number correct  - all test examples - this run: {correct}/{batch_size} \
     = {MAGENTA if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>3.0f}%{RESET} )  \
     ( number correct  - all test examples - cumulative over all runs: {global_correct_prediction_count+correct}/{global_number_tested}  \
-    = {MAGENTA if global_pct>=90 else PALE_GREEN if global_pct>=80 else ORANGE if global_pct>=70 else GOLD if global_pct>=60 else WHITE if global_pct>=50 else MAGENTA}{global_pct:>3.0f}%{RESET} )" )
+    = {MAGENTA if global_pct>=90 else PALE_GREEN if global_pct>=80 else ORANGE if global_pct>=70 else GOLD if global_pct>=60 else BLEU if global_pct>=50 else DULL_WHITE}{global_pct:>3.0f}%{RESET} )" )
   
         if args.input_mode=='image':   
           labs   = image_labels_values       [0:number_to_display] 
@@ -3945,6 +3877,101 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
 # HELPER FUNCTIONS
 # ------------------------------------------------------------------------------
 
+def determine_top_up_factors ( args, n_classes, n_tiles, case_designation_flag ):
+
+  #  Count the number images per cancer subtype in the dataset. This will be used in generate() to balance tiling so that all subtypes will be represented by the same number of tiles
+  #  The balancing is performed in 'generate()', however the counts must be performed now, before tiling, because the results are used to adjust the number of tiles extracted
+  #  Specifically, we count the number of images per subtype for the chosen subset (e.g. UNIMODE_CASE) and from this calculate 'top up factors' which are used in generate() 
+  #  to increase the number of tiles extracted for subtypes which have fewer images than the subtype with the most number of cases (images)  
+
+  if DEBUG>2:
+    print( f"CLASSI:         INFO: n_classes               = {MAGENTA}{n_classes}{RESET}",        flush=True  )
+    
+  class_counts          = np.zeros( n_classes, dtype=int )
+
+  for dir_path, dirs, files in os.walk( args.data_dir ):                                                   # each iteration takes us to a new directory under data_dir
+
+    for d in dirs:
+
+      if not (d==args.data_dir):                                                                                # the top level directory (dataset) has to be skipped because it only contains sub-directories, not data
+  
+        fqn = f"{dir_path}/{d}/{case_designation_flag}"
+        if DEBUG>100:
+          print ( f"\n\nCLASSI:         INFO:   fqn         {YELLOW}{fqn}{RESET}")
+
+        count_this_case_flag=False
+
+        try:
+          fqn = f"{dir_path}/{d}/{case_designation_flag}"
+          f = open( fqn, 'r' )
+          count_this_case_flag=True
+          if DEBUG>100:
+            print ( f"\n{GREEN}CLASSI:         INFO:         case '{CYAN}{fqn}{RESET}{GREEN}' \r\033[200X is     a case flagged as '{CYAN}{case_designation_flag}{RESET}{GREEN}' - - including{RESET}{CLEAR_LINE}",  flush=True )
+        except Exception:
+          if DEBUG>100:
+            print ( f"{RED}CLASSI:         INFO:   case       '{CYAN}{fqn}{RESET}{RED} \r\033[200C is not a case flagged as '{CYAN}{case_designation_flag}{RESET}{RED}' - - skipping{RESET}{CLEAR_LINE}",  flush=True )
+  
+        try:                                                                                               # every tile has an associated label - the same label for every tile image in the directory
+          label_file = f"{dir_path}/{d}/{args.class_numpy_file_name}"
+          if DEBUG>100:
+            print ( f"CLASSI:         INFO:   label_file  {ASPARAGUS}{label_file}{RESET}")
+          label      = np.load( label_file )
+          if label[0]>args.highest_class_number:
+            count_this_case_flag=False
+            if DEBUG>2:
+              print ( f"{ORANGE}CLASSI:         INFO: label is greater than '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{ORANGE}' - - skipping this example (label = {MIKADO}{label[0]}{RESET}{ORANGE}){RESET}"      )
+            pass
+        except Exception as e:
+          print ( f"{RED}CLASSI:               FATAL: when processing: '{label_file}'{RESET}", flush=True)        
+          print ( f"{RED}CLASSI:                      reported error was: '{e}'{RESET}", flush=True)
+          print ( f"{RED}CLASSI:                      halting now{RESET}", flush=True)
+          sys.exit(0)
+        
+        if ( count_this_case_flag==True ):
+          class_counts[label[0]]+=1
+          
+          if DEBUG>100:
+            print( f"CLASSI:         INFO:     class_counts   = {MIKADO}{class_counts}{RESET}", flush=True  )
+
+
+
+  if case_designation_flag!='UNIMODE_CASE____IMAGE_TEST':
+    row=0
+    colour = AMETHYST
+  else:
+    row=7
+    colour = ORANGE
+
+    
+  if DEBUG>0:
+    np.set_printoptions(formatter={'int':   lambda x: "{:>6d}".format(x)})
+    print( f"\033[{row+1};220f  {CLEAR_LINE}CLASSI:         INFO:     {colour}{case_designation_flag}{RESET}",                                                       flush=True  )
+    print( f"\033[{row+2};220f  {CLEAR_LINE}CLASSI:         INFO:       final class_counts           = {colour}{class_counts}{RESET}",                               flush=True  )
+    print( f"\033[{row+3};220f  {CLEAR_LINE}CLASSI:         INFO:       total slides counted         = {colour}{np.sum(class_counts)}{RESET}",                       flush=True  )
+
+  relative_ratios = class_counts/np.max(class_counts)
+
+  if DEBUG>0:
+    np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})
+    print( f"\033[{row+4};220f  {CLEAR_LINE}CLASSI:         INFO:       relative class ratios        = {colour}{relative_ratios}{RESET}",                            flush=True  )
+
+  top_up_factors           = np.divide(1,relative_ratios)
+  tiles_needed_per_example = (top_up_factors*n_tiles).astype(int) + 1                                      # to make the values the same as tiler() uses, where I add one extra to be safe 
+  estimated_total_tiles    = (np.sum(top_up_factors*class_counts*n_tiles)).astype(int)
+
+  if DEBUG>0:
+    np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})
+    print( f"\033[{row+5};220f  {CLEAR_LINE}CLASSI:         INFO:       top up factors               = {colour}{top_up_factors}{RESET}",                             flush=True  )
+    np.set_printoptions(formatter={'int':   lambda x: "{:>6d}".format(x)})
+    print( f"\033[{row+6};220f  {CLEAR_LINE}CLASSI:         INFO:       tiles_needed_per_example     = {colour}{tiles_needed_per_example}{RESET}",                      flush=True  )
+    print( f"\033[{row+7};220f  {CLEAR_LINE}CLASSI:         INFO:       estimated_total_tiles        = {colour}{estimated_total_tiles:,}{RESET}",                    flush=True  )
+
+  return ( estimated_total_tiles, top_up_factors )
+
+
+
+# ------------------------------------------------------------------------------
+
 def segment_cases( pct_test ):
 
   # (1A) analyse dataset directory
@@ -4077,7 +4104,7 @@ def segment_cases( pct_test ):
     #        - yes it's confusing. sorry!
 
 
-    # (1Ca) designate MULTIMODE____TEST cases.  Infinite loop with a break condition (necessary to give every case an equal chance of being randonly selected for inclusion in the MULTIMODE case set)
+    # (1Ci) designate MULTIMODE____TEST cases.  Infinite loop with a break condition (necessary to give every case an equal chance of being randonly selected for inclusion in the MULTIMODE case set)
     
     directories_considered_count = 0
     multimode_case_test_count    = 0
@@ -4093,7 +4120,7 @@ def segment_cases( pct_test ):
           print( f"{DIM_WHITE}CLASSI:         INFO:     now considering case {ARYLIDE}{os.path.basename(dir_path)}{RESET}{DIM_WHITE} as a multimode case  " ) 
     
         
-        if not (dir_path==args.data_dir):                                                                  # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
+        if not (dir_path==args.data_dir):                                                                  # the top level directory (dataset) has to be skipped because it only contains sub-directories, not data
   
           if DEBUG>55:
             print ( f"{PALE_GREEN}CLASSI:         INFO:   case   \r\033[60C{RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[120C has both image and rna files\r\033[140C (count= {matched_image_rna_count}{RESET}{PALE_GREEN})",  flush=True )
@@ -4142,7 +4169,7 @@ def segment_cases( pct_test ):
         break
 
 
-    # (1Cb) designate UNIMODE_CASE____MATCHED cases. Go through all MATCHED directories one time. Flag any MATCHED case other than those flagged as MULTIMODE____TEST case at 1Ca above with the UNIMODE_CASE____MATCHED
+    # (1Cii) designate UNIMODE_CASE____MATCHED cases. Go through all MATCHED directories one time. Flag any MATCHED case other than those flagged as MULTIMODE____TEST case at 1Ca above with the UNIMODE_CASE____MATCHED
     
     unimode_case_matched_count    = 0
 
@@ -4183,7 +4210,7 @@ def segment_cases( pct_test ):
             print ( "not a multimode case" )
       
       
-    # (1Cc) designate the UNIMODE_CASE____MATCHED cases. Go through all directories one time. Flag other than MULTIMODE____TEST and  UNIMODE_CASE____MATCHED cases as UNIMODE_CASE
+    # (1Ciii) designate the UNIMODE_CASE____MATCHED cases. Go through all directories one time. Flag other than MULTIMODE____TEST and  UNIMODE_CASE____MATCHED cases as UNIMODE_CASE
         
     unimode_case_unmatched_count=0
     for dir_path, dirs, files in os.walk( args.data_dir ):                                                 # each iteration takes us to a new directory under the dataset directory
@@ -4191,7 +4218,7 @@ def segment_cases( pct_test ):
       if DEBUG>55:  
         print( f"{DIM_WHITE}CLASSI:           INFO:   now processing case (directory) {ARYLIDE}{os.path.basename(dir_path)}{RESET}" )
   
-      if not (dir_path==args.data_dir):                                                                    # the top level directory (dataset) has be skipped because it only contains sub-directories, not data  
+      if not (dir_path==args.data_dir):                                                                    # the top level directory (dataset) has to be skipped because it only contains sub-directories, not data  
 
         for f in sorted( files ):          
                     
@@ -4218,7 +4245,7 @@ def segment_cases( pct_test ):
               unimode_case_unmatched_count+=1                                                              # only segment_cases knows the value of unimode_case_unmatched_count, and we need in generate(), so we return it
                                                                   
 
-    # (1Cd) Designate those IMAGE cases which are not also MULTIMODE cases. Go through directories one time. Flag UNIMODE_CASE which are also image cases as UNIMODE_CASE____IMAGE
+    # (1Civ) Designate those IMAGE cases which are not also MULTIMODE cases. Go through directories one time. Flag UNIMODE_CASE which are also image cases as UNIMODE_CASE____IMAGE
     
     if DEBUG>3:
       print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():  about to designate '{ARYLIDE}UNIMODE_CASE____IMAGE{RESET}{DULL_WHITE}' cases{RESET}",  flush=True )  
@@ -4258,7 +4285,7 @@ def segment_cases( pct_test ):
             print ( f"{PALE_RED}CLASSI:           INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[122C is not an image case - - skipping{RESET}",  flush=True )                                                                    
         
 
-    # (1Ce) Designate those RNA cases which are not also MULTIMODE cases. Go through directories one time. Flag UNIMODE_CASE which are also rna cases as UNIMODE_CASE____RNA
+    # (1Cv) Designate those RNA cases which are not also MULTIMODE cases. Go through directories one time. Flag UNIMODE_CASE which are also rna cases as UNIMODE_CASE____RNA
     
     if DEBUG>3:
       print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():  about to designate '{ARYLIDE}UNIMODE_CASE____RNA{RESET}{DULL_WHITE}' cases{RESET}",  flush=True )  
@@ -4298,7 +4325,7 @@ def segment_cases( pct_test ):
             print ( f"{PALE_RED}CLASSI:           INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[122C is not an rna case - - skipping{RESET}",  flush=True )                                                                    
         
 
-    # (1Cf) Designate 'UNIMODE_CASE____IMAGE_TEST' cases. Go through directories one time. Flag 'PCT_TEST' % of the UNIMODE_CASE IMAGE cases as UNIMODE_CASE____IMAGE_TESTxxx
+    # (1Cvi) Designate 'UNIMODE_CASE____IMAGE_TEST' cases. Go through directories one time. Flag 'PCT_TEST' % of the UNIMODE_CASE IMAGE cases as UNIMODE_CASE____IMAGE_TESTxxx
     #        These cases are used for unimode image testing. Necessary to strictly separated cases in this manner for image mode so that tiles from a single image do not end up in both the training and test sets   
     #        In image mode, tiles allocated to the training set cann't come from an image which is also contributing tiles to the test set. Ditto the reverse.
     #        This issue does not affect rna mode, where there is only one artefact per case. I.e. when input is rna, any rna sample can be allocated to either the training set or test set
@@ -4321,7 +4348,7 @@ def segment_cases( pct_test ):
         if DEBUG>55:  
           print( f"{DIM_WHITE}CLASSI:         INFO:   now considering case {ARYLIDE}{os.path.basename(dir_path)}{RESET}{DIM_WHITE} \r\033[130C as a candidate UNIMODE_CASE____IMAGE_TEST case  " ) 
             
-        if not (dir_path==args.data_dir):                                                                  # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
+        if not (dir_path==args.data_dir):                                                                  # the top level directory (dataset) has to be skipped because it only contains sub-directories, not data
           try:
             fqn = f"{dir_path}/UNIMODE_CASE____IMAGE"    
             f = open( fqn, 'r' )                
@@ -4358,7 +4385,7 @@ def segment_cases( pct_test ):
  
  
  
-    # (1Cg) Designate 'UNIMODE_CASE____RNA_TEST' cases. Go through directories one time. Re-flag 'PCT_TEST' % of the UNIMODE_CASE____RNA cases as UNIMODE_CASE____RNA_TEST and remove the UNIMODE_CASE____RNA flag
+    # (1Cvii) Designate 'UNIMODE_CASE____RNA_TEST' cases. Go through directories one time. Re-flag 'PCT_TEST' % of the UNIMODE_CASE____RNA cases as UNIMODE_CASE____RNA_TEST and remove the UNIMODE_CASE____RNA flag
     #
     #        Strategy: re-designate an appropriate number of the 'UNIMODE_CASE____RNA' to be 'UNIMODE_CASE____RNA_TEST' (delete the first flag)
   
@@ -4378,7 +4405,7 @@ def segment_cases( pct_test ):
         if DEBUG>55:  
           print( f"{DIM_WHITE}CLASSI:         INFO:   now considering case {ARYLIDE}{os.path.basename(dir_path)}{RESET}{DIM_WHITE} \r\033[130C as a candidate UNIMODE_CASE____RNA_TEST case  " ) 
             
-        if not (dir_path==args.data_dir):                                                                  # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
+        if not (dir_path==args.data_dir):                                                                  # the top level directory (dataset) has to be skipped because it only contains sub-directories, not data
           try:
             fqn = f"{dir_path}/UNIMODE_CASE____RNA"    
             f = open( fqn, 'r' )                
@@ -4411,8 +4438,6 @@ def segment_cases( pct_test ):
         break
 
     unimode_case_rna_count = unimode_case_rna_count - unimode_case_rna_test_count    
-    
-    
     
 
     if DEBUG>0:
