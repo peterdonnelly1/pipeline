@@ -3821,13 +3821,16 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
   
       if pct_correct       >  max_percent_correct:
         max_percent_correct    =  pct_correct
-                                                                           
-      writer.add_scalar( '1a_test_loss_ave',       total_loss_ave,          epoch )
-      writer.add_scalar( '1b_test_loss_ave_min',   test_loss_min/(i+1),     epoch )    
-      writer.add_scalar( '1c_num_correct',         correct_predictions,     epoch )
-      writer.add_scalar( '1d_num_correct_max',     max_correct_predictions, epoch )
-      writer.add_scalar( '1e_pct_correct',         pct_correct,             epoch ) 
-      writer.add_scalar( '1f_max_percent_correct', max_percent_correct,     epoch ) 
+      
+      normalised_test_lost_with_outlier_truncatation =  ( total_loss_ave if (total_loss_ave<10) else 10 ) *100/batch_size
+      
+      writer.add_scalar( '1a_test_loss_ave',                     total_loss_ave,                                 epoch )
+      writer.add_scalar( '1b_test_loss_ave_per_100_tiles',       normalised_test_lost_with_outlier_truncatation, epoch )
+      writer.add_scalar( '1c_test_loss_ave_min',                 test_loss_min/(i+1),                            epoch )    
+      writer.add_scalar( '1d_num_correct',                       correct_predictions,                            epoch )
+      writer.add_scalar( '1e_num_correct_max',                   max_correct_predictions,                        epoch )
+      writer.add_scalar( '1f_pct_correct',                       pct_correct,                                    epoch ) 
+      writer.add_scalar( '1g_max_percent_correct',               max_percent_correct,                            epoch ) 
     
     else:                                                                                                  # these two learning curves are relevant for autoencoders
       writer.add_scalar( '1a_test_loss_ave',       total_loss_ave,          epoch )
