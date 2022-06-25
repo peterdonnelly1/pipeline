@@ -3822,15 +3822,17 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
       if pct_correct       >  max_percent_correct:
         max_percent_correct    =  pct_correct
       
-      normalised_test_lost_with_outlier_truncatation =  ( total_loss_ave if (total_loss_ave<10) else 10 ) *100/batch_size
+      normalised_test_loss            = total_loss_ave * 100 / batch_size
+      trunctated_normalised_test_loss = normalised_test_loss if (normalised_test_loss<100) else 100
       
-      writer.add_scalar( '1a_test_loss_ave',                     total_loss_ave,                                 epoch )
-      writer.add_scalar( '1b_test_loss_ave_per_100_tiles',       normalised_test_lost_with_outlier_truncatation, epoch )
-      writer.add_scalar( '1c_test_loss_ave_min',                 test_loss_min/(i+1),                            epoch )    
-      writer.add_scalar( '1d_num_correct',                       correct_predictions,                            epoch )
-      writer.add_scalar( '1e_num_correct_max',                   max_correct_predictions,                        epoch )
-      writer.add_scalar( '1f_pct_correct',                       pct_correct,                                    epoch ) 
-      writer.add_scalar( '1g_max_percent_correct',               max_percent_correct,                            epoch ) 
+      writer.add_scalar( '1a_batch_test_loss____average_batch_loss_over_epoch',                  total_loss_ave,                   epoch )
+      writer.add_scalar( '1b_batch_test_loss____normalised________________(loss_per_100_tiles)', normalised_test_loss,             epoch )
+      writer.add_scalar( '1c_batch_test_loss____normalised_and_trunctated_(loss_per_100_tiles)', trunctated_normalised_test_loss,  epoch )
+      writer.add_scalar( '1a_batch_test_loss____average_batch_loss_over_epoch___minimums',       test_loss_min/(i+1),              epoch )    
+      writer.add_scalar( '1e_num_correct',                                                       correct_predictions,              epoch )
+      writer.add_scalar( '1f_num_correct_max',                                                   max_correct_predictions,          epoch )
+      writer.add_scalar( '1g_pct_correct',                                                       pct_correct,                      epoch ) 
+      writer.add_scalar( '1h_max_percent_correct',                                               max_percent_correct,              epoch ) 
     
     else:                                                                                                  # these two learning curves are relevant for autoencoders
       writer.add_scalar( '1a_test_loss_ave',       total_loss_ave,          epoch )
