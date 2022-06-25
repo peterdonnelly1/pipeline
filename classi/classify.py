@@ -3815,10 +3815,10 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
        test_loss_min     =  total_loss_sum
 
     normalised_test_loss            = total_loss_sum_ave * 1000 / batch_size
-    trunctated_normalised_test_loss = normalised_test_loss if (normalised_test_loss<1000) else 1000
+    trunctated_normalised_test_loss = normalised_test_loss if (normalised_test_loss<10) else 10
 
 
-    if loss_type != 'mean_squared_error':                                                                                 # the following only make sense if we are classifying, so skip for autoencoders 
+    if loss_type != 'mean_squared_error':                                                                  # the following only make sense if we are classifying, so skip for autoencoders 
 
       if correct_predictions    >  max_correct_predictions:
         max_correct_predictions =  correct_predictions
