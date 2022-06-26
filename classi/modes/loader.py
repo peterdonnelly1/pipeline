@@ -438,13 +438,24 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
     else:
       total_batches  = number_of_test_batches
 
-    used_samples   = total_batches*batch_size
-    unused_samples = n_samples - used_samples 
-    percent_unused = 100*unused_samples/n_samples
-    if percent_unused > 2.5:
-      if DEBUG>0:
-        print( f"{ORANGE}CLASSI:         INFO: {CYAN}N_SAMPLES{RESET}{ORANGE} is {MIKADO}{n_samples}{RESET}{ORANGE}, total batches = {MIKADO}{total_batches}{RESET}{ORANGE} and {CYAN}BATCH_SIZE{RESET}{ORANGE} = {MIKADO}{batch_size}{RESET}{ORANGE}. This means {MIKADO}{used_samples}{RESET}{ORANGE} out of the {MIKADO}{n_samples}{RESET}{ORANGE} available samples ({MIKADO}{100-percent_unused:.0f}%{RESET}{ORANGE}) are being used in this training run{RESET}{ORANGE}. Tinker with the values of {CYAN}BATCH_SIZE{RESET}{ORANGE} and {CYAN}PCT_TEST{RESET}{ORANGE} if this figure is unacceptable{RESET}")
+
+    # ~ if percent_unused > 2.5:
+    if DEBUG>0:
+      if input_mode=='image':
+        if just_test != 'True':
+          available_tiles = train_cases + test_cases
+          used_tiles      = total_batches*batch_size
+          unused_tiles    = available_tiles- used_tiles 
+          percent_unused  = 100*unused_tiles/available_tiles
+          print( f"{ORANGE}CLASSI:         INFO:   available tiles = {MIKADO}{train_cases}{RESET}{ORANGE} + {MIKADO}{test_cases}{RESET}{ORANGE} = {MIKADO}{available_tiles}{RESET}{ORANGE}. Tiles that will be used{RESET}{ORANGE} = total batches ({MIKADO}{total_batches}{RESET}{ORANGE}) * batch_size ({MIKADO}{batch_size}{RESET}{ORANGE}) = {MIKADO}{used_tiles}{RESET}{ORANGE}. Hence {MIKADO}{used_tiles}{RESET}{ORANGE}/{MIKADO}{available_tiles}{RESET}{ORANGE} = {MIKADO}{100-percent_unused:.0f}%{RESET}{ORANGE} of the available tiles will be used in this training run{RESET}{ORANGE}. Tinker with the values of {CYAN}BATCH_SIZE{RESET}{ORANGE} and {CYAN}PCT_TEST{RESET}{ORANGE} if this figure is unacceptable{RESET}")
+          print( "\n" )
+      else:
+        used_samples   = total_batches*batch_size
+        unused_samples = n_samples - used_samples 
+        percent_unused = 100*unused_samples/n_samples
+        print( f"{ORANGE}CLASSI:         INFO:   {CYAN}N_SAMPLES{RESET}{ORANGE} is {MIKADO}{n_samples}{RESET}{ORANGE}, total batches = {MIKADO}{total_batches}{RESET}{ORANGE} and {CYAN}BATCH_SIZE{RESET}{ORANGE} = {MIKADO}{batch_size}{RESET}{ORANGE}. This means {MIKADO}{used_samples}{RESET}{ORANGE} out of the {MIKADO}{n_samples}{RESET}{ORANGE} available samples ({MIKADO}{100-percent_unused:.0f}%{RESET}{ORANGE}) are being used in this training run{RESET}{ORANGE}. Tinker with the values of {CYAN}BATCH_SIZE{RESET}{ORANGE} and {CYAN}PCT_TEST{RESET}{ORANGE} if this figure is unacceptable{RESET}")
         print( "\n" )
+
 
 
 

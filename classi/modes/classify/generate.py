@@ -1639,8 +1639,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
         
       if args.just_test=='False':
         if tiles_processed!=n_tiles:
-          print( f"{RED}GENERATE:       INFO:   tiles processed in directory:  \r\033[55C'{MAGENTA}{dir_path}{RESET}' = {MIKADO}{tiles_processed:<8d}{RESET}{RED}\r\033[180C<<<<<<<<<<<< anomoly {RESET}", flush=True  )       
-          time.sleep(2)
+          print( f"{CLEAR_LINE}{BOLD}{ORANGE}GENERATE:       INFO:   for directory: \r\033[55C'{MAGENTA}{dir_path}{RESET}{BOLD}{ORANGE}' tiles processed = {MIKADO}{tiles_processed:<8d}{BOLD}{ORANGE} instead of expected {MIKADO}{n_tiles}{RESET}{BOLD}{ORANGE}                   <<<<<<<<<<<< anomoly {RESET}", flush=True  )       
 
       directories_processed+=1
       if DEBUG>8:
@@ -1659,7 +1658,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
       print( f"{CLEAR_LINE}{RED}GENERATE:       WARNG:   (test mode)   not halting, but this will likely cause problems",  flush=True      )
       time.sleep(4)
     else:
-      print( f"{CLEAR_LINE}{ORANGE}GENERATE:       WARNG:   the number of cases found and processed ({MIKADO}{directories_processed}{RESET}{ORANGE}) is less than the number  required ({MIKADO}{cases_required}{RESET}{ORANGE})",  flush=True        ) 
+      print( f"{CLEAR_LINE}{ORANGE}GENERATE:       WARNG:   the number of cases found and processed ({MIKADO}{directories_processed}{RESET}{ORANGE}) is less than the number required ({MIKADO}{cases_required}{RESET}{ORANGE})",  flush=True        ) 
       print( f"{CLEAR_LINE}{ORANGE}GENERATE:       WARNG:   one possible explanation: if you set '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{ORANGE}' to a number less than the number of classes actually present in the dataset, none of the '{CYAN}{args.cases}{RESET}{ORANGE}' cases belonging to the classes you removed will be available to be used",  flush=True        )
       print( f"{CLEAR_LINE}{ORANGE}GENERATE:       WARNG:   not halting, but this might cause problems",  flush=True      )
   

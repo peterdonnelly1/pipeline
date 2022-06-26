@@ -392,7 +392,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   if highest_class_number > len(subtype_names_as_list)-1:
     print( f"{BOLD}{ORANGE}CLASSI:         WARNG: config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{BOLD}{ORANGE}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{BOLD}{ORANGE}') = \
 {MIKADO}{highest_class_number}{RESET}{BOLD}{ORANGE}, which is greater than the highest class (subtype) in the dataset ({MIKADO}{len(subtype_names_as_list)-1}{RESET}{BOLD}{ORANGE}) (note that class numbers start at zero){RESET}", flush=True)
-    print( f"{BOLD}{ORANGE}CLASSI:         WARNG:   therefore this config setting will be ignored. Continuing ...{RESET}", flush=True)
+    print( f"{ORANGE}CLASSI:         WARNG:   therefore this config setting will be ignored. Continuing ...{RESET}", flush=True)
   
   if highest_class_number < 2:
     print( f"{BOLD}{RED}CLASSI:         FATAL: config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{BOLD}{RED}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{BOLD}{RED}') = \
@@ -458,7 +458,7 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
       if just_test != True:
         if svs_file_count<np.max(args.n_samples):
           print( f"{BOLD}{ORANGE}CLASSI:         WARNG: there aren't enough samples. A file count reveals a total of {MIKADO}{svs_file_count}{RESET}{BOLD}{ORANGE} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}{BOLD}{ORANGE}, whereas the largest value in user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{BOLD}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
-          print( f"{BOLD}{ORANGE}CLASSI:         WARNG:   changing values of '{CYAN}N_SAMPLES{RESET}{BOLD}{ORANGE} that are greater than {RESET}{MIKADO}{svs_file_count}{RESET}{BOLD}{ORANGE} to exactly {MIKADO}{svs_file_count}{RESET}{BOLD}{ORANGE} and continuing{RESET}" )
+          print( f"{ORANGE}CLASSI:         WARNG:   changing values of '{CYAN}N_SAMPLES{RESET}{ORANGE} that are greater than {RESET}{MIKADO}{svs_file_count}{RESET}{ORANGE} to exactly {MIKADO}{svs_file_count}{RESET}{ORANGE} and continuing{RESET}" )
           args.n_samples = [  el if el<=svs_file_count else svs_file_count for el in args.n_samples   ]
           n_samples = args.n_samples
         else:
@@ -467,7 +467,7 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
         min_required = int(np.max(args.n_samples) * pct_test  )
         if svs_file_count< min_required:
           print( f"{BOLD}{ORANGE}CLASSI:         WARNG: there aren't enough samples. A file count reveals a total of {MIKADO}{svs_file_count}{RESET}{BOLD}{ORANGE} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}{BOLD}{ORANGE}, whereas the absolute minimum number required for this test run is {MIKADO}{min_required}{RESET}" ) 
-          print( f"{BOLD}{ORANGE}CLASSI:         WARNG: changing values of '{CYAN}N_SAMPLES{RESET}{BOLD}{ORANGE} that are greater than {RESET}{MIKADO}{svs_file_count}{RESET}{BOLD}{ORANGE} to exactly {MIKADO}{svs_file_count}{RESET}{BOLD}{ORANGE} and continuing{RESET}" )
+          print( f"{ORANGE}CLASSI:         WARNG: changing values of '{CYAN}N_SAMPLES{RESET}{ORANGE} that are greater than {RESET}{MIKADO}{svs_file_count}{RESET}{ORANGE} to exactly {MIKADO}{svs_file_count}{RESET}{ORANGE} and continuing{RESET}" )
           args.n_samples = [  el if el<=svs_file_count else svs_file_count for el in args.n_samples   ]
           n_samples = args.n_samples
         else:
@@ -795,8 +795,8 @@ f"\
 \r\033[{start_column+8*offset}Cnet_img\
 \r\033[{start_column+9*offset}Coptimizer\
 \r\033[{start_column+10*offset}Cstain_norm\
-\r\033[{start_column+12*offset}Clabel_swap\
-\r\033[{start_column+13*offset}Cgreyscale\
+\r\033[{start_column+11*offset}Clabel_swap\
+\r\033[{start_column+12*offset}Cgreyscale\
 \r\033[{start_column+13*offset}Cjitter vector\
 "
 
@@ -1600,7 +1600,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     
     loss_type=''
     
-    if  ( input_mode!='image' ) & ( nn_type_rna in [ 'AELINEAR', 'AEDENSE', 'AEDENSEPOSITIVE', 'DCGANAE128' ] ):
+    if  ( input_mode!='image' ) & ( nn_type_rna in [ 'AELINEAR', 'AEDENSE', 'AEDENSEPOSITIVE', 'DCGANAE128' ] ):    # autoencoders
  
       loss_function = torch.nn.MSELoss()
       loss_type     = 'mean_squared_error'                                                                         
@@ -1710,11 +1710,11 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     for epoch in range(1, n_epochs+1):
   
         if   args.input_mode=='image':
-          print( f'\nCLASSI:         INFO:  in epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  input:{MIKADO}{input_mode}{RESET} lr:{MIKADO}{lr:<9.6f}{RESET} samples:{MIKADO}{n_samples}{RESET} batch size:{MIKADO}{batch_size}{RESET} tile size:{MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide:{MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+          print( f'\nCLASSI:         INFO:  {CARRIBEAN_GREEN}(RUN {run} of {total_runs_in_job}){RESET} in epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  input:{MIKADO}{input_mode}{RESET} lr:{MIKADO}{lr:<9.6f}{RESET} samples:{MIKADO}{n_samples}{RESET} batch size:{MIKADO}{batch_size}{RESET} tile size:{MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide:{MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
         elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
-          print( f'\nCLASSI:         INFO:  in epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  input:{MIKADO}{input_mode}{RESET} lr:{MIKADO}{lr:<9.6f}{RESET} samples:{MIKADO}{n_samples}{RESET} batch size:{MIKADO}{batch_size}{RESET} hidden layer neurons:{MIKADO}{hidden_layer_neurons}{RESET} embedded dimensions:{MIKADO}{batch_size if args.use_autoencoder_output==True  else "N/A" }{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+          print( f'\nCLASSI:         INFO:  {CARRIBEAN_GREEN}(RUN {run} of {total_runs_in_job}){RESET} in epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  input:{MIKADO}{input_mode}{RESET} lr:{MIKADO}{lr:<9.6f}{RESET} samples:{MIKADO}{n_samples}{RESET} batch size:{MIKADO}{batch_size}{RESET} hidden layer neurons:{MIKADO}{hidden_layer_neurons}{RESET} embedded dimensions:{MIKADO}{batch_size if args.use_autoencoder_output==True  else "N/A" }{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
         else:
-          print( f'\nCLASSI:         INFO:  in epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  input:{MIKADO}{input_mode}{RESET} lr:{MIKADO}{lr:<9.6f}{RESET} samples:{MIKADO}{n_samples}{RESET} batch size:{MIKADO}{batch_size}{RESET} tile size:{MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide:{MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+          print( f'\nCLASSI:         INFO:  {CARRIBEAN_GREEN}(RUN {run} of {total_runs_in_job}){RESET} in epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  input:{MIKADO}{input_mode}{RESET} lr:{MIKADO}{lr:<9.6f}{RESET} samples:{MIKADO}{n_samples}{RESET} batch size:{MIKADO}{batch_size}{RESET} tile size:{MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide:{MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
 
     
         if just_test=='True':                                                                              # skip training in 'test mode'
@@ -2952,10 +2952,10 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   
   
   
-    # (F)  MAYBE PROCESS AND GENERATE AND SAVE (AND MAYBE DISPLAY) JOB LEVEL CONFUSION MATRIX AND BOX PLOTS
+    # (F)  PROCESS AND GENERATE AND SAVE (AND MAYBE DISPLAY) JOB LEVEL CONFUSION MATRIX
+
+    if (args.just_test!='True') & (run==total_runs_in_job):
     
-    if (args.just_test!='True') & (total_runs_in_job>1) & (run==total_runs_in_job):
-      
       print(  '\033[6B' )      
       print( f'CLASSI:         INFO:'                                                                                    )
       print( f"CLASSI:         INFO:    {CARRIBEAN_GREEN}Test predictions produced during training for this job{RESET}"     )
@@ -2973,7 +2973,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       np.seterr( invalid='ignore', divide='ignore' )
       print( f"\n" )
       print( f'CLASSI:         INFO:    number of runs in this job                   = {CHARTREUSE}{total_runs_in_job}{RESET}')
-      print( f"CLASSI:         INFO:    total for ALL test examples over ALL runs    = {CHARTREUSE}{np.sum(total_correct, axis=0)} / {np.sum(job_level_classifications_matrix, axis=None)}  ({CHARTREUSE}{100 * np.sum(total_correct, axis=0) / np.sum(job_level_classifications_matrix):3.1f}%){RESET}")
+      print( f"CLASSI:         INFO:    total for ALL {BOLD}test{RESET} examples over ALL runs    = {CHARTREUSE}{np.sum(total_correct, axis=0)} / {np.sum(job_level_classifications_matrix, axis=None)}  ({CHARTREUSE}{100 * np.sum(total_correct, axis=0) / np.sum(job_level_classifications_matrix):3.1f}%){RESET}")
       np.set_printoptions(formatter={'int': lambda x: f"{CHARTREUSE}{x:>6d}"})
       print( f'CLASSI:         INFO:    total correct per subtype over all runs      = { total_correct }{RESET}')
       np.set_printoptions(formatter={'float': lambda x: f"{CHARTREUSE}{x:>6.1f}"})
@@ -3036,7 +3036,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         row_1_string   = f"Subtype: {class_name: <30s}"
         row_2_string   = f".                              Predicted Positive Count"
         row_3_string   = f".                              Predicted Negative Count"
-        row_4_string   = f".                                          Total Cases:"
+        row_4_string   = f".                                        Total Samples:"
         row_5_string   = f".                 Precision              TP / (TP+FP) :"
         row_6_string   = f".                 Recall                 TP / (TP+FN) :"
         row_7_string   = f".                 F1 Score            2*P*R / (P + R) :"
@@ -3080,13 +3080,16 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       print ( f"\n" )
 
 
-      # (iii) generate and save and maybe display box plots
+    # (G) MAYBE PROCESS AND GENERATE AND SAVE (AND MAYBE DISPLAY) BOX PLOTS
+    
 
-      if ( args.box_plot=='True' ) & ( total_runs_in_job>=args.minimum_job_size ):
-          box_plot_by_subtype( args, class_names, n_genes, start_time, parameters, zoom_out_mags, zoom_out_prob, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc )
+    if ( args.box_plot=='True' ) & (run==total_runs_in_job):      
+
+        box_plot_by_subtype( args, class_names, n_genes, start_time, parameters, zoom_out_mags, zoom_out_prob, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc )
 
 
-  # (G)  CLOSE UP AND END
+  # (H)  CLOSE UP AND END
+  
   writer.close()        
 
   hours   = round( (time.time() - start_time) / 3600,  1   )
@@ -3829,8 +3832,8 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
             
       writer.add_scalar( '1a_ave_batch_test_loss',                                 total_loss_sum_ave,               epoch )
       writer.add_scalar( '1b_ave_batch_test_loss_per_1000_tiles',                  normalised_test_loss,             epoch )
-      writer.add_scalar( '1c_ave_batch_test_loss_per_1000_tiles_trunctated_to_10', normalised_test_loss_trunc_10,  epoch )
-      writer.add_scalar( '1d_ave_batch_test_loss_per_1000_tiles_trunctated_to_1',  normalised_test_loss_trunc_1,   epoch )
+      writer.add_scalar( '1c_ave_batch_test_loss_per_1000_tiles_trunc_10',         normalised_test_loss_trunc_10,  epoch )
+      writer.add_scalar( '1d_ave_batch_test_loss_per_1000_tiles_trunc_1',          normalised_test_loss_trunc_1,   epoch )
       writer.add_scalar( '1e_1a_ave_batch_test_loss____minimums',                  test_loss_min/(i+1),              epoch )    
       writer.add_scalar( '1f_num_correct',                                         correct_predictions,              epoch )
       writer.add_scalar( '1g_num_correct_max',                                     max_correct_predictions,          epoch )
@@ -3838,10 +3841,10 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
       writer.add_scalar( '1i_max_percent_correct',                                 max_percent_correct,              epoch ) 
     
     else:                                                                                                  # only these learning curves are relevant for autoencoders
-      writer.add_scalar( '1a_ave_batch_test_loss',                           total_loss_sum_ave,               epoch )
-      writer.add_scalar( '1b_ave_batch_test_loss_per_1000_tiles',            normalised_test_loss,             epoch )
-      writer.add_scalar( '1c_ave_batch_test_loss_per_1000_tiles_trunctated', normalised_test_loss_trunc_10,  epoch )
-      writer.add_scalar( '1d_ave_batch_test_loss_running_minimum',           test_loss_min/(i+1),              epoch )   
+      writer.add_scalar( '1a_ave_batch_test_loss',                                 total_loss_sum_ave,               epoch )
+      writer.add_scalar( '1b_ave_batch_test_loss_per_1000_tiles',                  normalised_test_loss,             epoch )
+      writer.add_scalar( '1c_ave_batch_test_loss_per_1000_tiles_trunctated',       normalised_test_loss_trunc_10,  epoch )
+      writer.add_scalar( '1d_ave_batch_test_loss_running_minimum',                 test_loss_min/(i+1),              epoch )   
       
     
     if DEBUG>9:

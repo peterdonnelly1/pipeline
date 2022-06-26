@@ -785,7 +785,7 @@ def highest_uniques(args, oslide, level, slide_width, slide_height, tile_size, s
     uniques = len(np.unique(tile ))
 
     if (DEBUG>0):
-      print ( f"{SAVE_CURSOR}\033[11;0H{CLEAR_LINE}\033[32Csearching image for coordinates of a good quality patch :  uniques(): (n={n:3d}) a tile with {BRIGHT_GREEN}{uniques:4d}{RESET} uniques at x={CYAN}{x:7d}{RESET}, y={CYAN}{y:7d}{RESET}     <<<< checking {CYAN}POINTS_TO_SAMPLE{RESET}={MIKADO}{args.points_to_sample}{RESET} potential patches and selecting the best of these" )
+      print ( f"{SAVE_CURSOR}\033[11;0H{CLEAR_LINE}\033[32Csearching image for coordinates of a good quality patch :  currently looking at (n={n:3d}) a patch with {BRIGHT_GREEN}{uniques:4d}{RESET} uniques at x={CYAN}{x:7d}{RESET}, y={CYAN}{y:7d}{RESET}     <<<< checking {CYAN}POINTS_TO_SAMPLE{RESET}={MIKADO}{args.points_to_sample}{RESET} potential patches and selecting the best of these" )
 
 
     if ( uniques>high_uniques ):                                                                                    # then check the tiles at the other three corners of the putative sqaure
