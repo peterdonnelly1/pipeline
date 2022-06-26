@@ -3177,20 +3177,28 @@ def train( args, epoch, train_loader, model, optimizer, loss_function, loss_type
 
         if (args.input_mode=='image'):
           
-          if DEBUG>2:
+          if DEBUG>0:
             np.set_printoptions(formatter={'float': lambda x:   "{:>6.2f}".format(x)})
             image_labels_numpy = (image_labels .cpu() .data) .numpy()
             y1_hat_numpy       = (y1_hat       .cpu() .data) .numpy()
             batch_fnames_npy   = (batch_fnames .cpu() .data) .numpy()
             random_pick        = random.randint( 0, y1_hat_numpy.shape[0]-1 )
-            print ( f"CLASSI:         INFO:      test:        fq_link            [{random_pick:3d}]                      = {MIKADO}{args.data_dir}/{batch_fnames_npy[random_pick]}.fqln{RESET}"     )            
-            print ( f"CLASSI:         INFO:      test:        image_labels_numpy [{random_pick:3d}]      {GREEN}(Truth){RESET}         = {MIKADO}{image_labels_numpy[random_pick]}{RESET}"     )            
-            print ( f"CLASSI:         INFO:      test:        y1_hat_numpy       [{random_pick:3d}]      {ORANGE}(Predictions){RESET}   = {MIKADO}{y1_hat_numpy[random_pick]}{RESET}"     )
-            print ( f"CLASSI:         INFO:      test:        predicted class    [{random_pick:3d}]                      = {RED if image_labels_numpy[random_pick]!=np.argmax(y1_hat_numpy[random_pick]) else GREEN}{np.argmax(y1_hat_numpy[random_pick])}{RESET}"     )
-
+            if DEBUG>2:            
+              print ( f"CLASSI:         INFO:      test:        y1_hat_numpy       [{random_pick:3d}]  {ORANGE}(Predictions){RESET}     = {MIKADO}{y1_hat_numpy[random_pick]}{RESET}"     )            
+              print ( f"CLASSI:         INFO:      test:        image_labels_numpy [{random_pick:3d}]  {GREEN}(Truth)      {RESET}     = {MIKADO}{image_labels_numpy[random_pick]}{RESET}"     )            
+              print ( f"CLASSI:         INFO:      test:        predicted class    [{random_pick:3d}]                    = {RED if image_labels_numpy[random_pick]!=np.argmax(y1_hat_numpy[random_pick]) else GREEN}{np.argmax(y1_hat_numpy[random_pick])}{RESET}"     )
+              print ( f"CLASSI:         INFO:      test:        image_labels_numpy (all)  {GREEN}(Truth)       {RESET}     = {MIKADO}{image_labels_numpy}{RESET}"     )            
+            if DEBUG>100:    
+              print ( f"CLASSI:         INFO:      test:        y1_hat_numpy.shape                     {ORANGE}(Predictions){RESET}     = {MIKADO}{y1_hat_numpy.shape}{RESET}"     )
+              print ( f"CLASSI:         INFO:      test:        y1_hat_numpy                           {ORANGE}(Predictions){RESET}     = \n{MIKADO}{y1_hat_numpy}{RESET}"         )
+              print ( f"CLASSI:         INFO:      test:        image_labels_numpy.shape               {GREEN}(Truth)       {RESET}     = {MIKADO}{image_labels_numpy.shape}{RESET}"         )
+              print ( f"CLASSI:         INFO:      test:        image_labels_numpy                     {GREEN}(Truth)       {RESET}     = \n{MIKADO}{image_labels_numpy}{RESET}"         )
+            if DEBUG>100:            
+              print ( f"CLASSI:         INFO:      test:        fq_link            [{random_pick:3d}]                                   = {MIKADO}{args.data_dir}/{batch_fnames_npy[random_pick]}.fqln{RESET}"     )            
             
           loss_images       = loss_function( y1_hat, image_labels )
           loss_images_value = loss_images.item()                                                           # use .item() to extract value from tensor: don't create multiple new tensors each of which will have gradient histories
+
           
           if DEBUG>2:
             print ( f"CLASSI:         INFO:      test: {MAGENTA}loss_images{RESET} (for this mini-batch)  = {PURPLE}{loss_images_value:6.3f}{RESET}" )
@@ -3346,12 +3354,13 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
             image_labels_numpy = (image_labels .cpu() .data) .numpy()
             y1_hat_numpy       = (y1_hat       .cpu() .data) .numpy()
             batch_fnames_npy   = (batch_fnames .cpu() .data) .numpy()
-            print ( f"CLASSI:         INFO:      test:        fq_link            [{random_pick:3d}]                      = {CAMEL}{args.data_dir}/{batch_fnames_npy[random_pick]}.fqln{RESET}"     )            
-            print ( f"CLASSI:         INFO:      test:        image_labels_numpy [{random_pick:3d}]      {GREEN}(Truth){RESET}         = {MIKADO}{image_labels_numpy[random_pick]}{RESET}"     )            
+            print ( f"CLASSI:         INFO:      test:        fq_link            [{random_pick:3d}]                                     = {CAMEL}{args.data_dir}/{batch_fnames_npy[random_pick]}.fqln{RESET}"     )            
+            print ( f"CLASSI:         INFO:      test:        image_labels_numpy [{random_pick:3d}]      {GREEN}(Truth){RESET}          = {MIKADO}{image_labels_numpy[random_pick]}{RESET}"     )            
             print ( f"CLASSI:         INFO:      test:        y1_hat_numpy       [{random_pick:3d}]      {ORANGE}(Predictions){RESET}   = {MIKADO}{y1_hat_numpy[random_pick]}{RESET}"     )
-            print ( f"CLASSI:         INFO:      test:        predicted class    [{random_pick:3d}]                      = {RED if image_labels_numpy[random_pick]!=np.argmax(y1_hat_numpy[random_pick]) else GREEN}{np.argmax(y1_hat_numpy[random_pick])}{RESET}"     )
+            print ( f"CLASSI:         INFO:      test:        predicted class    [{random_pick:3d}]                                     = {RED if image_labels_numpy[random_pick]!=np.argmax(y1_hat_numpy[random_pick]) else GREEN}{np.argmax(y1_hat_numpy[random_pick])}{RESET}"     )
           if DEBUG>99:
-            print ( f"CLASSI:         INFO:      test:        y1_hat_numpy                {ORANGE}(Predictions){RESET}     = \n{MIKADO}{y1_hat_numpy}{RESET}"     )
+            print ( f"CLASSI:         INFO:      test:        y1_hat_numpy.shape          {ORANGE}(Predictions){RESET}     = {MIKADO}{y1_hat_numpy.shape}{RESET}"     )
+            print ( f"CLASSI:         INFO:      test:        y1_hat_numpy                {ORANGE}(Predictions){RESET}     = \n{MIKADO}{y1_hat_numpy}{RESET}"         )
 
 
 
@@ -3817,7 +3826,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
     if total_loss_sum    <  test_loss_min:
        test_loss_min     =  total_loss_sum
 
-    normalised_test_loss            = total_loss_sum_ave * 1000 / batch_size
+    normalised_test_loss          = total_loss_sum_ave * 1000 / batch_size                                 # dividing by the batch_size makes it loss per tile.  Multiplying by 1000 makes it loss per 1000 tiles
     normalised_test_loss_trunc_10 = normalised_test_loss if (normalised_test_loss<10) else 10
     normalised_test_loss_trunc_1  = normalised_test_loss if (normalised_test_loss<1)  else 1
 
