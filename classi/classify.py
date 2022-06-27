@@ -642,7 +642,7 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
   
 
   if just_test=='True':
-    print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set. No training will be performed{RESET}" )
+    print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set. No training will be performed.  Saved model (which must exist from previous training run) will be loaded.{RESET}" )
     if n_epochs>1:
       print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set, so {CYAN}n_epochs{RESET}{ORANGE} (currently {MIKADO}{n_epochs}{RESET}{ORANGE}) has been set to {MIKADO}1{RESET}{ORANGE} for this run{RESET}" ) 
       n_epochs=1
@@ -1113,10 +1113,10 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
     # (2) Maybe schedule and run tiler threads
 
-      estimated_total_tiles_train = 0
-      estimated_total_tiles_test  = 0
-      top_up_factors_train        = np.zeros( n_classes, dtype=int )
-      top_up_factors_test         = np.zeros( n_classes, dtype=int )
+    estimated_total_tiles_train = 0
+    estimated_total_tiles_test  = 0
+    top_up_factors_train        = np.zeros( n_classes, dtype=int )
+    top_up_factors_test         = np.zeros( n_classes, dtype=int )
 
     # ~ if (input_mode=='image') & (multimode!='image_rna'):
     if (input_mode=='image'):
