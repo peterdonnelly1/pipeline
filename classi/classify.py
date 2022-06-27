@@ -3975,7 +3975,7 @@ def determine_top_up_factors ( args, n_classes, n_tiles, case_designation_flag )
     row=7
     colour = ORANGE
   
-  if args.just_test=='True'
+  if args.just_test=='True':
     row=0
     colour = CHARTREUSE  
 
