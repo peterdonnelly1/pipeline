@@ -462,7 +462,7 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
           args.n_samples = [  el if el<=svs_file_count else svs_file_count for el in args.n_samples   ]
           n_samples = args.n_samples
         else:
-          print( f"CLASSI:         INFO:  {WHITE}a file count shows there is a total of {MIKADO}{svs_file_count}{RESET} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}, which may be sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}{BOLD}{ORANGE}' depending on the case subset used = {MIKADO}{np.max(args.n_samples)}{RESET})" )
+          print( f"CLASSI:         INFO:  {WHITE}a file count shows there is a total of {MIKADO}{svs_file_count}{RESET} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}, which may be sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' depending on the case subset used.{RESET})" )
       else:
         min_required = int(np.max(args.n_samples) * pct_test  )
         if svs_file_count< min_required:
@@ -4147,7 +4147,7 @@ def segment_cases( pct_test ):
     multimode_case_test_count    = 0
     
     if DEBUG>0:
-      print ( f"{BOLD}{CHARTREUSE}CLASSI:         INFO:    segment_cases():    about to randomly designate {CYAN}CASES_RESERVED_FOR_IMAGE_RNA{RESET}{BOLD}{CHARTREUSE}={ARYLIDE}{args.cases_reserved_for_image_rna}{RESET}{BOLD}{CHARTREUSE} cases flagged as '{ARYLIDE}HAS_BOTH{RESET}{BOLD}{CHARTREUSE}' to be exclusively reserved as {ARYLIDE}MULTIMODE____TEST{RESET}{BOLD}{CHARTREUSE} cases",  flush=True )
+      print ( f"{BOLD}{CHARTREUSE}CLASSI:         INFO:    segment_cases():    about to randomly designate {CYAN}CASES_RESERVED_FOR_IMAGE_RNA{RESET}{BOLD}{CHARTREUSE}{RESET}(={MIKADO}{args.cases_reserved_for_image_rna}{RESET}){BOLD}{CHARTREUSE} cases flagged as '{ARYLIDE}HAS_BOTH{RESET}{BOLD}{CHARTREUSE}' to be exclusively reserved as {ARYLIDE}MULTIMODE____TEST{RESET}{BOLD}{CHARTREUSE} cases",  flush=True )
    
     while True:
       
