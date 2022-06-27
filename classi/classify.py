@@ -1853,7 +1853,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
               print ( f"\r\033[280C\033[0K{BRIGHT_GREEN} < new global low/saving model{RESET}", end='' )
               print ( "\033[5B", end='' )
             
-            if ( just_test=='False' ):
+            if just_test=='False':
               save_model(args.log_dir, model) 
 
           if args.input_mode=='rna':
@@ -3826,9 +3826,11 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
     if total_loss_sum    <  test_loss_min:
        test_loss_min     =  total_loss_sum
 
+    test_loss_trunc_10            = total_loss_sum_ave   if (total_loss_sum_ave<10)    else 10             # get rid of the spike that usually occurs on the first epoch or two
+    test_loss_trunc_1             = total_loss_sum_ave   if (total_loss_sum_ave<1)     else 1              # ditto; to make it easy to get a close up look of low values on the chart
     normalised_test_loss          = total_loss_sum_ave * 1000 / batch_size                                 # dividing by the batch_size makes it loss per tile.  Multiplying by 1000 makes it loss per 1000 tiles
-    normalised_test_loss_trunc_10 = normalised_test_loss if (normalised_test_loss<10) else 10
-    normalised_test_loss_trunc_1  = normalised_test_loss if (normalised_test_loss<1)  else 1
+    normalised_test_loss_trunc_10 = normalised_test_loss if (normalised_test_loss<10)  else 10
+    normalised_test_loss_trunc_1  = normalised_test_loss if (normalised_test_loss<1)   else 1
 
 
     if loss_type != 'mean_squared_error':                                                                  # the following only make sense if we are classifying, so skip for autoencoders 
@@ -3840,20 +3842,25 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
         max_percent_correct    =  pct_correct
             
       writer.add_scalar( '1a_ave_batch_test_loss',                                 total_loss_sum_ave,               epoch )
-      writer.add_scalar( '1b_ave_batch_test_loss_per_1000_tiles',                  normalised_test_loss,             epoch )
-      writer.add_scalar( '1c_ave_batch_test_loss_per_1000_tiles_trunc_10',         normalised_test_loss_trunc_10,  epoch )
-      writer.add_scalar( '1d_ave_batch_test_loss_per_1000_tiles_trunc_1',          normalised_test_loss_trunc_1,   epoch )
-      writer.add_scalar( '1e_1a_ave_batch_test_loss____minimums',                  test_loss_min/(i+1),              epoch )    
-      writer.add_scalar( '1f_num_correct',                                         correct_predictions,              epoch )
-      writer.add_scalar( '1g_num_correct_max',                                     max_correct_predictions,          epoch )
-      writer.add_scalar( '1h_pct_correct',                                         pct_correct,                      epoch ) 
-      writer.add_scalar( '1i_max_percent_correct',                                 max_percent_correct,              epoch ) 
+      writer.add_scalar( '1b_ave_batch_test_loss_trunc_10',                        test_loss_trunc_10,               epoch )
+      writer.add_scalar( '1c_ave_batch_test_loss_tiles_trunc_1',                   test_loss_trunc_1,                epoch )
+      writer.add_scalar( '1d_ave_batch_test_loss_per_1000_tiles',                  normalised_test_loss,             epoch )
+      writer.add_scalar( '1e_ave_batch_test_loss_per_1000_tiles_trunc_10',         normalised_test_loss_trunc_10,    epoch )
+      writer.add_scalar( '1f_ave_batch_test_loss_per_1000_tiles_trunc_1',          normalised_test_loss_trunc_1,     epoch )
+      writer.add_scalar( '1g_ave_batch_test_loss____minimums',                     test_loss_min/(i+1),              epoch )    
+      writer.add_scalar( '1h_num_correct',                                         correct_predictions,              epoch )
+      writer.add_scalar( '1i_num_correct_max',                                     max_correct_predictions,          epoch )
+      writer.add_scalar( '1j_pct_correct',                                         pct_correct,                      epoch ) 
+      writer.add_scalar( '1k_max_percent_correct',                                 max_percent_correct,              epoch ) 
     
     else:                                                                                                  # only these learning curves are relevant for autoencoders
       writer.add_scalar( '1a_ave_batch_test_loss',                                 total_loss_sum_ave,               epoch )
-      writer.add_scalar( '1b_ave_batch_test_loss_per_1000_tiles',                  normalised_test_loss,             epoch )
-      writer.add_scalar( '1c_ave_batch_test_loss_per_1000_tiles_trunctated',       normalised_test_loss_trunc_10,  epoch )
-      writer.add_scalar( '1d_ave_batch_test_loss_running_minimum',                 test_loss_min/(i+1),              epoch )   
+      writer.add_scalar( '1b_ave_batch_test_loss_trunc_10',                        test_loss_trunc_10,               epoch )
+      writer.add_scalar( '1c_ave_batch_test_loss_tiles_trunc_1',                   test_loss_trunc_1,                epoch )
+      writer.add_scalar( '1d_ave_batch_test_loss_per_1000_tiles',                  normalised_test_loss,             epoch )
+      writer.add_scalar( '1e_ave_batch_test_loss_per_1000_tiles_trunc_10',         normalised_test_loss_trunc_10,    epoch )
+      writer.add_scalar( '1f_ave_batch_test_loss_per_1000_tiles_trunc_1',          normalised_test_loss_trunc_1,     epoch )
+      writer.add_scalar( '1g_ave_batch_test_loss____minimums',                     test_loss_min/(i+1),              epoch )   
       
     
     if DEBUG>9:
