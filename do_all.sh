@@ -89,12 +89,12 @@ MIN_CLUSTER_SIZE="10"
 MULTIMODE="NONE"                                                                                           # 
 NN_DENSE_DROPOUT_1="0.2"                                                                                   # 
 NN_DENSE_DROPOUT_2="0.0"                                                                                   # (no getopts option) percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
-MODE="classify"                                                                                      # 
+MODE="classify"                                                                                            # 
 NN_OPTIMIZER="ADAM"                                                                                        # supported options are ADAM, ADAMAX, ADAGRAD, ADAMW, ADAMW_AMSGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
 NN_TYPE_IMG="VGG11"                                                                                        # 
 NN_TYPE_RNA="DENSE"                                                                                        # 
 N_CLUSTERS="5"                                                                                             # supported: 'otsne' (opentsne), 'sktsne' (sklearn t-sne), 'hdbscan', 'dbscan', 'NONE'
-N_EPOCHS="10"                                                                                             # 
+N_EPOCHS="10"                                                                                              # 
 N_EPOCHS_TEST="1"
 N_ITERATIONS="250"                                                                                         # 
 N_TESTS=1                                                                                                  # (test mode only) Number of examples to put through the model when just_test=='True'
