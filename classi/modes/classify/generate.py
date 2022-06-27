@@ -1639,7 +1639,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
         
       if args.just_test=='False':
         if tiles_processed!=n_tiles:
-          print( f"{CLEAR_LINE}{BOLD}{ORANGE}GENERATE:       INFO:   for directory: \r\033[55C'{MAGENTA}{dir_path}{RESET}{BOLD}{ORANGE}' \r\033[135Ctiles processed = {MIKADO}{tiles_processed:<8d}{BOLD}{ORANGE} instead of expected {MIKADO}{n_tiles}{RESET}{BOLD}{ORANGE}                   <<<<<<<<<<<< anomoly {RESET}", flush=True  )       
+          print( f"{CLEAR_LINE}{BOLD}{ORANGE}GENERATE:       INFO:   for directory: \r\033[55C'{MAGENTA}{dir_path}{RESET}{BOLD}{ORANGE}' \r\033[132Ctiles processed = {MIKADO}{tiles_processed:<8d}{BOLD}{ORANGE} instead of expected {MIKADO}{n_tiles}{RESET}{BOLD}{ORANGE}                   <<<<<<<<<<<< anomoly {RESET}", flush=True  )       
 
       directories_processed+=1
       if DEBUG>8:
