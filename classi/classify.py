@@ -1109,8 +1109,14 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
 
 
+
+
     # (2) Maybe schedule and run tiler threads
 
+    estimated_total_tiles_train = 0
+    estimated_total_tiles_test  = 0
+    top_up_factors_train        = np.zeros( n_classes, dtype=int )
+    top_up_factors_test         = np.zeros( n_classes, dtype=int )
 
     # ~ if (input_mode=='image') & (multimode!='image_rna'):
     if (input_mode=='image'):
@@ -1149,11 +1155,6 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
             else:                                                                                        # ... and there MUST be a target
               print( f"CLASSI:         FATAL:    for {MIKADO}{stain_norm}{RESET} an SVS file must be provided from which the stain normalization target will be extracted" )
               sys.exit(0)
-
-          estimated_total_tiles_train = 0
-          estimated_total_tiles_test  = 0
-          top_up_factors_train        = np.zeros( n_classes, dtype=int )
-          top_up_factors_test         = np.zeros( n_classes, dtype=int )
 
           print ( f"{SAVE_CURSOR}" )
             
