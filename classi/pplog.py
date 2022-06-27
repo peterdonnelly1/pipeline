@@ -29,6 +29,11 @@ def set_logfiles(directory, descriptor, now, level=logging.INFO):
     logger = logging.getLogger(MAIN_LOGGER)
     logger.setLevel(level)
     logger.addHandler(handler)
+    
+    console = logging.StreamHandler()
+    console.setLevel(logging.CRITICAL)
+    # add the handler to the root logger
+    logging.getLogger().addHandler(console)
 
 # ------------------------------------------------------------------------------
 
@@ -38,11 +43,12 @@ def log(msg):
     
     np.set_printoptions(edgeitems=100)
     np.set_printoptions(linewidth=300)
-    _log(msg, MAIN_LOGGER)
+    _log( msg, MAIN_LOGGER)
 
 # ------------------------------------------------------------------------------
 
 def _log(msg, logger_name):
+  
     """Print message to appropriate logger if on cluster, otherwise print to
     stdout.
     """
