@@ -1760,7 +1760,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
             if last_epoch_loss_increased == True:
               consecutive_training_loss_increases +=1
               if consecutive_training_loss_increases == 1:
-                print ( f"\r\033[280C{DARK_RED} < training loss increased{RESET}", end='' )
+                print ( f"\r\033[280C{DARK_RED} < train loss increased{RESET}", end='' )
               else:
                 print ( f"\r\033[280C{DARK_RED} < {consecutive_training_loss_increases} {DARK_RED}consec increases !{RESET}", end='' )
               print ( "" )
@@ -3834,6 +3834,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
     normalised_test_loss_trunc_10 = normalised_test_loss if (normalised_test_loss<10)  else 10
     normalised_test_loss_trunc_1  = normalised_test_loss if (normalised_test_loss<1)   else 1
     pct_correct_over_40           = pct_correct          if (pct_correct>=40)          else 0
+    pct_correct_over_50           = pct_correct          if (pct_correct>=50)          else 0
 
     if loss_type != 'mean_squared_error':                                                                  # the following only make sense if we are classifying, so skip for autoencoders 
 
@@ -3855,7 +3856,8 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
       writer.add_scalar( '1j_num_correct_max',                                     max_correct_predictions,          epoch )
       writer.add_scalar( '1k_pct_correct',                                         pct_correct,                      epoch ) 
       writer.add_scalar( '1l_just_over_40_pct_correct',                            pct_correct_over_40,              epoch ) 
-      writer.add_scalar( '1m_max_percent_correct',                                 max_percent_correct,              epoch ) 
+      writer.add_scalar( '1m_just_over_50_pct_correct',                            pct_correct_over_50,              epoch ) 
+      writer.add_scalar( '1n_max_percent_correct',                                 max_percent_correct,              epoch ) 
     
     else:                                                                                                  # only these learning curves are relevant for autoencoders
       writer.add_scalar( '1a_ave_batch_test_loss',                                 total_loss_sum_ave,               epoch )
