@@ -246,11 +246,11 @@ if [[ ${REGEN} == "True" ]];
       then
         echo "=====> REGENERATING JUST 'RNA-SEQ' FILES FROM SOURCE DATA (IF YOU WANT TO ALSO REGENERATE IMAGE FILES, USE IMAGE MODE (-i image) )"
         rm -rf ${DATA_DIR}
-        rsync -ah   --exclude '*.svs*'   --info=progress2 ${DATA_SOURCE}/    ${DATA_DIR}
+        rsync -ahW   --no-compress --exclude '*.svs*'  --info=progress2 ${DATA_SOURCE}/    ${DATA_DIR}
     else
         echo "=====> REGENERATING DATASET FROM SOURCE DATA - THIS CAN TAKE A LONG TIME (E.G. 20 MINUTES) (IF YOU JUST WANT TO REGENERATE RNA-SEQ FILES, USE IMAGE MODE (-i rna) )"
         rm -rf ${DATA_DIR}
-        rsync -ah                      --info=progress2 ${DATA_SOURCE}/    ${DATA_DIR}
+        rsync -ahW   --no-compress                     --info=progress2 ${DATA_SOURCE}/    ${DATA_DIR}
     fi
 fi
 

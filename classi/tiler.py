@@ -190,8 +190,9 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
     height = oslide.dimensions[1];                                                                         # height of slide image
 
   except Exception as e:
-    print( f"{RED}TILER_{my_thread}:                   ERROR: exception occured in tiler thread {MIKADO}{my_thread}{RESET}{RED} !!! {RESET}"        )
-    print( f"{RED}TILER_{my_thread}:                          exception text: '{CYAN}{e}{RESET}{RED} ... halting now"  )
+    print( f"{SAVE_CURSOR}\r\033[80;0H{RED}TILER_{my_thread}:                   ERROR: exception occured in tiler thread {MIKADO}{my_thread}{RESET}{RED} !!! {RESET}"         )
+    print( f"{SAVE_CURSOR}\r\033[80;0H{RED}TILER_{my_thread}:                          exception text: '{CYAN}{e}{RESET}{RED} ... halting now"                             {RESTORE_CURSOR}
+       )
     sys.exit(0);
 
   potential_tiles = (width-tile_width)*(height-tile_width) // (tile_width*tile_width)
@@ -608,7 +609,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
 \r\033[{start_row+my_thread};{start_column+58+4}f{RED}{low_contrast_tile_count:6d}  ({low_contrast_tile_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:3.0f}%)\
 \r\033[{start_row+my_thread};{start_column+74+4}f{degenerate_image_count:6d}  ({degenerate_image_count/[tiles_considered_count   if tiles_considered_count>0 else .000000001][0] *100:3.0f}%)\
 \r\033[{start_row+my_thread};{start_column+90+4}f{background_image_count:6d}  ({background_image_count/[tiles_considered_count   if tiles_considered_count>0 else .000000001][0] *100:3.0f}%){RESET}\
-\r\033[{start_row+my_thread};{start_column+100+10}f{PALE_ORANGE if r<4 else DULL_YELLOW if r<7 else DULL_WHITE if r<10 else PURPLE}{f}{RESET}\
+\r\033[{start_row+my_thread};{start_column+100+10}f{PALE_ORANGE if r<4 else DULL_YELLOW if r<7 else DULL_WHITE if r<10 else PURPLE}{f[0:40]}...{f[-10,-1]}{RESET}\
 ", flush=True, end="" )
 
               # ~ time.sleep(.25)
