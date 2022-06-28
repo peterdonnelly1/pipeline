@@ -3239,7 +3239,7 @@ def train( args, epoch, train_loader, model, optimizer, loss_function, loss_type
 \033[2K\r\033[27C{DULL_WHITE}train:\
 \r\033[40Cn={i+1:>3d}{CLEAR_LINE}\
 \r\033[49Craw loss_images={ loss_images_value:5.2f}\
-\r\033[120CBATCH AVE LOSS            (LOSS PER 1000 TILES) = \r\033[\
+\r\033[120CBATCH LOSS                (LOSS PER 1000 TILES) = \r\033[\
 {offset+10*int((TL*5)//1) if TL<1 else offset+16*int((TL*1)//1) if TL<12 else 250}C{PALE_GREEN if TL<1 else PALE_ORANGE if 1<=TL<2 else PALE_RED}{TL*1000/batch_size:6.1f}{RESET}" )
             print ( "\033[2A" )
           elif (args.input_mode=='rna') | (args.input_mode=='image_rna'):
@@ -3247,7 +3247,7 @@ def train( args, epoch, train_loader, model, optimizer, loss_function, loss_type
 \033[2K\r\033[27C{DULL_WHITE}train:\
 \r\033[40Cn={i+1:>3d}{CLEAR_LINE}\
 \r\033[73Craw loss_rna={loss_genes_value:5.2f}\
-\r\033[120CBATCH AVE LOSS            (LOSS PER 1000 EXAMPLES) = \r\033[\
+\r\033[120CBATCH LOSS                (LOSS PER 1000 EXAMPLES) = \r\033[\
 {offset+5*int((TL*5)//1) if TL<1 else offset+6*int((TL*1)//1) if TL<12 else 250}C{PALE_GREEN if TL<1 else PALE_ORANGE if 1<=TL<2 else PALE_RED}{TL*1000/batch_size:6.1f}{RESET}" )
             print ( "\033[2A" )          
 
@@ -3625,14 +3625,14 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
 \033[2K\r\033[27Ctest:\
 \r\033[40C{DULL_WHITE}n={i+1:>3d}{CLEAR_LINE}\
 \r\033[49Craw loss_images={loss_images_value:5.2f}\
-\r\033[120CBATCH AVE LOSS            (LOSS PER 1000 TILES) = \r\033[{offset+10*int((total_loss*5)//1) if total_loss<1 else offset+16*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss*1000/batch_size:6.1f}{RESET}" )
+\r\033[120CBATCH LOSS                (LOSS PER 1000 TILES) = \r\033[{offset+10*int((total_loss*5)//1) if total_loss<1 else offset+16*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss*1000/batch_size:6.1f}{RESET}" )
             print ( "\033[2A" )
           elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
             print ( f"\
 \033[2K\r\033[27Ctest:\
 \r\033[40C{DULL_WHITE}n={i+1:>3d}{CLEAR_LINE}\
 \r\033[73Craw loss_rna={loss_genes_value:5.2f}\
-\r\033[120CBATCH AVE LOSS            (LOSS PER 1000 EXAMPLES) = \r\033[{offset+10*int((total_loss*5)//1) if total_loss<1 else offset+16*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss*1000/batch_size:6.1f}{RESET}" )
+\r\033[120CBATCH LOSS                (LOSS PER 1000 EXAMPLES) = \r\033[{offset+10*int((total_loss*5)//1) if total_loss<1 else offset+16*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss*1000/batch_size:6.1f}{RESET}" )
             print ( "\033[2A" )
 
 

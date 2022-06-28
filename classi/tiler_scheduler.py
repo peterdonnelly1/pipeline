@@ -56,18 +56,18 @@ def tiler_scheduler( args, r_norm, flag, count, n_tiles, top_up_factors, tile_si
   dirs_which_have_flag = 0
   
 
-  my_slide_quota             = -(count//-num_cpus)                                                                   # how many slides each process has to handle
+  my_slide_quota             = -(count//-num_cpus)                                                         # how many slides each process has to handle
 
   if count>10:
-    my_expanded_slide_quota  = int (1. * my_slide_quota)                                                            # because some threads will be "luckier" than others in coming across slides with the correct flag
-  else:                                                                                                              # low count
-    my_expanded_slide_quota  = int (2.  * my_slide_quota)                                                            # because some threads will be "luckier" than others in coming across slides with the correct flag
+    my_expanded_slide_quota  = int (1. * my_slide_quota)                                                   # because some threads will be "luckier" than others in coming across slides with the correct flag
+  else:                                                                                                    # low count
+    my_expanded_slide_quota  = int (2.  * my_slide_quota)                                                  # because some threads will be "luckier" than others in coming across slides with the correct flag
 
   if tile_size>=100:
-    my_expanded_slide_quota  = int (3.  * my_slide_quota)                                                            # the larger the file size, the fewer tiles will be avalable because of increased chance of hitting degenerate areas and background
+    my_expanded_slide_quota  = int (3.  * my_slide_quota)                                                  # the larger the file size, the fewer tiles will be avalable because of increased chance of hitting degenerate areas and background
     
   if just_test=='True':
-    my_expanded_slide_quota  = int (3.  * my_slide_quota)                                                            # the larger the file size, the fewer tiles will be avalable because of increased chance of hitting degenerate areas and background
+    my_expanded_slide_quota  = int (3.  * my_slide_quota)                                                  # the larger the file size, the fewer tiles will be avalable because of increased chance of hitting degenerate areas and background
 
   if my_expanded_slide_quota<3:
     my_expanded_slide_quota = 3
@@ -112,8 +112,10 @@ def tiler_scheduler( args, r_norm, flag, count, n_tiles, top_up_factors, tile_si
             r = random.randint(1, 12)
             s = "s"
             
-            if stain_norm=="spcn":                                                                         
+            if stain_norm=="spcn":
+              
               if ( f.endswith( "spcn" ) ):                                                                 # then the stain normalised version of the slide will have extension 'spcn'
+                
                 pqn = f"{d}/{f}"
                 
                 result = tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method, d, f, my_thread, r )
@@ -134,8 +136,10 @@ def tiler_scheduler( args, r_norm, flag, count, n_tiles, top_up_factors, tile_si
                     print( f"{RED}TILER_SCHEDULER_{FG3}: FATAL:  n_samples has been reduced to {CYAN}{n_samples}{RESET}{RED} ... halting{RESET}" )
                     n_samples=slides_processed
 
-            else:                                                                                          # look for and use normal versions of the slides
+            else:
+                                                                                                           # look for and use normal versions of the slides
               if ( f.endswith( "svs" ) ) | ( f.endswith( "SVS" ) ) | ( f.endswith( "tif" ) ) | ( f.endswith( "tif" ) )  | ( f.endswith( "TIF" ) ) | ( f.endswith( "TIFF" ) ):
+                
                 pqn = f"{d}/{f}"
                 
                 result = tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method, d, f, my_thread, r )
@@ -171,4 +175,4 @@ def tiler_scheduler( args, r_norm, flag, count, n_tiles, top_up_factors, tile_si
       print ( f"\033[{start_row+my_thread};{start_column+130}f       {RESET}{RED    }thread {MIKADO}{my_thread:2d}{RESET}{RED    } exiting - under slide quota{RESET}", flush=True )
 
 
-  return(slides_processed)
+  return( slides_processed )
