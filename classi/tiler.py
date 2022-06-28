@@ -190,9 +190,8 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
     height = oslide.dimensions[1];                                                                         # height of slide image
 
   except Exception as e:
-    print( f"{SAVE_CURSOR}\r\033[80;0H{RED}TILER_{my_thread}:                   ERROR: exception occured in tiler thread {MIKADO}{my_thread}{RESET}{RED} !!! {RESET}"         )
-    print( f"{SAVE_CURSOR}\r\033[80;0H{RED}TILER_{my_thread}:                          exception text: '{CYAN}{e}{RESET}{RED} ... halting now"                             {RESTORE_CURSOR}
-       )
+    print( f"{SAVE_CURSOR}\r\033[80;0H{RED}TILER_{my_thread}:                   ERROR: exception occured in tiler thread {MIKADO}{my_thread}{RESET}{RED} !!! {RESET}{RESTORE_CURSOR}"          )
+    print( f"{SAVE_CURSOR}\r\033[80;0H{RED}TILER_{my_thread}:                          exception text: '{CYAN}{e}{RESET}{RED} ... halting now                {RESET}{RESTORE_CURSOR}"          )
     sys.exit(0);
 
   potential_tiles = (width-tile_width)*(height-tile_width) // (tile_width*tile_width)
