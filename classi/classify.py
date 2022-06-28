@@ -820,7 +820,7 @@ f"\
   
   if DEBUG>0:
     if input_mode=='image':
-      print(f"\n{UNDER}JOB:{RESET}")
+      print(f"\n{UNDER}JOB LIST:{RESET}")
       print(f"\033[2C{image_headings}{RESET}")      
       for repeater, lr, pct_test, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, low_expression_threshold, cutoff_percentile, embedding_dimensions, dropout_1, dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values):    
 
@@ -845,7 +845,7 @@ f"\
 
 
     elif input_mode=='rna':
-      print(f"\n{UNDER}JOB:{RESET}")
+      print(f"\n{UNDER}JOB LIST:{RESET}")
       print(f"\033[2C\{rna_headings}{RESET}")
       
       for repeater, lr, pct_test, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, low_expression_threshold, cutoff_percentile, embedding_dimensions, dropout_1, dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values):    
@@ -868,7 +868,13 @@ f"\
 \r\033[{start_column+14*offset+3}C{label_swap_pct:<6.1f}\
 {RESET}" )
   
-  time.sleep(4)
+
+  if total_runs_in_job>1:
+    while(True):
+      key = input("after you've reviewed the job list, press any key to continue ...")
+      if(len(key) >= 0):
+        break
+
 
   if (just_test=='True') & (input_mode=='image') & (multimode!= 'image_rna'):   
     if not ( batch_size == int( math.sqrt(batch_size) + 0.5) ** 2 ):
