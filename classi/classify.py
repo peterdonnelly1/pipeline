@@ -867,6 +867,8 @@ f"\
 \r\033[{start_column+13*offset+3}C{gene_data_transform:<10s}\
 \r\033[{start_column+14*offset+3}C{label_swap_pct:<6.1f}\
 {RESET}" )
+  
+  time.sleep(4)
 
   if (just_test=='True') & (input_mode=='image') & (multimode!= 'image_rna'):   
     if not ( batch_size == int( math.sqrt(batch_size) + 0.5) ** 2 ):
