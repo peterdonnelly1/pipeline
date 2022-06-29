@@ -958,7 +958,7 @@ f"\
 
     if input_mode=='image':
       descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases[0:20]:_<20s}_{nn_type_img:_<15s}_{stain_norm:_<4s}_{nn_optimizer:_<8s}_e_{args.n_epochs:03d}_N_{n_samples:04d}\
-_hicls_{n_classes:02d}_bat_{batch_size:03d}_test_{int(100*pct_test):03d}_lr_{lr:09.6f}_tiles_{n_tiles:04d}_tlsz_{tile_size:03d}__mags_{mags}__probs_{prob:_<30s}"
+_hicls_{n_classes:02d}_bat_{batch_size:03d}_test_{int(100*pct_test):03d}_lr_{lr:09.6f}_tiles_{n_tiles:04d}_tlsz_{tile_size:03d}__mags_{mags}__probs_{prob:_<20s}"
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}  Tiles/Slide={n_tiles:d}   Tile size={tile_size:d}x{tile_size:d}\n\
 Magnif'n vector={mags}   Stain Norm={stain_norm}   Peer Noise Pct={peer_noise_pct}   Grey Scale Pct={make_grey_pct}   Batch Size={batch_size:d}   Held Out={int(100*pct_test):03d}%   Learning Rate={lr:<09.6f}   Selected from cases subset: {args.cases[0:50]}"
@@ -3084,7 +3084,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         # ~ display( df)
       
         now = datetime.datetime.now()
-        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__conf_matrices_per_subtype"
+        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_conf_matrices_per_subtype"
         fqn = f"{fqn[0:255]}.tsv"
 
         df.to_csv ( fqn, sep='\t' )
@@ -3993,28 +3993,31 @@ def determine_top_up_factors ( args, n_classes, n_tiles, case_designation_flag )
 
 
   if case_designation_flag!='UNIMODE_CASE____IMAGE_TEST':
-    row=0
+    row    = 0
     colour = AMETHYST
+    col    = 120
   else:
-    row=7
+    row    = 0
+    col    = 220
     colour = ORANGE
   
   if args.just_test=='True':
-    row=0
+    row    = 0
+    col    = 220
     colour = CHARTREUSE  
 
     
   if DEBUG>0:
     np.set_printoptions(formatter={'int':   lambda x: "{:>6d}".format(x)})
-    print( f"\033[{row+1};220f  {CLEAR_LINE}CLASSI:         INFO:     {colour}{case_designation_flag}{RESET}",                                                       flush=True  )
-    print( f"\033[{row+2};220f  {CLEAR_LINE}CLASSI:         INFO:       final class_counts           = {colour}{class_counts}{RESET}",                               flush=True  )
-    print( f"\033[{row+3};220f  {CLEAR_LINE}CLASSI:         INFO:       total slides counted         = {colour}{np.sum(class_counts)}{RESET}",                       flush=True  )
+    print( f"\033[{row+1};{col}f  {CLEAR_LINE}   CLASSI:         INFO:     {colour}{case_designation_flag}{RESET}",                                                       flush=True  )
+    print( f"\033[{row+2};{col}f  {CLEAR_LINE}   CLASSI:         INFO:       final class_counts           = {colour}{class_counts}{RESET}",                               flush=True  )
+    print( f"\033[{row+3};{col}f  {CLEAR_LINE}   CLASSI:         INFO:       total slides counted         = {colour}{np.sum(class_counts)}{RESET}",                       flush=True  )
 
   relative_ratios = class_counts/np.max(class_counts)
 
   if DEBUG>0:
     np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})
-    print( f"\033[{row+4};220f  {CLEAR_LINE}CLASSI:         INFO:       relative class ratios        = {colour}{relative_ratios}{RESET}",                            flush=True  )
+    print( f"\033[{row+4};{col}f  {CLEAR_LINE}   CLASSI:         INFO:       relative class ratios        = {colour}{relative_ratios}{RESET}",                            flush=True  )
 
   top_up_factors           = np.divide(1,relative_ratios)
   tiles_needed_per_example = (top_up_factors*n_tiles).astype(int) + 1                                      # to make the values the same as tiler() uses, where I add one extra to be safe 
@@ -4022,10 +4025,10 @@ def determine_top_up_factors ( args, n_classes, n_tiles, case_designation_flag )
 
   if DEBUG>0:
     np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})
-    print( f"\033[{row+5};220f  {CLEAR_LINE}CLASSI:         INFO:       top up factors               = {colour}{top_up_factors}{RESET}",                             flush=True  )
+    print( f"\033[{row+5};{col}f  {CLEAR_LINE}   CLASSI:         INFO:       top up factors               = {colour}{top_up_factors}{RESET}",                             flush=True  )
     np.set_printoptions(formatter={'int':   lambda x: "{:>6d}".format(x)})
-    print( f"\033[{row+6};220f  {CLEAR_LINE}CLASSI:         INFO:       tiles_needed_per_example     = {colour}{tiles_needed_per_example}{RESET}",                      flush=True  )
-    print( f"\033[{row+7};220f  {CLEAR_LINE}CLASSI:         INFO:       estimated_total_tiles        = {colour}{estimated_total_tiles:,}{RESET}",                    flush=True  )
+    print( f"\033[{row+6};{col}f  {CLEAR_LINE}   CLASSI:         INFO:       tiles_needed_per_example     = {colour}{tiles_needed_per_example}{RESET}",                   flush=True  )
+    print( f"\033[{row+7};{col}f  {CLEAR_LINE}   CLASSI:         INFO:       estimated_total_tiles        = {colour}{estimated_total_tiles:,}{RESET}",                    flush=True  )
 
   return ( estimated_total_tiles, top_up_factors )
 
@@ -5912,7 +5915,7 @@ def show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, pan
   if level=='job':
 
     now              = datetime.datetime.now()
-    fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__conf_matrix_job"
+    fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_conf_matrix_job"
     fqn = f"{fqn[0:255]}.csv"
 
     try:
@@ -5924,7 +5927,7 @@ def show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, pan
       print ( f"{RED}CLASSI:         FATAL:     error was: {e}{RESET}" )
       sys.exit(0)    
     
-    fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__conf_matrix_job_ext"
+    fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_conf_matrix_job_ext"
     fqn = f"{fqn[0:255]}.csv"
     try:
       pandas_version_ext.to_csv( fqn, sep='\t' )
