@@ -871,7 +871,7 @@ f"\
 
   if total_runs_in_job>1:
     while(True):
-      key = input("after you've reviewed the job list, press any key to continue ...")
+      key = input("reviewed job list, then press any key to continue ...")
       if(len(key) >= 0):
         break
 
@@ -957,7 +957,7 @@ f"\
       sys.exit(0)
 
     if input_mode=='image':
-      descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases[0:10]:_<23s}_{nn_type_img:_<9s}_{stain_norm:_<4s}_{nn_optimizer:_<8s}_e_{args.n_epochs:03d}_N_{n_samples:04d}\
+      descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases[0:20]:_<20s}_{nn_type_img:_<15s}_{stain_norm:_<4s}_{nn_optimizer:_<8s}_e_{args.n_epochs:03d}_N_{n_samples:04d}\
 _hicls_{n_classes:02d}_bat_{batch_size:03d}_test_{int(100*pct_test):03d}_lr_{lr:09.6f}_tiles_{n_tiles:04d}_tlsz_{tile_size:03d}__mags_{mags}__probs_{prob:_<30s}"
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}  Tiles/Slide={n_tiles:d}   Tile size={tile_size:d}x{tile_size:d}\n\
@@ -976,7 +976,7 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_pct}_Grey_Pct_{make_g
       topology_as_whitespace_free_string = '-'.join(map(str, hidden_layer_encoder_topology))
      
       if topology_length < 14:
-        descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases[0:10]:_<10s}__{rna_genes_tranche[0:10].upper():_<10s}__{nn_type_rna:_<9s}_{nn_optimizer[0:8]:_<8s}\
+        descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases[0:10]:_<10s}__{rna_genes_tranche[0:10].upper():_<10s}__{nn_type_rna:_<15s}_{nn_optimizer[0:8]:_<8s}\
 _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:03d}_test_{int(100*pct_test):03d}_lr_{lr:09.6f}_hid_{hidden_layer_neurons:04d}_low_{low_expression_threshold:<02.2e}_low_{cutoff_percentile:04.0f}\
 _dr_{100*dropout_1:4.1f}_xfrm_{gene_data_transform:_<8s}_shape_{topology_as_whitespace_free_string}"
       else:                                                                                                # need to abbreviate everything because the long topology string will make the file name too long and it will crash
@@ -2248,7 +2248,8 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         # save version to logs directory
         now              = datetime.datetime.now()
         
-        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_chart_images___agg_tile_level_raw____probs.png"
+        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_chart_images___agg_tile_level_raw____probs"
+        fqn = f"{fqn[0:255]}.png"
         fig.savefig(fqn)
         
         
@@ -2349,7 +2350,8 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         # save version to logs directory
         now              = datetime.datetime.now()
               
-        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_chart_images___agg_tile_level_winner_probs.png"
+        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_chart_images___agg_tile_level_winner_probs"
+        fqn = f"{fqn[0:255]}.png"
         fig.savefig(fqn)
         
         
@@ -2409,7 +2411,8 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         # save version to logs directory
         now = datetime.datetime.now()
               
-        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_chart_images___probs_assigned_to_TRUE_classes.png"
+        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_chart_images___probs_assigned_to_TRUE_classes"
+        fqn = f"{fqn[0:255]}.png"
         
         fig.savefig(fqn)
           
@@ -2479,7 +2482,8 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         # save version to logs directory
         now              = datetime.datetime.now()
               
-        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_chart_images___probs_assigned_to_ALL__classes.png"
+        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_chart_images___probs_assigned_to_ALL__classes"
+        fqn = f"{fqn[0:255]}.png"
         
         fig.savefig(fqn)
 
@@ -2623,7 +2627,8 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         # save version to logs directory
         now              = datetime.datetime.now()
               
-        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_chart_rna_seq__probs_assigned_to_PREDICTED_classes.png"
+        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_chart_rna_seq__probs_assigned_to_PREDICTED_classes"
+        fqn = f"{fqn[0:255]}.png"
         fig.savefig(fqn)
   
   
@@ -2699,7 +2704,8 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         # save version to logs directory
         now              = datetime.datetime.now()
               
-        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_chart_rna_seq__probs_assigned_to_TRUE_classes.png"
+        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_chart_rna_seq__probs_assigned_to_TRUE_classes"
+        fqn = f"{fqn[0:255]}.png"
         fig.savefig(fqn)
   
   
@@ -2756,8 +2762,8 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         # save version to logs directory
         now              = datetime.datetime.now()
               
-        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_chart_rna_seq__probs_assigned_to_ALL__classes.png"
-        
+        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_chart_rna_seq__probs_assigned_to_ALL__classes"
+        fqn = f"{fqn[0:255]}.png"        
         fig.savefig(fqn)
         
   
@@ -3078,7 +3084,8 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         # ~ display( df)
       
         now = datetime.datetime.now()
-        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__conf_matrices_per_subtype.tsv"
+        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__conf_matrices_per_subtype"
+        fqn = f"{fqn[0:255]}.tsv"
 
         df.to_csv ( fqn, sep='\t' )
         
@@ -5740,7 +5747,8 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
   
   writer.add_figure('Box Plot V', fig, 1)
   
-  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_AGG_{headline_correct.astype(int):02d}_BEST_{best_subtype_median:03d}__box_port.png"
+  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_AGG_{headline_correct.astype(int):02d}_BEST_{best_subtype_median:03d}__box_port"
+  fqn = f"{fqn[0:255]}.png"
   fig.savefig(fqn)
     
   plt.close()
@@ -5846,7 +5854,8 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
   writer.add_figure('Box Plot H', fig, 1)
   
   
-  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_AGG_{headline_correct.astype(int):02d}_BEST_{best_subtype_median:03d}__box_land.png"
+  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_AGG_{headline_correct.astype(int):02d}_BEST_{best_subtype_median:03d}__box_land"
+  fqn = f"{fqn[0:255]}.png"
   fig.savefig(fqn)
     
   plt.close()
@@ -5903,7 +5912,8 @@ def show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, pan
   if level=='job':
 
     now              = datetime.datetime.now()
-    fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__conf_matrix_job.csv"
+    fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__conf_matrix_job"
+    fqn = f"{fqn[0:255]}.csv"
 
     try:
       pandas_version.to_csv( fqn, sep='\t' )
@@ -5914,7 +5924,8 @@ def show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, pan
       print ( f"{RED}CLASSI:         FATAL:     error was: {e}{RESET}" )
       sys.exit(0)    
     
-    fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__conf_matrix_job_ext.csv"
+    fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__conf_matrix_job_ext"
+    fqn = f"{fqn[0:255]}.csv"
     try:
       pandas_version_ext.to_csv( fqn, sep='\t' )
       if DEBUG>0:
