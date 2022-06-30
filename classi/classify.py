@@ -1134,7 +1134,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         # need to re-tile if certain parameters have eiher INCREASED ('n_tiles' or 'n_samples') or simply CHANGED ( 'stain_norm' or 'tile_size') since the last run
         if ( ( already_tiled==True ) & ( ( stain_norm==last_stain_norm ) | (last_stain_norm=="NULL") ) & (n_tiles<=n_tiles_last ) & ( n_samples<=n_samples_last ) & ( tile_size_last==tile_size ) ):
           if DEBUG>0:
-            print( f"CLASSI:         INFO: {BOLD}no need to re-tile{RESET}" )
+            print( f"CLASSI:         INFO: {BOLD}no need to perform tiling: existing tiles are of the correct size{RESET}" )
           pass                                                                                             # no need to re-tile 
                                                                        
         else:                                                                                              # must re-tile
@@ -1273,7 +1273,9 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     if  (input_mode=='image') & ( skip_generation!='True' ):
       
       if ( ( already_tiled==True ) & (n_tiles<=n_tiles_last ) & ( n_samples<=n_samples_last ) & ( tile_size_last==tile_size ) & ( stain_norm==last_stain_norm ) ):    # all three have to be true, or else we must regenerate the .pt file
-        pass  # PGD - TODO - This logic doesn't look correct
+        if DEBUG>0:
+          print( f"CLASSI:         INFO: {BOLD}no need to re-generate the pytorch dataset. the existing dataset contains sufficient tiles of the correct size{RESET}" )
+        pass
       else:
         if global_batch_count==0:
           if DEBUG>1:
@@ -1287,7 +1289,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
           if not tile_size_last==tile_size:
             print( f"                                    -- value of tile_size {MIKADO}({tile_size})      \r\033[60Chas changed   since last run{RESET}")
        
-      if DEBUG>8:
+      if DEBUG>0:
         print( f"CLASSI:         INFO: n_samples               = {MAGENTA}{n_samples}{RESET}",        flush=True  )
         print( f"CLASSI:         INFO: args.n_samples          = {MAGENTA}{args.n_samples}{RESET}",   flush=True  )
         print( f"CLASSI:         INFO: n_classes               = {MAGENTA}{n_classes}{RESET}",        flush=True  )

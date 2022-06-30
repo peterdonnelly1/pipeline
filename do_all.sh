@@ -44,10 +44,10 @@ JUST_PROFILE="False"                                                            
 DDP="False"                                                                                                # PRE_COMPRESS mode only: if "True", use PyTorch 'Distributed Data Parallel' to make use of multiple GPUs. (Works on single GPU machines, but is of no benefit and has additional overhead, so should be disabled)
 
 
-MINIMUM_PERMITTED_GREYSCALE_RANGE=150                                                                      # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
-MINIMUM_PERMITTED_UNIQUE_VALUES=150                                                                        # tile must have at least this many unique values or it will be assumed to be degenerate
-MIN_TILE_SD=2                                                                                              # Used to cull slides with a very reduced greyscale palette such as background tiles
-POINTS_TO_SAMPLE=100                                                                                       # Used for determining/culling background tiles via 'min_tile_sd', how many points to sample on a tile when making determination if it is mostly background
+MINIMUM_PERMITTED_GREYSCALE_RANGE=220                                                                      # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
+MINIMUM_PERMITTED_UNIQUE_VALUES=220                                                                      # tile must have at least this many unique values or it will be assumed to be degenerate
+MIN_TILE_SD=2.2                                                                                              # Used to cull slides with a very reduced greyscale palette such as background tiles
+POINTS_TO_SAMPLE=250                                                                                       # Used for determining/culling background tiles via 'min_tile_sd', how many points to sample on a tile when making determination if it is mostly background
 MOMENTUM=0.8                                                                                               # for use with t-sne, if desired
 BAR_CHART_X_LABELS="case_id"                                                                               # if "case_id" use the case id as the x-axis label for bar charts, otherwise use integer sequence
 BAR_CHART_SORT_HI_LO="False"                                                                               # Some less important bar charts will be suppressed if it is set to 'False'
