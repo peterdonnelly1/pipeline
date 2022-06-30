@@ -1278,17 +1278,13 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         pass
 
       else:
-        if global_batch_count==0:
-          if DEBUG>1:
-            print( f"\r{RESET}CLASSI:         INFO: {BOLD}2  now generating torch '.pt' file from contents of dataset directories{RESET}" )
-        else:
-          print( f"\rCLASSI:         INFO: {BOLD}2  will regenerate torch '.pt' file from files, for the following reason(s):{RESET}" )            
-          if n_tiles>n_tiles_last:
-            print( f"                                    -- value of n_tiles   {MIKADO}({n_tiles})        \r\033[60Chas increased since last run{RESET}" )
-          if n_samples>n_samples_last:
-            print( f"                                    -- value of n_samples {MIKADO}({n_samples_last}) \r\033[60Chas increased since last run{RESET}")
-          if not tile_size_last==tile_size:
-            print( f"                                    -- value of tile_size {MIKADO}({tile_size})      \r\033[60Chas changed   since last run{RESET}")
+        print( f"\rCLASSI:         INFO: {BOLD}2  will regenerate torch '.pt' file from files, for the following reason(s):{RESET}" )            
+        if n_tiles>n_tiles_last:
+          print( f"CLASSI:         INFO:                                     -- value of n_tiles   {MIKADO}({n_tiles})        \r\033[60Chas increased since last run{RESET}" )
+        if n_samples>n_samples_last:
+          print( f"CLASSI:         INFO:                                     -- value of n_samples {MIKADO}({n_samples_last}) \r\033[60Chas increased since last run{RESET}")
+        if not tile_size_last==tile_size:
+          print( f"CLASSI:         INFO:                                     -- value of tile_size {MIKADO}({tile_size})      \r\033[60Chas changed   since last run{RESET}")
        
         if DEBUG>0:
           print( f"CLASSI:         INFO: n_samples               = {MAGENTA}{n_samples}{RESET}",        flush=True  )
