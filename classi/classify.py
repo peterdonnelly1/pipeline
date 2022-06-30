@@ -1276,6 +1276,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         if DEBUG>0:
           print( f"CLASSI:         INFO: {BOLD}no need to re-generate the pytorch dataset. the existing dataset contains sufficient tiles of the correct size{RESET}" )
         pass
+
       else:
         if global_batch_count==0:
           if DEBUG>1:
@@ -1289,55 +1290,55 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
           if not tile_size_last==tile_size:
             print( f"                                    -- value of tile_size {MIKADO}({tile_size})      \r\033[60Chas changed   since last run{RESET}")
        
-      if DEBUG>0:
-        print( f"CLASSI:         INFO: n_samples               = {MAGENTA}{n_samples}{RESET}",        flush=True  )
-        print( f"CLASSI:         INFO: args.n_samples          = {MAGENTA}{args.n_samples}{RESET}",   flush=True  )
-        print( f"CLASSI:         INFO: n_classes               = {MAGENTA}{n_classes}{RESET}",        flush=True  )
-        print( f"CLASSI:         INFO: n_tiles                 = {MAGENTA}{n_tiles}{RESET}",          flush=True  )
-        print( f"CLASSI:         INFO: args.n_tiles            = {MAGENTA}{args.n_tiles}{RESET}",     flush=True  )
-        print( f"CLASSI:         INFO: batch_size              = {MAGENTA}{batch_size}{RESET}",       flush=True  )
-        print( f"CLASSI:         INFO: args.batch_size         = {MAGENTA}{args.batch_size}{RESET}",  flush=True  )
-        print( f"CLASSI:         INFO: n_genes                 = {MAGENTA}{n_genes}{RESET}",          flush=True  )
-        print( f"CLASSI:         INFO: args.n_genes            = {MAGENTA}{args.n_genes}{RESET}",     flush=True  )
-        print( f"CLASSI:         INFO: gene_data_norm          = {MAGENTA}{gene_data_norm}{RESET}",   flush=True  )            
-
-      highest_class_number = n_classes-1
-      _, _,  _ = generate( args, class_names, n_samples, estimated_total_tiles_train, estimated_total_tiles_test, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, 
-                           unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, top_up_factors_train, top_up_factors_test, tile_size, 
-                           low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform  
-                         ) 
-
-      if DEBUG>8:
-        print( f"CLASSI:         INFO: n_samples               = {BLEU}{n_samples}{RESET}"       )
-        print( f"CLASSI:         INFO: args.n_samples          = {BLEU}{args.n_samples}{RESET}"  )
-        print( f"CLASSI:         INFO: n_tiles                 = {BLEU}{n_tiles}{RESET}"         )
-        print( f"CLASSI:         INFO: args.n_tiles            = {BLEU}{args.n_tiles}{RESET}"    )
-        print( f"CLASSI:         INFO: batch_size              = {BLEU}{batch_size}{RESET}"      )
-        print( f"CLASSI:         INFO: args.batch_size         = {BLEU}{args.batch_size}{RESET}" )
-        print( f"CLASSI:         INFO: n_genes                 = {BLEU}{n_genes}{RESET}"         )
-        print( f"CLASSI:         INFO: args.n_genes            = {MAGENTA}{args.n_genes}{RESET}" )
-        print( f"CLASSI:         INFO: gene_data_norm          = {BLEU}{gene_data_norm}{RESET}"  )            
+        if DEBUG>0:
+          print( f"CLASSI:         INFO: n_samples               = {MAGENTA}{n_samples}{RESET}",        flush=True  )
+          print( f"CLASSI:         INFO: args.n_samples          = {MAGENTA}{args.n_samples}{RESET}",   flush=True  )
+          print( f"CLASSI:         INFO: n_classes               = {MAGENTA}{n_classes}{RESET}",        flush=True  )
+          print( f"CLASSI:         INFO: n_tiles                 = {MAGENTA}{n_tiles}{RESET}",          flush=True  )
+          print( f"CLASSI:         INFO: args.n_tiles            = {MAGENTA}{args.n_tiles}{RESET}",     flush=True  )
+          print( f"CLASSI:         INFO: batch_size              = {MAGENTA}{batch_size}{RESET}",       flush=True  )
+          print( f"CLASSI:         INFO: args.batch_size         = {MAGENTA}{args.batch_size}{RESET}",  flush=True  )
+          print( f"CLASSI:         INFO: n_genes                 = {MAGENTA}{n_genes}{RESET}",          flush=True  )
+          print( f"CLASSI:         INFO: args.n_genes            = {MAGENTA}{args.n_genes}{RESET}",     flush=True  )
+          print( f"CLASSI:         INFO: gene_data_norm          = {MAGENTA}{gene_data_norm}{RESET}",   flush=True  )            
+  
+        highest_class_number = n_classes-1
+        _, _,  _ = generate( args, class_names, n_samples, estimated_total_tiles_train, estimated_total_tiles_test, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, 
+                             unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, top_up_factors_train, top_up_factors_test, tile_size, 
+                             low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform  
+                           ) 
+  
+        if DEBUG>8:
+          print( f"CLASSI:         INFO: n_samples               = {BLEU}{n_samples}{RESET}"       )
+          print( f"CLASSI:         INFO: args.n_samples          = {BLEU}{args.n_samples}{RESET}"  )
+          print( f"CLASSI:         INFO: n_tiles                 = {BLEU}{n_tiles}{RESET}"         )
+          print( f"CLASSI:         INFO: args.n_tiles            = {BLEU}{args.n_tiles}{RESET}"    )
+          print( f"CLASSI:         INFO: batch_size              = {BLEU}{batch_size}{RESET}"      )
+          print( f"CLASSI:         INFO: args.batch_size         = {BLEU}{args.batch_size}{RESET}" )
+          print( f"CLASSI:         INFO: n_genes                 = {BLEU}{n_genes}{RESET}"         )
+          print( f"CLASSI:         INFO: args.n_genes            = {MAGENTA}{args.n_genes}{RESET}" )
+          print( f"CLASSI:         INFO: gene_data_norm          = {BLEU}{gene_data_norm}{RESET}"  )            
+          
+        n_tiles_last   = n_tiles                                                                           # for the next run
+        n_samples_last = n_samples                                                                         # for the next run
+        tile_size_last = tile_size                                                                         # for the next run
+  
         
-      n_tiles_last   = n_tiles                                                                           # for the next run
-      n_samples_last = n_samples                                                                         # for the next run
-      tile_size_last = tile_size                                                                         # for the next run
-
-      
-    if ( input_mode=='rna' ) | ( input_mode=='image_rna' ) :
-      
-      top_up_factors = 0
-      
-      highest_class_number = n_classes-1
-      
-      n_genes, n_samples, batch_size = generate( args, class_names, n_samples, estimated_total_tiles_train, estimated_total_tiles_test, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, 
-                                                  unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, top_up_factors_train, top_up_factors_test, tile_size, 
-                                                  low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform  
-                                               )
-
-      if DEBUG>0:
-        print( f"CLASSI:         INFO:    n_genes/embed length (calculated)  = {MIKADO}{n_genes:,}{RESET}",     flush=True     )
-        print( f"CLASSI:         INFO:    n_samples   (determined)           = {MIKADO}{n_samples:,}{RESET}",   flush=True     )
-        print( f"CLASSI:         INFO:    batch_size  (determined)           = {MIKADO}{batch_size:,}{RESET}",  flush=True     )
+      if ( input_mode=='rna' ) | ( input_mode=='image_rna' ) :
+        
+        top_up_factors = 0
+        
+        highest_class_number = n_classes-1
+        
+        n_genes, n_samples, batch_size = generate( args, class_names, n_samples, estimated_total_tiles_train, estimated_total_tiles_test, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, 
+                                                    unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, top_up_factors_train, top_up_factors_test, tile_size, 
+                                                    low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform  
+                                                 )
+  
+        if DEBUG>0:
+          print( f"CLASSI:         INFO:    n_genes/embed length (calculated)  = {MIKADO}{n_genes:,}{RESET}",     flush=True     )
+          print( f"CLASSI:         INFO:    n_samples   (determined)           = {MIKADO}{n_samples:,}{RESET}",   flush=True     )
+          print( f"CLASSI:         INFO:    batch_size  (determined)           = {MIKADO}{batch_size:,}{RESET}",  flush=True     )
 
 
     if input_mode=='image_rna':
