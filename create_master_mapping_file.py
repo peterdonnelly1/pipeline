@@ -326,8 +326,10 @@ def main(args):
   for _, d, f in os.walk( class_specific_dataset_files_location ):
     actual_dirs+=1
     for el in enumerate ( d ):
-      if DEBUG>9:
-        print ( f"{PINK}length is {MIKADO}{len(case)}{RESET} {BLEU} and directory is {CYAN}{el[1]}{RESET}" )
+      if DEBUG>0:
+        print ( f"CREATE_MASTER:     INFO:     {PINK}now considering directory {CYAN}{el[1]}{RESET}" )
+      if DEBUG>100:
+        print ( f"{PINK}length is {MIKADO}{len(case)}{RESET}{RESET}" )
       case_found_in_spreadsheet=False
       
       if re.search( "_[0-9]", el[1]):                                                                      # cases which have more than one RNA-seq example.  These have the extension _1 _2 etc.  Only cater for up to _9 coz never seen one with more than two
@@ -348,12 +350,12 @@ def main(args):
           
       if case_found_in_spreadsheet==True:
         if DEBUG>0:
-          print ( f"CREATE_MASTER:     INFO:    {GREEN}directory (case) '{CYAN}{el[1]}{RESET}{GREEN}' \r\033[85C(or its root if applicable) is     listed in master clinical spreadsheet{RESET}" )
+          print ( f"CREATE_MASTER:     INFO:              {GREEN}directory (case) {CYAN}{el[1]}{RESET}{GREEN} \r\033[98C(or its root if applicable) is     listed in master clinical spreadsheet{RESET}" )
         else:
           pass
       else:
-        if DEBUG>0:        
-          print ( f"CREATE_MASTER:     INFO:    {ORANGE}directory (case) '{CYAN}{el[1]}{RESET}{ORANGE}'\r\033[85C(or its root if applicable) is not listed in master clinical spreadsheet\r\033[200C <<<<< anomoly, but no action will be taken{RESET}" )
+        if DEBUG>0:
+          print ( f"CREATE_MASTER:     INFO:              {ORANGE}directory (case) {CYAN}{el[1]}{RESET}{ORANGE}\r\033[98C(or its root if applicable) is not listed in master clinical spreadsheet\r\033[200C <<<<< notional anomoly, but no action will be taken{RESET}" )
     
     
   # (3) show some useful stats
