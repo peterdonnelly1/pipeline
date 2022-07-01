@@ -921,8 +921,7 @@ f"\
         print ( f"{BOLD}{RED}CLASSI:         FATAL:          further information: this only needs to be one time, following dataset regeneration{RESET}" )
         print ( f"{BOLD}{RED}CLASSI:         FATAL:          further information: in general, it should not be done more than one time following dataset regeneration{RESET}" )
         print ( f"{BOLD}{RED}CLASSI:         FATAL:          further information: in particular, for multimode image+rna classification, NEVER perform case division more than one time, since each repetition would flag different subsets of the examples for hold-out testing, and these need to be strictly separated{RESET}" )
-        print(  f"{BOLD}{RED}CLASSI:         FATAL: ... halting now{RESET}\n\n" )
-        time.sleep(10)                           
+        print(  f"{BOLD}{RED}CLASSI:         FATAL: ... halting now{RESET}\n\n" )                           
         sys.exit(0)
     
 
@@ -1121,8 +1120,8 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
     # (2) Maybe schedule and run tiler threads
 
-    estimated_total_tiles_train = 0
-    estimated_total_tiles_test  = 0
+    estimated_total_tiles_train = 567890
+    estimated_total_tiles_test  = 123456
     top_up_factors_train        = np.zeros( n_classes, dtype=int )
     top_up_factors_test         = np.zeros( n_classes, dtype=int )
 
@@ -1280,11 +1279,11 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       else:
         print( f"\rCLASSI:         INFO: {BOLD}2  will regenerate torch '.pt' file from files, for the following reason(s):{RESET}" )            
         if n_tiles>n_tiles_last:
-          print( f"CLASSI:         INFO:                                     -- value of n_tiles   {MIKADO}({n_tiles})        \r\033[60Chas increased since last run{RESET}" )
+          print( f"CLASSI:         INFO:           -- value of n_tiles   {MIKADO}({n_tiles})        \r\033[60Chas increased since last run{RESET}" )
         if n_samples>n_samples_last:
-          print( f"CLASSI:         INFO:                                     -- value of n_samples {MIKADO}({n_samples_last}) \r\033[60Chas increased since last run{RESET}")
+          print( f"CLASSI:         INFO:           -- value of n_samples {MIKADO}({n_samples_last}) \r\033[60Chas increased since last run{RESET}")
         if not tile_size_last==tile_size:
-          print( f"CLASSI:         INFO:                                     -- value of tile_size {MIKADO}({tile_size})      \r\033[60Chas changed   since last run{RESET}")
+          print( f"CLASSI:         INFO:           -- value of tile_size {MIKADO}({tile_size})      \r\033[60Chas changed   since last run{RESET}")
        
         if DEBUG>0:
           print( f"CLASSI:         INFO: n_samples               = {MAGENTA}{n_samples}{RESET}",        flush=True  )
@@ -3940,7 +3939,7 @@ def determine_top_up_factors ( args, n_classes, n_tiles, case_designation_flag )
   #  Specifically, we count the number of images per subtype for the chosen subset (e.g. UNIMODE_CASE) and from this calculate 'top up factors' which are used in generate() 
   #  to increase the number of tiles extracted for subtypes which have fewer images than the subtype with the most number of cases (images)  
 
-  if DEBUG>2:
+  if DEBUG>0:
     print( f"CLASSI:         INFO: n_classes               = {MAGENTA}{n_classes}{RESET}",        flush=True  )
     
   class_counts          = np.zeros( n_classes, dtype=int )
@@ -3962,10 +3961,10 @@ def determine_top_up_factors ( args, n_classes, n_tiles, case_designation_flag )
           f = open( fqn, 'r' )
           count_this_case_flag=True
           if DEBUG>100:
-            print ( f"\n{GREEN}CLASSI:         INFO:         case '{CYAN}{fqn}{RESET}{GREEN}' \r\033[200X is     a case flagged as '{CYAN}{case_designation_flag}{RESET}{GREEN}' - - including{RESET}{CLEAR_LINE}",  flush=True )
+            print ( f"\r{CLEAR_LINE}{DULL_WHITE}CLASSI:         INFO:  determine_top_up_factors() case  '{CYAN}{fqn}{RESET}{GREEN}' \r\033[130C is     a case flagged as '{CYAN}{case_designation_flag}{RESET}{GREEN}' - - including{RESET}{CLEAR_LINE}",  flush=True )
         except Exception:
           if DEBUG>100:
-            print ( f"{RED}CLASSI:         INFO:   case       '{CYAN}{fqn}{RESET}{RED} \r\033[200C is not a case flagged as '{CYAN}{case_designation_flag}{RESET}{RED}' - - skipping{RESET}{CLEAR_LINE}",  flush=True )
+            print ( f"\r{CLEAR_LINE}{DULL_WHITE}CLASSI:         INFO:  determine_top_up_factors() case  '{CYAN}{fqn}{RESET}{RED} \r\033[130C is not a case flagged as '{CYAN}{case_designation_flag}{RESET}{RED}' - - skipping{RESET}{CLEAR_LINE}",  flush=True )
   
         try:                                                                                               # every tile has an associated label - the same label for every tile image in the directory
           label_file = f"{dir_path}/{d}/{args.class_numpy_file_name}"
@@ -3974,7 +3973,7 @@ def determine_top_up_factors ( args, n_classes, n_tiles, case_designation_flag )
           label      = np.load( label_file )
           if label[0]>args.highest_class_number:
             count_this_case_flag=False
-            if DEBUG>2:
+            if DEBUG>0:
               print ( f"{ORANGE}CLASSI:         INFO: label is greater than '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{ORANGE}' - - skipping this example (label = {MIKADO}{label[0]}{RESET}{ORANGE}){RESET}"      )
             pass
         except Exception as e:
@@ -4033,7 +4032,9 @@ def determine_top_up_factors ( args, n_classes, n_tiles, case_designation_flag )
 
 
 
-# ------------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------------------------------------
 
 def segment_cases( pct_test ):
 
@@ -4052,9 +4053,9 @@ def segment_cases( pct_test ):
   cumulative_other_file_count = 0
   dir_count                   = 0
   
-  for dir_path, dirs, files in os.walk( args.data_dir ):                                                        # each iteration takes us to a new directory under data_dir
+  for dir_path, dirs, files in os.walk( args.data_dir ):                                                   # each iteration takes us to a new directory under data_dir
 
-    if not (dir_path==args.data_dir):                                                                           # the top level directory (dataset) has to be skipped because it only contains sub-directories, not data      
+    if not (dir_path==args.data_dir):                                                                      # the top level directory (dataset) has to be skipped because it only contains sub-directories, not data      
       
       dir_count += 1
       svs_file_count     = 0
@@ -4326,13 +4327,13 @@ def segment_cases( pct_test ):
         try:
           fqn = f"{dir_path}/HAS_IMAGE"        
           f = open( fqn, 'r' )
-          if DEBUG>44:
-            print ( f"{GREEN}CLASSI:           INFO:   case                                       case \r\033[55C'{MAGENTA}{dir_path}{RESET}{GREEN}' \r\033[122C is an image case",  flush=True )
+          if DEBUG>10:
+            print ( f"{DULL_WHITE}CLASSI:           INFO:   case                                       case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_GREEN}' \r\033[122C is an image case",  flush=True )
           try:
             fqn = f"{dir_path}/UNIMODE_CASE"        
             f = open( fqn, 'r' )
-            if DEBUG>2:
-              print ( f"{GREEN}CLASSI:           INFO:   case                                       case \r\033[55C'{MAGENTA}{dir_path}{RESET}{GREEN} \r\033[122C is in a directory containing the UNIMODE_CASE",  flush=True )
+            if DEBUG>10:
+              print ( f"{GREEN}CLASSI:           INFO:   case                                       case \r\033[55C'{MAGENTA}{dir_path}{RESET}{GREEN} \r\033[122C is in a directory containing a UNIMODE IMAGE case",  flush=True )
             fqn = f"{dir_path}/UNIMODE_CASE____IMAGE"            
             with open(fqn, 'w') as f:
               f.write( f"this case is a UNIMODE_CASE____IMAGE case" )
@@ -4516,7 +4517,6 @@ def segment_cases( pct_test ):
         print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():        UNIMODE_CASE____RNA . . . . . . . . . . . . = {MIKADO}{unimode_case_rna_count}{RESET}",         flush=True )
         print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():        UNIMODE_CASE____RNA_TEST  . . . . . . . . . = {MIKADO}{unimode_case_rna_test_count}{RESET}",    flush=True )
 
-    
     return multimode_case_test_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case_image_count, unimode_case_image_test_count, unimode_case_rna_count, unimode_case_rna_test_count
 
 
