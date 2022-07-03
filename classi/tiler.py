@@ -427,7 +427,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
 \r\033[{start_row-1};2f{RESET}cpu\
 \r\033[{start_row-1};12f{RESET}{CLEAR_LINE}optical magnification\
 \r\033[{start_row-1};{start_column-50}f{RESET}mag\
-\r\033[{start_row-1};{start_column-42}f{RESET}extraction dimensions\
+\r\033[{start_row-1};{start_column-42}f{RESET}extraction dims (saved tile dims {UNDER}underlined{RESET})\
 \r\033[{start_row-1};{start_column+6+1}f{RESET}subtype\
 \r\033[{start_row-1};{start_column+14+4}fneeded\
 \r\033[{start_row-1};{start_column+25+3}f{BOLD}have{RESET}\
@@ -455,8 +455,8 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
             new_width = int(multiplier * optical_mag_adjustment_factor * tile_width_x)                                       # extract an area from the slide of size determined by the result returned by choose_mag_level
             tile = oslide.read_region( (extraction_x_coord,  extraction_y_coord),  level, (new_width, new_width))       # extract an area from the slide of size determined by the result returned by choose_mag_level
 
-            if (DEBUG>0): 
-              print ( f"{RESET}\r\033[{start_row+my_thread};{(start_column-42 + (2*int(math.log(tile_size)))*int(new_width/tile_size))}H{CHARTREUSE if new_width<33 else ARYLIDE if new_width<65 else BLEU if new_width<129 else ASPARAGUS if new_width<200 else BRIGHT_GREEN if new_width<257 else COQUELICOT if new_width<400 else PINK if new_width<513  else CHARTREUSE if new_width<600 else BITTER_SWEET}{new_width}x{new_width}{RESET}" )  
+            if (DEBUG>0):
+              print ( f"{RESET}\r\033[{start_row+my_thread};{(start_column-42 + (2*int(math.log(tile_size)))*int(new_width/tile_size))}H{UNDER if new_width==args.tile_size[0] else ''}{CHARTREUSE if new_width<33 else ARYLIDE if new_width<65 else BLEU if new_width<129 else ASPARAGUS if new_width<200 else BRIGHT_GREEN if new_width<257 else COQUELICOT if new_width<400 else PINK if new_width<513  else CHARTREUSE if new_width<600 else BITTER_SWEET}{new_width}x{new_width}{RESET}" )  
 
             if (DEBUG>5) & (my_thread==thread_to_monitor):
               print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) before resizing = \n{GREEN}{np.array(tile)[0:10,0:10,0]}{RESET}",  flush=True        ) 
