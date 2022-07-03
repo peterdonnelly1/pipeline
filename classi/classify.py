@@ -1280,7 +1280,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         print( f"\rCLASSI:         INFO: {BOLD}2  will regenerate torch '.pt' file from files, for the following reason(s):{RESET}" )            
         if n_tiles>n_tiles_last:
           print( f"CLASSI:         INFO:           -- value of n_tiles   {MIKADO}({n_tiles})        \r\033[60Chas increased since last run{RESET}" )
-        if n_samples>n_samples_last:
+        if n_samples!=0 & (n_samples>n_samples_last):
           print( f"CLASSI:         INFO:           -- value of n_samples {MIKADO}({n_samples_last}) \r\033[60Chas increased since last run{RESET}")
         if not tile_size_last==tile_size:
           print( f"CLASSI:         INFO:           -- value of tile_size {MIKADO}({tile_size})      \r\033[60Chas changed   since last run{RESET}")
@@ -6082,7 +6082,7 @@ if __name__ == '__main__':
   p.add_argument('--colour_map',                                                    type=str,   default='tab20'                                 )    
   p.add_argument('--target_tile_coords',                                nargs=2,    type=int,   default=[2000,2000]                             )                 
   p.add_argument('--zoom_out_prob',                                     nargs="*",  type=float,                                                 )                 
-  p.add_argument('--zoom_out_mags',                                     nargs="*",  type=int,                                                   )                 
+  p.add_argument('--zoom_out_mags',                                     nargs="*",  type=float,                                                   )                 
 
   p.add_argument('--a_d_use_cupy',                                                  type=str,   default='True'                                  )                    
   p.add_argument('--cutoff_percentile',                                 nargs="+",  type=float, default=100                                     )                    

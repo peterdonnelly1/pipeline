@@ -452,11 +452,11 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
             else:
               optical_mag_adjustment_factor=1
             
-            new_width = multiplier * optical_mag_adjustment_factor * tile_width_x                                       # extract an area from the slide of size determined by the result returned by choose_mag_level
+            new_width = int(multiplier * optical_mag_adjustment_factor * tile_width_x)                                       # extract an area from the slide of size determined by the result returned by choose_mag_level
             tile = oslide.read_region( (extraction_x_coord,  extraction_y_coord),  level, (new_width, new_width))       # extract an area from the slide of size determined by the result returned by choose_mag_level
 
-            if (DEBUG>0):
-              print ( f"{RESET}\r\033[{start_row+my_thread};{start_column-42}f{CHARTREUSE if new_width<33 else ARYLIDE if new_width<65 else BLEU if new_width<129 else BRIGHT_GREEN if new_width<257 else COQUELICOT if new_width<513 else PURPLE}{new_width}x{new_width}    {RESET}" )
+            if (DEBUG>0): 
+              print ( f"{RESET}\r\033[{start_row+my_thread};{(start_column-42 + (2*int(math.log(tile_size)))*int(new_width/tile_size))}H{CHARTREUSE if new_width<33 else ARYLIDE if new_width<65 else BLEU if new_width<129 else ASPARAGUS if new_width<200 else BRIGHT_GREEN if new_width<257 else COQUELICOT if new_width<400 else PINK if new_width<513  else CHARTREUSE if new_width<600 else BITTER_SWEET}{new_width}x{new_width}{RESET}" )  
 
             if (DEBUG>5) & (my_thread==thread_to_monitor):
               print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) before resizing = \n{GREEN}{np.array(tile)[0:10,0:10,0]}{RESET}",  flush=True        ) 
@@ -881,7 +881,7 @@ def choose_mag_level( my_thread, zoom_out_prob, zoom_out_mags, r_norm ):
   if sum(zoom_out_prob)==0:                                                                  # then user wants zoom_out_prob to be random
     
     if DEBUG>3:  
-      print( f'\r{RESET}TILER:          INFO: user wants system to generate {CYAN}zoom_out_prob vector{RESET}', end='', flush=True  )
+      print( f'\r{RESET}TILER:          INFO: system generated {CYAN}zoom_out_prob vector{RESET}', end='', flush=True  )
 
     
     multiplier = int(np.random.choice(
@@ -890,24 +890,28 @@ def choose_mag_level( my_thread, zoom_out_prob, zoom_out_mags, r_norm ):
       p=r_norm
     ))
     
-    if DEBUG>2:
+    if DEBUG>10:
       print( f'\r{RESET}TILER:          INFO: system generated {CYAN}zoom_out_prob vector{RESET} = {ASPARAGUS}{r_norm}{RESET}', end='', flush=True  )
 
   
   else:
   
-    if DEBUG>2:  
-      print( f'\r{RESET}TILER:          INFO: user supplied  {CYAN}zoom_out_prob vector{RESET} = {CHARTREUSE}{zoom_out_prob}{RESET}', end='', flush=True )
-  
-      
     r      = [ random.random() for i in range(1, len(zoom_out_prob)+1 ) ]
     r_norm = [ i/(sum(r)) for i in r ]                                                                       # make the vector add up to 1
     
-    multiplier = int(np.random.choice(
+    multiplier = float(np.random.choice(
       zoom_out_mags, 
       1,
       p=zoom_out_prob
     ))
+
+    if DEBUG>0:
+      np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})      
+      print( f'{SAVE_CURSOR}\033[9;0H{RESET}{BOLD}TILER:          INFO: \
+{BOLD}user supplied  {BOLD}{CYAN}zoom_out_prob vector{RESET} = {MIKADO}{zoom_out_prob}{RESET}  \
+{BOLD}user supplied  {BOLD}{CYAN}zoom_out_mags vector{RESET} = {MIKADO}{zoom_out_mags}{RESET}.  \
+{BOLD}and multiplier to be used with current tile (selected randomly from {CYAN}zoom_out_mags{RESET} = {MIKADO}{zoom_out_mags}{RESET}) = {CLEAR_LINE}\033[{int(20*multiplier)}C{BOLD}{CHARTREUSE if multiplier <1 else PINK if multiplier <1.9 else ASPARAGUS if multiplier <3 else CAMEL if multiplier <4 else BRIGHT_GREEN}{multiplier}{RESET}{RESTORE_CURSOR}', 
+end='', flush=True )
     
     
   return multiplier
