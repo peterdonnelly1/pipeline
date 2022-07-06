@@ -66,9 +66,9 @@ class classifyConfig(Config):
       elif nn_type_img=='INCEPT3':
         return INCEPT3          ( self, args, n_classes, tile_size )
       elif nn_type_img=='INCEPT4':
-        return inceptionv4      ( self, args, n_classes, tile_size, pretrained=None )
+        return inceptionv4      ( self, args, n_classes, tile_size, pretrained=None                  )
       elif nn_type_img=='INCEPT4_PRETRAINED':
-        return inceptionv4      ( self, args, n_classes, tile_size, pretrained='imagenet' )
+        return inceptionv4      ( self, args, n_classes, tile_size, pretrained='imagenet'            )
       elif nn_type_img=='INCEPT4_PRETRAINED+BACKGROUND':
         return inceptionv4      ( self, args, n_classes, tile_size, pretrained='imagenet+background' )        
       elif nn_type_img=='RESNET18':

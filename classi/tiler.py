@@ -62,7 +62,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
   memoryUse = process.memory_info()[0]/2.**30  # memory use in GB...I think
   affinity  = os.sched_getaffinity(pid)
   if DEBUG>1:
-    print( f'{SAVE_CURSOR}{CLEAR_LINE}{RESET}\r\033[{my_thread};1H   my_thread {MIKADO}{my_thread:2d}{RESET}   status {MIKADO}{process.status()}{RESET}  affinity {MIKADO}{affinity}{RESET}  pid {MIKADO}{pid:>6d}{RESET}   memory use: {MIKADO}{100*memoryUse:3.1f}{RESET}%   {CLEAR_LINE}{RESTORE_CURSOR}')
+    print( f'{SAVE_CURSOR}{CLEAR_LINE}{RESET}\033[{my_thread};1H   my_thread {MIKADO}{my_thread:2d}{RESET}   status {MIKADO}{process.status()}{RESET}  affinity {MIKADO}{affinity}{RESET}  pid {MIKADO}{pid:>6d}{RESET}   memory use: {MIKADO}{100*memoryUse:3.1f}{RESET}%   {CLEAR_LINE}{RESTORE_CURSOR}')
   
   # added this in Jun 2022 because my AMD computer started using only one of the 32 available CPUs
   # apparently others have had this issue:see e.g. https://stackoverflow.com/questions/15639779/why-does-multiprocessing-use-only-a-single-core-after-i-import-numpy
@@ -136,12 +136,12 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
   try:                                                                                                   # every tile has an associated label - the same label for every tile image in the directory
     label_file = f"{data_dir}/{d}/{args.class_numpy_file_name}"
     if DEBUG>0:
-      print ( f"\r\033[{start_row-13};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   current image's label file    = \
+      print ( f"\033[{start_row-13};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   current image's label file    = \
 {RESET}{CYAN}{data_dir}/{PALE_ORANGE if r<4 else DULL_YELLOW if r<7 else DULL_WHITE if r<10 else PURPLE}{d}/{RESET}{CYAN}{args.class_numpy_file_name}{RESET}",  end="" )
     label   = np.load( label_file )
     subtype = label[0]
     if DEBUG>0:
-      print ( f"\r\033[{start_row-12};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   current image is of subtype   = {MIKADO}{subtype}{RESET}",     end="" )
+      print ( f"\033[{start_row-12};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   current image is of subtype   = {MIKADO}{subtype}{RESET}",     end="" )
   except Exception as e:
     print ( f"{RED}TILER:               FATAL: when processing: '{label_file}'{RESET}", flush=True)        
     print ( f"{RED}TILER:                      reported error was: '{e}'{RESET}", flush=True)
@@ -153,18 +153,18 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
   if make_balanced=='True':
 
     if DEBUG>0:
-      print ( f"\r\033[{start_row-9};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   base value of n_tiles         = {CYAN}{n_tiles}{RESET}",                  end="" )
+      print ( f"\033[{start_row-9};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   base value of n_tiles         = {CYAN}{n_tiles}{RESET}",                  end="" )
       np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})
-      print ( f"\r\033[{start_row-11};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   tile top_up_factors           = {CYAN}{top_up_factors}{RESET}",           end="" )
-      print ( f"\r\033[{start_row-10};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   applicable top_up_factor      = {CYAN}{top_up_factors[subtype]:<4.2f}{RESET}",  end="" )
+      print ( f"\033[{start_row-11};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   tile top_up_factors           = {CYAN}{top_up_factors}{RESET}",           end="" )
+      print ( f"\033[{start_row-10};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   applicable top_up_factor      = {CYAN}{top_up_factors[subtype]:<4.2f}{RESET}",  end="" )
   
-      if top_up_factors[subtype]==1.:                                                                        # no need to adjust n_tiles for the subtype which has the largest number of images
+      if top_up_factors[subtype]==1.:                                                                      # no need to adjust n_tiles for the subtype which has the largest number of images
         pass
       else:
         n_tiles = int(top_up_factors[subtype] * n_tiles)+1
   
       if DEBUG>0:
-        print ( f"\r\033[{start_row-8};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   adjusted value of n_tiles     = {CYAN}{n_tiles}{RESET}",                 end="" )
+        print ( f"\033[{start_row-8};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   adjusted value of n_tiles     = {CYAN}{n_tiles}{RESET}",                 end="" )
   
       
     
@@ -190,9 +190,9 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
     height = oslide.dimensions[1];                                                                         # height of slide image
 
   except Exception as e:
-    print( f"{SAVE_CURSOR}\r\033[80;0H{RED}TILER_{my_thread}:                   ERROR: exception occured in tiler thread {MIKADO}{my_thread}{RESET}{RED} !!! {RESET}{RESTORE_CURSOR}"          )
-    print( f"{SAVE_CURSOR}\r\033[81;0H{RED}TILER_{my_thread}:                          exception text: '{MAGENTA}{fqn}{RESET}{RED} ... halting now           {RESET}{RESTORE_CURSOR}"          )
-    print( f"{SAVE_CURSOR}\r\033[82;0H{RED}TILER_{my_thread}:                          exception text: '{CYAN}{e}{RESET}{RED} ... halting now                {RESET}{RESTORE_CURSOR}"          )
+    print( f"{SAVE_CURSOR}\033[80;0H{RED}TILER_{my_thread}:                   ERROR: exception occured in tiler thread {MIKADO}{my_thread}{RESET}{RED} !!! {RESET}{RESTORE_CURSOR}"          )
+    print( f"{SAVE_CURSOR}\033[81;0H{RED}TILER_{my_thread}:                          exception text: '{MAGENTA}{fqn}{RESET}{RED} ... halting now           {RESET}{RESTORE_CURSOR}"          )
+    print( f"{SAVE_CURSOR}\033[82;0H{RED}TILER_{my_thread}:                          exception text: '{CYAN}{e}{RESET}{RED} ... halting now                {RESET}{RESTORE_CURSOR}"          )
     sys.exit(0);
 
   potential_tiles = (width-tile_width)*(height-tile_width) // (tile_width*tile_width)
@@ -208,7 +208,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
   if openslide.PROPERTY_NAME_VENDOR in oslide.properties:
     PROPERTY_NAME_VENDOR = oslide.properties[ openslide.PROPERTY_NAME_VENDOR]
     if (DEBUG>99):
-      print(f"\033[{start_row+num_cpus+1};0f\r{CLEAR_LINE}{DULL_WHITE}TILER:          INFO: PROPERTY_NAME_VENDOR          = {BB}{PROPERTY_NAME_VENDOR}{RESET}", flush=True )
+      print(f"\033[{start_row+num_cpus+1};0f{CLEAR_LINE}{DULL_WHITE}TILER:          INFO: PROPERTY_NAME_VENDOR          = {BB}{PROPERTY_NAME_VENDOR}{RESET}", flush=True )
   
   if just_test != 'True':
     if openslide.PROPERTY_NAME_COMMENT in oslide.properties:
@@ -268,7 +268,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
 
 
 
-  # (3a) [test mode] look for the best possible patch (of the requested size) to use
+  # (3a) [test mode only] look for the best possible patch (of the requested size) to use
      
   if ( ( just_test=='True')  & ( multimode!='image_rna' ) ):
 
@@ -290,7 +290,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
 
 
   
-  # (3b) Set up parameters for selection of tiles (for training mode and multimode: random; for test mode: 2D contiguous patch taking into account the supergrid setting
+  # (3b) Set up parameters for selection of tiles (for training mode and multimode: random; for test mode: 2D contiguous patch taking into account the supergrid ('SUPERGRID_SIZE') setting)
   
   if ( ( just_test!='True' ) | ( multimode=='image_rna' ) ):
     x_start=0
@@ -409,34 +409,34 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
 
             if DEBUG>0:
               if objective_power==0:
-                print( f"\r\033[{start_row+my_thread};12H{RESET}{ARYLIDE}{objective_power:2d}{RESET} (means it was not recorded. will assume 40x)",  end="", flush=True )
+                print( f"\033[{start_row+my_thread};12H{RESET}{ARYLIDE}{objective_power:2d}{RESET} (means it was not recorded. will assume 40x)",  end="", flush=True )
               elif objective_power==20:
-                print( f"\r\033[{start_row+my_thread};12H{RESET}{AZURE}{objective_power:2d}{RESET} (will extract double tile size then shrink)   ",  end="", flush=True )
+                print( f"\033[{start_row+my_thread};12H{RESET}{AZURE}{objective_power:2d}{RESET} (will extract double tile size then shrink)   ",  end="", flush=True )
               else:
-                print( f"\r\033[{start_row+my_thread};12H{RESET}{CAMEL}{objective_power:2d}{RESET}                                               ",  end="", flush=True )                
+                print( f"\033[{start_row+my_thread};12H{RESET}{CAMEL}{objective_power:2d}{RESET}                                               ",  end="", flush=True )                
 
-              print( f"\r\033[{start_row+my_thread};{start_column-50}H{RESET} \
-{AMETHYST if multiplier==1 else MIKADO if multiplier==2 else CARRIBEAN_GREEN if 2<multiplier<=4 else BITTER_SWEET if 5<multiplier<=8 else CHARTREUSE if 5<multiplier<=8 else CAMEL}{multiplier}{RESET}", end="", flush=True )
+              print( f"\033[{start_row+my_thread};{start_column-51}H{RESET}\
+{AMETHYST if multiplier==1 else MIKADO if multiplier==2 else CARRIBEAN_GREEN if 2<multiplier<=4 else BITTER_SWEET if 5<multiplier<=8 else CHARTREUSE if 5<multiplier<=8 else CAMEL}{multiplier:2.0f}{RESET}", end="", flush=True )
 
             if DEBUG>0:
                 print  (f"\
       {WHITE}\
-\r\033[{start_row-3};0f{RESET}{CLEAR_LINE}\
-\r\033[{start_row-2};0f{RESET}{CLEAR_LINE}                                                                                                                         --------------------------------------------------------------- tiling stats for current image file --------------------------------------------------------------\
-\r\033[{start_row-2};{start_column+180}f{WHITE}overall progress{RESET}\
-\r\033[{start_row-1};2f{RESET}cpu\
-\r\033[{start_row-1};12f{RESET}{CLEAR_LINE}optical magnification\
-\r\033[{start_row-1};{start_column-50}f{RESET}mag\
-\r\033[{start_row-1};{start_column-42}f{RESET}extraction dims (saved tile dims {UNDER}underlined{RESET})\
-\r\033[{start_row-1};{start_column+6+1}f{RESET}subtype\
-\r\033[{start_row-1};{start_column+14+4}fneeded\
-\r\033[{start_row-1};{start_column+25+3}f{BOLD}have{RESET}\
-\r\033[{start_row-1};{start_column+25+12}fexamined\
-\r\033[{start_row-1};{start_column+42+8}f{GREEN}accepted{RESET}\
-\r\033[{start_row-1};{start_column+58+8}f{RED}low_contrast{RESET}\
-\r\033[{start_row-1};{start_column+74+8}f{RED}degenerate{RESET}\
-\r\033[{start_row-1};{start_column+90+7}f{RED}background{RESET}\
-\r\033[{start_row-1};{start_column+100+10}f{WHITE}currentLy extracting tiles from this image file:{RESET}\
+\033[{start_row-3};0f{RESET}{CLEAR_LINE}\
+\033[{start_row-2};0f{RESET}{CLEAR_LINE}                                                                                                                         --------------------------------------------------------------- tiling stats for current image file --------------------------------------------------------------\
+\033[{start_row-2};{start_column+180}f{WHITE}overall progress{RESET}\
+\033[{start_row-1};2f{RESET}cpu\
+\033[{start_row-1};12f{RESET}{CLEAR_LINE}optical magnification\
+\033[{start_row-1};{start_column-50}f{RESET}mag\
+\033[{start_row-1};{start_column-42}f{RESET}extraction dims (saved tile dims {UNDER}underlined{RESET})\
+\033[{start_row-1};{start_column+6+1}f{RESET}subtype\
+\033[{start_row-1};{start_column+14+4}fneeded\
+\033[{start_row-1};{start_column+25+3}f{BOLD}have{RESET}\
+\033[{start_row-1};{start_column+25+12}fexamined\
+\033[{start_row-1};{start_column+42+8}f{GREEN}accepted{RESET}\
+\033[{start_row-1};{start_column+58+8}f{RED}low_contrast{RESET}\
+\033[{start_row-1};{start_column+74+8}f{RED}degenerate{RESET}\
+\033[{start_row-1};{start_column+90+7}f{RED}background{RESET}\
+\033[{start_row-1};{start_column+100+10}f{WHITE}currentLy extracting tiles from this image file:{RESET}\
 ", flush=True, end="" )
 
 
@@ -455,8 +455,13 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
             new_width = int(multiplier * optical_mag_adjustment_factor * tile_width_x)                                       # extract an area from the slide of size determined by the result returned by choose_mag_level
             tile = oslide.read_region( (extraction_x_coord,  extraction_y_coord),  level, (new_width, new_width))       # extract an area from the slide of size determined by the result returned by choose_mag_level
 
+
             if (DEBUG>0):
-              print ( f"{RESET}\r\033[{start_row+my_thread};{(start_column-42 + (2*int(math.log(tile_size)))*int(new_width/tile_size))}H{UNDER if new_width==args.tile_size[0] else ''}{CHARTREUSE if new_width<33 else ARYLIDE if new_width<65 else BLEU if new_width<129 else ASPARAGUS if new_width<200 else BRIGHT_GREEN if new_width<257 else COQUELICOT if new_width<400 else PINK if new_width<513  else CHARTREUSE if new_width<600 else BITTER_SWEET}{new_width}x{new_width}{RESET}" )  
+              ratio=new_width/tile_size
+              print ( f"{RESET}\033[{start_row+my_thread};{start_column-42 if ratio<1. else start_column-34 if ratio<3. else start_column-24 if ratio<5. else start_column-16 if ratio<7. else start_column-6 if ratio<9. else start_column-6}H\
+{UNDER if new_width==tile_size else ''}\
+{AZURE if new_width<33 else BOLD_ORANGE if new_width<65 else YELLOW if new_width<129 else ASPARAGUS if new_width<200 else BRIGHT_GREEN if new_width<257 else COQUELICOT if new_width<400 else PINK if new_width<513 else CHARTREUSE if new_width<700 else CAMEL if new_width<1000 else BLEU if new_width<1200 else HOT_PINK if new_width<1400 else BITTER_SWEET}\
+{new_width}x{new_width}{RESET}" )  
 
             if (DEBUG>5) & (my_thread==thread_to_monitor):
               print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) before resizing = \n{GREEN}{np.array(tile)[0:10,0:10,0]}{RESET}",  flush=True        ) 
@@ -512,17 +517,17 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
               if IsDegenerate:
                 degenerate_image_count+=1
 
-            print ( f"\r\033[{start_row-17};0f{CLEAR_LINE}",          end="" )
+            print ( f"\033[{start_row-17};0f{CLEAR_LINE}",          end="" )
 
             if ( IsBackground | IsDegenerate | IsLowContrast ):
               if (DEBUG>0):
-                print ( f"\r\033[{start_row-18};0f{CLEAR_LINE}{RED}TILER:                          INFO:   skipping this tile candidate                                                                                              ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||{RESET}",     end="" )
+                print ( f"\033[{start_row-18};0f{CLEAR_LINE}{RED}TILER:                          INFO:   skipping this tile candidate                                                                                              ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||{RESET}",     end="" )
               pass
       
 
             else:
               if (DEBUG>0):
-                print ( f"\r\033[{start_row-18};0f{CLEAR_LINE}{GREEN}TILER:                          INFO:   using    this tile candidate {BOLD}|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||{BOLD}",     end="" )
+                print ( f"\033[{start_row-18};0f{CLEAR_LINE}{GREEN}TILER:                          INFO:   using    this tile candidate {BOLD}|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||{BOLD}",     end="" )
 
               # ~ if not stain_norm=="NONE":                                                               # then perform the selected stain normalization technique on the tile W
               if stain_norm=="reinhard":                                                                   # now handle 'spcn' at the slide level in the standalone process 'normalise_stain' 
@@ -599,17 +604,17 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
                 # ~ print ( f"{SAVE_CURSOR}{CLEAR_LINE}", end="" )
 
               print  (f"\
-\r\033[{start_row+my_thread};3f{BOLD}{YELLOW}{my_thread:<8d}{RESET}\
-\r\033[{start_row+my_thread};{start_column+6+3 }f{MIKADO}{subtype:^2d}{RESET}\
-\r\033[{start_row+my_thread};{start_column+14+2}f{n_tiles:6d}\
-\r\033[{start_row+my_thread};{start_column+25+0}f{BRIGHT_GREEN if tiles_processed>=(0.95*n_tiles) else GREEN if tiles_processed>=(0.90*n_tiles) else ORANGE if tiles_processed>=(0.75*n_tiles) else BLEU if tiles_processed>=(0.50*n_tiles) else WHITE if tiles_processed>=(0.25*n_tiles) else WHITE}{tiles_processed:6d}{RESET}\
-\r\033[{start_row+my_thread};{start_column+25+11}f{tiles_considered_count:6d}\
+\033[{start_row+my_thread};3f{BOLD}{YELLOW}{my_thread:<8d}{RESET}\
+\033[{start_row+my_thread};{start_column+6+3 }f{MIKADO}{subtype:^2d}{RESET}\
+\033[{start_row+my_thread};{start_column+14+2}f{n_tiles:6d}\
+\033[{start_row+my_thread};{start_column+25+0}f{BRIGHT_GREEN if tiles_processed>=(0.95*n_tiles) else GREEN if tiles_processed>=(0.90*n_tiles) else ORANGE if tiles_processed>=(0.75*n_tiles) else BLEU if tiles_processed>=(0.50*n_tiles) else WHITE if tiles_processed>=(0.25*n_tiles) else WHITE}{tiles_processed:6d}{RESET}\
+\033[{start_row+my_thread};{start_column+25+11}f{tiles_considered_count:6d}\
 {BRIGHT_GREEN if tiles_processed>=(0.95*n_tiles) else GREEN if tiles_processed>=(0.90*n_tiles) else ORANGE if tiles_processed>=(0.75*n_tiles) else BLEU if tiles_processed>=(0.50*n_tiles) else WHITE if tiles_processed>=(0.25*n_tiles) else WHITE}\
-\r\033[{start_row+my_thread};{start_column+42+4}f{GREEN}{tiles_processed:6d}  ({tiles_processed/[tiles_considered_count                 if tiles_considered_count>0 else .000000001][0] *100:3.0f}%){RESET}\
-\r\033[{start_row+my_thread};{start_column+58+4}f{RED}{low_contrast_tile_count:6d}  ({low_contrast_tile_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:3.0f}%)\
-\r\033[{start_row+my_thread};{start_column+74+4}f{degenerate_image_count:6d}  ({degenerate_image_count/[tiles_considered_count   if tiles_considered_count>0 else .000000001][0] *100:3.0f}%)\
-\r\033[{start_row+my_thread};{start_column+90+4}f{background_image_count:6d}  ({background_image_count/[tiles_considered_count   if tiles_considered_count>0 else .000000001][0] *100:3.0f}%){RESET}\
-\r\033[{start_row+my_thread};{start_column+100+10}f{PALE_ORANGE if r<4 else DULL_YELLOW if r<7 else DULL_WHITE if r<10 else PURPLE}{f[0:50]}...{f[-10:]}{RESET}\
+\033[{start_row+my_thread};{start_column+42+4}f{GREEN}{tiles_processed:6d}  ({tiles_processed/[tiles_considered_count                 if tiles_considered_count>0 else .000000001][0] *100:3.0f}%){RESET}\
+\033[{start_row+my_thread};{start_column+58+4}f{RED}{low_contrast_tile_count:6d}  ({low_contrast_tile_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:3.0f}%)\
+\033[{start_row+my_thread};{start_column+74+4}f{degenerate_image_count:6d}  ({degenerate_image_count/[tiles_considered_count   if tiles_considered_count>0 else .000000001][0] *100:3.0f}%)\
+\033[{start_row+my_thread};{start_column+90+4}f{background_image_count:6d}  ({background_image_count/[tiles_considered_count   if tiles_considered_count>0 else .000000001][0] *100:3.0f}%){RESET}\
+\033[{start_row+my_thread};{start_column+100+10}f{PALE_ORANGE if r<4 else DULL_YELLOW if r<7 else DULL_WHITE if r<10 else PURPLE}{f[0:50]}...{f[-10:]}{RESET}\
 ", flush=True, end="" )
 
               # ~ time.sleep(.25)
@@ -692,7 +697,7 @@ def check_background( args, tile ):
   if sample_sd<args.min_tile_sd:
     IsBackground=True
     if (DEBUG>0):
-      print ( f"\r\033[{start_row-14};0f{CLEAR_LINE}{RESET}{RED}TILER:                          INFO:   background:   {CYAN}sample_sd       =  {RESET}{BITTER_SWEET}{RESET}{MIKADO}{sample_sd:>4.2f}{RESET}{DIM_WHITE} which is less than allowed user value for {CYAN}args.min_tile_sd{BITTER_SWEET} ({MIKADO}{args.min_tile_sd:>4.2f}{BITTER_SWEET}){RESET}",  end="" )
+      print ( f"\033[{start_row-14};0f{CLEAR_LINE}{RESET}{RED}TILER:                          INFO:   background:   {CYAN}sample_sd       =  {RESET}{BITTER_SWEET}{RESET}{MIKADO}{sample_sd:>4.2f}{RESET}{DIM_WHITE} which is less than allowed user value for {CYAN}args.min_tile_sd{BITTER_SWEET} ({MIKADO}{args.min_tile_sd:>4.2f}{BITTER_SWEET}){RESET}",  end="" )
   else:
     if (DEBUG>44):
       print ( f"TILER:            INFO: highest_uniques(): {BRIGHT_GREEN}No, it's not background tile{RESET}", flush=True )
@@ -717,7 +722,7 @@ def check_contrast( args, tile ):
     
   if GreyscaleRangeBad:
     if (DEBUG>0):
-      print ( f"\r\033[{start_row-16};0f{CLEAR_LINE}{RESET}{RED}TILER:                          INFO:   low contrast: {CYAN}greyscale_range ={RESET}{BITTER_SWEET}{RESET}{MIKADO}{greyscale_range:>6d}{RESET}{DIM_WHITE} which is less than allowed user value for {CYAN}args.greyness {BITTER_SWEET}   ({MIKADO}{args.greyness:>4d}{BITTER_SWEET}){RESET}",  end="" )
+      print ( f"\033[{start_row-16};0f{CLEAR_LINE}{RESET}{RED}TILER:                          INFO:   low contrast: {CYAN}greyscale_range ={RESET}{BITTER_SWEET}{RESET}{MIKADO}{greyscale_range:>6d}{RESET}{DIM_WHITE} which is less than allowed user value for {CYAN}args.greyness {BITTER_SWEET}   ({MIKADO}{args.greyness:>4d}{BITTER_SWEET}){RESET}",  end="" )
 
       
   return GreyscaleRangeBad
@@ -737,7 +742,7 @@ def check_degeneracy( args, tile ):
     
   if IsDegenerate:
     if (DEBUG>0):
-      print ( f"\r\033[{start_row-15};0f{CLEAR_LINE}{RESET}{RED}TILER:                          INFO:   degeneracy:   {CYAN}unique_values   = {RESET}{BITTER_SWEET}{RESET}{MIKADO}{unique_values:>5d}{RESET}{DIM_WHITE} which is less than allowed user value for {CYAN}args.min_uniques{BITTER_SWEET} ({MIKADO}{args.min_uniques:4d}{BITTER_SWEET}){RESET}",  end="" )
+      print ( f"\033[{start_row-15};0f{CLEAR_LINE}{RESET}{RED}TILER:                          INFO:   degeneracy:   {CYAN}unique_values   = {RESET}{BITTER_SWEET}{RESET}{MIKADO}{unique_values:>5d}{RESET}{DIM_WHITE} which is less than allowed user value for {CYAN}args.min_uniques{BITTER_SWEET} ({MIKADO}{args.min_uniques:4d}{BITTER_SWEET}){RESET}",  end="" )
       
   return IsDegenerate
   

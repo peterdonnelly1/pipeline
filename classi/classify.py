@@ -122,7 +122,7 @@ total_runs_in_job     = 0
 final_test_batch_size = 0
 
 
-# ------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------
 
 #@profile
 def main(args):
@@ -136,19 +136,19 @@ def main(args):
   start_time = time.time() 
 
   if DEBUG>0:
-    print ( f"\nCLASSI:         INFO:     torch         version =  {MIKADO}{torch.__version__}{RESET}"      )
-    print ( f"CLASSI:         INFO:     torchvision   version =  {MIKADO}{torchvision.__version__}{RESET}"  )
-    print ( f"CLASSI:         INFO:     scipy         version =  {MIKADO}{scipy.version.version}{RESET}"    )
-    print ( f"CLASSI:         INFO:     sklearn       version =  {MIKADO}{sklearn.__version__}{RESET}"      )
-    print ( f"CLASSI:         INFO:     matplotlib    version =  {MIKADO}{matplotlib.__version__}{RESET}"   ) 
-    print ( f"CLASSI:         INFO:     seaborn       version =  {MIKADO}{sns.__version__}{RESET}"          )
-    print ( f"CLASSI:         INFO:     pandas        version =  {MIKADO}{pd.__version__}{RESET}"           )  
-    print ( f"CLASSI:         INFO:     numpy         version =  {MIKADO}{np.version.version}{RESET}"       )  
-    print ( f"CLASSI:         INFO:     cuda toolkit  version =  {MIKADO}{torch.version.cuda}{RESET}\n"     )  
-    print ( f"CLASSI:         INFO:     cuda          version via os command = \n{MIKADO}",    flush=True   )  
-    print ( f"{os.system('/usr/local/cuda/bin/nvcc --version')}{RESET}\n",                    flush=True    )
-    print ( f"CLASSI:         INFO:     cuda driver  version via os command = \n{MIKADO}",    flush=True    )  
-    print ( f"{os.system('cat /proc/driver/nvidia/version')}{RESET}\n",                       flush=True    )
+    print ( f"\nCLASSI:         INFO:     torch         version =  {MIKADO}{torch.__version__}{RESET}",      flush=True    )
+    print ( f"CLASSI:         INFO:     torchvision   version =  {MIKADO}{torchvision.__version__}{RESET}",  flush=True    )
+    print ( f"CLASSI:         INFO:     scipy         version =  {MIKADO}{scipy.version.version}{RESET}",    flush=True    )
+    print ( f"CLASSI:         INFO:     sklearn       version =  {MIKADO}{sklearn.__version__}{RESET}",      flush=True    )
+    print ( f"CLASSI:         INFO:     matplotlib    version =  {MIKADO}{matplotlib.__version__}{RESET}",   flush=True    ) 
+    print ( f"CLASSI:         INFO:     seaborn       version =  {MIKADO}{sns.__version__}{RESET}",          flush=True    )
+    print ( f"CLASSI:         INFO:     pandas        version =  {MIKADO}{pd.__version__}{RESET}",           flush=True    )  
+    print ( f"CLASSI:         INFO:     numpy         version =  {MIKADO}{np.version.version}{RESET}",       flush=True    )  
+    print ( f"CLASSI:         INFO:     cuda toolkit  version =  {MIKADO}{torch.version.cuda}{RESET}\n",     flush=True    )
+    print ( f"CLASSI:         INFO:     cuda          version via os command = \n{MIKADO}",                  flush=True    )  
+    print ( f"{os.system('/usr/local/cuda/bin/nvcc --version')}{RESET}\n",                                   flush=True    )
+    print ( f"CLASSI:         INFO:     cuda driver  version via os command = \n{MIKADO}",                   flush=True    )  
+    print ( f"{os.system('cat /proc/driver/nvidia/version')}{RESET}\n",                                      flush=True    )
   
 
 
@@ -739,7 +739,7 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
                          batch_size  =   batch_size,
                             n_tiles  =   n_tiles,
                           tile_size  =   tile_size,
-                         rand_tiles  =  [ rand_tiles ],
+                         rand_tiles  =   [ rand_tiles ],
                         nn_type_img  =   nn_type_img,
                         nn_type_rna  =   nn_type_rna,
                hidden_layer_neurons  =   hidden_layer_neurons,
@@ -752,9 +752,9 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
                           stain_norm =   stain_norm,
                       gene_data_norm =   gene_data_norm, 
                  gene_data_transform =   gene_data_transform,                                                
-                      label_swap_pct =  [   0.0   ],
-                       make_grey_pct =  [   0.0   ],
-                              jitter = [  [ 0.0, 0.0, 0.0, 0.0 ] ]  )
+                      label_swap_pct =   [   0.0   ],
+                       make_grey_pct =   [   0.0   ],
+                              jitter =   [  [ 0.0, 0.0, 0.0, 0.0 ] ]  )
 
 
   param_keys   = [v for v in parameters.keys()]
@@ -881,7 +881,8 @@ f"\
       print( f"{RED}CLASSI:         FATAL:  in test mode {CYAN}BATCH_SIZE ('-b') {RESET}{RED}(currently {MIKADO}{batch_size}{RESET}{RED}) must be a perfect square (4, 9, 16, 25 ...) to permit selection of a a 2D contiguous patch. Halting [2989].\033[m" )
       sys.exit(0)      
 
-  
+
+
   # (B) RUN JOB LOOP
 
   run=0
@@ -969,7 +970,7 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_pct}_Grey_Pct_{make_g
     else:
       topology_length = len( f"{hidden_layer_encoder_topology}" )
       if DEBUG>999:
-        print ( f"-------------------------------------------------------------------------------------------------------------> {hidden_layer_encoder_topology}" ) 
+        print ( f"-------------------------------------------------------------------------------------------------------------> {hidden_layer_encoder_topology}"          ) 
         print ( f"-------------------------------------------------------------------------------------------------------------> {topology_length}"                        ) 
     
       topology_as_whitespace_free_string = '-'.join(map(str, hidden_layer_encoder_topology))
@@ -1007,8 +1008,8 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
     # accumulator
     if just_test!='True':
-      aggregate_tile_probabilities_matrix =  np.zeros     ( ( n_samples, n_classes ),     dtype=float       )
-      aggregate_tile_level_winners_matrix =  np.full_like ( aggregate_tile_probabilities_matrix, 0  )
+      aggregate_tile_probabilities_matrix =  np.zeros     ( ( n_samples, n_classes ),     dtype=float               )
+      aggregate_tile_level_winners_matrix =  np.full_like ( aggregate_tile_probabilities_matrix, 0                  )
       patches_true_classes                        =  np.zeros     ( ( n_samples            ),     dtype=int         )
       patches_case_id                             =  np.zeros     ( ( n_samples            ),     dtype=int         )    
       
@@ -1016,18 +1017,18 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       true_classes                                =  np.zeros     ( ( n_samples            ),     dtype=int         )              # same, but for rna 
       rna_case_id                                 =  np.zeros     ( ( n_samples            ),     dtype=int         )              # same, but for rna 
     else:
-      aggregate_tile_probabilities_matrix =  np.zeros     ( ( n_samples, n_classes ),     dtype=float       )
-      aggregate_tile_level_winners_matrix =  np.full_like ( aggregate_tile_probabilities_matrix, 0  )
+      aggregate_tile_probabilities_matrix =  np.zeros     ( ( n_samples, n_classes ),     dtype=float               )
+      aggregate_tile_level_winners_matrix =  np.full_like ( aggregate_tile_probabilities_matrix, 0                  )
       patches_true_classes                        =  np.zeros     ( ( n_samples            ),     dtype=int         )
       patches_case_id                             =  np.zeros     ( ( n_samples            ),     dtype=int         )    
       
-      probabilities_matrix                        =  np.zeros     ( ( n_samples, n_classes ),     dtype=float       )            # same, but for rna        
-      true_classes                                =  np.zeros     ( ( n_samples            ),     dtype=int         )            # same, but for rna 
-      rna_case_id                                 =  np.zeros     ( ( n_samples            ),     dtype=int         )            # same, but for rna 
+      probabilities_matrix                        =  np.zeros     ( ( n_samples, n_classes ),     dtype=float       )              # same, but for rna        
+      true_classes                                =  np.zeros     ( ( n_samples            ),     dtype=int         )              # same, but for rna 
+      rna_case_id                                 =  np.zeros     ( ( n_samples            ),     dtype=int         )              # same, but for rna 
 
       if DEBUG>9:
         print ( f"\n\n" )
-        print ( f"CLASSI:         INFO:      test: n_samples                        = {PALE_GREEN}{n_samples}{RESET}"                  )
+        print ( f"CLASSI:         INFO:      test: n_samples                        = {PALE_GREEN}{n_samples}{RESET}"                     )
         print ( f"CLASSI:         INFO:      test: n_classes                        = {PALE_GREEN}{n_classes}{RESET}"                     )
         print ( f"CLASSI:         INFO:      test: probabilities_matrix.shape       = {PALE_GREEN}{probabilities_matrix.shape}{RESET}"    )                                    
 
@@ -1078,7 +1079,6 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 \r\033[{start_column+13*offset+3}C{gene_data_transform:<10s}\
 \r\033[{start_column+14*offset+3}C{label_swap_pct:<6.1f}\
 {RESET}" ) 
-  
 
       if DEBUG>0:
         print ("")
@@ -1280,7 +1280,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         print( f"\rCLASSI:         INFO: {BOLD}2  will regenerate torch '.pt' file from files, for the following reason(s):{RESET}" )            
         if n_tiles>n_tiles_last:
           print( f"CLASSI:         INFO:           -- value of n_tiles   {MIKADO}({n_tiles})        \r\033[60Chas increased since last run{RESET}" )
-        if n_samples!=0 & (n_samples>n_samples_last):
+        if ( (n_samples!=0) & (n_samples>n_samples_last)):
           print( f"CLASSI:         INFO:           -- value of n_samples {MIKADO}({n_samples_last}) \r\033[60Chas increased since last run{RESET}")
         if not tile_size_last==tile_size:
           print( f"CLASSI:         INFO:           -- value of tile_size {MIKADO}({tile_size})      \r\033[60Chas changed   since last run{RESET}")
@@ -1777,8 +1777,8 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
           train_total_loss_sum_ave_last = train_total_loss_sum_ave
   
 
-#        if (just_test=='True') & (multimode=='image_rna'):                                                 # skip testing in Test mode if multimode is True 
-        if (just_test=='True') & (multimode=='image_rnaxxx'):                                               # skip testing in Test mode if multimode is True 
+#        if (just_test=='True') & (multimode=='image_rna'):                                                # skip testing in Test mode if multimode is True 
+        if (just_test=='True') & (multimode=='image_rnaxxx'):                                              # skip testing in Test mode if multimode is True 
           pass  # <---- This will never happen
             
             
@@ -1867,7 +1867,8 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
             print ( "\033[8A", end='' )
           else:
             print ( "\033[8A", end='' )       
-  
+
+
     #  ^^^^^^^^  THE MAIN LOOP FINISHES HERE ^^^^^^^^
 
 
@@ -2140,7 +2141,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         #sns.set_theme(style="whitegrid")
         pd_aggregate_tile_probabilities_matrix                    = pd.DataFrame( aggregate_tile_probabilities_matrix )   [0:upper_bound_of_indices_to_plot_image]
         pd_aggregate_tile_probabilities_matrix.columns            = class_names
-        pd_aggregate_tile_probabilities_matrix[ 'agg_prob' ]      = np.sum(aggregate_tile_probabilities_matrix,   axis=1 )[0:upper_bound_of_indices_to_plot_image]
+        pd_aggregate_tile_probabilities_matrix[ 'agg_prob'     ]  = np.sum(aggregate_tile_probabilities_matrix,   axis=1 )[0:upper_bound_of_indices_to_plot_image]
         pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]  = pd_aggregate_tile_probabilities_matrix.max   (axis=1) [0:upper_bound_of_indices_to_plot_image]
         pd_aggregate_tile_probabilities_matrix[ 'pred_class'   ]  = pd_aggregate_tile_probabilities_matrix.idxmax(axis=1) [0:upper_bound_of_indices_to_plot_image]  # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
         pd_aggregate_tile_probabilities_matrix[ 'true_class'   ]  = patches_true_classes                                  [0:upper_bound_of_indices_to_plot_image]
