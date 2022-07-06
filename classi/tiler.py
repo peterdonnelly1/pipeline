@@ -416,7 +416,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
                 print( f"\033[{start_row+my_thread};12H{RESET}{CAMEL}{objective_power:2d}{RESET}                                               ",  end="", flush=True )                
 
               print( f"\033[{start_row+my_thread};{start_column-53}H{RESET}\
-{AMETHYST if multiplier==1 else MIKADO if multiplier==2 else CARRIBEAN_GREEN if 2<multiplier<=4 else BITTER_SWEET if 5<multiplier<=8 else CHARTREUSE if 5<multiplier<=8 else CAMEL}{multiplier:2.2f}{RESET}", end="", flush=True )
+{AMETHYST if multiplier==1 else MIKADO if multiplier==2 else CARRIBEAN_GREEN if 2<multiplier<=4 else BITTER_SWEET if 5<multiplier<=8 else CHARTREUSE if 5<multiplier<=8 else CAMEL}{multiplier:>25.2f}{RESET}", end="", flush=True )
 
             if DEBUG>0:
                 print  (f"\
@@ -459,7 +459,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
             if (DEBUG>0):
               ratio=new_width/tile_size
               print ( f"{RESET}\033[{start_row+my_thread};{start_column-42 if ratio<0.5 else start_column-33 if ratio<1. else start_column-24 if ratio<2. else start_column-15 if ratio<4. else start_column-6 if ratio<9. else start_column-6}H\
-{AZURE if new_width<33 else BOLD_ORANGE if new_width<65 else YELLOW if new_width<129 else ASPARAGUS if new_width<200 else BRIGHT_GREEN if new_width<257 else COQUELICOT if new_width<400 else PINK if new_width<513 else CHARTREUSE if new_width<700 else CAMEL if new_width<1000 else COQUELICOT if new_width<1200 else PURPLE if new_width<1500 else AUREOLIN if new_width<1700 else CYAN}\
+{AZURE if new_width<33 else PALE_ORANGE if new_width<65 else YELLOW if new_width<129 else ASPARAGUS if new_width<200 else BRIGHT_GREEN if new_width<257 else COQUELICOT if new_width<400 else PINK if new_width<513 else CHARTREUSE if new_width<700 else CAMEL if new_width<1000 else COQUELICOT if new_width<1200 else PURPLE if new_width<1500 else AUREOLIN if new_width<3000 else PALE_GREEN if new_width<5000 else DIM_WHITEif new_width<6000 else CYAN}\
 {new_width:<3d}x{new_width:>3d}{RESET}" )  
 
             if (DEBUG>5) & (my_thread==thread_to_monitor):
@@ -912,9 +912,9 @@ def choose_mag_level( my_thread, zoom_out_prob, zoom_out_mags, r_norm ):
     if DEBUG>0:
       np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})      
       print( f'{SAVE_CURSOR}\033[9;0H{RESET}{BOLD}TILER:          INFO: \
-{BOLD}user supplied  {BOLD}{CYAN}zoom_out_prob vector{RESET} = {MIKADO}{zoom_out_prob}{RESET}  \
-{BOLD}user supplied  {BOLD}{CYAN}zoom_out_mags vector{RESET} = {MIKADO}{zoom_out_mags}{RESET}.  \
-{BOLD}and multiplier to be used with current tile (selected randomly from {CYAN}zoom_out_mags{RESET} = {MIKADO}{zoom_out_mags}{RESET}) = {CLEAR_LINE}\033[{int(20*multiplier)}C{BOLD}{CHARTREUSE if multiplier <1 else PINK if multiplier <1.9 else ASPARAGUS if multiplier <3 else CAMEL if multiplier <4  else ORANGE if multiplier <5 else AZURE if multiplier <6 else BRIGHT_GREEN}{multiplier}{RESET}{RESTORE_CURSOR}', 
+{BOLD}user supplied  {BOLD}{CYAN}prob vector{RESET} = {MIKADO}{zoom_out_prob}{RESET}  \
+{BOLD}user supplied  {BOLD}{CYAN}mags vector{RESET} = {MIKADO}{zoom_out_mags}{RESET}.  \
+{BOLD}; multiplier for current tile (selected randomly from {CYAN}zoom_out_mags{RESET} = {MIKADO}{zoom_out_mags}{RESET}) = {CLEAR_LINE}\033[{int(20*multiplier)}C{BOLD}{CHARTREUSE if multiplier <1 else PINK if multiplier <1.9 else ASPARAGUS if multiplier <3 else CAMEL if multiplier <4  else ORANGE if multiplier <5 else AZURE if multiplier <6 else BRIGHT_GREEN}{multiplier}{RESET}{RESTORE_CURSOR}', 
 end='', flush=True )
     
     
