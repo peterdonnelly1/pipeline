@@ -213,7 +213,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
   if just_test != 'True':
     if openslide.PROPERTY_NAME_COMMENT in oslide.properties:
       PROPERTY_NAME_COMMENT = oslide.properties[ openslide.PROPERTY_NAME_COMMENT]                          
-      PROPERTY_NAME_COMMENT = re.sub( r'\n' , ' ', PROPERTY_NAME_COMMENT )                                   # PROPERTY_NAME_COMMENT has an embedded carriage return and line feed so strip these out
+      PROPERTY_NAME_COMMENT = re.sub( r'\n' , ' ', PROPERTY_NAME_COMMENT )                                 # PROPERTY_NAME_COMMENT has an embedded carriage return and line feed so strip these out
       PROPERTY_NAME_COMMENT = re.sub( r'\r' , ' ', PROPERTY_NAME_COMMENT )  
       if (DEBUG>0):
         print(f"{SAVE_CURSOR}",                                end="", flush=True )
@@ -425,7 +425,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
 \033[{start_row-2};0f{RESET}{CLEAR_LINE}                                                                                                                         --------------------------------------------------------------- tiling stats for current image file --------------------------------------------------------------\
 \033[{start_row-2};{start_column+180}f{WHITE}overall progress{RESET}\
 \033[{start_row-1};3f{RESET}{BOLD}cpu\
-\033[{start_row-1};12f{RESET}{CLEAR_LINE}{BOLD}optical magnification\
+\033[{start_row-1};12f{RESET}{CLEAR_LINE}{BOLD}slide optical magnification\
 \033[{start_row-1};{start_column-50}f{RESET}mag\
 \033[{start_row-1};{start_column-42}f{RESET}extraction dims (save tile dims {UNDER}{tile_size}x{tile_size}{RESET})\
 \033[{start_row-1};{start_column+6+1}f{RESET}subtype\
@@ -458,9 +458,9 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
 
             if (DEBUG>0):
               ratio=new_width/tile_size
-              print ( f"{RESET}\033[{start_row+my_thread};{start_column-42 if ratio<0.5 else start_column-34 if ratio<1. else start_column-24 if ratio<2. else start_column-16 if ratio<4. else start_column-6 if ratio<9. else start_column-6}H\
-{AZURE if new_width<33 else BOLD_ORANGE if new_width<65 else YELLOW if new_width<129 else ASPARAGUS if new_width<200 else BRIGHT_GREEN if new_width<257 else COQUELICOT if new_width<400 else PINK if new_width<513 else CHARTREUSE if new_width<700 else CAMEL if new_width<1000 else COQUELICOT if new_width<1200 else AUREOLIN if new_width<1400 else CYAN}\
-{new_width}x{new_width}{RESET}" )  
+              print ( f"{RESET}\033[{start_row+my_thread};{start_column-42 if ratio<0.5 else start_column-33 if ratio<1. else start_column-24 if ratio<2. else start_column-15 if ratio<4. else start_column-6 if ratio<9. else start_column-6}H\
+{AZURE if new_width<33 else BOLD_ORANGE if new_width<65 else YELLOW if new_width<129 else ASPARAGUS if new_width<200 else BRIGHT_GREEN if new_width<257 else COQUELICOT if new_width<400 else PINK if new_width<513 else CHARTREUSE if new_width<700 else CAMEL if new_width<1000 else COQUELICOT if new_width<1200 else PURPLE if new_width<1500 else AUREOLIN if new_width<1700 else CYAN}\
+{new_width:<3d}x{new_width:>3d}{RESET}" )  
 
             if (DEBUG>5) & (my_thread==thread_to_monitor):
               print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) before resizing = \n{GREEN}{np.array(tile)[0:10,0:10,0]}{RESET}",  flush=True        ) 
@@ -603,7 +603,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
                 # ~ print ( f"{SAVE_CURSOR}{CLEAR_LINE}", end="" )
 
               print  (f"\
-\033[{start_row+my_thread};3f\033[38;2;0;0;0m{BOLD}\033[48;2;255;255;0m{my_thread:^4d}{RESET}\
+\033[{start_row+my_thread};3f\033[38;2;200;200;200m{BOLD}\033[48;2;50;50;50m{my_thread:^4d}{RESET}\
 \033[{start_row+my_thread};{start_column+6+3 }f{MIKADO}{subtype:^2d}{RESET}\
 \033[{start_row+my_thread};{start_column+14+2}f{n_tiles:6d}\
 \033[{start_row+my_thread};{start_column+25+0}f{BRIGHT_GREEN if tiles_processed>=(0.95*n_tiles) else GREEN if tiles_processed>=(0.90*n_tiles) else ORANGE if tiles_processed>=(0.75*n_tiles) else BLEU if tiles_processed>=(0.50*n_tiles) else WHITE if tiles_processed>=(0.25*n_tiles) else WHITE}{tiles_processed:6d}{RESET}\

@@ -148,7 +148,7 @@ def tiler_scheduler( args, r_norm, flag, count, n_tiles, top_up_factors, tile_si
                   slides_processed+=1
                   if ( ( just_test=='True' ) & ( multimode!='image_rna') )  & (my_thread==0):
                     if DEBUG>0:
-                      print ( f"{SAVE_CURSOR}\r\033[{start_row-2};272H{RESET}{CARRIBEAN_GREEN}{slides_processed} slide{s if slides_processed>1 else ' '} done (quota {my_slide_quota}){RESET}{RESTORE_CURSOR}{CLEAR_LINE}", flush=True ) 
+                      print ( f"{SAVE_CURSOR}\r\033[{start_row-2};272H{RESET}{CARRIBEAN_GREEN}{slides_processed:3d} slide{s if slides_processed>1 else ' '} done (quota {my_slide_quota}){RESET}{RESTORE_CURSOR}{CLEAR_LINE}", flush=True ) 
                   else:
                     if DEBUG>0:
                       print ( f"{SAVE_CURSOR}\r\033[{start_row+my_thread};292H{RESET}{CARRIBEAN_GREEN}{slides_processed} slide{s if slides_processed>1 else ' '} done (quota {my_slide_quota}){RESET}{RESTORE_CURSOR}{CLEAR_LINE}", flush=True )                           
