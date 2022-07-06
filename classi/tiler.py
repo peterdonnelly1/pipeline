@@ -427,7 +427,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
 \033[{start_row-1};3f{RESET}{BOLD}cpu\
 \033[{start_row-1};12f{RESET}{CLEAR_LINE}{BOLD}optical magnification\
 \033[{start_row-1};{start_column-50}f{RESET}mag\
-\033[{start_row-1};{start_column-42}f{RESET}extraction dims (save tile dims {UNDER}underlined{RESET})\
+\033[{start_row-1};{start_column-42}f{RESET}extraction dims (save tile dims {UNDER}{tile_size}x{tile_size}{RESET})\
 \033[{start_row-1};{start_column+6+1}f{RESET}subtype\
 \033[{start_row-1};{start_column+14+4}fneeded\
 \033[{start_row-1};{start_column+25+3}f{BOLD}have{RESET}\
@@ -459,7 +459,6 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
             if (DEBUG>0):
               ratio=new_width/tile_size
               print ( f"{RESET}\033[{start_row+my_thread};{start_column-42 if ratio<0.5 else start_column-34 if ratio<1. else start_column-24 if ratio<2. else start_column-16 if ratio<4. else start_column-6 if ratio<9. else start_column-6}H\
-{UNDER if new_width==tile_size else ''}\
 {AZURE if new_width<33 else BOLD_ORANGE if new_width<65 else YELLOW if new_width<129 else ASPARAGUS if new_width<200 else BRIGHT_GREEN if new_width<257 else COQUELICOT if new_width<400 else PINK if new_width<513 else CHARTREUSE if new_width<700 else CAMEL if new_width<1000 else BLEU if new_width<1200 else HOT_PINK if new_width<1400 else BITTER_SWEET}\
 {new_width}x{new_width}{RESET}" )  
 
