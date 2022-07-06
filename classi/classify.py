@@ -4,6 +4,7 @@ Main program file
 
 import sys
 import math
+import decimal
 import time
 import torch
 import cuda
@@ -13,6 +14,7 @@ import datetime
 import matplotlib
 import torchvision
 import torch.utils.data
+
 
 import scipy
 import sklearn
@@ -541,11 +543,12 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
       print( f"{CHARTREUSE}CLASSI:         WARNG: ... continuing{RESET}" )
       time.sleep(4)
 
-  if sum(args.zoom_out_prob)!=1:
-    print( f"\r{RESET}{ORANGE}CLASSI:         WARNG: the probabilities contained in configuration vectors '{CYAN}args.zoom_out_prob{RESET}{ORANGE}' do not add up to {MIKADO}1{RESET}{ORANGE} (FYI they add up to {MIKADO}{sum(args.zoom_out_prob)}{RESET}{ORANGE}) ... adjusting  first entry to make the total equal {MIKADO}1{RESET}", flush=True)
-    
-    first_entry = 1 - sum(args.zoom_out_prob[1:])
-    args.zoom_out_prob[0] = first_entry
+
+  if math.fsum(args.zoom_out_prob) != 1.0:
+   print( f"\r{RESET}{BOLD}{RED}CLASSI:         FATAL: probabilities in configuration vector '{CYAN}zoom_out_prob{RESET}{BOLD}{RED}' add up to more than {MIKADO}1.0{RESET}{BOLD}{RED} (FYI they add up to {MIKADO}{sum(args.zoom_out_prob)}{RESET}{BOLD}{RED})", flush=True)
+   print( f"\r{RESET}{BOLD}{RED}CLASSI:         FATAL: can't continue ... halting now{RESET}" )   
+   sys.exit(0)
+     
 
   if args.clustering == 'NONE':
     if  'VGG' in nn_type_img[0]:
@@ -959,6 +962,7 @@ f"\
     if input_mode=='image':
       descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases[0:20]:_<20s}_{nn_type_img:_<15s}_{stain_norm:_<4s}_{nn_optimizer:_<8s}_e_{args.n_epochs:03d}_N_{n_samples:04d}\
 _hicls_{n_classes:02d}_bat_{batch_size:03d}_test_{int(100*pct_test):03d}_lr_{lr:09.6f}_tiles_{n_tiles:04d}_tlsz_{tile_size:03d}__mags_{mags}__probs_{prob:_<20s}"
+      descriptor = descriptor[0:200]
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}  Tiles/Slide={n_tiles:d}   Tile size={tile_size:d}x{tile_size:d}\n\
 Magnif'n vector={mags}   Stain Norm={stain_norm}   Peer Noise Pct={peer_noise_pct}   Grey Scale Pct={make_grey_pct}   Batch Size={batch_size:d}   Held Out={int(100*pct_test):03d}%   Learning Rate={lr:<09.6f}   Selected from cases subset: {args.cases[0:50]}"
@@ -6139,8 +6143,8 @@ if __name__ == '__main__':
   args.n_workers  = 0 if is_local else 12
   args.pin_memory = torch.cuda.is_available()
 
-  if DEBUG>100:
-    print ( f"{GOLD}args.zoom_out_prob{RESET} =           ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------>    {YELLOW}{args.zoom_out_prob}{RESET}")
-    print ( f"{GOLD}args.zoom_out_mags{RESET} =           ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------>    {YELLOW}{args.zoom_out_mags}{RESET}")
+  if DEBUG>2:
+    print ( f"{GOLD}args.zoom_out_prob{RESET} =           ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------>    {YELLOW}{args.zoom_out_prob}{RESET}", flush=True)
+    print ( f"{GOLD}args.zoom_out_mags{RESET} =           ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------>    {YELLOW}{args.zoom_out_mags}{RESET}", flush=True)
   
   main(args)

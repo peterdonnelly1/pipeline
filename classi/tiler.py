@@ -424,10 +424,10 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
 \033[{start_row-3};0f{RESET}{CLEAR_LINE}\
 \033[{start_row-2};0f{RESET}{CLEAR_LINE}                                                                                                                         --------------------------------------------------------------- tiling stats for current image file --------------------------------------------------------------\
 \033[{start_row-2};{start_column+180}f{WHITE}overall progress{RESET}\
-\033[{start_row-1};2f{RESET}cpu\
-\033[{start_row-1};12f{RESET}{CLEAR_LINE}optical magnification\
+\033[{start_row-1};3f{RESET}{BOLD}cpu\
+\033[{start_row-1};12f{RESET}{CLEAR_LINE}{BOLD}optical magnification\
 \033[{start_row-1};{start_column-50}f{RESET}mag\
-\033[{start_row-1};{start_column-42}f{RESET}extraction dims (saved tile dims {UNDER}underlined{RESET})\
+\033[{start_row-1};{start_column-42}f{RESET}extraction dims (save tile dims {UNDER}underlined{RESET})\
 \033[{start_row-1};{start_column+6+1}f{RESET}subtype\
 \033[{start_row-1};{start_column+14+4}fneeded\
 \033[{start_row-1};{start_column+25+3}f{BOLD}have{RESET}\
@@ -458,7 +458,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
 
             if (DEBUG>0):
               ratio=new_width/tile_size
-              print ( f"{RESET}\033[{start_row+my_thread};{start_column-42 if ratio<1. else start_column-34 if ratio<3. else start_column-24 if ratio<5. else start_column-16 if ratio<7. else start_column-6 if ratio<9. else start_column-6}H\
+              print ( f"{RESET}\033[{start_row+my_thread};{start_column-42 if ratio<0.5 else start_column-34 if ratio<1. else start_column-24 if ratio<2. else start_column-16 if ratio<4. else start_column-6 if ratio<9. else start_column-6}H\
 {UNDER if new_width==tile_size else ''}\
 {AZURE if new_width<33 else BOLD_ORANGE if new_width<65 else YELLOW if new_width<129 else ASPARAGUS if new_width<200 else BRIGHT_GREEN if new_width<257 else COQUELICOT if new_width<400 else PINK if new_width<513 else CHARTREUSE if new_width<700 else CAMEL if new_width<1000 else BLEU if new_width<1200 else HOT_PINK if new_width<1400 else BITTER_SWEET}\
 {new_width}x{new_width}{RESET}" )  
@@ -604,7 +604,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
                 # ~ print ( f"{SAVE_CURSOR}{CLEAR_LINE}", end="" )
 
               print  (f"\
-\033[{start_row+my_thread};3f{BOLD}{YELLOW}{my_thread:<8d}{RESET}\
+\033[{start_row+my_thread};3f\033[38;2;0;0;0m{BOLD}\033[48;2;255;255;0m{my_thread:^4d}{RESET}\
 \033[{start_row+my_thread};{start_column+6+3 }f{MIKADO}{subtype:^2d}{RESET}\
 \033[{start_row+my_thread};{start_column+14+2}f{n_tiles:6d}\
 \033[{start_row+my_thread};{start_column+25+0}f{BRIGHT_GREEN if tiles_processed>=(0.95*n_tiles) else GREEN if tiles_processed>=(0.90*n_tiles) else ORANGE if tiles_processed>=(0.75*n_tiles) else BLEU if tiles_processed>=(0.50*n_tiles) else WHITE if tiles_processed>=(0.25*n_tiles) else WHITE}{tiles_processed:6d}{RESET}\
@@ -915,7 +915,7 @@ def choose_mag_level( my_thread, zoom_out_prob, zoom_out_mags, r_norm ):
       print( f'{SAVE_CURSOR}\033[9;0H{RESET}{BOLD}TILER:          INFO: \
 {BOLD}user supplied  {BOLD}{CYAN}zoom_out_prob vector{RESET} = {MIKADO}{zoom_out_prob}{RESET}  \
 {BOLD}user supplied  {BOLD}{CYAN}zoom_out_mags vector{RESET} = {MIKADO}{zoom_out_mags}{RESET}.  \
-{BOLD}and multiplier to be used with current tile (selected randomly from {CYAN}zoom_out_mags{RESET} = {MIKADO}{zoom_out_mags}{RESET}) = {CLEAR_LINE}\033[{int(20*multiplier)}C{BOLD}{CHARTREUSE if multiplier <1 else PINK if multiplier <1.9 else ASPARAGUS if multiplier <3 else CAMEL if multiplier <4 else BRIGHT_GREEN}{multiplier}{RESET}{RESTORE_CURSOR}', 
+{BOLD}and multiplier to be used with current tile (selected randomly from {CYAN}zoom_out_mags{RESET} = {MIKADO}{zoom_out_mags}{RESET}) = {CLEAR_LINE}\033[{int(20*multiplier)}C{BOLD}{CHARTREUSE if multiplier <1 else PINK if multiplier <1.9 else ASPARAGUS if multiplier <3 else CAMEL if multiplier <4  else ORANGE if multiplier <5 else AZURE if multiplier <6 else BRIGHT_GREEN}{multiplier}{RESET}{RESTORE_CURSOR}', 
 end='', flush=True )
     
     
