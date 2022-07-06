@@ -459,7 +459,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
             if (DEBUG>0):
               ratio=new_width/tile_size
               print ( f"{RESET}\033[{start_row+my_thread};{start_column-42 if ratio<0.5 else start_column-34 if ratio<1. else start_column-24 if ratio<2. else start_column-16 if ratio<4. else start_column-6 if ratio<9. else start_column-6}H\
-{AZURE if new_width<33 else BOLD_ORANGE if new_width<65 else YELLOW if new_width<129 else ASPARAGUS if new_width<200 else BRIGHT_GREEN if new_width<257 else COQUELICOT if new_width<400 else PINK if new_width<513 else CHARTREUSE if new_width<700 else CAMEL if new_width<1000 else BLEU if new_width<1200 else HOT_PINK if new_width<1400 else BITTER_SWEET}\
+{AZURE if new_width<33 else BOLD_ORANGE if new_width<65 else YELLOW if new_width<129 else ASPARAGUS if new_width<200 else BRIGHT_GREEN if new_width<257 else COQUELICOT if new_width<400 else PINK if new_width<513 else CHARTREUSE if new_width<700 else CAMEL if new_width<1000 else COQUELICOT if new_width<1200 else AUREOLIN if new_width<1400 else CYAN}\
 {new_width}x{new_width}{RESET}" )  
 
             if (DEBUG>5) & (my_thread==thread_to_monitor):
