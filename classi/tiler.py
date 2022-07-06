@@ -415,8 +415,8 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
               else:
                 print( f"\033[{start_row+my_thread};12H{RESET}{CAMEL}{objective_power:2d}{RESET}                                               ",  end="", flush=True )                
 
-              print( f"\033[{start_row+my_thread};{start_column-51}H{RESET}\
-{AMETHYST if multiplier==1 else MIKADO if multiplier==2 else CARRIBEAN_GREEN if 2<multiplier<=4 else BITTER_SWEET if 5<multiplier<=8 else CHARTREUSE if 5<multiplier<=8 else CAMEL}{multiplier:2.0f}{RESET}", end="", flush=True )
+              print( f"\033[{start_row+my_thread};{start_column-52}H{RESET}\
+{AMETHYST if multiplier==1 else MIKADO if multiplier==2 else CARRIBEAN_GREEN if 2<multiplier<=4 else BITTER_SWEET if 5<multiplier<=8 else CHARTREUSE if 5<multiplier<=8 else CAMEL}{multiplier:2.2f}{RESET}", end="", flush=True )
 
             if DEBUG>0:
                 print  (f"\
@@ -426,8 +426,8 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
 \033[{start_row-2};{start_column+180}f{WHITE}overall progress{RESET}\
 \033[{start_row-1};3f{RESET}{BOLD}cpu\
 \033[{start_row-1};12f{RESET}{CLEAR_LINE}{BOLD}slide optical magnification\
-\033[{start_row-1};{start_column-50}f{RESET}mag\
-\033[{start_row-1};{start_column-42}f{RESET}extraction dims (save tile dims {UNDER}{tile_size}x{tile_size}{RESET})\
+\033[{start_row-1};{start_column-52}f{RESET}mag\
+\033[{start_row-1};{start_column-42}f{RESET}extraction dims    (save tile dims = {UNDER}{tile_size}x{tile_size}{RESET})\
 \033[{start_row-1};{start_column+6+1}f{RESET}subtype\
 \033[{start_row-1};{start_column+14+4}fneeded\
 \033[{start_row-1};{start_column+25+3}f{BOLD}have{RESET}\
