@@ -4012,15 +4012,15 @@ def determine_top_up_factors ( args, n_classes, n_tiles, case_designation_flag )
     
   if DEBUG>0:
     np.set_printoptions(formatter={'int':   lambda x: "{:>6d}".format(x)})
-    print( f"\033[{row+1};{col}f  {CLEAR_LINE}   CLASSI:         INFO:     {colour}{case_designation_flag}{RESET}",                                                       flush=True  )
-    print( f"\033[{row+2};{col}f  {CLEAR_LINE}   CLASSI:         INFO:       final class_counts           = {colour}{class_counts}{RESET}",                               flush=True  )
-    print( f"\033[{row+3};{col}f  {CLEAR_LINE}   CLASSI:         INFO:       total slides counted         = {colour}{np.sum(class_counts)}{RESET}",                       flush=True  )
+    print( f"\033[{row+1};{col}f  {CLEAR_LINE}   INFO:     {colour}{case_designation_flag}{RESET}",                                                       flush=True  )
+    print( f"\033[{row+2};{col}f  {CLEAR_LINE}   INFO:       final class_counts           = {colour}{class_counts}{RESET}",                               flush=True  )
+    print( f"\033[{row+3};{col}f  {CLEAR_LINE}   INFO:       total slides counted         = {colour}{np.sum(class_counts)}{RESET}",                       flush=True  )
 
   relative_ratios = class_counts/np.max(class_counts)
 
   if DEBUG>0:
     np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})
-    print( f"\033[{row+4};{col}f  {CLEAR_LINE}   CLASSI:         INFO:       relative class ratios        = {colour}{relative_ratios}{RESET}",                            flush=True  )
+    print( f"\033[{row+4};{col}f  {CLEAR_LINE}   INFO:       relative class ratios        = {colour}{relative_ratios}{RESET}",                            flush=True  )
 
   top_up_factors           = np.divide(1,relative_ratios)
   tiles_needed_per_example = (top_up_factors*n_tiles).astype(int) + 1                                      # to make the values the same as tiler() uses, where I add one extra to be safe 
@@ -4028,10 +4028,10 @@ def determine_top_up_factors ( args, n_classes, n_tiles, case_designation_flag )
 
   if DEBUG>0:
     np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})
-    print( f"\033[{row+5};{col}f  {CLEAR_LINE}   CLASSI:         INFO:       top up factors               = {colour}{top_up_factors}{RESET}",                             flush=True  )
+    print( f"\033[{row+5};{col}f  {CLEAR_LINE}   INFO:       top up factors               = {colour}{top_up_factors}{RESET}",                             flush=True  )
     np.set_printoptions(formatter={'int':   lambda x: "{:>6d}".format(x)})
-    print( f"\033[{row+6};{col}f  {CLEAR_LINE}   CLASSI:         INFO:       tiles_needed_per_example     = {colour}{tiles_needed_per_example}{RESET}",                   flush=True  )
-    print( f"\033[{row+7};{col}f  {CLEAR_LINE}   CLASSI:         INFO:       estimated_total_tiles        = {colour}{estimated_total_tiles:,}{RESET}",                    flush=True  )
+    print( f"\033[{row+6};{col}f  {CLEAR_LINE}   INFO:       tiles_needed_per_example     = {colour}{tiles_needed_per_example}{RESET}",                   flush=True  )
+    print( f"\033[{row+7};{col}f  {CLEAR_LINE}   INFO:       estimated_total_tiles        = {colour}{estimated_total_tiles:,}{RESET}",                    flush=True  )
 
   return ( estimated_total_tiles, top_up_factors )
 

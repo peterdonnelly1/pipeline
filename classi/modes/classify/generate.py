@@ -35,7 +35,8 @@ def generate( args, class_names, n_samples, estimated_total_tiles_train, estimat
               unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, top_up_factors_train, top_up_factors_test, tile_size, 
               low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform ):
 
-  # DON'T USE args.n_samples or batch_size or args.n_tiles or args.gene_data_norm or args.tile_size or args.highest_class_number or args.low_expression_threshold or args.cutoff_percentile since these are job-level lists. Here we are just using one value of each, passed in as the parameters above
+  # DON'T USE args.n_samples or batch_size or args.n_tiles or args.gene_data_norm or args.tile_size or args.highest_class_number or args.low_expression_threshold or args.cutoff_percentile since these are job-level lists. 
+  # Here we are using one value of each, passed in as per the above parameters
   just_test                    = args.just_test
   data_dir                     = args.data_dir
   input_mode                   = args.input_mode
@@ -867,6 +868,9 @@ def generate( args, class_names, n_samples, estimated_total_tiles_train, estimat
 
 #----------------------------------------------------------------------------------------------------------
 def generate_rna_dataset ( args, class_names, target, cases_required, highest_class_number, case_designation_flag, n_genes, low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform, use_autoencoder_output, class_counts  ):
+
+  cases_required = cases_required if cases_required>0 else 1                                               # zero cases will cause a crash 
+  
   
   if use_autoencoder_output=='False':
     genes_new           = np.zeros( ( cases_required, 1, n_genes   ), dtype=np.float64 )
@@ -1399,6 +1403,8 @@ def generate_rna_dataset ( args, class_names, target, cases_required, highest_cl
 #----------------------------------------------------------------------------------------------------------
 def generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles_base, estimated_total_tiles, tile_size, class_counts, top_up_factors  ):
 
+  cases_required = cases_required if cases_required>0 else 1                                               # zero cases will cause a crash 
+  
   if DEBUG>0:
     print( f"{CLEAR_LINE}GENERATE:       INFO:     estimated_total_tiles                                         = {PINK}{estimated_total_tiles}{RESET}",        flush=True       ) 
 
