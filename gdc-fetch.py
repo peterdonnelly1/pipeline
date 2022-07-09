@@ -26,7 +26,7 @@ from classi.constants  import *
 FAIL    = 0
 SUCCESS = 1
 
-DEBUG   = 1
+DEBUG   = 100
 
 OMIT       = -1
 NOT_FOUND  = 0

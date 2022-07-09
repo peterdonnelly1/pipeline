@@ -409,11 +409,11 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
 
             if DEBUG>0:
               if objective_power==0:
-                print( f"\033[{start_row+my_thread};12H{RESET}{ARYLIDE}{objective_power:2d}{RESET} (means it was not recorded. will assume 40x)",  end="", flush=True )
+                print( f"\033[{start_row+my_thread};12H{RESET}{ARYLIDE}{objective_power:2d}{RESET} (means it wasn't recorded. will assume 40x)",  end="", flush=True )
               elif objective_power==20:
-                print( f"\033[{start_row+my_thread};12H{RESET}{AZURE}{objective_power:2d}{RESET} (will extract double tile size then shrink)   ",  end="", flush=True )
+                print( f"\033[{start_row+my_thread};12H{RESET}{AZURE}{objective_power:2d}{RESET} (will extract double tile size then shrink)  ",  end="", flush=True )
               else:
-                print( f"\033[{start_row+my_thread};12H{RESET}{CAMEL}{objective_power:2d}{RESET}                                               ",  end="", flush=True )                
+                print( f"\033[{start_row+my_thread};12H{RESET}{CAMEL}{objective_power:2d}{RESET}                                              ",  end="", flush=True )                
 
               print( f"\033[{start_row+my_thread};{start_column-53}H{RESET}\
 {AMETHYST if multiplier==1 else MIKADO if multiplier==2 else CARRIBEAN_GREEN if 2<multiplier<=4 else BITTER_SWEET if 5<multiplier<=8 else CHARTREUSE if 5<multiplier<=8 else CAMEL}{multiplier:>25.2f}{RESET}", end="", flush=True )
@@ -459,8 +459,8 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
             if (DEBUG>0):
               ratio=new_width/tile_size
               print ( f"{RESET}\033[{start_row+my_thread};{start_column-42 if ratio<0.5 else start_column-33 if ratio<1. else start_column-24 if ratio<2. else start_column-15 if ratio<4. else start_column-6 if ratio<9. else start_column-6}H\
-{AZURE if new_width<33 else PALE_ORANGE if new_width<65 else YELLOW if new_width<129 else ASPARAGUS if new_width<200 else BRIGHT_GREEN if new_width<257 else COQUELICOT if new_width<400 else PINK if new_width<513 else CHARTREUSE if new_width<700 else CAMEL if new_width<1000 else COQUELICOT if new_width<1200 else PURPLE if new_width<1500 else AUREOLIN if new_width<3000 else PALE_GREEN if new_width<5000 else DIM_WHITEif new_width<6000 else CYAN}\
-{new_width:<3d}x{new_width:>3d}{RESET}" )  
+{AZURE if new_width<33 else PALE_ORANGE if new_width<65 else YELLOW if new_width<129 else ASPARAGUS if new_width<200 else BRIGHT_GREEN if new_width<257 else COQUELICOT if new_width<400 else PINK if new_width<513 else CHARTREUSE if new_width<700 else CAMEL if new_width<1000 else COQUELICOT if new_width<1200 else PURPLE if new_width<1500 else AUREOLIN if new_width<3000 else PALE_GREEN if new_width<5000 else DIM_WHITE if new_width<6000 else CYAN}\
+{new_width:<3d}x{new_width:>3d}{RESET}" )
 
             if (DEBUG>5) & (my_thread==thread_to_monitor):
               print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) before resizing = \n{GREEN}{np.array(tile)[0:10,0:10,0]}{RESET}",  flush=True        ) 
