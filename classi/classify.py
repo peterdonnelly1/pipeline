@@ -895,7 +895,7 @@ f"\
     if ( divide_cases == 'True' ):
       
       if just_test=='False':                                                                      
-        multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count =  segment_cases( pct_test )  # boils down to setting flags in the directories of certain cases, esp. 'MULTIMODE_CASE_FLAG'
+        multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count =  segment_cases( pct_test, n_classes )  # boils down to setting flags in the directories of certain cases, esp. 'MULTIMODE_CASE_FLAG'
         time.sleep(3)
       else:
         print( f"{RED}CLASSI:         FATAL: user option  {CYAN}-v ('args.cases'){RESET}{RED} is not allowed in test mode ({CYAN}JUST_TEST=True{RESET}, {CYAN}--just_test 'True'{RESET}){RED}{RESET}" )
@@ -3747,7 +3747,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
              np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else BLACK}{x:>2d}{RESET}"})
              GAP='  '
           print (  f"{CLEAR_LINE}         ",  end='', flush=True  )        
-          for i in range( 0, len(delta) ):                                                                   # should have been able to do this with a fancy list comprehension but I couldn't get it to work
+          for i in range( 0, len(delta) ):                                                                 # should have been able to do this with a fancy list comprehension but I couldn't get it to work
             if delta[i]==0:                                                                                   
               print (  f"{GREEN}\u2713{GAP}", end='', flush=True  )
             else:
@@ -3772,7 +3772,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
              np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else BLACK}{x:>2d}{RESET}"}) 
           
           print (  f"{CLEAR_LINE}         ",  end='', flush=True  )        
-          for i in range( 0, len(delta) ):                                                                   # should have been able to do this with a fancy list comprehension but I couldn't get it to work
+          for i in range( 0, len(delta) ):                                                                 # should have been able to do this with a fancy list comprehension but I couldn't get it to work
             if delta[i]==0:                                                                                   
               print (  f"{BRIGHT_GREEN}\u2713{GAP}", end='', flush=True  )
             else:
@@ -3947,52 +3947,7 @@ def determine_top_up_factors ( args, n_classes, class_names, n_tiles, case_desig
   if DEBUG>0:
     print( f"CLASSI:         INFO: n_classes               = {MAGENTA}{n_classes}{RESET}",        flush=True  )
     
-  class_counts          = np.zeros( n_classes, dtype=int )
-
-  for dir_path, dirs, files in os.walk( args.data_dir ):                                                   # each iteration takes us to a new directory under data_dir
-
-    for d in dirs:
-
-      if not (d==args.data_dir):                                                                                # the top level directory (dataset) has to be skipped because it only contains sub-directories, not data
-  
-        fqn = f"{dir_path}/{d}/{case_designation_flag}"
-        if DEBUG>100:
-          print ( f"\n\nCLASSI:         INFO:   fqn         {YELLOW}{fqn}{RESET}")
-
-        count_this_case_flag=False
-
-        try:
-          fqn = f"{dir_path}/{d}/{case_designation_flag}"
-          f = open( fqn, 'r' )
-          count_this_case_flag=True
-          if DEBUG>100:
-            print ( f"\r{CLEAR_LINE}{DULL_WHITE}CLASSI:         INFO:  determine_top_up_factors() case  '{CYAN}{fqn}{RESET}{GREEN}' \r\033[130C is     a case flagged as '{CYAN}{case_designation_flag}{RESET}{GREEN}' - - including{RESET}{CLEAR_LINE}",  flush=True )
-        except Exception:
-          if DEBUG>100:
-            print ( f"\r{CLEAR_LINE}{DULL_WHITE}CLASSI:         INFO:  determine_top_up_factors() case  '{CYAN}{fqn}{RESET}{RED} \r\033[130C is not a case flagged as '{CYAN}{case_designation_flag}{RESET}{RED}' - - skipping{RESET}{CLEAR_LINE}",  flush=True )
-  
-        try:                                                                                               # every tile has an associated label - the same label for every tile image in the directory
-          label_file = f"{dir_path}/{d}/{args.class_numpy_file_name}"
-          if DEBUG>100:
-            print ( f"CLASSI:         INFO:   label_file  {ASPARAGUS}{label_file}{RESET}")
-          label      = np.load( label_file )
-          if label[0]>args.highest_class_number:
-            count_this_case_flag=False
-            if DEBUG>0:
-              print ( f"{ORANGE}CLASSI:         INFO: label is greater than '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{ORANGE}' - - skipping this example (label = {MIKADO}{label[0]}{RESET}{ORANGE}){RESET}"      )
-            pass
-        except Exception as e:
-          print ( f"{RED}CLASSI:               FATAL: when processing: '{label_file}'{RESET}", flush=True)        
-          print ( f"{RED}CLASSI:                      reported error was: '{e}'{RESET}", flush=True)
-          print ( f"{RED}CLASSI:                      halting now{RESET}", flush=True)
-          sys.exit(0)
-        
-        if ( count_this_case_flag==True ):
-          class_counts[label[0]]+=1
-          
-          if DEBUG>100:
-            print( f"CLASSI:         INFO:     class_counts   = {MIKADO}{class_counts}{RESET}", flush=True  )
-
+  class_counts = determine_class_counts ( args, n_classes, class_names, n_tiles, case_designation_flag )
 
 
   if case_designation_flag!='UNIMODE_CASE____IMAGE_TEST':
@@ -4046,10 +4001,67 @@ def determine_top_up_factors ( args, n_classes, class_names, n_tiles, case_desig
 
 
 
+# ---------------------------------------------------------------------------------------------------------
+def determine_class_counts ( args, n_classes, class_names, n_tiles, case_designation_flag ):
+
+  #  Count the number images per cancer subtype in the dataset for the designated case type (e.g. UNIMODE_CASE) 
+   
+
+  if DEBUG>0:
+    print( f"CLASSI:         INFO: n_classes               = {MAGENTA}{n_classes}{RESET}",        flush=True  )
+    
+  class_counts          = np.zeros( n_classes, dtype=int )
+
+  for dir_path, dirs, files in os.walk( args.data_dir ):                                                   # each iteration takes us to a new directory under data_dir
+
+    for d in dirs:
+
+      if not (d==args.data_dir):                                                                                # the top level directory (dataset) has to be skipped because it only contains sub-directories, not data
+  
+        fqn = f"{dir_path}/{d}/{case_designation_flag}"
+        if DEBUG>100:
+          print ( f"\n\nCLASSI:         INFO:   fqn         {YELLOW}{fqn}{RESET}")
+
+        count_this_case_flag=False
+
+        try:
+          fqn = f"{dir_path}/{d}/{case_designation_flag}"
+          f = open( fqn, 'r' )
+          count_this_case_flag=True
+          if DEBUG>100:
+            print ( f"\r{CLEAR_LINE}{DULL_WHITE}CLASSI:         INFO:  determine_class_counts() case  '{CYAN}{fqn}{RESET}{GREEN}' \r\033[130C is     a case flagged as '{CYAN}{case_designation_flag}{RESET}{GREEN}' - - including{RESET}{CLEAR_LINE}",  flush=True )
+        except Exception:
+          if DEBUG>100:
+            print ( f"\r{CLEAR_LINE}{DULL_WHITE}CLASSI:         INFO:  determine_class_counts() case  '{CYAN}{fqn}{RESET}{RED} \r\033[130C is not a case flagged as '{CYAN}{case_designation_flag}{RESET}{RED}' - - skipping{RESET}{CLEAR_LINE}",  flush=True )
+  
+        try:                                                                                               # every tile has an associated label - the same label for every tile image in the directory
+          label_file = f"{dir_path}/{d}/{args.class_numpy_file_name}"
+          if DEBUG>100:
+            print ( f"CLASSI:         INFO:   label_file  {ASPARAGUS}{label_file}{RESET}")
+          label      = np.load( label_file )
+          if label[0]>args.highest_class_number:
+            count_this_case_flag=False
+            if DEBUG>0:
+              print ( f"{ORANGE}CLASSI:         INFO: label is greater than '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{ORANGE}' - - skipping this example (label = {MIKADO}{label[0]}{RESET}{ORANGE}){RESET}"      )
+            pass
+        except Exception as e:
+          print ( f"{RED}CLASSI:               FATAL: when processing: '{label_file}'{RESET}", flush=True)        
+          print ( f"{RED}CLASSI:                      reported error was: '{e}'{RESET}", flush=True)
+          print ( f"{RED}CLASSI:                      halting now{RESET}", flush=True)
+          sys.exit(0)
+        
+        if ( count_this_case_flag==True ):
+          class_counts[label[0]]+=1
+          
+          if DEBUG>100:
+            print( f"CLASSI:         INFO:     class_counts   = {MIKADO}{class_counts}{RESET}", flush=True  )
+            
+  return class_counts
+
 
 # ---------------------------------------------------------------------------------------------------------
 
-def segment_cases( pct_test ):
+def segment_cases( pct_test, n_classes ):
 
   # (1A) analyse dataset directory
 
@@ -4322,45 +4334,84 @@ def segment_cases( pct_test ):
               unimode_case_unmatched_count+=1                                                              # only segment_cases knows the value of unimode_case_unmatched_count, and we need in generate(), so we return it
                                                                   
 
-    # (1Civ) Designate those IMAGE cases which are not also MULTIMODE cases. Go through directories one time. Flag UNIMODE_CASE which are also image cases as UNIMODE_CASE____IMAGE
+    # (1Civ) Designate those IMAGE cases which are not also MULTIMODE cases. Go through directories one time. Flag UNIMODE_CASE which are ALSO image cases as UNIMODE_CASE____IMAGE
     
     if DEBUG>3:
       print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():  about to designate '{ARYLIDE}UNIMODE_CASE____IMAGE{RESET}{DULL_WHITE}' cases{RESET}",  flush=True )  
     
     directories_considered_count    = 0
     unimode_case_image_count        = 0
+    class_counts                   = np.zeros( n_classes, dtype=int )
     
-    for dir_path, dirs, files in os.walk( args.data_dir ):
-  
-      if DEBUG>55:  
-        print( f"{DIM_WHITE}CLASSI:           INFO:   now processing case (directory) {ARYLIDE}{os.path.basename(dir_path)}{RESET}" )
-  
-      if not (dir_path==args.data_dir): 
-                    
-        try:
-          fqn = f"{dir_path}/HAS_IMAGE"        
-          f = open( fqn, 'r' )
-          if DEBUG>10:
-            print ( f"{DULL_WHITE}CLASSI:           INFO:   case                                       case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_GREEN}' \r\033[122C is an image case",  flush=True )
+    n=0 
+    
+    while np.any( class_counts <= 21 ):
+
+      a = random.choice( range(  0,  1   ) )
+      b = random.choice( range(  100,250 ) )
+      c = random.choice( range(  100,250 ) )
+      c = 120
+      BB=f"\033[38;2;{a};{b};{c}m"
+          
+      if n>0:
+        print ( f"\033[59;200H{CLEAR_LINE}",                                                                                                                             flush=True  )    
+        print ( f"\033[60;200H{BOLD}{BB}  CLASSI:         INFO: some subtypes are not represented in the applicable subset.  Shuffling and trying again.{RESET}",        flush=True  )    
+      
+      for dir_path, dirs, files in os.walk( args.data_dir ):
+    
+        random.shuffle(dirs)
+          
+        if DEBUG>55:  
+          print( f"{DIM_WHITE}CLASSI:           INFO:   now processing case (directory) {ARYLIDE}{os.path.basename(dir_path)}{RESET}" )
+    
+        if not (dir_path==args.data_dir): 
+                      
           try:
-            fqn = f"{dir_path}/UNIMODE_CASE"        
+            fqn = f"{dir_path}/HAS_IMAGE"        
             f = open( fqn, 'r' )
             if DEBUG>10:
-              print ( f"{GREEN}CLASSI:           INFO:   case                                       case \r\033[55C'{MAGENTA}{dir_path}{RESET}{GREEN} \r\033[122C is in a directory containing a UNIMODE IMAGE case",  flush=True )
-            fqn = f"{dir_path}/UNIMODE_CASE____IMAGE"            
-            with open(fqn, 'w') as f:
-              f.write( f"this case is a UNIMODE_CASE____IMAGE case" )
-            f.close
-            if DEBUG>22:
-              print ( f"{PALE_GREEN}CLASSI:           INFO:       segment_cases():  case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_GREEN}' \r\033[122C has been flagged with the UNIMODE_CASE____IMAGE  \r\033[204C (count= {MIKADO}{unimode_case_image_count+1}{RESET})",  flush=True )
-            unimode_case_image_count+=1                                                                    # only segment_cases knows the value of unimode_case_image_count, and we need in generate(), so we return it
+              print ( f"{DULL_WHITE}CLASSI:           INFO:   case                                       case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_GREEN}' \r\033[122C is an image case",  flush=True )
+            try:
+              fqn = f"{dir_path}/UNIMODE_CASE"        
+              f = open( fqn, 'r' )
+              if DEBUG>10:
+                print ( f"{GREEN}CLASSI:           INFO:   case                                       case \r\033[55C'{MAGENTA}{dir_path}{RESET}{GREEN} \r\033[122C is in a directory containing a UNIMODE IMAGE case",  flush=True )
+              fqn = f"{dir_path}/UNIMODE_CASE____IMAGE"            
+              with open(fqn, 'w') as f:
+                f.write( f"this case is a UNIMODE_CASE____IMAGE case" )
+              f.close
+              if DEBUG>22:
+                print ( f"{PALE_GREEN}CLASSI:           INFO:       segment_cases():  case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_GREEN}' \r\033[122C has been flagged with the UNIMODE_CASE____IMAGE  \r\033[204C (count= {MIKADO}{unimode_case_image_count+1}{RESET})",  flush=True )
+              unimode_case_image_count+=1                                                                  # only segment_cases knows the value of unimode_case_image_count, and we need in generate(), so we return it
+  
+              try:                                                                                         # every tile has an associated label - the same label for every tile image in the directory
+                label_file = f"{dir_path}/{args.class_numpy_file_name}"
+                if DEBUG>100:
+                  print ( f"CLASSI:         INFO:   label_file  {ASPARAGUS}{label_file}{RESET}")
+                label      = np.load( label_file )
+                if label[0]>args.highest_class_number:
+                  pass
+                class_counts[label[0]]+=1
+                  
+                if DEBUG>0:
+                  np.set_printoptions(formatter={'int': lambda x: "{:>4d}".format(x)}) 
+                  print( f"\033[61;200H{BOLD}{BB}  CLASSI:         INFO: class_counts   = {CARRIBEAN_GREEN}{class_counts}{RESET}{CLEAR_LINE}", flush=True  )
+  
+              except Exception as e:
+                print ( f"{RED}CLASSI:               FATAL: when processing: '{label_file}'{RESET}", flush=True)        
+                print ( f"{RED}CLASSI:                      reported error was: '{e}'{RESET}", flush=True)
+                print ( f"{RED}CLASSI:                      halting now{RESET}", flush=True)
+                sys.exit(0)
+  
+            except Exception:
+              if DEBUG>44:
+                print ( f"{RED}CLASSI:           INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{RED}' \r\033[122C  is not a UNIMODE_CASE case - - skipping{RESET}",  flush=True )
           except Exception:
             if DEBUG>44:
-              print ( f"{RED}CLASSI:           INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{RED}' \r\033[122C  is not a UNIMODE_CASE case - - skipping{RESET}",  flush=True )
-        except Exception:
-          if DEBUG>44:
-            print ( f"{PALE_RED}CLASSI:           INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[122C is not an image case - - skipping{RESET}",  flush=True )                                                                    
-        
+              print ( f"{PALE_RED}CLASSI:           INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[122C is not an image case - - skipping{RESET}",  flush=True )                                                                    
+      
+      n+=1  
+
 
     # (1Cv) Designate those RNA cases which are not also MULTIMODE cases. Go through directories one time. Flag UNIMODE_CASE which are also rna cases as UNIMODE_CASE____RNA
     
@@ -4402,12 +4453,16 @@ def segment_cases( pct_test ):
             print ( f"{PALE_RED}CLASSI:           INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[122C is not an rna case - - skipping{RESET}",  flush=True )                                                                    
         
 
-    # (1Cvi) Designate 'UNIMODE_CASE____IMAGE_TEST' cases. Go through directories one time. Flag 'PCT_TEST' % of the UNIMODE_CASE IMAGE cases as UNIMODE_CASE____IMAGE_TESTxxx
+    # (1Cvi) Designate 'UNIMODE_CASE____IMAGE_TEST' cases. Go through directories one time. Flag 'PCT_TEST' % of the UNIMODE_CASE IMAGE cases as UNIMODE_CASE____IMAGE_TEST
     #        These cases are used for unimode image testing. Necessary to strictly separated cases in this manner for image mode so that tiles from a single image do not end up in both the training and test sets   
     #        In image mode, tiles allocated to the training set cann't come from an image which is also contributing tiles to the test set. Ditto the reverse.
     #        This issue does not affect rna mode, where there is only one artefact per case. I.e. when input is rna, any rna sample can be allocated to either the training set or test set
     #
     #        Strategy: re-designate an appropriate number of the 'UNIMODE_CASE____IMAGE' to be 'UNIMODE_CASE____IMAGE_TEST' (delete the first flag)
+    #
+    #        TODO: IDEALLY HERE WE WOULD ALSO ENSURE THAT AT LEAST ONE CASE OF EACH SUBTYPE WAS DESIGNATED AS IMAGE_TEST. OTHERWISE SOME SUBTYPES CAN END UP WITH NO TEST EXAMPLES IF 
+    #              THERE IS ONLY A VERY SMALL NUMBER OF EXAMPLES FOR THAT CASE IN TOTAL (BECAUSE THE TEST EXAMPLE QUOTE MIGHT BE FILLED WITHOUT COMING ACROSS AN EXAMPLE OF THAT SUBTYPE)
+    
   
 
     cases_to_designate = int(pct_test * unimode_case_image_count)
@@ -4417,11 +4472,25 @@ def segment_cases( pct_test ):
     
     directories_considered_count   = 0
     unimode_case_image_test_count  = 0
+    class_counts                   = np.zeros( n_classes, dtype=int )
+
     
-    while True:
+    n=0
+    
+    while np.any( class_counts < 1 ):
+
+      a = random.choice( range(  100,250 ) )
+      b = random.choice( range(  0,  1   ) )
+      c = random.choice( range(  100,200) )
+      c = 120
+      BB=f"\033[38;2;{a};{b};{c}m"
+          
+      if n>0:
+        print ( f"\033[62;200H{BOLD}{BB}  CLASSI:         INFO: some subtypes are not represented in the applicable subset.  Shuffling and trying again.{RESET}",        flush=True  )                                        
+        
       
       for dir_path, dirs, files in os.walk( args.data_dir, topdown=True ):
-    
+        
         if DEBUG>55:  
           print( f"{DIM_WHITE}CLASSI:         INFO:   now considering case {ARYLIDE}{os.path.basename(dir_path)}{RESET}{DIM_WHITE} \r\033[130C as a candidate UNIMODE_CASE____IMAGE_TEST case  " ) 
             
@@ -4441,7 +4510,28 @@ def segment_cases( pct_test ):
                   f.close
                   os.remove ( f"{dir_path}/UNIMODE_CASE____IMAGE" )
                 if DEBUG>66:
-                  print ( f"{BLEU}CLASSI:           INFO:    segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{BLEU} \r\033[130C has been randomly designated as a UNIMODE_CASE____IMAGE_TEST case  \r\033[204C (count= {MIKADO}{unimode_case_image_test_count}{BLEU}{RESET})",  flush=True )
+                  print ( f"{BLEU}CLASSI:           INFO:    segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{BLEU} \r\033[130C has been randomly (re-)designated as a UNIMODE_CASE____IMAGE_TEST case  \r\033[204C (count= {MIKADO}{unimode_case_image_test_count}{BLEU}{RESET})",  flush=True )
+
+                try:                                                                                       # every tile has an associated label - the same label for every tile image in the directory
+                  label_file = f"{dir_path}/{args.class_numpy_file_name}"
+                  if DEBUG>100:
+                    print ( f"CLASSI:         INFO:   label_file  {ASPARAGUS}{label_file}{RESET}")
+                  label      = np.load( label_file )
+                  if label[0]>args.highest_class_number:
+                    pass
+                  class_counts[label[0]]+=1
+                    
+                  if DEBUG>0:
+                    np.set_printoptions(formatter={'int': lambda x: "{:>4d}".format(x)}) 
+                    print( f"\033[63;200H{BOLD}{BB}  CLASSI:         INFO: class_counts   = {MAGENTA}{class_counts}{RESET}{CLEAR_LINE}", flush=True  )
+                    print( f"\033[64;200H{CLEAR_LINE}", flush=True  )
+    
+                except Exception as e:
+                  print ( f"{RED}CLASSI:               FATAL: when processing: '{label_file}'{RESET}", flush=True)        
+                  print ( f"{RED}CLASSI:                      reported error was: '{e}'{RESET}", flush=True)
+                  print ( f"{RED}CLASSI:                      halting now{RESET}", flush=True)
+                  sys.exit(0)
+
               except Exception:
                 print( f"{RED}CLASSI:       FATAL:  either could not create '{CYAN}UNIMODE_CASE____IMAGE_TEST{RESET}' file or delete the '{CYAN}UNIMODE_CASE____IMAGE{RESET}' " )  
                 time.sleep(10)
@@ -4450,6 +4540,8 @@ def segment_cases( pct_test ):
             if DEBUG>66:
               print ( f"{RED}CLASSI:           INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[130C is not a {CYAN}UNIMODE_CASE____IMAGE{RESET}{RED} case - - skipping{RESET}",  flush=True )
     
+      n+=1
+      
       directories_considered_count+=1
      
       if unimode_case_image_test_count == cases_to_designate:
