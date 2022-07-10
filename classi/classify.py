@@ -895,8 +895,11 @@ f"\
     if ( divide_cases == 'True' ):
       
       if just_test=='False':                                                                      
-        multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count =  segment_cases( pct_test, n_classes )  # boils down to setting flags in the directories of certain cases, esp. 'MULTIMODE_CASE_FLAG'
+        multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count =  \
+                    segment_cases( args, n_classes, class_names, n_tiles, pct_test )  # boils down to setting flags in the directories of certain cases, esp. 'MULTIMODE_CASE_FLAG'
+
         time.sleep(3)
+
       else:
         print( f"{RED}CLASSI:         FATAL: user option  {CYAN}-v ('args.cases'){RESET}{RED} is not allowed in test mode ({CYAN}JUST_TEST=True{RESET}, {CYAN}--just_test 'True'{RESET}){RED}{RESET}" )
         print( f"{RED}CLASSI:         FATAL: explanation:  it will resegment the cases, meaning there is every chance cases you've trained on will end up in the test set{RESET}" )
@@ -4061,7 +4064,8 @@ def determine_class_counts ( args, n_classes, class_names, n_tiles, case_designa
 
 # ---------------------------------------------------------------------------------------------------------
 
-def segment_cases( pct_test, n_classes ):
+def segment_cases( args, n_classes, class_names, n_tiles, pct_test ):
+
 
   # (1A) analyse dataset directory
 
@@ -4270,7 +4274,7 @@ def segment_cases( pct_test, n_classes ):
       if not (dir_path==args.data_dir):                                                                    # the top level directory (dataset) is skipped because it only contains sub-directories, not data
 
         if DEBUG>55:
-          print ( f"{PALE_GREEN}CLASSI:         INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files (listed above)  \r\033[160C (count= {matched_image_rna_count}{RESET}{PALE_GREEN})",  flush=True )
+          print ( f"{PALE_GRshuffEEN}CLASSI:         INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files (listed above)  \r\033[160C (count= {matched_image_rna_count}{RESET}{PALE_GREEN})",  flush=True )
   
           
         try:
@@ -4394,8 +4398,8 @@ def segment_cases( pct_test, n_classes ):
                 class_counts[label[0]]+=1
                   
                 if DEBUG>0:
-                  np.set_printoptions(formatter={'int': lambda x: "{:>4d}".format(x)}) 
-                  print( f"\033[61;200H{BOLD}{BB}  CLASSI:         INFO: class_counts   = {CARRIBEAN_GREEN}{class_counts}{RESET}{CLEAR_LINE}", flush=True  )
+                  np.set_printoptions(formatter={'int': lambda x: "{:>6d}".format(x)}) 
+                  print( f"\033[61;200H{BOLD}{BB}  CLASSI:         INFO: class_counts                         = {CARRIBEAN_GREEN}{class_counts}{RESET}{CLEAR_LINE}", flush=True  )
   
               except Exception as e:
                 print ( f"{RED}CLASSI:               FATAL: when processing: '{label_file}'{RESET}", flush=True)        
@@ -4473,22 +4477,40 @@ def segment_cases( pct_test, n_classes ):
     directories_considered_count   = 0
     unimode_case_image_test_count  = 0
     class_counts                   = np.zeros( n_classes, dtype=int )
+    ratios                         = np.zeros( n_classes, dtype=int )
 
-    
-    n=0
-    
-    while np.any( class_counts < 1 ):
-
-      a = random.choice( range(  100,250 ) )
-      b = random.choice( range(  0,  1   ) )
-      c = random.choice( range(  100,200) )
-      c = 120
-      BB=f"\033[38;2;{a};{b};{c}m"
-          
-      if n>0:
-        print ( f"\033[62;200H{BOLD}{BB}  CLASSI:         INFO: some subtypes are not represented in the applicable subset.  Shuffling and trying again.{RESET}",        flush=True  )                                        
-        
+    a  = random.choice( range(  100,250 ) )
+    b  = random.choice( range(  0,  1   ) )
+    c  = 120
+    BB = f"\033[38;2;{a};{b};{c}m"
       
+    UNIMODE_CASE____IMAGE_class_counts = determine_class_counts ( args, n_classes, class_names, n_tiles, 'UNIMODE_CASE____IMAGE' )
+    if DEBUG>0:
+      np.set_printoptions(formatter={'int': lambda x: "{:>6d}".format(x)}) 
+      print( f"\033[62;200H{BOLD}{BB}  CLASSI:         INFO: UNIMODE_CASE____IMAGE_class_counts   = {MAGENTA}{UNIMODE_CASE____IMAGE_class_counts}{RESET}{CLEAR_LINE}", flush=True  )
+    
+    n=0    
+    
+    while np.any( ratios < pct_test ):
+
+      a  = random.choice( range(  100,250 ) )
+      b  = random.choice( range(  0,  1   ) )
+      c  = 120
+      
+      BB = f"\033[38;2;{a};{b};{c}m"
+
+      if DEBUG>0:
+        ratios = np.divide( class_counts, UNIMODE_CASE____IMAGE_class_counts )
+        np.set_printoptions(formatter={ 'float' : lambda x: f"{x:>6.2f}"} )   
+        print( f"\033[63;200H{BOLD}{BB}  CLASSI:         INFO: ratios                               = {MAGENTA}{ratios}{RESET}{CLEAR_LINE}", flush=True  )
+
+      if n>0:
+        if np.any( ratios < pct_test ):
+          print ( f"\033[64;200H{BOLD}{BB}  CLASSI:         INFO: NO GOOD  ({CYAN}pct_test{RESET}{BOLD}{BB}={MIKADO}{pct_test}{RESET}{BOLD}{BB}).  Will shuffle and try again.{RESET}",        flush=True  )   
+
+      # ~ if n>0:
+        # ~ print ( f"\033[64;200H{BOLD}{BB}  CLASSI:         INFO: some subtypes are not represented in the applicable subset.  Shuffling and trying again.{RESET}",        flush=True  )                                        
+        
       for dir_path, dirs, files in os.walk( args.data_dir, topdown=True ):
         
         if DEBUG>55:  
@@ -4522,9 +4544,8 @@ def segment_cases( pct_test, n_classes ):
                   class_counts[label[0]]+=1
                     
                   if DEBUG>0:
-                    np.set_printoptions(formatter={'int': lambda x: "{:>4d}".format(x)}) 
-                    print( f"\033[63;200H{BOLD}{BB}  CLASSI:         INFO: class_counts   = {MAGENTA}{class_counts}{RESET}{CLEAR_LINE}", flush=True  )
-                    print( f"\033[64;200H{CLEAR_LINE}", flush=True  )
+                    np.set_printoptions(formatter={'int': lambda x: "{:>6d}".format(x)}) 
+                    print( f"\033[65;200H{BOLD}{BB}  CLASSI:         INFO: class_counts                         = {MAGENTA}{class_counts}{RESET}{CLEAR_LINE}", flush=True  )
     
                 except Exception as e:
                   print ( f"{RED}CLASSI:               FATAL: when processing: '{label_file}'{RESET}", flush=True)        
@@ -4548,6 +4569,12 @@ def segment_cases( pct_test, n_classes ):
         if DEBUG>55:
           print ( f"{PALE_GREEN}CLASSI:         INFO:   unimode_case_image_test_count  = {AMETHYST}{unimode_case_image_test_count}{RESET}",          flush=True )
         break
+
+    if DEBUG>0:
+      ratios = np.divide( class_counts, UNIMODE_CASE____IMAGE_class_counts )
+      np.set_printoptions(formatter={ 'float' : lambda x: f"{x:>6.2f}"} )   
+      print( f"\033[66;200H{BOLD}{GREEN}  CLASSI:         INFO: final ratios (all > {CYAN}pct_test={MIKADO}{pct_test}{RESET}{BOLD}{GREEN}     = {ratios}{RESET}{CLEAR_LINE}", flush=True  )
+      print( f"\033[67;200H{CLEAR_LINE}", flush=True  )
 
     unimode_case_image_count = unimode_case_image_count - unimode_case_image_test_count
     
