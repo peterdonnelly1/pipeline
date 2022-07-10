@@ -4019,7 +4019,8 @@ def determine_top_up_factors ( args, n_classes, class_names, n_tiles, case_desig
   if np.any( class_counts < 1):
       print ( f"{BOLD}{RED}\033[90;0HCLASSI:       FATAL: one of the subtypes has no examples",        flush=True  )                                        
       print ( f"{BOLD}{RED}CLASSI:       FATAL: {CYAN}class_counts{RESET}{BOLD}{RED} are {MIKADO}{class_counts}{BOLD}{RED} for class names (subtypes) {MIKADO}{class_names}{BOLD}{RED} respectively{RESET}",    flush=True  )                                        
-      print ( f"{BOLD}{RED}CLASSI:       FATAL: possible remedy: remove any class or classes that has only a tiny number of examples",                    flush=True  )                                        
+      print ( f"{BOLD}{RED}CLASSI:       FATAL: possible remedy (i):  it could be that all cases were allocated to just the training or just the test set. Re-run the experiment with option {CYAN}-v {RESET}{BOLD}{RED} set to {CYAN}True{RESET}{BOLD}{RED} to have cases re-divided and flagged{RESET}",       flush=True  )                                        
+      print ( f"{BOLD}{RED}CLASSI:       FATAL: possible remedy (ii): if al else failes, remove any class or classes that has only a tiny number of examples from the applicable master spreadsheet",                      flush=True  )                                        
       print ( f"{BOLD}{RED}CLASSI:       FATAL: cannot continue - halting now{RESET}" )                 
       sys.exit(0)
 
