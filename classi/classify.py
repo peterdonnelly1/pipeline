@@ -4017,7 +4017,9 @@ def determine_top_up_factors ( args, n_classes, n_tiles, case_designation_flag )
     print( f"\033[{row+3};{col}f  {CLEAR_LINE}   INFO:       total slides counted         = {colour}{np.sum(class_counts)}{RESET}",                       flush=True  )
 
   if np.any( class_counts < 1):
-      print ( f"{BOLD}{RED}\033[70;0HCLASSI:       FATAL: one of the subtypes has no examples",        flush=True  )                                        
+      print ( f"{BOLD}{RED}\033[90;0HCLASSI:       FATAL: one of the subtypes has no examples",        flush=True  )                                        
+      print ( f"{BOLD}{RED}CLASSI:       FATAL: {CYAN}class_counts{RESET}{BOLD}{RED} ={MIDADO}{class_counts}{BOLD}{RED}",                                 flush=True  )                                        
+      print ( f"{BOLD}{RED}CLASSI:       FATAL: possible remedy: remove any class or classes that has only a tiny number of examples",                    flush=True  )                                        
       print ( f"{BOLD}{RED}CLASSI:       FATAL: cannot continue - halting now{RESET}" )                 
       sys.exit(0)
 
