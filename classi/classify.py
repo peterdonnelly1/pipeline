@@ -1180,7 +1180,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
               if (  args.cases == 'UNIMODE_CASE' ):
                 
                 flag  = 'UNIMODE_CASE____IMAGE_TEST'
-                estimated_total_tiles_test, top_up_factors_test  = determine_top_up_factors ( args, n_classes, n_tiles, flag )
+                estimated_total_tiles_test, top_up_factors_test  = determine_top_up_factors ( args, n_classes, class_names, n_tiles, flag )
                 count = n_samples
 
                 if DEBUG>1:
@@ -1191,7 +1191,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
               if (  args.cases == 'MULTIMODE____TEST' ):
                 
                 flag  = 'MULTIMODE____TEST'
-                estimated_total_tiles_test, top_up_factors_test  = determine_top_up_factors ( args, n_classes, n_tiles, flag )
+                estimated_total_tiles_test, top_up_factors_test  = determine_top_up_factors ( args, n_classes, class_names, n_tiles, flag )
                 count = cases_reserved_for_image_rna
 
                 if DEBUG>1:
@@ -1204,7 +1204,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
                 slides_to_be_tiled = n_samples
   
                 flag  = 'HAS_IMAGE'
-                estimated_total_tiles_test, top_up_factors_test  = determine_top_up_factors ( args, n_classes, n_tiles, flag )
+                estimated_total_tiles_test, top_up_factors_test  = determine_top_up_factors ( args, n_classes, class_names, n_tiles, flag )
               
                 if DEBUG>1:
                   print( f"{SAVE_CURSOR}\r\033[{num_cpus+1}B{WHITE}CLASSI:         INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; slides_to_be_tiled = {MIKADO}{slides_to_be_tiled:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
@@ -1225,7 +1225,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
                 pass
 
               flag  = 'HAS_IMAGE'
-              estimated_total_tiles_train, top_up_factors_train  = determine_top_up_factors ( args, n_classes, n_tiles, flag )
+              estimated_total_tiles_train, top_up_factors_train  = determine_top_up_factors ( args, n_classes, class_names, n_tiles, flag )
             
               if DEBUG>1:
                 print( f"{SAVE_CURSOR}\r\033[{num_cpus+1}B{WHITE}CLASSI:         INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; slides_to_be_tiled = {MIKADO}{slides_to_be_tiled:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
@@ -1246,7 +1246,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
                 pass
 
               flag  = 'UNIMODE_CASE____IMAGE'
-              estimated_total_tiles_train, top_up_factors_train  = determine_top_up_factors ( args, n_classes, n_tiles, flag )
+              estimated_total_tiles_train, top_up_factors_train  = determine_top_up_factors ( args, n_classes, class_names, n_tiles, flag )
 
               if DEBUG>0:
                 np.set_printoptions(formatter={'float': lambda x: "{:>.2f}".format(x)})
@@ -1255,7 +1255,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
               slides_tiled_count = tiler_threader( args, flag, train_count, n_tiles_max, top_up_factors_train, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
 
               flag  = 'UNIMODE_CASE____IMAGE_TEST'
-              estimated_total_tiles_test, top_up_factors_test  = determine_top_up_factors ( args, n_classes, n_tiles, flag )
+              estimated_total_tiles_test, top_up_factors_test  = determine_top_up_factors ( args, n_classes, class_names, n_tiles, flag )
 
               if DEBUG>0:
                 np.set_printoptions(formatter={'float': lambda x: "{:>.2f}".format(x)})
@@ -3937,7 +3937,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
 # HELPER FUNCTIONS
 # ------------------------------------------------------------------------------
 
-def determine_top_up_factors ( args, n_classes, n_tiles, case_designation_flag ):
+def determine_top_up_factors ( args, n_classes, class_names, n_tiles, case_designation_flag ):
 
   #  Count the number images per cancer subtype in the dataset. This will be used in generate() to balance tiling so that all subtypes will be represented by the same number of tiles
   #  The balancing is performed in 'generate()', however the counts must be performed now, before tiling, because the results are used to adjust the number of tiles extracted
@@ -4018,7 +4018,7 @@ def determine_top_up_factors ( args, n_classes, n_tiles, case_designation_flag )
 
   if np.any( class_counts < 1):
       print ( f"{BOLD}{RED}\033[90;0HCLASSI:       FATAL: one of the subtypes has no examples",        flush=True  )                                        
-      print ( f"{BOLD}{RED}CLASSI:       FATAL: {CYAN}class_counts{RESET}{BOLD}{RED} ={MIDADO}{class_counts}{BOLD}{RED}",                                 flush=True  )                                        
+      print ( f"{BOLD}{RED}CLASSI:       FATAL: {CYAN}class_counts{RESET}{BOLD}{RED} are {MIKADO}{class_counts}{BOLD}{RED} for class names (subtypes) {MIKADO}{class_names}{BOLD}{RED} respectively{RESET}",    flush=True  )                                        
       print ( f"{BOLD}{RED}CLASSI:       FATAL: possible remedy: remove any class or classes that has only a tiny number of examples",                    flush=True  )                                        
       print ( f"{BOLD}{RED}CLASSI:       FATAL: cannot continue - halting now{RESET}" )                 
       sys.exit(0)
