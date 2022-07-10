@@ -4562,7 +4562,7 @@ def segment_cases( pct_test, n_classes ):
     cases_to_designate = int(pct_test * unimode_case_rna_count)
         
     if DEBUG>0:
-      print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():    about to randomly re-designate int({CYAN}PCT_TEST{RESET}{DULL_WHITE} {MIKADO}{pct_test*100:4.2f}%{RESET}{DULL_WHITE} * {CYAN}unimode_case_rna_count{RESET}{DULL_WHITE}   {MIKADO}{unimode_case_rna_count}{RESET}{DULL_WHITE}) = {MIKADO}{cases_to_designate} {ARYLIDE}UNIMODE_CASE____RNA{RESET}{DULL_WHITE}   cases as reserved rna   test cases by placing the flag {ARYLIDE}UNIMODE_CASE____RNA_TEST{RESET}{DULL_WHITE}",  flush=True )
+      print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():    about to randomly re-designate int({CYAN}PCT_TEST{RESET}{DULL_WHITE} {MIKADO}{pct_test*100:4.2f}%{RESET}{DULL_WHITE} * {CYAN}unimode_case_rna_count{RESET}{DULL_WHITE}   {MIKADO}{unimode_case_rna_count}{RESET}{DULL_WHITE}) = {MIKADO}{cases_to_designate} {ARYLIDE}UNIMODE_CASE____RNA{RESET}{DULL_WHITE}   cases as reserved rna   test cases by placing the flag {ARYLIDE}UNIMODE_CASE____RNA_TEST{RESET}{DULL_WHITE}{CLEAR_LINE}",  flush=True )
     
     directories_considered_count   = 0
     unimode_case_rna_test_count    = 0
@@ -4610,17 +4610,17 @@ def segment_cases( pct_test, n_classes ):
     
 
     if DEBUG>0:
-        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():    these flags have been placed:{RESET}",                                                            flush=True )
-        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():        HAS_IMAGE ................................. = {MIKADO}{has_image_count}{RESET}",                flush=True )
-        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():        HAS_RNA ................................... = {MIKADO}{has_rna_count}{RESET}",                  flush=True )
-        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():        HAS_BOTH .................................. = {MIKADO}{matched_image_rna_count}{RESET}",        flush=True )
-        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():        MULTIMODE____TEST . . . . . . . . . . . . . = {MIKADO}{multimode_case_test_count}{RESET}",      flush=True )
-        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():        UNIMODE_CASE____MATCHED . . . . . . . . . . = {MIKADO}{unimode_case_matched_count}{RESET}",     flush=True )
-        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():        UNIMODE_CASE  . . . . . . . . . . . . . . . = {MIKADO}{unimode_case_unmatched_count}{RESET}",   flush=True )
-        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():        UNIMODE_CASE____IMAGE . . . . . . . . . . . = {MIKADO}{unimode_case_image_count}{RESET}",       flush=True )
-        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():        UNIMODE_CASE____IMAGE_TEST  . . . . . . . . = {MIKADO}{unimode_case_image_test_count}{RESET}",  flush=True )
-        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():        UNIMODE_CASE____RNA . . . . . . . . . . . . = {MIKADO}{unimode_case_rna_count}{RESET}",         flush=True )
-        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():        UNIMODE_CASE____RNA_TEST  . . . . . . . . . = {MIKADO}{unimode_case_rna_test_count}{RESET}",    flush=True )
+        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():    these flags have been placed:{RESET}{CLEAR_LINE}",                                                            flush=True )
+        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():        HAS_IMAGE ................................. = {MIKADO}{has_image_count}{RESET}{CLEAR_LINE}",                flush=True )
+        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():        HAS_RNA ................................... = {MIKADO}{has_rna_count}{RESET}{CLEAR_LINE}",                  flush=True )
+        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():        HAS_BOTH .................................. = {MIKADO}{matched_image_rna_count}{RESET}{CLEAR_LINE}",        flush=True )
+        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():        MULTIMODE____TEST . . . . . . . . . . . . . = {MIKADO}{multimode_case_test_count}{RESET}{CLEAR_LINE}",      flush=True )
+        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():        UNIMODE_CASE____MATCHED . . . . . . . . . . = {MIKADO}{unimode_case_matched_count}{RESET}{CLEAR_LINE}",     flush=True )
+        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():        UNIMODE_CASE  . . . . . . . . . . . . . . . = {MIKADO}{unimode_case_unmatched_count}{RESET}{CLEAR_LINE}",   flush=True )
+        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():        UNIMODE_CASE____IMAGE . . . . . . . . . . . = {MIKADO}{unimode_case_image_count}{RESET}{CLEAR_LINE}",       flush=True )
+        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():        UNIMODE_CASE____IMAGE_TEST  . . . . . . . . = {MIKADO}{unimode_case_image_test_count}{RESET}{CLEAR_LINE}",  flush=True )
+        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():        UNIMODE_CASE____RNA . . . . . . . . . . . . = {MIKADO}{unimode_case_rna_count}{RESET}{CLEAR_LINE}",         flush=True )
+        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():        UNIMODE_CASE____RNA_TEST  . . . . . . . . . = {MIKADO}{unimode_case_rna_test_count}{RESET}{CLEAR_LINE}",    flush=True )
 
     return multimode_case_test_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case_image_count, unimode_case_image_test_count, unimode_case_rna_count, unimode_case_rna_test_count
 
