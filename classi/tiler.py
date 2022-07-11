@@ -911,10 +911,13 @@ def choose_mag_level( my_thread, zoom_out_prob, zoom_out_mags, r_norm ):
 
     if DEBUG>0:
       np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})      
-      print( f'{SAVE_CURSOR}\033[9;0H{RESET}{BOLD}TILER:          INFO: \
-{BOLD}user supplied  {BOLD}{CYAN}prob vector{RESET} = {MIKADO}{zoom_out_prob}{RESET}  \
-{BOLD}user supplied  {BOLD}{CYAN}mags vector{RESET} = {MIKADO}{zoom_out_mags}{RESET}.  \
-{BOLD}; multiplier for current tile (selected randomly from {CYAN}zoom_out_mags{RESET} = {MIKADO}{zoom_out_mags}{RESET}) = {CLEAR_LINE}\033[{int(20*multiplier)}C{BOLD}{CHARTREUSE if multiplier <1 else PINK if multiplier <1.9 else ASPARAGUS if multiplier <3 else CAMEL if multiplier <4  else ORANGE if multiplier <5 else AZURE if multiplier <6 else BRIGHT_GREEN}{multiplier}{RESET}{RESTORE_CURSOR}', 
+      print( f'{SAVE_CURSOR}\033[9;0H{RESET}TILER:          INFO: \
+user supplied  {BOLD}{CYAN}prob vector{RESET} = {MIKADO}{zoom_out_prob}{RESET}  \
+user supplied  {BOLD}{CYAN}mags vector{RESET} = {MIKADO}{zoom_out_mags}{RESET}', 
+end='', flush=True )
+
+      print( f'{SAVE_CURSOR}\033[10;0H{RESET}TILER:          INFO: \
+multiplier for current tile (selected randomly from {MIKADO}{zoom_out_mags}{RESET}) = {CLEAR_LINE}{BOLD}\033[{int(10*multiplier)}C{BOLD}{CHARTREUSE if multiplier <1 else PINK if multiplier <1.9 else ASPARAGUS if multiplier <3 else CAMEL if multiplier <4  else ORANGE if multiplier <5 else AZURE if multiplier <6 else BRIGHT_GREEN}{multiplier}{RESET}{RESTORE_CURSOR}', 
 end='', flush=True )
     
     
