@@ -137,7 +137,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
     label_file = f"{data_dir}/{d}/{args.class_numpy_file_name}"
     if DEBUG>0:
       print ( f"\033[{start_row-13};0f{BOLD}{ASPARAGUS}TILER:                          INFO:   current image's label file    = \
-{RESET}{CYAN}{data_dir}/{PALE_ORANGE if r<4 else DULL_YELLOW if r<7 else DULL_WHITE if r<10 else PURPLE}{d}/{RESET}{CYAN}{args.class_numpy_file_name}{RESET}                                                              ",  end="" )
+{RESET}{CYAN}{data_dir}/{PALE_ORANGE if r<4 else DULL_YELLOW if r<7 else DULL_WHITE if r<10 else PURPLE}{d}/{RESET}{CYAN}{args.class_numpy_file_name}{RESET}                                      ",  end="" )
     label   = np.load( label_file )
     subtype = label[0]
     if DEBUG>0:
