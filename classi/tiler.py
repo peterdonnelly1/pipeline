@@ -137,11 +137,11 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
     label_file = f"{data_dir}/{d}/{args.class_numpy_file_name}"
     if DEBUG>0:
       print ( f"\033[{start_row-13};0f{BOLD}{ASPARAGUS}TILER:                          INFO:   current image's label file    = \
-{RESET}{CYAN}{data_dir}/{PALE_ORANGE if r<4 else DULL_YELLOW if r<7 else DULL_WHITE if r<10 else PURPLE}{d}/{RESET}{CYAN}{args.class_numpy_file_name}{RESET}            ",  end="" )
+{RESET}{CYAN}{data_dir}/{PALE_ORANGE if r<4 else DULL_YELLOW if r<7 else DULL_WHITE if r<10 else PURPLE}{d}/{RESET}{CYAN}{args.class_numpy_file_name}{RESET}                                                              ",  end="" )
     label   = np.load( label_file )
     subtype = label[0]
     if DEBUG>0:
-      print ( f"\033[{start_row-12};0f{BOLD}{ASPARAGUS}TILER:                          INFO:   current image is of subtype   = {MIKADO}{subtype}{RESET}            ",     end="" )
+      print ( f"\033[{start_row-12};0f{BOLD}{ASPARAGUS}TILER:                          INFO:   current image is of subtype   = {MIKADO}{subtype}{RESET}                                                                   ",  end="" )
   except Exception as e:
     print ( f"{RED}TILER:               FATAL: when processing: '{label_file}'{RESET}", flush=True)        
     print ( f"{RED}TILER:                      reported error was: '{e}'{RESET}", flush=True)
@@ -153,10 +153,10 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
   if make_balanced=='True':
 
     if DEBUG>0:
-      print ( f"\033[{start_row-9};0f{BOLD}{ASPARAGUS}TILER:                          INFO:   base value of n_tiles         = {CYAN}{n_tiles}{RESET}            ",                  end="" )
+      print ( f"\033[{start_row-9};0f{BOLD}{ASPARAGUS}TILER:                          INFO:   base value of n_tiles         = {CYAN}{n_tiles}{RESET}                                                                      ",  end="" )
       np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})
-      print ( f"\033[{start_row-11};0f{BOLD}{ASPARAGUS}TILER:                          INFO:   tile top_up_factors           = {CYAN}{top_up_factors}{RESET}            ",           end="" )
-      print ( f"\033[{start_row-10};0f{BOLD}{ASPARAGUS}TILER:                          INFO:   applicable top_up_factor      = {CYAN}{top_up_factors[subtype]:<4.2f}{RESET}            ",  end="" )
+      print ( f"\033[{start_row-11};0f{BOLD}{ASPARAGUS}TILER:                          INFO:   tile top_up_factors           = {CYAN}{top_up_factors}{RESET}                                                              ",  end="" )
+      print ( f"\033[{start_row-10};0f{BOLD}{ASPARAGUS}TILER:                          INFO:   applicable top_up_factor      = {CYAN}{top_up_factors[subtype]:<4.2f}{RESET}                                               ",  end="" )
   
       if top_up_factors[subtype]==1.:                                                                      # no need to adjust n_tiles for the subtype which has the largest number of images
         pass
@@ -164,7 +164,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
         n_tiles = int(top_up_factors[subtype] * n_tiles)+1
   
       if DEBUG>0:
-        print ( f"\033[{start_row-8};0f{BOLD}{ASPARAGUS}TILER:                          INFO:   adjusted value of n_tiles     = {CYAN}{n_tiles}{RESET}            ",                 end="" )
+        print ( f"\033[{start_row-8};0f{BOLD}{ASPARAGUS}TILER:                          INFO:   adjusted value of n_tiles     = {CYAN}{n_tiles}{RESET}                                                                    ",  end="" )
   
       
     
