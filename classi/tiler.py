@@ -141,7 +141,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
     label   = np.load( label_file )
     subtype = label[0]
     if DEBUG>0:
-      print ( f"\033[{start_row-12};0f{BOLD}{ASPARAGUS}TILER:                          INFO:   current image is of subtype   = {MIKADO}{subtype}{RESET}                                                                   ",  end="" )
+      print ( f"\033[{start_row-12};0f{BOLD}{ASPARAGUS}TILER:                          INFO:   current image is of subtype   = {MIKADO}{subtype}{RESET}                                                                                              ",  end="" )
   except Exception as e:
     print ( f"{RED}TILER:               FATAL: when processing: '{label_file}'{RESET}", flush=True)        
     print ( f"{RED}TILER:                      reported error was: '{e}'{RESET}", flush=True)
@@ -156,7 +156,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
       print ( f"\033[{start_row-9};0f{BOLD}{ASPARAGUS}TILER:                          INFO:   base value of n_tiles         = {CYAN}{n_tiles}{RESET}                                                                      ",  end="" )
       np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})
       print ( f"\033[{start_row-11};0f{BOLD}{ASPARAGUS}TILER:                          INFO:   tile top_up_factors           = {CYAN}{top_up_factors}{RESET}                                                              ",  end="" )
-      print ( f"\033[{start_row-10};0f{BOLD}{ASPARAGUS}TILER:                          INFO:   applicable top_up_factor      = {CYAN}{top_up_factors[subtype]:<4.2f}{RESET}                                               ",  end="" )
+      print ( f"\033[{start_row-10};0f{BOLD}{ASPARAGUS}TILER:                          INFO:   applicable top_up_factor      = {CYAN}{top_up_factors[subtype]:<4.2f}{RESET}                                                                  ",  end="" )
   
       if top_up_factors[subtype]==1.:                                                                      # no need to adjust n_tiles for the subtype which has the largest number of images
         pass
@@ -164,7 +164,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
         n_tiles = int(top_up_factors[subtype] * n_tiles)+1
   
       if DEBUG>0:
-        print ( f"\033[{start_row-8};0f{BOLD}{ASPARAGUS}TILER:                          INFO:   adjusted value of n_tiles     = {CYAN}{n_tiles}{RESET}                                                                    ",  end="" )
+        print ( f"\033[{start_row-8};0f{BOLD}{ASPARAGUS}TILER:                          INFO:   adjusted value of n_tiles     = {CYAN}{n_tiles}{RESET}                                                                                       ",  end="" )
   
       
     
@@ -415,8 +415,8 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
               else:
                 print( f"\033[{start_row+my_thread};12H{RESET}{CAMEL}{objective_power:2d}{RESET}                                              ",  end="", flush=True )                
 
-              print( f"\033[{start_row+my_thread};{start_column-74}H{RESET}\
-{AMETHYST if multiplier==1 else MIKADO if multiplier==2 else CARRIBEAN_GREEN if 2<multiplier<=4 else BITTER_SWEET if 5<multiplier<=8 else CHARTREUSE if 5<multiplier<=8 else CAMEL}{multiplier:>25.2f}{RESET}", end="", flush=True )
+              print( f"\033[{start_row+my_thread};{start_column-53}H{RESET}\
+{AMETHYST if multiplier==1 else MIKADO if multiplier==2 else CARRIBEAN_GREEN if 2<multiplier<=4 else BITTER_SWEET if 5<multiplier<=8 else CHARTREUSE if 5<multiplier<=8 else CAMEL}{multiplier:>5.2f}{RESET}", end="", flush=True )
 
             if DEBUG>0:
                 print  (f"\
@@ -426,7 +426,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
 \033[{start_row-2};{start_column+180}f{WHITE}overall progress{RESET}\
 \033[{start_row-1};3f{RESET}{BOLD}cpu\
 \033[{start_row-1};12f{RESET}{CLEAR_LINE}{BOLD}slide optical magnification\
-\033[{start_row-1};{start_column-53}f{RESET}mag\
+\033[{start_row-1};{start_column-52}f{RESET}mag\
 \033[{start_row-1};{start_column-42}f{RESET}extraction dims    (save tile dims = {UNDER}{tile_size}x{tile_size}{RESET})\
 \033[{start_row-1};{start_column+6+1}f{RESET}subtype\
 \033[{start_row-1};{start_column+14+4}fneeded\
