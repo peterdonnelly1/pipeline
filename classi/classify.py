@@ -309,8 +309,14 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   case_column                   = args.case_column
   class_column                  = args.class_column
 
-  global last_stain_norm                                                                                   # Need to remember this across runs in a job
-  global last_gene_norm                                                                                    # Need to remember this across runs in a job
+  # Need to remember these across all runs in a job
+  global estimated_total_tiles_train
+  global estimated_total_tiles_test
+  global top_up_factors_train
+  global top_up_factors_test  
+  
+  global last_stain_norm                                                                                   
+  global last_gene_norm                                                                                    
   global run_level_classifications_matrix
   global run_level_classifications_matrix_acc
   global job_level_classifications_matrix 
@@ -522,6 +528,7 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
         sys.exit(0)
 
 
+
   if  ( stain_norm[0]=='spcn' ):
     print( f"{MAGENTA}{BOLD}CLASSI:         INFO:  '{CYAN}{BOLD}stain_norm{RESET}{MAGENTA}'{BOLD} option '{CYAN}{BOLD}spcn{RESET}{MAGENTA}{BOLD}' is set. The spcn slide set will be used and the svs side set will be ignored{RESET}", flush=True)
 
@@ -731,6 +738,10 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
 
   already_tiled=False
   already_generated=False
+  estimated_total_tiles_train = 456789
+  estimated_total_tiles_test  = 123456
+  top_up_factors_train        = np.zeros( n_classes, dtype=int )
+  top_up_factors_test         = np.zeros( n_classes, dtype=int )  
                           
   repeater = [ 1 for r in range( 0, repeat) ] 
   
@@ -774,6 +785,17 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
   second_offset = 12
 
   total_runs_in_job = len(list(product(*param_values)))
+  
+  if skip_tiling=='True':
+
+    if (total_runs_in_job==1) & (args.make_balanced=='True'):
+
+      print( f"{SAVE_CURSOR}\033[77;0H{BOLD}{ORANGE}CLASSI:         WARNG:  skip tiling flag is set ({CYAN}-s True{RESET}{BOLD}{ORANGE}), but cannot skip tiling if there is only one run in a job and {CYAN}MAKE_BALANCED=True{RESET}{BOLD}{ORANGE}, as {CYAN}top_up_factors{RESET}{BOLD}{ORANGE}, which are necessary to adjust tiles per subtype per slide, would not be calculated{RESET}" ) 
+      print( f"\033[78;0H{BOLD}{ORANGE}CLASSI:         WARNG:  ignoring skip tiling flag tiling will be performed{RESET}{RESTORE_CURSOR}"      ) 
+      skip_tiling='False'
+      args.skip_tiling='False'
+      time.sleep(1)
+
     
   # establish and initialise some variables
   n_classes = len(class_names)
@@ -1127,11 +1149,6 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
     # (2) Maybe schedule and run tiler threads
 
-    estimated_total_tiles_train = 567890
-    estimated_total_tiles_test  = 123456
-    top_up_factors_train        = np.zeros( n_classes, dtype=int )
-    top_up_factors_test         = np.zeros( n_classes, dtype=int )
-
     # ~ if (input_mode=='image') & (multimode!='image_rna'):
     if (input_mode=='image'):
       
@@ -1140,7 +1157,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         # need to re-tile if certain parameters have eiher INCREASED ('n_tiles' or 'n_samples') or simply CHANGED ( 'stain_norm' or 'tile_size') since the last run
         if ( ( already_tiled==True ) & ( ( stain_norm==last_stain_norm ) | (last_stain_norm=="NULL") ) & (n_tiles<=n_tiles_last ) & ( n_samples<=n_samples_last ) & ( tile_size_last==tile_size ) ):
           if DEBUG>0:
-            print( f"CLASSI:         INFO: {BOLD}no need to perform tiling: existing tiles are of the correct size{RESET}" )
+            print( f"CLASSI:         INFO: {BOLD}!! no need to perform tiling again: existing tiles are of the correct size and there are sufficient of them for the next run configured in this job{RESET}" )
           pass                                                                                             # no need to re-tile 
                                                                        
         else:                                                                                              # must re-tile
@@ -1280,26 +1297,31 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       
       if ( ( already_tiled==True ) & (n_tiles<=n_tiles_last ) & ( n_samples<=n_samples_last ) & ( tile_size_last==tile_size ) & ( stain_norm==last_stain_norm ) ):    # all three have to be true, or else we must regenerate the .pt file
         if DEBUG>0:
-          print( f"CLASSI:         INFO: {BOLD}no need to re-generate the pytorch dataset. the existing dataset contains sufficient tiles of the correct size{RESET}" )
+          print( f"CLASSI:         INFO: {BOLD}!! no need to re-generate the pytorch dataset. the existing dataset contains sufficient tiles of the correct size{RESET}" )
         pass
 
       else:
-        print( f"\rCLASSI:         INFO: {BOLD}2  will regenerate torch '.pt' file from files, for the following reason(s):{RESET}" )            
-        if n_tiles>n_tiles_last:
-          print( f"CLASSI:         INFO:           -- value of n_tiles   {MIKADO}({n_tiles})        \r\033[60Chas increased since last run{RESET}" )
-        if ( (n_samples!=0) & (n_samples>n_samples_last)):
-          print( f"CLASSI:         INFO:           -- value of n_samples {MIKADO}({n_samples_last}) \r\033[60Chas increased since last run{RESET}")
-        if not tile_size_last==tile_size:
-          print( f"CLASSI:         INFO:           -- value of tile_size {MIKADO}({tile_size})      \r\033[60Chas changed   since last run{RESET}")
+        if (total_runs_in_job==1) | (run==1):                                                                  # if this is the first or only run in the job, always regenerate
+          print( f"CLASSI:         INFO: {BOLD}2  first or only run in job  - will generate torch '.pt' file from files{RESET}" )  
+          pass
+        else:
+          print( f"\033[70;0HCLASSI:         INFO: {BOLD}2  will regenerate torch '.pt' file from files, for the following reason(s):{RESET}" )            
+          if n_tiles>n_tiles_last:
+            print( f"\033[71;0HCLASSI:         INFO:           -- value of n_tiles   ({MIKADO}{n_tiles}{RESET})        \r\033[60Chas increased since last run (was {MIKADO}{n_tiles_last}){RESET}" )
+          if ( (n_samples!=0) & (n_samples>n_samples_last)):
+            print( f"\033[72;0HCLASSI:         INFO:           -- value of n_samples ({MIKADO}{n_samples_last}{RESET}) \r\033[60Chas increased since last run (was {MIKADO}{n_samples_last}){RESET}")
+          if not tile_size_last==tile_size:
+            print( f"\033[73;0HCLASSI:         INFO:           -- value of tile_size ({MIKADO}{tile_size}{RESET})      \r\033[60Chas changed   since last run (was {MIKADO}{tile_size_last}){RESET}")
+          # ~ time.sleep(5)
        
-        if DEBUG>0:
+        if DEBUG>8:
           print( f"CLASSI:         INFO: n_samples               = {MAGENTA}{n_samples}{RESET}",        flush=True  )
           print( f"CLASSI:         INFO: args.n_samples          = {MAGENTA}{args.n_samples}{RESET}",   flush=True  )
+          print( f"CLASSI:         INFO: batch_size              = {MAGENTA}{batch_size}{RESET}",       flush=True  )
+          print( f"CLASSI:         INFO: args.batch_size         = {MAGENTA}{args.batch_size}{RESET}",  flush=True  )
           print( f"CLASSI:         INFO: n_classes               = {MAGENTA}{n_classes}{RESET}",        flush=True  )
           print( f"CLASSI:         INFO: n_tiles                 = {MAGENTA}{n_tiles}{RESET}",          flush=True  )
           print( f"CLASSI:         INFO: args.n_tiles            = {MAGENTA}{args.n_tiles}{RESET}",     flush=True  )
-          print( f"CLASSI:         INFO: batch_size              = {MAGENTA}{batch_size}{RESET}",       flush=True  )
-          print( f"CLASSI:         INFO: args.batch_size         = {MAGENTA}{args.batch_size}{RESET}",  flush=True  )
           print( f"CLASSI:         INFO: n_genes                 = {MAGENTA}{n_genes}{RESET}",          flush=True  )
           print( f"CLASSI:         INFO: args.n_genes            = {MAGENTA}{args.n_genes}{RESET}",     flush=True  )
           print( f"CLASSI:         INFO: gene_data_norm          = {MAGENTA}{gene_data_norm}{RESET}",   flush=True  )            
@@ -1313,10 +1335,10 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         if DEBUG>8:
           print( f"CLASSI:         INFO: n_samples               = {BLEU}{n_samples}{RESET}"       )
           print( f"CLASSI:         INFO: args.n_samples          = {BLEU}{args.n_samples}{RESET}"  )
-          print( f"CLASSI:         INFO: n_tiles                 = {BLEU}{n_tiles}{RESET}"         )
-          print( f"CLASSI:         INFO: args.n_tiles            = {BLEU}{args.n_tiles}{RESET}"    )
           print( f"CLASSI:         INFO: batch_size              = {BLEU}{batch_size}{RESET}"      )
           print( f"CLASSI:         INFO: args.batch_size         = {BLEU}{args.batch_size}{RESET}" )
+          print( f"CLASSI:         INFO: n_tiles                 = {BLEU}{n_tiles}{RESET}"         )
+          print( f"CLASSI:         INFO: args.n_tiles            = {BLEU}{args.n_tiles}{RESET}"    )
           print( f"CLASSI:         INFO: n_genes                 = {BLEU}{n_genes}{RESET}"         )
           print( f"CLASSI:         INFO: args.n_genes            = {MAGENTA}{args.n_genes}{RESET}" )
           print( f"CLASSI:         INFO: gene_data_norm          = {BLEU}{gene_data_norm}{RESET}"  )            
@@ -3947,8 +3969,42 @@ def determine_top_up_factors ( args, n_classes, class_names, n_tiles, case_desig
   #  Specifically, we count the number of images per subtype for the chosen subset (e.g. UNIMODE_CASE) and from this calculate 'top up factors' which are used in generate() 
   #  to increase the number of tiles extracted for subtypes which have fewer images than the subtype with the most number of cases (images)  
 
-  if DEBUG>0:
-    print( f"CLASSI:         INFO: n_classes               = {MAGENTA}{n_classes}{RESET}",        flush=True  )
+  class_counts = determine_class_counts ( args, n_classes, class_names, n_tiles, case_designation_flag )
+  
+  if args.make_balanced!='True':                                                                           # cater for the default case
+
+    top_up_factors        = np.ones(len(class_names) )
+    tiles_needed_per_example = (top_up_factors*n_tiles).astype(int) + 1                                      # to make the values the same as tiler() uses, where I add one extra to be safe 
+    estimated_total_tiles    = (np.sum(top_up_factors*np.sum( class_counts )*n_tiles)).astype(int)
+
+    if case_designation_flag!='UNIMODE_CASE____IMAGE_TEST':
+      row    = 0
+      colour = BLEU
+      col    = 120
+    else:
+      row    = 0
+      col    = 220
+      colour = ASPARAGUS
+    
+    if args.just_test=='True':
+      row    = 0
+      col    = 220
+      colour = CAMEL  
+    
+    if DEBUG>0:
+      np.set_printoptions(formatter={'int':   lambda x: "{:>6d}".format(x)})
+      print( f"\033[{row+1};{col}f  {CLEAR_LINE}   INFO:     {colour}{case_designation_flag}{RESET}", flush=True  )
+      print( f"\033[{row+2};{col}f  {CLEAR_LINE}   INFO:       final class_counts           = {colour}{class_counts}{RESET}",                               flush=True  )
+      print( f"\033[{row+3};{col}f  {CLEAR_LINE}   INFO:       total slides counted         = {colour}{np.sum(class_counts)}{RESET}",                       flush=True  )      
+      np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})
+      print( f"\033[{row+4};{col}f  {CLEAR_LINE}{BOLD}   INFO:       top up factors               = {colour}{top_up_factors}{RESET}  ",                             flush=True  )
+      print( f"\033[{row+5};{col}f  {CLEAR_LINE}   INFO:                                         {ORANGE}^^^ note that {CYAN}{BOLD}MAKE_BALANCED{RESET}{ORANGE} is disabled ^^^{RESET}  ",                             flush=True  )
+      np.set_printoptions(formatter={'int':   lambda x: "{:>6d}".format(x)})
+      print( f"\033[{row+6};{col}f  {CLEAR_LINE}   INFO:       tiles_needed_per_example     = {colour}{tiles_needed_per_example}{RESET}",                   flush=True  )
+      print( f"\033[{row+7};{col}f  {CLEAR_LINE}   INFO:       estimated_total_tiles        = {colour}{estimated_total_tiles:,}{RESET}",                    flush=True  )
+
+    return estimated_total_tiles, top_up_factors
+
     
   class_counts = determine_class_counts ( args, n_classes, class_names, n_tiles, case_designation_flag )
 
@@ -3999,7 +4055,7 @@ def determine_top_up_factors ( args, n_classes, class_names, n_tiles, case_desig
     print( f"\033[{row+6};{col}f  {CLEAR_LINE}   INFO:       tiles_needed_per_example     = {colour}{tiles_needed_per_example}{RESET}",                   flush=True  )
     print( f"\033[{row+7};{col}f  {CLEAR_LINE}   INFO:       estimated_total_tiles        = {colour}{estimated_total_tiles:,}{RESET}",                    flush=True  )
 
-  return ( estimated_total_tiles, top_up_factors )
+  return estimated_total_tiles, top_up_factors
 
 
 
@@ -4010,9 +4066,6 @@ def determine_class_counts ( args, n_classes, class_names, n_tiles, case_designa
   #  Count the number images per cancer subtype in the dataset for the designated case type (e.g. UNIMODE_CASE) 
    
 
-  if DEBUG>0:
-    print( f"CLASSI:         INFO: n_classes               = {MAGENTA}{n_classes}{RESET}",        flush=True  )
-    
   class_counts          = np.zeros( n_classes, dtype=int )
 
   for dir_path, dirs, files in os.walk( args.data_dir ):                                                   # each iteration takes us to a new directory under data_dir
