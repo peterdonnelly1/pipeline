@@ -309,6 +309,15 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   case_column                   = args.case_column
   class_column                  = args.class_column
 
+  (args.n_samples).sort  ( reverse=True )                                                                  # to minimise retiling and regenerating in multi-run jobs, move from largest to smallest value of n_samples 
+  n_samples.sort         ( reverse=True )                                                                  # to minimise retiling and regenerating in multi-run jobs, move from largest to smallest value of n_samples 
+  (args.batch_size).sort ( reverse=True )                                                                  # ditto
+  batch_size.sort        ( reverse=True )                                                                  # ditto
+  (args.n_tiles).sort    ( reverse=True )                                                                  # ditto
+  n_tiles.sort           ( reverse=True )                                                                  # ditto
+  (args.tile_size).sort  ( reverse=True )                                                                  # ditto
+  tile_size.sort         ( reverse=True )                                                                  # ditto
+                          
   # Need to remember these across all runs in a job
   global estimated_total_tiles_train
   global estimated_total_tiles_test
@@ -550,11 +559,16 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
       print( f"{CHARTREUSE}CLASSI:         WARNG: ... continuing{RESET}" )
       time.sleep(4)
 
+  if len(args.zoom_out_prob)==1:
+    args.zoom_out_prob[0]=1.
+    zoom_out_prob[0]=1.
 
   if math.fsum(args.zoom_out_prob) != 1.0:
    print( f"\r{RESET}{BOLD}{RED}CLASSI:         FATAL: probabilities in configuration vector '{CYAN}zoom_out_prob{RESET}{BOLD}{RED}' add up to more than {MIKADO}1.0{RESET}{BOLD}{RED} (FYI they add up to {MIKADO}{sum(args.zoom_out_prob)}{RESET}{BOLD}{RED})", flush=True)
    print( f"\r{RESET}{BOLD}{RED}CLASSI:         FATAL: can't continue ... halting now{RESET}" )   
    sys.exit(0)
+   
+   
      
 
   if args.clustering == 'NONE':
