@@ -1175,10 +1175,19 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
           pass                                                                                             # no need to re-tile 
                                                                        
         else:                                                                                              # must re-tile
-          if DEBUG>0:
-            print( f"CLASSI:         INFO: {BOLD}1 about to launch tiling processes{RESET}" )
-          if DEBUG>1:
-            print( f"CLASSI:         INFO:     stain normalization method = {CYAN}{stain_norm}{RESET}" )
+          if (total_runs_in_job==1) | (run==1):                                                                  # if this is the first or only run in the job, always regenerate
+            print( f"CLASSI:         INFO: {BOLD}1  first or only run in job - will perform tiling{RESET}" )  
+            pass
+          else:
+            print( f"\033[70;0HCLASSI:         INFO: {BOLD}2  will re-tile, for the following reason(s):{RESET}" )            
+            if n_tiles>n_tiles_last:
+              print( f"\033[71;0HCLASSI:         INFO:           -- value of n_tiles    ({MIKADO}{n_tiles}{RESET})        \r\033[60Chas increased since last run (was {MIKADO}{n_tiles_last}){RESET}" )
+            if ( (n_samples!=0) & (n_samples>n_samples_last)):
+              print( f"\033[72;0HCLASSI:         INFO:           -- value of n_samples  ({MIKADO}{n_samples_last}{RESET}) \r\033[60Chas increased since last run (was {MIKADO}{n_samples_last}){RESET}")
+            if tile_size_last!=tile_size:
+              print( f"\033[73;0HCLASSI:         INFO:           -- value of tile_size  ({MIKADO}{tile_size}{RESET})      \r\033[60Chas changed   since last run (was {MIKADO}{tile_size_last}){RESET}")
+            if stain_norm!=last_stain_norm:
+              print( f"\033[74;0HCLASSI:         INFO:           -- value of stain_norm ({MIKADO}{stain_norm}{RESET})     \r\033[60Chas changed   since last run (was {MIKADO}{last_stain_norm}){RESET}")
 
           delete_selected( data_dir, "png" )
           last_stain_norm=stain_norm
@@ -1321,11 +1330,14 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         else:
           print( f"\033[70;0HCLASSI:         INFO: {BOLD}2  will regenerate torch '.pt' file from files, for the following reason(s):{RESET}" )            
           if n_tiles>n_tiles_last:
-            print( f"\033[71;0HCLASSI:         INFO:           -- value of n_tiles   ({MIKADO}{n_tiles}{RESET})        \r\033[60Chas increased since last run (was {MIKADO}{n_tiles_last}){RESET}" )
+            print( f"\033[71;0HCLASSI:         INFO:           -- value of n_tiles    ({MIKADO}{n_tiles}{RESET})        \r\033[60Chas increased since last run (was {MIKADO}{n_tiles_last}){RESET}" )
           if ( (n_samples!=0) & (n_samples>n_samples_last)):
-            print( f"\033[72;0HCLASSI:         INFO:           -- value of n_samples ({MIKADO}{n_samples_last}{RESET}) \r\033[60Chas increased since last run (was {MIKADO}{n_samples_last}){RESET}")
+            print( f"\033[72;0HCLASSI:         INFO:           -- value of n_samples  ({MIKADO}{n_samples_last}{RESET}) \r\033[60Chas increased since last run (was {MIKADO}{n_samples_last}){RESET}")
           if not tile_size_last==tile_size:
-            print( f"\033[73;0HCLASSI:         INFO:           -- value of tile_size ({MIKADO}{tile_size}{RESET})      \r\033[60Chas changed   since last run (was {MIKADO}{tile_size_last}){RESET}")
+            print( f"\033[73;0HCLASSI:         INFO:           -- value of tile_size  ({MIKADO}{tile_size}{RESET})      \r\033[60Chas changed   since last run (was {MIKADO}{tile_size_last}){RESET}")
+          if not stain_norm==last_stain_norm:
+            print( f"\033[73;0HCLASSI:         INFO:           -- value of stain_norm ({MIKADO}{stain_norm}{RESET})     \r\033[60Chas changed   since last run (was {MIKADO}{last_stain_norm}){RESET}")
+
           # ~ time.sleep(5)
        
         if DEBUG>8:
