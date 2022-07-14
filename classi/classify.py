@@ -541,7 +541,17 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
   if  ( stain_norm[0]=='spcn' ):
     print( f"{MAGENTA}{BOLD}CLASSI:         INFO:  '{CYAN}{BOLD}stain_norm{RESET}{MAGENTA}'{BOLD} option '{CYAN}{BOLD}spcn{RESET}{MAGENTA}{BOLD}' is set. The spcn slide set will be used and the svs side set will be ignored{RESET}", flush=True)
 
-    
+
+  if  any( el<0.05 for el in pct_test ):
+    print( f"{BOLD_RED}CLASSI:         INFO:  pct_test = {MIKADO}{pct_test}{BOLD_RED}. At least one of these is less than 0.05 (5%){RESET}{BOLD_RED}'. This is such a low percentage for hold out testing that it might be unintended.{RESET}", flush=True)
+    print( f"{BOLD_RED}CLASSI:         INFO:    further information: correct if necessary by changing the percent test option: Bash long form: {BOLD_CYAN}PCT_TEST{BOLD_RED}; Bash short form '{CYAN}-1'{BOLD_ORANGE}; python {BOLD_CYAN}--pct_test{RESET}", flush=True)
+    print( f"{BOLD_RED}CLASSI:         INFO:    not halting ... resuming in 7 seconds", flush=True)
+    time.sleep(7)
+  elif  any(el<0.1 for el in pct_test):
+    print( f"{BOLD_ORANGE}CLASSI:         INFO:  pct_tests) = {MIKADO}{pct_test}{BOLD_ORANGE}. At least one of these is less than 0.1 (10%){RESET}{BOLD_ORANGE}'. Is this intended?{RESET}", flush=True)
+    print( f"{BOLD_ORANGE}CLASSI:         INFO:    further information: correct if necessary by changing the percent test option: Bash long form: BOLD_CYANPCT_TEST{BOLD_ORANGE}; Bash short form '{CYAN}-1'{BOLD_ORANGE}; python {BOLD_CYAN}--pct_test{RESET}", flush=True)
+    print( f"{BOLD_ORANGE}CLASSI:         INFO:    not halting ... resuming in 7 seconds", flush=True)
+    time.sleep(7)
 
   if DEBUG>1:
     if  0 in highest_class_number:
