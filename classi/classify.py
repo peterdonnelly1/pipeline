@@ -3999,9 +3999,9 @@ def determine_top_up_factors ( args, n_classes, class_names, n_tiles, case_desig
   
   if args.make_balanced!='True':                                                                           # cater for the default case
 
-    top_up_factors        = np.ones(len(class_names) )
+    top_up_factors           = np.ones(len(class_names) )
     tiles_needed_per_example = (top_up_factors*n_tiles).astype(int) + 1                                      # to make the values the same as tiler() uses, where I add one extra to be safe 
-    estimated_total_tiles    = (np.sum(top_up_factors*np.sum( class_counts )*n_tiles)).astype(int)
+    estimated_total_tiles    = ( np.sum(top_up_factors*np.sum( class_counts )* n_tiles )).astype(int)
 
     if case_designation_flag!='UNIMODE_CASE____IMAGE_TEST':
       row    = 0
@@ -4029,61 +4029,55 @@ def determine_top_up_factors ( args, n_classes, class_names, n_tiles, case_desig
       print( f"\033[{row+6};{col}f  {CLEAR_LINE}   INFO:       tiles_needed_per_example     = {colour}{tiles_needed_per_example}{RESET}",                   flush=True  )
       print( f"\033[{row+7};{col}f  {CLEAR_LINE}   INFO:       estimated_total_tiles        = {colour}{estimated_total_tiles:,}{RESET}",                    flush=True  )
 
-    return estimated_total_tiles, top_up_factors
-
-    
-  class_counts = determine_class_counts ( args, n_classes, class_names, n_tiles, case_designation_flag )
-
-
-  if case_designation_flag!='UNIMODE_CASE____IMAGE_TEST':
-    row    = 0
-    colour = AMETHYST
-    col    = 120
   else:
-    row    = 0
-    col    = 220
-    colour = ORANGE
-  
-  if args.just_test=='True':
-    row    = 0
-    col    = 220
-    colour = CHARTREUSE  
 
+    if case_designation_flag!='UNIMODE_CASE____IMAGE_TEST':
+      row    = 0
+      colour = AMETHYST
+      col    = 120
+    else:
+      row    = 0
+      col    = 220
+      colour = ORANGE
     
-  if DEBUG>0:
-    np.set_printoptions(formatter={'int':   lambda x: "{:>6d}".format(x)})
-    print( f"\033[{row+1};{col}f  {CLEAR_LINE}   INFO:     {colour}{case_designation_flag}{RESET}",                                                       flush=True  )
-    print( f"\033[{row+2};{col}f  {CLEAR_LINE}   INFO:       final class_counts           = {colour}{class_counts}{RESET}",                               flush=True  )
-    print( f"\033[{row+3};{col}f  {CLEAR_LINE}   INFO:       total slides counted         = {colour}{np.sum(class_counts)}{RESET}",                       flush=True  )
-
-  if np.any( class_counts < 1):
-      print ( f"{BOLD}{RED}\033[90;0HCLASSI:       FATAL: one of the subtypes has no examples{CLEAR_LINE}",                                                                                                                              flush=True  )                                        
-      print ( f"{BOLD}{RED}CLASSI:       FATAL: {CYAN}class_counts{RESET}{BOLD}{RED} are {MIKADO}{class_counts}{BOLD}{RED} for class names (subtypes) {MIKADO}{class_names}{BOLD}{RED} respectively{RESET}{CLEAR_LINE}",                 flush=True  )                                        
-      print ( f"{BOLD}{RED}CLASSI:       FATAL: possible remedy (i):  it could be that all cases were allocated to just the training or just the test set. Re-run the experiment with option {CYAN}-v {RESET}{BOLD}{RED} set to {CYAN}True{RESET}{BOLD}{RED} to have cases re-divided and flagged{RESET}{CLEAR_LINE}",       flush=True  )                                        
-      print ( f"{BOLD}{RED}CLASSI:       FATAL: possible remedy (ii): if al else failes, remove any class or classes that has only a tiny number of examples from the applicable master spreadsheet",                                    flush=True  )                                        
-      print ( f"{BOLD}{RED}CLASSI:       FATAL: cannot continue - halting now{RESET}{CLEAR_LINE}" )                 
-      sys.exit(0)
-
-  relative_ratios = class_counts/np.max(class_counts)
-
-  if DEBUG>0:
-    np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})
-    print( f"\033[{row+4};{col}f  {CLEAR_LINE}   INFO:       relative class ratios        = {colour}{relative_ratios}{RESET}",                            flush=True  )
-
-  top_up_factors           = np.divide(1,relative_ratios)
-  tiles_needed_per_example = (top_up_factors*n_tiles).astype(int) + 1                                      # to make the values the same as tiler() uses, where I add one extra to be safe 
-  estimated_total_tiles    = (np.sum(top_up_factors*class_counts*n_tiles)).astype(int)
-
-  if DEBUG>0:
-    np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})
-    print( f"\033[{row+5};{col}f  {CLEAR_LINE}   INFO:       top up factors               = {colour}{top_up_factors}{RESET}",                             flush=True  )
-    np.set_printoptions(formatter={'int':   lambda x: "{:>6d}".format(x)})
-    print( f"\033[{row+6};{col}f  {CLEAR_LINE}   INFO:       tiles_needed_per_example     = {colour}{tiles_needed_per_example}{RESET}",                   flush=True  )
-    print( f"\033[{row+7};{col}f  {CLEAR_LINE}   INFO:       estimated_total_tiles        = {colour}{estimated_total_tiles:,}{RESET}",                    flush=True  )
+    if args.just_test=='True':
+      row    = 0
+      col    = 220
+      colour = CHARTREUSE  
+  
+      
+    if DEBUG>0:
+      np.set_printoptions(formatter={'int':   lambda x: "{:>6d}".format(x)})
+      print( f"\033[{row+1};{col}f  {CLEAR_LINE}   INFO:     {colour}{case_designation_flag}{RESET}",                                                       flush=True  )
+      print( f"\033[{row+2};{col}f  {CLEAR_LINE}   INFO:       final class_counts           = {colour}{class_counts}{RESET}",                               flush=True  )
+      print( f"\033[{row+3};{col}f  {CLEAR_LINE}   INFO:       total slides counted         = {colour}{np.sum(class_counts)}{RESET}",                       flush=True  )
+  
+    if np.any( class_counts < 1):
+        print ( f"{BOLD}{RED}\033[90;0HCLASSI:       FATAL: one of the subtypes has no examples{CLEAR_LINE}",                                                                                                                              flush=True  )                                        
+        print ( f"{BOLD}{RED}CLASSI:       FATAL: {CYAN}class_counts{RESET}{BOLD}{RED} are {MIKADO}{class_counts}{BOLD}{RED} for class names (subtypes) {MIKADO}{class_names}{BOLD}{RED} respectively{RESET}{CLEAR_LINE}",                 flush=True  )                                        
+        print ( f"{BOLD}{RED}CLASSI:       FATAL: possible remedy (i):  it could be that all cases were allocated to just the training or just the test set. Re-run the experiment with option {CYAN}-v {RESET}{BOLD}{RED} set to {CYAN}True{RESET}{BOLD}{RED} to have cases re-divided and flagged{RESET}{CLEAR_LINE}",       flush=True  )                                        
+        print ( f"{BOLD}{RED}CLASSI:       FATAL: possible remedy (ii): if al else failes, remove any class or classes that has only a tiny number of examples from the applicable master spreadsheet",                                    flush=True  )                                        
+        print ( f"{BOLD}{RED}CLASSI:       FATAL: cannot continue - halting now{RESET}{CLEAR_LINE}" )                 
+        sys.exit(0)
+  
+    relative_ratios = class_counts/np.max(class_counts)
+  
+    if DEBUG>0:
+      np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})
+      print( f"\033[{row+4};{col}f  {CLEAR_LINE}   INFO:       relative class ratios        = {colour}{relative_ratios}{RESET}",                            flush=True  )
+  
+    top_up_factors           = np.divide(1,relative_ratios)
+    tiles_needed_per_example = (top_up_factors*n_tiles).astype(int) + 1                                      # to make the values the same as tiler() uses, where I add one extra to be safe 
+    estimated_total_tiles    = (np.sum(top_up_factors*class_counts*n_tiles)).astype(int)
+  
+    if DEBUG>0:
+      np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})
+      print( f"\033[{row+5};{col}f  {CLEAR_LINE}   INFO:       top up factors               = {colour}{top_up_factors}{RESET}",                             flush=True  )
+      np.set_printoptions(formatter={'int':   lambda x: "{:>6d}".format(x)})
+      print( f"\033[{row+6};{col}f  {CLEAR_LINE}   INFO:       tiles_needed_per_example     = {colour}{tiles_needed_per_example}{RESET}",                   flush=True  )
+      print( f"\033[{row+7};{col}f  {CLEAR_LINE}   INFO:       estimated_total_tiles        = {colour}{estimated_total_tiles:,}{RESET}",                    flush=True  )
 
   return estimated_total_tiles, top_up_factors
-
-
 
 
 # ---------------------------------------------------------------------------------------------------------
