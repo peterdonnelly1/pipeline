@@ -32,7 +32,7 @@ c=random.choice( range(50,225) )
 
 BB=f"\033[38;2;{a};{b};{c}m"
   
-def tiler_threader( args, flag, count, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method ):
+def tiler_threader( args, flag, count, n_samples, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method ):
 
   zoom_out_prob = args.zoom_out_prob
   
@@ -65,7 +65,7 @@ def tiler_threader( args, flag, count, n_tiles, top_up_factors, tile_size, batch
 
   if ( ( just_test=='True')  & ( multimode!='image_rna' ) ):
     print( f"{ORANGE}TILER_THREADER: INFO: CAUTION! 'just_test' flag is set (and multimode flag not set). Only one process will be used (to ensure the same tiles aren't selected more than one time){RESET}" )     
-    task=executor.submit( tiler_scheduler, args, r_norm, flag, count, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method, 0, 1)
+    task=executor.submit( tiler_scheduler, args, r_norm, flag, count, n_samples, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method, 0, 1)
     tasks.append(task)
   else:  # train
     if DEBUG>0:
@@ -80,7 +80,7 @@ def tiler_threader( args, flag, count, n_tiles, top_up_factors, tile_size, batch
       print ( f"{SAVE_CURSOR}\r\033[{row};0H{CLEAR_LINE}{RESTORE_CURSOR}", end="", flush=True )
 
     for n in range(0, num_cpus):
-      task=executor.submit( tiler_scheduler, args, r_norm, flag, count, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method, n, num_cpus )
+      task=executor.submit( tiler_scheduler, args, r_norm, flag, count, n_samples, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method, n, num_cpus )
       tasks.append(task)
 
   wait( tasks, return_when=ALL_COMPLETED )
