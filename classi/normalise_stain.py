@@ -118,39 +118,6 @@ def main(args):
   background_correction = True
 
 
-  # (1) CHECK TO SEE HOW MANY SVS FILES HAVE NOT BEEN STAIN NORMALISED IN TOTAL
-  
-  if (DEBUG>0):
-    print ( f"NORMALISE_STAIN:        INFO: will look recursively under:                       {CYAN}{data_source}{RESET} for slide files (files ending with either 'svs' or 'SVS')\n",  flush=True ) 
-
-  slide_file_found  = 0
-  is_reference_file = 1                                                                                    # 0=reference file; 1=any other svs file                    
-    
-  for dir_path, __, files in os.walk( data_source ):
-
-    if not (dir_path==args.data_source):                                                                   # the top level directory (dataset) has to be skipped because it contains the reference svs file    
-          
-      already_processed_this_slide=False
-          
-      
-      for f in sorted(files):
-      
-        current_file = f"{dir_path}/{f}"
-    
-        if (DEBUG>2):
-          print ( f"NORMALISE_STAIN:        INFO: (current_file)                                     {DULL_BLUE}{current_file}{RESET}",    flush=True )
-          print ( f"NORMALISE_STAIN:        INFO: (reference_file)                                   {DULL_BLUE}{reference_file}{RESET}",  flush=True )
-          # ~ print ( f"NORMALISE_STAIN:        INFO: ( reference_file[-40:])                        {DULL_BLUE}{ reference_file[-40:]}{RESET}",  flush=True )
-
-        if ( f.endswith( 'spcn' )  ):                                                                      # this file has already been handled, so skip
-          if (DEBUG>0):
-            print ( f"{ORANGE}NORMALISE_STAIN:        INFO: in dir_path {BOLD}{CYAN}{dir_path}{RESET}",  flush=True )
-            print ( f"{ORANGE}NORMALISE_STAIN:        INFO: found file  {BOLD}{CYAN}{current_file}{RESET}",  flush=True )
-            print ( f"{BOLD}{ORANGE}NORMALISE_STAIN:        INFO: see above. A file with extension {BOLD}{CYAN}.spcn{RESET}{BOLD}{ORANGE} already exists, so will skip and move to the next folder{RESET}",  flush=True )
-          already_processed_this_slide=True 
-          display_separator()
-          
-          
 
   # (1) MAYBE CHARACTERISE THE REFERENCE FILE (WHICH IS JUST AN SVS FILE CHOSEN BY THE USER TO BE SUITABLE REPRESENTATIVE OF ALL THE SLIDES
 
@@ -225,6 +192,8 @@ def main(args):
     
   for dir_path, __, files in os.walk( data_source ):
 
+    global_stats()                                                                                         # check to see how many svs files remain to be procesed and report
+
     if not (dir_path==args.data_source):                                                                   # the top level directory (dataset) has to be skipped because it contains the reference svs file    
           
       already_processed_this_slide=False
@@ -285,7 +254,55 @@ def main(args):
               else:
                 print ( f"NORMALISE_STAIN:        INFO: colour normalisation failed for this slide ... continuing",  flush=True )
                 display_separator()
-            
+
+# ------------------------------------------------------------------------------
+# HELPER FUNCTIONS
+# ------------------------------------------------------------------------------
+
+def global_stats():
+
+  if (DEBUG>0):
+    print ( f"NORMALISE_STAIN:        INFO: will look recursively under:                       {CYAN}{args.data_source}{RESET} for slide files (files ending with either 'svs' or 'SVS')\n",  flush=True ) 
+
+  has_svs_file_count   = 0
+  has_spcn_file_count  = 0
+  has_both_count       = 0
+
+  for dir_path, __, files in os.walk( data_source ):
+
+    if not (dir_path==args.data_source):                                                                   # the top level directory (dataset) has to be skipped because it contains the reference svs file    
+
+      has_an_svs_file  = False
+          
+      for f in sorted( files ):
+      
+        current_file = f"{dir_path}/{f}"
+    
+        if ( f.endswith( 'svs' ) )  |  ( f.endswith( 'SVS' )  ):
+          has_an_svs_file = True
+          has_svs_file_count += 1
+          break                                                                                            # there should only be one SVS file per directory, so can break out of the loop
+
+      has_an_spcn_file = False
+      has_both         = False
+
+      for f in sorted( files ):
+
+        current_file = f"{dir_path}/{f}"
+    
+        if ( f.endswith( 'spcn' ) )  |  ( f.endswith( 'SVS' )  ):
+          if has_an_spcn_file:
+            has_spcn_file_count += 1
+            if has_an_svs_file:
+              has_both_count += 1
+            break                                                                                          # there should only be one SPCN file per directory, so can break out of the loop            
+
+  if (DEBUG>10):
+    print ( f"NORMALISE_STAIN:        INFO: there are         {BOLD}{MIKADO}{has_svs_file_count:4d}{RESET}      svs  files in total in the working dataset",     flush=True )
+    print ( f"NORMALISE_STAIN:        INFO: there are         {BOLD}{MIKADO}{has_spcn_file_count:4d}{RESET}      spcn files in total in the working dataset",    flush=True )
+
+  if (DEBUG>0):
+    print ( f"NORMALISE_STAIN:        INFO: of the total {BOLD}{MIKADO}{has_svs_file_count:4d}{RESET} svs files, {BOLD}{MIKADO}{has_both_count:4d}{RESET} have already been (spcn) stain normalised and {BOLD}{MIKADO}{has_svs_file_count-has_spcn_file_count:4d}{RESET} cases  remain to be stain normalised",          flush=True )
 
 
 def display_separator():
