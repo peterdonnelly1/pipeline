@@ -1328,7 +1328,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
     if  (input_mode=='image') & ( skip_generation!='True' ):
       
-      if ( ( already_tiled==True ) & (n_tiles!=n_tiles_last ) & ( n_samples<=n_samples_last ) & ( tile_size_last==tile_size ) & ( stain_norm==last_stain_norm ) ):    # all three have to be true, or else we must regenerate the .pt file
+      if ( ( already_tiled==True ) & (n_tiles==n_tiles_last ) & ( n_samples<=n_samples_last ) & ( tile_size_last==tile_size ) & ( stain_norm==last_stain_norm ) ):    # all have to be true, or else we must regenerate the .pt file
         if DEBUG>0:
           print( f"CLASSI:         INFO: {BOLD}!! no need to re-generate the pytorch dataset. the existing dataset contains sufficient tiles of the correct size{RESET}" )
         pass
