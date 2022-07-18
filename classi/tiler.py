@@ -133,7 +133,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
     
   # (1A) determine this slide's subtype (class)
   
-  try:                                                                                                   # every tile has an associated label - the same label for every tile image in the directory
+  try:                                                                                                     # every tile has an associated label - the same label for every tile image in the directory
     label_file = f"{data_dir}/{d}/{args.class_numpy_file_name}"
     if DEBUG>0:
       print ( f"\033[{start_row-13};0f{BOLD}{ASPARAGUS}TILER:                          INFO:   current image's label file    = \
@@ -175,25 +175,28 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
 
   # (2) open the SVS image and inspect statistics
 
-  level            = 0
-  tile_size_40X    = 2100;                                                                                 # only used if resizing is enabled (tile_size=0)
+                                                                         # only used if resizing is enabled (tile_size=0)
   
   try:
     oslide = openslide.OpenSlide( fqn );                                                                   # open the file containing the image
 
-    if (tile_size==0):                                                                                     # PGD 191217
-      tile_width = int(tile_size_40X * mag / 40)                                                           # scale tile size from 40X to 'mag'. 'tile_size_40X' is set above to be 2100
-    else:                                                                                                  # PGD 191217
-      tile_width = tile_size                                                                               # PGD 191231
-      
-    width  = oslide.dimensions[0];                                                                         # width  of slide image
-    height = oslide.dimensions[1];                                                                         # height of slide image
-
   except Exception as e:
-    print( f"{SAVE_CURSOR}\033[80;0H{RED}TILER_{my_thread}:                   ERROR: exception occured in tiler thread {MIKADO}{my_thread}{RESET}{RED} !!! {RESET}{RESTORE_CURSOR}"          )
-    print( f"{SAVE_CURSOR}\033[81;0H{RED}TILER_{my_thread}:                          exception text: '{MAGENTA}{fqn}{RESET}{RED} ... halting now           {RESET}{RESTORE_CURSOR}"          )
-    print( f"{SAVE_CURSOR}\033[82;0H{RED}TILER_{my_thread}:                          exception text: '{CYAN}{e}{RESET}{RED} ... halting now                {RESET}{RESTORE_CURSOR}"          )
+    print( f"{SAVE_CURSOR}\033[80;0H{RED}TILER_{my_thread}:                   ERROR: exception occurred in tiler thread {MIKADO}{my_thread}{RESET}{RED} !!! {RESET}{RESTORE_CURSOR}"          )
+    print( f"{SAVE_CURSOR}\033[81;0H{RED}TILER_{my_thread}:                          exception text: '{MAGENTA}{fqn}{RESET}{RED}                            {RESET}{RESTORE_CURSOR}"          )
+    print( f"{SAVE_CURSOR}\033[82;0H{RED}TILER_{my_thread}:                          exception text: '{CYAN}{e}{RESET}{RED} ... halting now                 {RESET}{RESTORE_CURSOR}"          )
     sys.exit(0);
+
+
+  level            = 0
+  tile_size_40X    = 2100;        
+  
+  if (tile_size==0):                                                                                       
+    tile_width = int(tile_size_40X * mag / 40)                                                             # scale tile size from 40X to 'mag'. 'tile_size_40X' is set above to be 2100
+  else:                                                                                                  
+    tile_width = tile_size                                                                               
+    
+  width  = oslide.dimensions[0];                                                                           # width  of slide image
+  height = oslide.dimensions[1];                                                                           # height of slide image
 
   potential_tiles = (width-tile_width)*(height-tile_width) // (tile_width*tile_width)
   if (DEBUG>1):
