@@ -50,9 +50,8 @@ import multiprocessing
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # or any {'0', '1', '2'}
 
-
 '''
-Disable Tensorflow logging level.  This has to be before the import
+The above is to disable Tensorflow logging level.  It has to be before the import.
 
   0 = all messages are logged (default behavior)
   1 = INFO messages are not printed
@@ -60,6 +59,7 @@ Disable Tensorflow logging level.  This has to be before the import
   3 = INFO, WARNING, and ERROR messages are not printed
   
 '''
+
 
 import tensorflow as tf
 print (tf.Session())
@@ -89,8 +89,8 @@ def main(args):
     print( f'{SAVE_CURSOR}{CLEAR_LINE}{RESET}  status {MIKADO}{process.status()}{RESET}  affinity {MIKADO}{affinity}{RESET}  pid {MIKADO}{pid:>6d}{RESET}   memory use: {MIKADO}{100*memoryUse:3.1f}{RESET}%   {CLEAR_LINE}{RESTORE_CURSOR}')
   
   # added this in Jun 2022 because my AMD computer started using only one of the 32 available cores
-  # apparently others have had this issue:see e.g. https://stackoverflow.com/questions/15639779/why-does-multiprocessing-use-only-a-single-core-after-i-import-numpy
-  x = {i for i in range(num_cpus)}
+  # apparently others have had this issue: see e.g. https://stackoverflow.com/questions/15639779/why-does-multiprocessing-use-only-a-single-core-after-i-import-numpy
+  x = { i for i in range(num_cpus) }
   os.sched_setaffinity( pid, x)
 
   force_reference_file_characterisation = args.force_reference_file_characterisation
@@ -99,8 +99,8 @@ def main(args):
   reference_file                        = f"{data_source}/{args.reference_file}"
 
 
-  if (DEBUG>0):
-    print ( f"{BOLD}{MAGENTA}NORMALISE_STAIN:        IMPORTANT: if you have changed the svs reference file, you must manually delete all existing files with extension '{BOLD}{CYAN}.spcn{RESET}{BOLD}{MAGENTA}' in the applicable source data directory, namely: {BOLD}{CYAN}{data_source}{RESET}",  flush=True )
+  if DEBUG>0:
+    print ( f"{BOLD}{MAGENTA}NORMALISE_STAIN:        IMPORTANT: if you have changed to another svs reference file, you must MANUALLY delete all existing files with extension '{BOLD}{CYAN}.spcn{RESET}{BOLD}{MAGENTA}' in the applicable source data directory, namely: {BOLD}{CYAN}{data_source}{RESET}",  flush=True )
          
 
   if DEBUG>0:
