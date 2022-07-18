@@ -129,9 +129,9 @@ def main(args):
 
   ref_file_characterisation_fname = f"{reference_file}.spcn_characterisation_details.pickle"
 
-  if args.force_reference_file_characterisation == 'False':
+  if args.force_reference_file_characterisation != 'True':
 
-    if os.path.exists (ref_file_characterisation_fname ):                                                  # user's selected reference file has previously been characterised, so we use existing characterisation, (saves about 30 minutes) 
+    if os.path.exists (ref_file_characterisation_fname ):                                                  # if so, user's selected reference file has previously been characterised, so we use existing characterisation, (saves about 30 minutes) 
       
       if DEBUG>0:
         print ( f"{BOLD}{ORANGE}NORMALISE_STAIN:        INFO:  image characterisation details for this svs file exists from an earlier run; in file: {CYAN}{ref_file_characterisation_fname}{RESET}" )    
