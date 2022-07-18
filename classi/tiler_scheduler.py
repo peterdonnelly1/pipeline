@@ -168,17 +168,17 @@ def tiler_scheduler( args, r_norm, flag, count, n_samples, n_tiles, top_up_facto
                   if slides_processed>=my_expanded_slide_quota:
                     break
                 elif result==INSUFFICIENT_TILES:
-                  print(f"{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus};0H{ORANGE}TILER_SCHEDULER_{FG3}: WARNING: it would not be possible to extract the required number of tiles from this slide, even if they all qualified ! Slide will be skipped. {MIKADO}{slides_processed}{RESET}{ORANGE} slides have been processed{RESET}{RESTORE_CURSOR}", flush=True)
+                  print(f"{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus};0H{BOLD_ORANGE}TILER_SCHEDULER_{FG3}: WARNING: it would not be possible to extract the required number of tiles from this slide, even if they all qualified ! Slide will be skipped. {MIKADO}{slides_processed}{RESET}{ORANGE} slides have been processed{RESET}{RESTORE_CURSOR}", flush=True)
                   # ~ if slides_processed<n_samples:
                     # ~ print( f"{RED}TILER_SCHEDULER_{FG3}: FATAL:  n_samples has been reduced to {CYAN}{n_samples}{RESET}{RED} ... halting{RESET}" )
                     # ~ n_samples=slides_processed
                 elif result==INSUFFICIENT_QUALIFYING_TILES:
-                  print(f"{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus};0H{ORANGE}TILER_SCHEDULER_{FG3}: WARNING: not enough qualifying tiles ! Slide will be skipped. {MIKADO}{slides_processed}{RESET}{ORANGE} slides have been processed{RESET}", flush=True)
+                  print(f"{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus};0H{BOLD_ORANGE}TILER_SCHEDULER_{FG3}: WARNING: not enough qualifying tiles ! Slide will be skipped. {MIKADO}{slides_processed}{RESET}{ORANGE} slides have been processed{RESET}", flush=True)
                   # ~ if slides_processed<n_samples:
                     # ~ print( f"{RED}TILER_SCHEDULER_{FG3}: FATAL:  n_samples has been reduced to {CYAN}{n_samples}{RESET}{RED} ... halting{RESET}" )
                     # ~ n_samples=slides_processed
                 elif result==MISSING_IMAGE_FILE:
-                  print(f"{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus};0H{ORANGE}TILER_SCHEDULER_{FG3}: WARNING: there was no svs file for this case! Slide will be skipped. {MIKADO}{slides_processed}{RESET}{ORANGE} slides have been processed{RESET}", flush=True)
+                  print(f"{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus};0H{BOLD_ORANGE}TILER_SCHEDULER_{FG3}: WARNING: there was no svs file for this case! Slide will be skipped. {MIKADO}{slides_processed}{RESET}{ORANGE} slides have been processed{RESET}", flush=True)
                   # ~ if slides_processed<n_samples:
                     # ~ print( f"{RED}TILER_SCHEDULER_{FG3}: FATAL:  n_samples has been reduced to {CYAN}{n_samples}{RESET}{RED} ... halting{RESET}" )
                     # ~ n_samples=slides_processed
