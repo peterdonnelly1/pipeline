@@ -52,7 +52,8 @@ dtype_to_format = {
     'complex128': 'dpcomplex',
 }
 
-
+np.set_printoptions(edgeitems=25)
+np.set_printoptions(linewidth=270)
    
 def run_batch_colornorm ( slide_type, source_filename, reference_filename, nstains, lamb,  dir_path, img_level, background_correction, target_i0,  Wi_target, Htarget_Rmax, _normalisation_factor, config ):  
  
@@ -234,13 +235,18 @@ def run_batch_colornorm ( slide_type, source_filename, reference_filename, nstai
         _Hsource_Rmax = np.ones((nstains,),dtype=np.float32)
         for i in range(nstains):
           t = Hiv[:,i]
+          if DEBUG>0:
+            np.set_printoptions(formatter={ 'float': lambda x: f"{x:>4.2f}"} ) 
+            print ( f"RUN_COLORNORM:          INFO:  t.shape={BLEU}{t.shape}{RESET}{CLEAR_LINE}" )
+            print ( f"RUN_COLORNORM:          INFO:  t*100  ={MIKADO}{t*100}{RESET}{CLEAR_LINE}" )
           try:
             _Hsource_Rmax[i] = np.percentile(t[t>0],q=99.,axis=0)
           except Exception as e:
-            print ( f"{PINK}RUN_COLORNORM:          ERROR: unexpected error{RESET}" )
-            print ( f"{PINK}RUN_COLORNORM:          ERROR: the exception was {CYAN}'{e}'{RESET}" )
-            print ( f"{PINK}RUN_COLORNORM:          ERROR: for reference, t={MIKADO}{t}{RESET}" )
-            print ( f"{PINK}RUN_COLORNORM:          ERROR: abandoning this slide and moving on to next slide{RESET}" )
+            np.set_printoptions(formatter={ 'float': lambda x: f"{x:>4.2f}"} ) 
+            print ( f"{BOLD_RED}RUN_COLORNORM:          ERROR: unexpected error{RESET}{CLEAR_LINE}" )
+            print ( f"{BOLD_RED}RUN_COLORNORM:          ERROR: the exception was {RESET}{BOLD_CYAN}'{e}'{RESET}{CLEAR_LINE}" )
+            print ( f"{BOLD_RED}RUN_COLORNORM:          ERROR: for reference, t*100={RESET}{MIKADO}{t*100}{RESET}{CLEAR_LINE}" )
+            print ( f"{BOLD_RED}RUN_COLORNORM:          ERROR: abandoning this slide and moving on to next slide{RESET}{CLEAR_LINE}" )
             return 0, 0, 0, 0
         perc.append([_Hsource_Rmax[0],_Hsource_Rmax[1]])
         ind+=len(Hiv)

@@ -40,8 +40,11 @@ BB="\033[35;1m"
 
 from constants  import *
 
-SUCCESS=True
-FAIL=False
+SUCCESS=1
+FAIL=0
+INSUFFICIENT_TILES=2
+INSUFFICIENT_QUALIFYING_TILES=3
+MISSING_IMAGE_FILE=4
 
 DEBUG=1
 
@@ -181,11 +184,9 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
     oslide = openslide.OpenSlide( fqn );                                                                   # open the file containing the image
 
   except Exception as e:
-    print( f"{SAVE_CURSOR}\033[80;0H{RED}TILER_{my_thread}:                   ERROR: exception occurred in tiler thread {MIKADO}{my_thread}{RESET}{RED} !!! {RESET}{RESTORE_CURSOR}"          )
-    print( f"{SAVE_CURSOR}\033[81;0H{RED}TILER_{my_thread}:                          exception text: '{MAGENTA}{fqn}{RESET}{RED}                            {RESET}{RESTORE_CURSOR}"          )
-    print( f"{SAVE_CURSOR}\033[82;0H{RED}TILER_{my_thread}:                          exception text: '{CYAN}{e}{RESET}{RED} ... halting now                 {RESET}{RESTORE_CURSOR}"          )
-    sys.exit(0);
-
+    if DEBUG>10:
+      print(f"{SAVE_CURSOR}{RESET}\033[0;0H{BOLD_ORANGE}TILER: WARNING: there was no spcn file for this case !!! {BOLD_CYAN}{fqn}{RESET}{BOLD_ORANGE}. Skipping and moving to next case{RESET}{RESTORE_CURSOR}", flush=True)
+    return MISSING_IMAGE_FILE
 
   level            = 0
   tile_size_40X    = 2100;        
@@ -205,7 +206,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
 
   if potential_tiles<n_tiles:
     print( f"\n{ORANGE}TILER:          WARNING: requested tiles (n_tiles) = {CYAN}{n_tiles:,}{RESET}{ORANGE} but only {RESET}{CYAN}{potential_tiles:,}{RESET}{ORANGE} possible. Slide will be skipped. ({CYAN}{fqn}{RESET}{ORANGE}){RESET}", flush=True)
-    return FAIL
+    return INSUFFICIENT_TILES
 
 
   if openslide.PROPERTY_NAME_VENDOR in oslide.properties:
@@ -220,7 +221,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
       PROPERTY_NAME_COMMENT = re.sub( r'\r' , ' ', PROPERTY_NAME_COMMENT )  
       if (DEBUG>0):
         print(f"{SAVE_CURSOR}",                                end="", flush=True )
-        print(f"\033[{start_row+num_cpus};0f\r{CLEAR_LINE}",   end="", flush=True )
+        # ~ print(f"\033[{start_row+num_cpus};0f\r{CLEAR_LINE}",   end="", flush=True )
         print(f"\033[{start_row+num_cpus+1};0f\r{CLEAR_LINE}", end="", flush=True )
         print(f"\033[{start_row+num_cpus+3};0f\r{CLEAR_LINE}", end="", flush=True )
         print(f"\033[{start_row+num_cpus+4};0f\r{CLEAR_LINE}", end="", flush=True )
@@ -380,12 +381,13 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
             if (x>width-2*tile_width) & (y>height-2*tile_width):
               if just_profile=='True':
                 if already_displayed==False:
-                  print(f'\n{ORANGE}TILER: WARNING: not enough tiles in this slide to meet the quality criteria. (At coords {CYAN}{x},{y}{RESET}) with {CYAN}{tiles_processed}{RESET}) -- skipping {CYAN}{fqn}{RESET}', flush=True)
+                  print(f'\n{ORANGE}TILER: WARNING: have covered the entire slide and there are not enough tiles that meet the quality criteria. (At coords {CYAN}{x},{y}{RESET}) with {CYAN}{tiles_processed}{RESET}) -- skipping {CYAN}{fqn}{RESET}', flush=True)
                   already_displayed=True
+                  return INSUFFICIENT_QUALIFYING_TILES
               else:
                 if ( ( just_test!='True' ) | ( multimode=='image_rna') ):
-                  print(f'\n{ORANGE}TILER: WARNING: not enough tiles in slide to meet the quality criteria. (At coords {CYAN}{x},{y}{RESET}) with {CYAN}{tiles_processed}{RESET}) -- skipping {CYAN}{fqn}{RESET}', flush=True)
-                  return FAIL
+                  print(f'\n{ORANGE}TILER: WARNING: have covered the entire slide and there are not enough tiles that meet the quality criteria. (At coords {CYAN}{x},{y}{RESET}) with {CYAN}{tiles_processed}{RESET}) -- skipping {CYAN}{fqn}{RESET}', flush=True)
+                  return INSUFFICIENT_QUALIFYING_TILES
               
             if x + tile_width > width:
                 pass
@@ -425,15 +427,15 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
                 print  (f"\
       {WHITE}\
 \033[{start_row-3};0f{RESET}{CLEAR_LINE}\
-\033[{start_row-2};0f{RESET}{CLEAR_LINE}                                                                                                                         --------------------------------------------------------------- tiling stats for current image file --------------------------------------------------------------\
+\033[{start_row-2};0f{RESET}{CLEAR_LINE}                                                                     --------- tile dims being extracted ----------                        -------------------------------------------------------- tiling stats for current image file -----------------------------------------------------\
 \033[{start_row-2};{start_column+180}f{WHITE}overall progress{RESET}\
 \033[{start_row-1};3f{RESET}{BOLD}cpu\
 \033[{start_row-1};12f{RESET}{CLEAR_LINE}{BOLD}slide optical magnification\
 \033[{start_row-1};{start_column-52}f{RESET}mag\
-\033[{start_row-1};{start_column-42}f{RESET}extraction dims    (save tile dims = {UNDER}{tile_size}x{tile_size}{RESET})\
+\033[{start_row-1};{start_column-42}f{RESET}         (all tiles are saved as {tile_size}x{tile_size})\
 \033[{start_row-1};{start_column+6+1}f{RESET}subtype\
 \033[{start_row-1};{start_column+14+4}fneeded\
-\033[{start_row-1};{start_column+25+3}f{BOLD}have{RESET}\
+\033[{start_row-1};{start_column+25+3}f{BRIGHT_GREEN}have{RESET}\
 \033[{start_row-1};{start_column+25+12}fexamined\
 \033[{start_row-1};{start_column+42+8}f{GREEN}accepted{RESET}\
 \033[{start_row-1};{start_column+58+8}f{RED}low_contrast{RESET}\

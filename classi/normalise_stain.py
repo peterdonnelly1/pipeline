@@ -16,8 +16,6 @@
 #         IEEE Trans. Med. Imaging. 35, 1962–1971 (2016).
 #
 #
-#
-#
 #  Notes:
 #   spcn stain normalisation takes place outside of the CLASSI framework
 #   it is run prior to using CLASSI, and creates a new, stain normalised version of each SVS file it finds in the working data directory and places it in the same directory
@@ -62,7 +60,6 @@ The above is to disable Tensorflow logging level.  It has to be before the impor
 
 
 import tensorflow as tf
-print (tf.Session())
 
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.FATAL)
 
@@ -86,7 +83,7 @@ def main(args):
    
             
   if DEBUG>0:
-    print( f'{SAVE_CURSOR}{CLEAR_LINE}{RESET}  status {MIKADO}{process.status()}{RESET}  affinity {MIKADO}{affinity}{RESET}  pid {MIKADO}{pid:>6d}{RESET}   memory use: {MIKADO}{100*memoryUse:3.1f}{RESET}%   {CLEAR_LINE}{RESTORE_CURSOR}')
+    print( f'NORMALISE_STAIN:        INFO: {CLEAR_LINE}{RESET}  status {MIKADO}{process.status()}{RESET}  affinity {MIKADO}{affinity}{RESET}  pid {MIKADO}{pid:>6d}{RESET}   memory use: {MIKADO}{100*memoryUse:3.1f}{RESET}%   {CLEAR_LINE}')
   
   # added this in Jun 2022 because my AMD computer started using only one of the 32 available cores
   # apparently others have had this issue: see e.g. https://stackoverflow.com/questions/15639779/why-does-multiprocessing-use-only-a-single-core-after-i-import-numpy
@@ -260,6 +257,7 @@ def main(args):
               else:
                 print ( f"NORMALISE_STAIN:        INFO: colour normalisation failed for this slide ... continuing",  flush=True )
                 display_separator()
+
 
 # ------------------------------------------------------------------------------
 # HELPER FUNCTIONS

@@ -507,8 +507,8 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
               spcn_file_count +=1
             
       if spcn_file_count<np.max(args.n_samples):
-        print( f"{BOLD}{ORANGE}CLASSI:         WARNG:  there aren't enough samples. A file count reveals a total of {MIKADO}{spcn_file_count}{RESET}{BOLD}{ORANGE} {RESET}{MIKADO}spcn{RESET}{ORANGE} files in {MAGENTA}{args.data_dir}{RESET}{BOLD}{ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{BOLD}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
-        print( f"{BOLD}{ORANGE}CLASSI:         WARNG:  changing values of '{CYAN}N_SAMPLES{RESET}{BOLD}{ORANGE} that are greater than {RESET}{MIKADO}{spcn_file_count}{RESET}{BOLD}{ORANGE} to exactly {MIKADO}{spcn_file_count}{RESET}{BOLD}{ORANGE} and continuing{RESET}" )
+        print( f"{BOLD}{ORANGE}CLASSI:         WARNG:  there aren't enough samples. A file count reveals a total of {MIKADO}{spcn_file_count}{RESET} {BOLD}{MAGENTA}spcn{RESET}{BOLD_ORANGE} files in {BOLD}{MAGENTA}{args.data_dir}{RESET}{BOLD}{ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{BOLD}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
+        print( f"{BOLD}{ORANGE}CLASSI:         WARNG:  changing values of '{CYAN}N_SAMPLES{RESET}{BOLD_ORANGE} that are greater than {RESET}{BOLD}{MIKADO}{spcn_file_count}{RESET}{BOLD}{ORANGE} to exactly {MIKADO}{spcn_file_count}{RESET}{BOLD}{ORANGE} and continuing{RESET}" )
         args.n_samples = [  el if el<=spcn_file_count else spcn_file_count for el in args.n_samples   ]
         n_samples = args.n_samples
       else:
@@ -703,7 +703,7 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
   else:
     if ( input_mode=='image' ) &  ( pretrain!='True' ):
       if not tile_size_max**0.5 == int(tile_size_max**0.5):
-        print( f"{ORANGE}CLASSI:         WARNG: '{CYAN}TILE_SIZE{RESET}{ORANGE}' ({MIKADO}{tile_size_max}{RESET}{ORANGE}) isn't a perfect square, which is fine for training, but will mean you won't be able to use test mode on the model you train here{RESET}" )
+        print( f"{ORANGE}CLASSI:         WARNG: '{CYAN}TILE_SIZE{RESET}{ORANGE}' ({BOLD}{MIKADO}{tile_size_max}{RESET}{ORANGE}) isn't a perfect square, which is fine for training, but will mean you won't be able to use test mode on the model you train here{RESET}" )
       if supergrid_size>1:
         if DEBUG>99:
           print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'  flag is NOT set, so supergrid_size (currently {MIKADO}{supergrid_size}{RESET}{ORANGE}) will be ignored{RESET}" )
