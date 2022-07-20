@@ -920,7 +920,7 @@ f"\
 
   if total_runs_in_job>1:
     while(True):
-      key = input("reviewed job list, then press any key to continue ...")
+      key = input("review job list, then press any key to continue ...")
       if(len(key) >= 0):
         break
 
@@ -1782,11 +1782,11 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     for epoch in range(1, n_epochs+1):
   
         if   args.input_mode=='image':
-          print( f'\nCLASSI:         INFO:  {CARRIBEAN_GREEN}(RUN {run} of {total_runs_in_job}){RESET} in epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  input:{CYAN}{input_mode}{RESET}  network:{BOLD}{CYAN}{nn_type_img}{RESET}  stain norm:{MAGENTA if stain_norm=="spcn" else CYAN}{stain_norm}{RESET}  lr:{MIKADO}{lr:<9.6f}{RESET}  samples:{MIKADO}{n_samples}{RESET}  batch size:{MIKADO}{batch_size}{RESET}  tile size:{MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide:{MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+          print( f'\nCLASSI:         INFO:  {CARRIBEAN_GREEN}(RUN {run} of {total_runs_in_job}){RESET} in epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  input:{CYAN}{input_mode}{RESET}  network:{BOLD}{CYAN}{nn_type_img}{RESET}  stain norm:{MAGENTA if stain_norm=="spcn" else CYAN}{stain_norm}{RESET}  lr:{MIKADO}{lr:<9.6f}{RESET}  samples:{MIKADO}{n_samples}{RESET}  batch size:{MIKADO}{batch_size}{RESET}  tile size:{MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide:{MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {BOLD_MAGENTA}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
         elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
-          print( f'\nCLASSI:         INFO:  {CARRIBEAN_GREEN}(RUN {run} of {total_runs_in_job}){RESET} in epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  input:{MIKADO}{input_mode}{RESET} lr:{MIKADO}{lr:<9.6f}{RESET} samples:{MIKADO}{n_samples}{RESET} batch size:{MIKADO}{batch_size}{RESET} hidden layer neurons:{MIKADO}{hidden_layer_neurons}{RESET} embedded dimensions:{MIKADO}{batch_size if args.use_autoencoder_output==True  else "N/A" }{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+          print( f'\nCLASSI:         INFO:  {CARRIBEAN_GREEN}(RUN {run} of {total_runs_in_job}){RESET} in epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  input:{MIKADO}{input_mode}{RESET} lr:{MIKADO}{lr:<9.6f}{RESET} samples:{MIKADO}{n_samples}{RESET} batch size:{MIKADO}{batch_size}{RESET} hidden layer neurons:{MIKADO}{hidden_layer_neurons}{RESET} embedded dimensions:{MIKADO}{batch_size if args.use_autoencoder_output==True  else "N/A" }{RESET}.  {DULL_WHITE}will halt if test loss increases for {BOLD_MAGENTA}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
         else:
-          print( f'\nCLASSI:         INFO:  {CARRIBEAN_GREEN}(RUN {run} of {total_runs_in_job}){RESET} in epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  input:{MIKADO}{input_mode}{RESET} lr:{MIKADO}{lr:<9.6f}{RESET} samples:{MIKADO}{n_samples}{RESET} batch size:{MIKADO}{batch_size}{RESET} tile size:{MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide:{MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+          print( f'\nCLASSI:         INFO:  {CARRIBEAN_GREEN}(RUN {run} of {total_runs_in_job}){RESET} in epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  input:{MIKADO}{input_mode}{RESET} lr:{MIKADO}{lr:<9.6f}{RESET} samples:{MIKADO}{n_samples}{RESET} batch size:{MIKADO}{batch_size}{RESET} tile size:{MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide:{MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {BOLD_MAGENTA}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
 
     
         if just_test=='True':                                                                              # skip training in 'test mode'

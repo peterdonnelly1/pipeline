@@ -55,7 +55,7 @@ BAR_CHART_SHOW_ALL="False"
 RENDER_CLUSTERING="True"
 BOX_PLOT="True"                                                                                            # If true, do a Seaborn box plot for the job (one box plot is generated per 'job', not per 'run')
 BOX_PLOT_SHOW="False"                                                                                      # If true, present the graphic using pyplot
-MAX_CONSECUTIVE_LOSSES=5                                                                                   # training will stop after this many consecutive losses, regardless of nthe value of N_EPOCHS
+MAX_CONSECUTIVE_LOSSES=3                                                                                   # training will stop after this many consecutive losses, regardless of nthe value of N_EPOCHS
 
 #~ ZOOM_OUT_MAGS="0.125 0.25  0.5  0.75  1.0   2.0   4.0  8.0"                                                                       # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_PROB
 #~ ZOOM_OUT_PROB="0.1   0.1   0.1  0.15  0.2   0.15  0.1  0.1"  

@@ -25,7 +25,7 @@ def set_logfiles(directory, descriptor, now, level=logging.INFO):
     global DIRECTORY
     DIRECTORY = directory
 
-    handler = logging.FileHandler(f'{directory}/{now:%y%m%d_%H%M}_{descriptor}_run_log.txt')
+    handler = logging.FileHandler(f'{directory}/{now:%y%m%d_%H%M}_{descriptor}_log.txt')
     logger = logging.getLogger(MAIN_LOGGER)
     logger.setLevel(level)
     logger.addHandler(handler)
