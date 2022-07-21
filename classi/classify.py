@@ -152,7 +152,7 @@ def main(args):
     print ( f"CLASSI:         INFO:     cuda driver  version via os command = \n{MIKADO}",                   flush=True    )  
     print ( f"{os.system('cat /proc/driver/nvidia/version')}{RESET}\n",                                      flush=True    )
   
-
+  
 
   mode = 'TRAIN' if args.just_test!='True' else 'TEST'
 
@@ -429,7 +429,6 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
     time.sleep(10)
     sys.exit(0)
 
-    
   class_names  =  subtype_names_as_list if highest_class_number>=len(subtype_names_as_list) else subtype_names_as_list[0:highest_class_number+1]
 
   if DEBUG>0:
@@ -4016,7 +4015,7 @@ def determine_top_up_factors ( args, n_classes, class_names, n_tiles, case_desig
     if case_designation_flag!='UNIMODE_CASE____IMAGE_TEST':
       row    = 0
       colour = BLEU
-      col    = 120
+      col    = 100
     else:
       row    = 0
       col    = 220
@@ -4029,15 +4028,15 @@ def determine_top_up_factors ( args, n_classes, class_names, n_tiles, case_desig
     
     if DEBUG>0:
       np.set_printoptions(formatter={'int':   lambda x: "{:>6d}".format(x)})
-      print( f"\033[{row+1};{col}f  {CLEAR_LINE}   INFO:     {colour}{case_designation_flag}{RESET}", flush=True  )
-      print( f"\033[{row+2};{col}f  {CLEAR_LINE}   INFO:       final class_counts           = {colour}{class_counts}{RESET}",                               flush=True  )
-      print( f"\033[{row+3};{col}f  {CLEAR_LINE}   INFO:       total slides counted         = {colour}{np.sum(class_counts)}{RESET}",                       flush=True  )      
+      print( f"\033[{row+1};{col}f  {CLEAR_LINE}   INFO: (balance info)     {colour}{case_designation_flag}{RESET}", flush=True  )
+      print( f"\033[{row+2};{col}f  {CLEAR_LINE}   INFO: (balance info)       final class_counts           = {colour}{class_counts}{RESET}",                               flush=True  )
+      print( f"\033[{row+3};{col}f  {CLEAR_LINE}   INFO: (balance info)       total slides counted         = {colour}{np.sum(class_counts)}{RESET}",                       flush=True  )      
       np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})
-      print( f"\033[{row+4};{col}f  {CLEAR_LINE}{BOLD}   INFO:       top up factors               = {colour}{top_up_factors}{RESET}  ",                             flush=True  )
+      print( f"\033[{row+4};{col}f  {CLEAR_LINE}{BOLD}   INFO: (balance info)       top up factors               = {colour}{top_up_factors}{RESET}  ",                             flush=True  )
       print( f"\033[{row+5};{col}f  {CLEAR_LINE}   INFO:                                         {ORANGE}^^^ note that {CYAN}{BOLD}MAKE_BALANCED{RESET}{ORANGE} is disabled ^^^{RESET}  ",                             flush=True  )
       np.set_printoptions(formatter={'int':   lambda x: "{:>6d}".format(x)})
-      print( f"\033[{row+6};{col}f  {CLEAR_LINE}   INFO:       tiles_needed_per_example     = {colour}{tiles_needed_per_example}{RESET}",                   flush=True  )
-      print( f"\033[{row+7};{col}f  {CLEAR_LINE}   INFO:       estimated_total_tiles        = {colour}{estimated_total_tiles:,}{RESET}",                    flush=True  )
+      print( f"\033[{row+6};{col}f  {CLEAR_LINE}   INFO: (balance info)       tiles_needed_per_example     = {colour}{tiles_needed_per_example}{RESET}",                   flush=True  )
+      print( f"\033[{row+7};{col}f  {CLEAR_LINE}   INFO: (balance info)       estimated_total_tiles        = {colour}{estimated_total_tiles:,}{RESET}",                    flush=True  )
 
   else:
 
@@ -4058,9 +4057,9 @@ def determine_top_up_factors ( args, n_classes, class_names, n_tiles, case_desig
       
     if DEBUG>0:
       np.set_printoptions(formatter={'int':   lambda x: "{:>6d}".format(x)})
-      print( f"\033[{row+1};{col}f  {CLEAR_LINE}   INFO:     {colour}{case_designation_flag}{RESET}",                                                       flush=True  )
-      print( f"\033[{row+2};{col}f  {CLEAR_LINE}   INFO:       final class_counts           = {colour}{class_counts}{RESET}",                               flush=True  )
-      print( f"\033[{row+3};{col}f  {CLEAR_LINE}   INFO:       total slides counted         = {colour}{np.sum(class_counts)}{RESET}",                       flush=True  )
+      print( f"\033[{row+1};{col}f  {CLEAR_LINE}   INFO: (balance info)     {colour}{case_designation_flag}{RESET}",                                                       flush=True  )
+      print( f"\033[{row+2};{col}f  {CLEAR_LINE}   INFO: (balance info)       final class_counts           = {colour}{class_counts}{RESET}",                               flush=True  )
+      print( f"\033[{row+3};{col}f  {CLEAR_LINE}   INFO: (balance info)       total slides counted         = {colour}{np.sum(class_counts)}{RESET}",                       flush=True  )
   
     if np.any( class_counts < 1):
         print ( f"{BOLD}{RED}\033[90;0HCLASSI:       FATAL: one of the subtypes has no examples{CLEAR_LINE}",                                                                                                                              flush=True  )                                        
@@ -4074,7 +4073,7 @@ def determine_top_up_factors ( args, n_classes, class_names, n_tiles, case_desig
   
     if DEBUG>0:
       np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})
-      print( f"\033[{row+4};{col}f  {CLEAR_LINE}   INFO:       relative class ratios        = {colour}{relative_ratios}{RESET}",                            flush=True  )
+      print( f"\033[{row+4};{col}f  {CLEAR_LINE}   INFO: (balance info)       relative class ratios        = {colour}{relative_ratios}{RESET}",                            flush=True  )
   
     top_up_factors           = np.divide(1,relative_ratios)
     tiles_needed_per_example = (top_up_factors*n_tiles).astype(int) + 1                                      # to make the values the same as tiler() uses, where I add one extra to be safe 
@@ -4082,10 +4081,10 @@ def determine_top_up_factors ( args, n_classes, class_names, n_tiles, case_desig
   
     if DEBUG>0:
       np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})
-      print( f"\033[{row+5};{col}f  {CLEAR_LINE}   INFO:       top up factors               = {colour}{top_up_factors}{RESET}",                             flush=True  )
+      print( f"\033[{row+5};{col}f  {CLEAR_LINE}   INFO: (balance info)       top up factors               = {colour}{top_up_factors}{RESET}",                             flush=True  )
       np.set_printoptions(formatter={'int':   lambda x: "{:>6d}".format(x)})
-      print( f"\033[{row+6};{col}f  {CLEAR_LINE}   INFO:       tiles_needed_per_example     = {colour}{tiles_needed_per_example}{RESET}",                   flush=True  )
-      print( f"\033[{row+7};{col}f  {CLEAR_LINE}   INFO:       estimated_total_tiles        = {colour}{estimated_total_tiles:,}{RESET}",                    flush=True  )
+      print( f"\033[{row+6};{col}f  {CLEAR_LINE}   INFO: (balance info)       tiles_needed_per_example     = {colour}{tiles_needed_per_example}{RESET}",                   flush=True  )
+      print( f"\033[{row+7};{col}f  {CLEAR_LINE}   INFO: (balance info)       estimated_total_tiles        = {colour}{estimated_total_tiles:,}{RESET}",                    flush=True  )
 
   return estimated_total_tiles, top_up_factors
 
@@ -4125,16 +4124,18 @@ def determine_class_counts ( args, n_classes, class_names, n_tiles, case_designa
           if DEBUG>100:
             print ( f"CLASSI:         INFO:   label_file  {ASPARAGUS}{label_file}{RESET}")
           label      = np.load( label_file )
-          if label[0]>args.highest_class_number:
-            count_this_case_flag=False
-            if DEBUG>0:
-              print ( f"{ORANGE}CLASSI:         INFO: label is greater than '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{ORANGE}' - - skipping this example (label = {MIKADO}{label[0]}{RESET}{ORANGE}){RESET}"      )
-            pass
         except Exception as e:
-          print ( f"{RED}CLASSI:               FATAL: when processing: '{label_file}'{RESET}", flush=True)        
+          print ( f"{RED}CLASSI:               FATAL: when processing: '{label_file}' (19263){RESET}", flush=True)        
           print ( f"{RED}CLASSI:                      reported error was: '{e}'{RESET}", flush=True)
           print ( f"{RED}CLASSI:                      halting now{RESET}", flush=True)
           sys.exit(0)
+
+        if label[0]>args.highest_class_number:
+          count_this_case_flag=False
+          if DEBUG>2:
+            print ( f"{ORANGE}CLASSI:         INFO: label is greater than '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{ORANGE}' - - not counting this example (label = {MIKADO}{label[0]}{RESET}{ORANGE}){RESET}"      )
+          pass
+
         
         if ( count_this_case_flag==True ):
           class_counts[label[0]]+=1
@@ -4286,7 +4287,8 @@ def segment_cases( args, n_classes, class_names, n_tiles, pct_test ):
     multimode_case_test_count    = 0
     
     if DEBUG>0:
-      print ( f"{BOLD}{CHARTREUSE}CLASSI:         INFO:    segment_cases():    about to randomly designate {CYAN}CASES_RESERVED_FOR_IMAGE_RNA{RESET}{BOLD}{CHARTREUSE}  {RESET}(={MIKADO}{args.cases_reserved_for_image_rna}{RESET}){BOLD}{CHARTREUSE} cases flagged as '{ARYLIDE}HAS_BOTH{RESET}{BOLD}{CHARTREUSE}' to be exclusively reserved as {ARYLIDE}MULTIMODE____TEST{RESET}{BOLD}{CHARTREUSE} cases",  flush=True )
+      if args.cases_reserved_for_image_rna>0:
+        print ( f"{BOLD}{CHARTREUSE}CLASSI:         INFO:    segment_cases():    about to randomly designate {CYAN}CASES_RESERVED_FOR_IMAGE_RNA{RESET}{BOLD}{CHARTREUSE}  {RESET}(={MIKADO}{args.cases_reserved_for_image_rna}{RESET}){BOLD}{CHARTREUSE} cases flagged as '{ARYLIDE}HAS_BOTH{RESET}{BOLD}{CHARTREUSE}' to be exclusively reserved as {ARYLIDE}MULTIMODE____TEST{RESET}{BOLD}{CHARTREUSE} cases",  flush=True )
    
     while True:
       
@@ -4471,21 +4473,23 @@ def segment_cases( args, n_classes, class_names, n_tiles, pct_test ):
                 print ( f"{PALE_GREEN}CLASSI:           INFO:       segment_cases():  case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_GREEN}' \r\033[122C has been flagged with the UNIMODE_CASE____IMAGE  \r\033[204C (count= {MIKADO}{unimode_case_image_count+1}{RESET})",  flush=True )
               unimode_case_image_count+=1                                                                  # only segment_cases knows the value of unimode_case_image_count, and we need in generate(), so we return it
   
-              try:                                                                                         # every tile has an associated label - the same label for every tile image in the directory
+              
+              try:                                                                                         # accumulate class counts. Every tile has an associated label - the same label for every tile image in the directory
                 label_file = f"{dir_path}/{args.class_numpy_file_name}"
                 if DEBUG>100:
                   print ( f"CLASSI:         INFO:   label_file  {ASPARAGUS}{label_file}{RESET}")
                 label      = np.load( label_file )
                 if label[0]>args.highest_class_number:
                   pass
-                class_counts[label[0]]+=1
+                else:
+                  class_counts[label[0]]+=1
                   
                 if DEBUG>0:
                   np.set_printoptions(formatter={'int': lambda x: "{:>6d}".format(x)}) 
                   print( f"\033[61;200H{BOLD}{BB}  CLASSI:         INFO: class_counts                         = {CARRIBEAN_GREEN}{class_counts}{RESET}{CLEAR_LINE}", flush=True  )
   
               except Exception as e:
-                print ( f"{RED}CLASSI:               FATAL: when processing: '{label_file}'{RESET}", flush=True)        
+                print ( f"{RED}CLASSI:               FATAL: when processing: '{label_file}'  (21945){RESET}", flush=True)        
                 print ( f"{RED}CLASSI:                      reported error was: '{e}'{RESET}", flush=True)
                 print ( f"{RED}CLASSI:                      halting now{RESET}", flush=True)
                 sys.exit(0)
@@ -4562,7 +4566,8 @@ def segment_cases( args, n_classes, class_names, n_tiles, pct_test ):
     ratios                         = np.zeros( n_classes, dtype=int )
 
 
-    startcol=11
+    startrow=16
+    startcol=180
       
     UNIMODE_CASE____IMAGE_class_counts = determine_class_counts ( args, n_classes, class_names, n_tiles, 'UNIMODE_CASE____IMAGE' )   # available to be redesignated as ..._TEST cases
     nominally_required_per_class       =  UNIMODE_CASE____IMAGE_class_counts * pct_test
@@ -4570,11 +4575,11 @@ def segment_cases( args, n_classes, class_names, n_tiles, pct_test ):
     
     if DEBUG>0:
       np.set_printoptions(formatter={ 'int':   lambda x: f"{x:>6d}"}    ) 
-      print( f"\033[{startcol+0};200H{BOLD}{BB}  CLASSI:         INFO: UNIMODE_CASE____IMAGE_class_counts   = {MIKADO}{UNIMODE_CASE____IMAGE_class_counts}{RESET}{CLEAR_LINE}", flush=True  )
+      print( f"{SAVE_CURSOR}\033[{startrow+0};{startcol}H{BOLD}{BB}  CLASSI: segment_cases()         INFO: UNIMODE_CASE____IMAGE_class_counts         = {MIKADO}{UNIMODE_CASE____IMAGE_class_counts}{RESET}{CLEAR_LINE}", flush=True  )
       np.set_printoptions(formatter={ 'float': lambda x: f"{x:>6.2f}"} )  
-      print( f"\033[{startcol+1};200H{BOLD}{BB}  CLASSI:         INFO: nominally_required_per_class         = {MIKADO}{nominally_required_per_class}{RESET}{CLEAR_LINE}", flush=True  )
+      print( f"\033[{startrow+1};{startcol}H{BOLD}{BB}  CLASSI: segment_cases()         INFO: nominally_required_per_class for testing   = {MIKADO}{nominally_required_per_class}{RESET}{CLEAR_LINE}", flush=True  )
       np.set_printoptions(formatter={ 'int':   lambda x: f"{x:>6d}"}    )       
-      print( f"\033[{startcol+2};200H{BOLD}{BB}  CLASSI:         INFO: required_per_class                   = {MIKADO}{required_per_class}{RESET}{CLEAR_LINE}", flush=True  )
+      print( f"\033[{startrow+2};{startcol}H{BOLD}{BB}  CLASSI: segment_cases()         INFO: required_per_class                             = {MIKADO}{required_per_class}{RESET}{CLEAR_LINE}", flush=True  )
  
     
     for the_class in range (0, n_classes ):
@@ -4588,7 +4593,7 @@ def segment_cases( args, n_classes, class_names, n_tiles, pct_test ):
       
       if DEBUG>0:
         np.set_printoptions(formatter={'int': lambda x: "{:>6d}".format(x)}) 
-        print( f"\033[{startcol+2+the_class};200H{BOLD}{BB}  CLASSI:         INFO: cases to designate for class {MIKADO}{the_class}{RESET}{BB}       = {MAGENTA}{cases_to_designate}{RESET}{CLEAR_LINE}", flush=True  )
+        print( f"\033[{startrow+2+the_class};{startcol}H{BOLD}{BB}  CLASSI: segment_cases()         INFO: cases to designate for class {MIKADO}{the_class}{RESET}{BB}             = {MAGENTA}{cases_to_designate}{RESET}{CLEAR_LINE}", flush=True  )
       
       while True:
 
@@ -4624,7 +4629,7 @@ def segment_cases( args, n_classes, class_names, n_tiles, pct_test ):
                         f.close
                         os.remove ( f"{dir_path}/UNIMODE_CASE____IMAGE" )
                       if DEBUG>9:
-                        print ( f"{BLEU}CLASSI:           INFO:    segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{BLEU} \r\033[130C has been randomly (re-)designated as a UNIMODE_CASE____IMAGE_TEST case  \r\033[204C (class = {MIKADO}{the_class}{RESET}{BLEU}{RESET})",  flush=True )
+                        print ( f"{BLEU}CLASSI:           INFO:    segment_cases()():  case  {RESET}{CYAN}{dir_path}{RESET}{BLEU} \r\033[130C has been randomly (re-)designated as a UNIMODE_CASE____IMAGE_TEST case  \r\033[204C (class = {MIKADO}{the_class}{RESET}{BLEU}{RESET})",  flush=True )
                     except Exception:
                       print( f"{RED}CLASSI:       FATAL:  either could not create '{CYAN}UNIMODE_CASE____IMAGE_TEST{RESET}' file or delete the '{CYAN}UNIMODE_CASE____IMAGE{RESET}' " )  
                       time.sleep(10)
@@ -4633,7 +4638,7 @@ def segment_cases( args, n_classes, class_names, n_tiles, pct_test ):
                     pass
   
                 except Exception as e:
-                  print ( f"{RED}CLASSI:               FATAL: when processing: '{label_file}'{RESET}", flush=True)        
+                  print ( f"{RED}CLASSI:               FATAL: when processing: '{label_file}'    (05723){RESET}", flush=True)        
                   print ( f"{RED}CLASSI:                      reported error was: '{e}'{RESET}", flush=True)
                   print ( f"{RED}CLASSI:                      halting now{RESET}", flush=True)
                   sys.exit(0)
@@ -4650,17 +4655,17 @@ def segment_cases( args, n_classes, class_names, n_tiles, pct_test ):
 
     if DEBUG>0:
       np.set_printoptions(formatter={'int': lambda x: "{:>6d}".format(x)}) 
-      print( f"\033[{startcol+2+len(class_counts)};200H{BOLD}{BB}  CLASSI:         INFO: class_counts                         = {MAGENTA}{class_counts}{RESET}{CLEAR_LINE}", flush=True  )
+      print( f"\033[{startrow+2+len(class_counts)};{startcol}H{BOLD}{BB}  CLASSI: segment_cases()         INFO: class_counts for testing                   = {MAGENTA}{class_counts}{RESET}{CLEAR_LINE}", flush=True  )
       
             
     if DEBUG>0:
       ratios = np.divide( class_counts, UNIMODE_CASE____IMAGE_class_counts )
       np.set_printoptions(formatter={ 'float' : lambda x: f"{x:>6.2f}"} )   
-      print( f"\033[{startcol+2+len(class_counts)+1};200H{BOLD}{GREEN}  CLASSI:         INFO: final ratios ({CYAN}pct_test={MIKADO}{pct_test}{RESET}{BOLD}{GREEN})          = {ratios}{RESET}{CLEAR_LINE}", flush=True  )
+      print( f"\033[{startrow+2+len(class_counts)+1};{startcol}H{BOLD}{GREEN}  CLASSI: segment_cases()         INFO: final ratios ({CYAN}pct_test={MIKADO}{pct_test}{RESET}{BOLD}{GREEN})                = {ratios}{RESET}{CLEAR_LINE}", flush=True  )
 
     unimode_case_image_test_count = np.sum ( class_counts )
     if DEBUG>0:
-      print( f"\033[{startcol+2+len(class_counts)+2};200H{BOLD}{GREEN}  CLASSI:         INFO: unimode_case_image_test_count        = {MIKADO}{unimode_case_image_test_count}{RESET}{CLEAR_LINE}", flush=True  )
+      print( f"\033[{startrow+2+len(class_counts)+2};{startcol}H{BOLD}{GREEN}  CLASSI: segment_cases()         INFO: unimode_case_image_test_count               = {MIKADO}{unimode_case_image_test_count}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}", flush=True  )
 
     unimode_case_image_count = unimode_case_image_count - unimode_case_image_test_count
     
@@ -6203,7 +6208,7 @@ def color_negative_red(val):  # not currently used
 
 if __name__ == '__main__':
   
-  if DEBUG>0:
+  if DEBUG>2:
     print ( f"{BLEU}{sys.argv[1:]}{RESET}" );
   
   # using this to handle booleans in user parms, which argparse doesn't support

@@ -93,7 +93,6 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
   multimode              = args.multimode                                                                  # if set, suppress tile quality filters (i.e. accept every tile)
   data_dir               = args.data_dir
   log_dir                = args.log_dir
-  rand_tiles             = args.rand_tiles                                                                 # select tiles at random coordinates from image. Done AFTER other quality filtering
   zoom_out_prob          = args.zoom_out_prob
   zoom_out_mags          = args.zoom_out_mags
   greyness               = args.greyness                                                                   # Used to filter out images with very low information value
@@ -130,7 +129,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
   if (DEBUG>2):
     print ( f"TILER:          INFO: process:directory = {CYAN}{my_thread:2d}{RESET}:{d:100s} ", flush=True         )
     
-    
+  
   # (1) if user has requested 'MAKE_BALANCED', then adjust the number of tiles to extract according to the subtype using the 'top_up_factors' array
   
     
@@ -139,27 +138,36 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
   try:                                                                                                     # every tile has an associated label - the same label for every tile image in the directory
     label_file = f"{data_dir}/{d}/{args.class_numpy_file_name}"
     if DEBUG>0:
-      print ( f"\033[{start_row-13};0f{BOLD}{ASPARAGUS}TILER:                          INFO:   current image's label file    = \
+      print ( f"\033[{start_row-13};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   current image's label file    = \
 {RESET}{CYAN}{data_dir}/{PALE_ORANGE if r<4 else DULL_YELLOW if r<7 else DULL_WHITE if r<10 else PURPLE}{d}/{RESET}{CYAN}{args.class_numpy_file_name}{RESET}                                      ",  end="" )
     label   = np.load( label_file )
     subtype = label[0]
     if DEBUG>0:
-      print ( f"\033[{start_row-12};0f{BOLD}{ASPARAGUS}TILER:                          INFO:   current image is of subtype   = {MIKADO}{subtype}{RESET}                                                                                              ",  end="" )
+      print ( f"\033[{start_row-12};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   current image is of subtype   = {MIKADO}{subtype}{RESET}                                                                                              ",  end="" )
   except Exception as e:
     print ( f"{RED}TILER:               FATAL: when processing: '{label_file}'{RESET}", flush=True)        
     print ( f"{RED}TILER:                      reported error was: '{e}'{RESET}", flush=True)
     print ( f"{RED}TILER:                      halting now{RESET}", flush=True)
     sys.exit(0)
 
+  if DEBUG>10:
+    if my_thread==5:
+      print ( f"{SAVE_CURSOR}{BB}\033[76;71Hfqn= {fqn};  subtype={subtype}{CLEAR_LINE}{RESTORE_CURSOR}", flush=True )
+      if subtype>args.highest_class_number:
+        print ( f"{SAVE_CURSOR}{BOLD_RED}\033[76;71Hfqn= {fqn};  subtype={subtype}{CLEAR_LINE}{RESTORE_CURSOR}", flush=True )
+
+  if subtype>args.highest_class_number:                                                                    # class number is too high - skip
+    return SUCCESS
+
   # (1B) increase n_tiles accordingly
 
   if make_balanced=='True':
 
     if DEBUG>0:
-      print ( f"\033[{start_row-9};0f{BOLD}{ASPARAGUS}TILER:                          INFO:   base value of n_tiles         = {CYAN}{n_tiles}{RESET}                                                                      ",  end="" )
+      print ( f"\033[{start_row-9};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   base value of n_tiles         = {CYAN}{n_tiles}{RESET}                                                                      ",  end="" )
       np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})
-      print ( f"\033[{start_row-11};0f{BOLD}{ASPARAGUS}TILER:                          INFO:   tile top_up_factors           = {CYAN}{top_up_factors}{RESET}                                                              ",  end="" )
-      print ( f"\033[{start_row-10};0f{BOLD}{ASPARAGUS}TILER:                          INFO:   applicable top_up_factor      = {CYAN}{top_up_factors[subtype]:<4.2f}{RESET}                                                                  ",  end="" )
+      print ( f"\033[{start_row-11};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   tile top_up_factors           = {CYAN}{top_up_factors}{RESET}                                                              ",  end="" )
+      print ( f"\033[{start_row-10};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   applicable top_up_factor      = {CYAN}{top_up_factors[subtype]:<4.2f}{RESET}                                                                  ",  end="" )
   
       if top_up_factors[subtype]==1.:                                                                      # no need to adjust n_tiles for the subtype which has the largest number of images
         pass
@@ -178,14 +186,12 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
 
   # (2) open the SVS image and inspect statistics
 
-                                                                         # only used if resizing is enabled (tile_size=0)
-  
   try:
     oslide = openslide.OpenSlide( fqn );                                                                   # open the file containing the image
 
   except Exception as e:
-    if DEBUG>10:
-      print(f"{SAVE_CURSOR}{RESET}\033[0;0H{BOLD_ORANGE}TILER: WARNING: there was no spcn file for this case !!! {BOLD_CYAN}{fqn}{RESET}{BOLD_ORANGE}. Skipping and moving to next case{RESET}{RESTORE_CURSOR}", flush=True)
+    if DEBUG>0:
+      print(f"{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus};0H{BOLD_ORANGE}TILER_SCHEDULER_{FG3}: WARNING: there was no slide file for this case !!! {BOLD_CYAN}{fqn}{RESET}{BOLD_ORANGE}. Skipping and moving to next case{RESET}{RESTORE_CURSOR}", flush=True)
     return MISSING_IMAGE_FILE
 
   level            = 0
@@ -205,7 +211,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
       print( f"TILER:          INFO: slide height x width (pixels) = {BB}{height:6d} x {width:6d}{RESET} and potential ({BB}{tile_width:3d}x{tile_width:3d}{RESET} sized ) tiles for this slide = {BB}{potential_tiles:7d}{RESET} ", end ="", flush=True )
 
   if potential_tiles<n_tiles:
-    print( f"\n{ORANGE}TILER:          WARNING: requested tiles (n_tiles) = {CYAN}{n_tiles:,}{RESET}{ORANGE} but only {RESET}{CYAN}{potential_tiles:,}{RESET}{ORANGE} possible. Slide will be skipped. ({CYAN}{fqn}{RESET}{ORANGE}){RESET}", flush=True)
+    print( f"{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus};0H{BOLD_ORANGE}TILER_SCHEDULER_{FG3}: WARNING: requested tiles (n_tiles) = {CYAN}{n_tiles:,}{RESET}{ORANGE} but only {RESET}{CYAN}{potential_tiles:,}{RESET}{ORANGE} possible. Slide will be skipped. ({CYAN}{fqn}{RESET}{ORANGE}){RESET}{RESTORE_CURSOR}", flush=True)
     return INSUFFICIENT_TILES
 
 
@@ -301,8 +307,6 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
     y_start=0
     x_span=range(x_start, width, tile_width)                                                               # steps of tile_width
     y_span=range(y_start, width, tile_width)                                                               # steps of tile_width
-    
-
   else:                                                                                                    # test mode (for patching)
     tiles_to_get = int(batch_size**0.5)                                                                    # length of one side of the patch, in number of tiles (the patch is square, and the  batch_size is chosen to be precisely equal to the n_tiles for test mode) 
     tile_height  = tile_width
@@ -367,9 +371,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
       for y in y_span:
     
           tiles_considered_count+=1
-          
-          s = random.randint(1,5)
-              
+                                  
           if   ( ( just_test=='True' ) & ( multimode!='image_rna' ) ) & ( tiles_processed==n_tiles*(supergrid_size**2) ):
             break_now=True
             break
@@ -381,12 +383,12 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
             if (x>width-2*tile_width) & (y>height-2*tile_width):
               if just_profile=='True':
                 if already_displayed==False:
-                  print(f'\n{ORANGE}TILER: WARNING: have covered the entire slide and there are not enough tiles that meet the quality criteria. (At coords {CYAN}{x},{y}{RESET}) with {CYAN}{tiles_processed}{RESET}) -- skipping {CYAN}{fqn}{RESET}', flush=True)
+                  print(f'{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus};0H{BOLD_ORANGE}TILER_SCHEDULER_{FG3}: WARNING: have covered the entire slide and there are not enough tiles that meet the quality criteria. (At coords {CYAN}{x},{y}{RESET}) with {CYAN}{tiles_processed}{RESET}) -- skipping {CYAN}{fqn}{RESET}{RESTORE_CURSOR}', flush=True)
                   already_displayed=True
                   return INSUFFICIENT_QUALIFYING_TILES
               else:
                 if ( ( just_test!='True' ) | ( multimode=='image_rna') ):
-                  print(f'\n{ORANGE}TILER: WARNING: have covered the entire slide and there are not enough tiles that meet the quality criteria. (At coords {CYAN}{x},{y}{RESET}) with {CYAN}{tiles_processed}{RESET}) -- skipping {CYAN}{fqn}{RESET}', flush=True)
+                  print(f'{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus};0H{BOLD_ORANGE}TILER_SCHEDULER_{FG3}: WARNING: have covered the entire slide and there are not enough tiles that meet the quality criteria. (At coords {CYAN}{x},{y}{RESET}) with {CYAN}{tiles_processed}{RESET}) -- skipping {CYAN}{fqn}{RESET}{RESTORE_CURSOR}', flush=True)
                   return INSUFFICIENT_QUALIFYING_TILES
               
             if x + tile_width > width:
@@ -459,6 +461,11 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
             
             new_width = int(multiplier * optical_mag_adjustment_factor * tile_width_x)                                  
             tile = oslide.read_region( (extraction_x_coord,  extraction_y_coord),  level, (new_width, new_width))       # extract an area from the slide of size determined by the result returned by choose_mag_level
+
+            if DEBUG>10:
+              if my_thread==5:
+                print ( f"{SAVE_CURSOR}\033[77;50H{BOLD_GREEN if tiles_processed+1==n_tiles else BB}for thread {my_thread}: slide: fqn= {fqn};  subtype={subtype}; tiles_processed = {tiles_processed+1:2d};  tile start coords: x={extraction_x_coord:6d}, y={extraction_y_coord:6d};   slide width={new_width:<4d}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}", flush=True )
+
 
 
             if (DEBUG>0):
@@ -887,7 +894,7 @@ def choose_mag_level( my_thread, zoom_out_prob, zoom_out_mags, r_norm ):
     print( f"\r{RESET}{RED}TILER:     FATAL: ... halting now{RESET}" )
     sys.exit(0)
   
-  if sum(zoom_out_prob)==0:                                                                  # then user wants zoom_out_prob to be random
+  if sum(zoom_out_prob)==0:                                                                                # then user wants zoom_out_prob to be random
     
     if DEBUG>3:  
       print( f'\r{RESET}TILER:          INFO: system generated {CYAN}zoom_out_prob vector{RESET}', end='', flush=True  )
@@ -906,7 +913,7 @@ def choose_mag_level( my_thread, zoom_out_prob, zoom_out_mags, r_norm ):
   else:
   
     r      = [ random.random() for i in range(1, len(zoom_out_prob)+1 ) ]
-    r_norm = [ i/(sum(r)) for i in r ]                                                                       # make the vector add up to 1
+    r_norm = [ i/(sum(r)) for i in r ]                                                                     # make the probabilities add up to 1
     
     multiplier = float(np.random.choice(
       zoom_out_mags, 

@@ -16,7 +16,7 @@
 #     NN_TYPE_IMG, TILE_SIZE, N_TILES, RANDOM_TILES, STAIN_NORM, JITTER, MAKE_GREY_PCT
 #
 #   RNA parameters: 
-#     NN_TYPE_RNA, HIDDEN_LAYER_NEURONS, NN_DENSE_DROPOUT_1, NN_DENSE_DROPOUT_2, GENE_DATA_NORM, GENE_DATA_TRANSFORM, EMBEDDING_DIMENSIONS, LOW_EXPRESSION_THRESHOLD
+#     NN_TYPE_RNA, HIDDEN_LAYER_NEURONS, NN_DENSE_DROPOUT_1, NN_DENSE_DROPOUT_2, GENE_DATA_NORM, GENE_DATA_TRANSFORM, EMBEDDING_DIMENSIONS, CUTOFF_PERCENTILE, LOW_EXPRESSION_THRESHOLD
 #
 # If more than one value is specified for any of these, an experiment 'job' will be created and run
 # The job will comprise one run for every combination of the specified parameters (Cartesian product of the parameters)
@@ -144,7 +144,7 @@ SHOW_ROWS=1000                                                                  
 SHOW_COLS=100                                                                                              # used by "analyse_data". 
 
 
-HIGHEST_CLASS_NUMBER=12345 
+HIGHEST_CLASS_NUMBER=3                                                                                     # Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Can only omit cases from the top (e.g. 'normal' has the highest class number for 'stad' - see conf/variables). Currently only implemented for unimode/image (not implemented for rna_seq)
 
 while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:H:h:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:Q:r:R:s:S:t:T:u:U:v:V:w:W:x:X:y:Y:z:Z:0:1:2:3:4:5:6:7:8:9: option
   do
@@ -178,7 +178,7 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:H:h:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:
     M) METRIC=${OPTARG};;                                                                                  # supported: any of the sklearn metrics. Only 'euclidean' in the case of cuda_tsne
     n) MODE=${OPTARG};;                                                                                    # functional mode: supported: 'classify', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
     N) SKIP_TRAINING=${OPTARG};;                                                                           
-    o) N_EPOCHS=${OPTARG};;                                                                                # Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Can only omit cases from the top (e.g. 'normal' has the highest class number for 'stad' - see conf/variables). Currently only implemented for unimode/image (not implemented for rna_seq)
+    o) N_EPOCHS=${OPTARG};;                                                                                
     O) N_EPOCHS_TEST=${OPTARG};;                                                                           
     p) PERPLEXITY=${OPTARG};;                                                                              
     P) PRETRAIN=${OPTARG};;                                                                                # pre-train: exactly the same as training mode, but pre-trained model will be used rather than starting with random weights
