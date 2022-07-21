@@ -34,9 +34,8 @@ BB=f"\033[38;2;{a};{b};{c}m"
   
 def tiler_threader( args, flag, count, n_samples, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method ):
 
-  print ( f"{SAVE_CURSOR}\033[20;0H\033[0J{RESTORE_CURSOR}", end='', flush=True )
+  print ( f"{SAVE_CURSOR}\033[30;0H\033[0J{RESTORE_CURSOR}", end='', flush=True )
   
-
   zoom_out_prob = args.zoom_out_prob
   
   num_cpus = multiprocessing.cpu_count()

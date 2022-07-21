@@ -3798,8 +3798,15 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
             np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>1d}{RESET}"})
           else:
             np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>02d}{RESET}"})
-          print (  f"truth = {CLEAR_LINE}{labs}",  flush=True   )
-          print (  f"preds = {CLEAR_LINE}{preds}", flush=True   )
+          print (  f"truth = {CLEAR_LINE}{labs}{RESET}",  flush=True   )
+          degenerate_result = np.all(preds == preds[0])
+          if len(class_names)<10:
+            np.set_printoptions(formatter={'int': lambda x: f"{BOLD_MAGENTA if degenerate_result else DIM_WHITE}{x:>1d}{RESET}"})
+          else:
+            np.set_printoptions(formatter={'int': lambda x: f"{BOLD_MAGENTA if degenerate_result else BOLD_MAGENTA}{x:>02d}{RESET}"})
+          if DEBUG>190:
+            print ( f"{SAVE_CURSOR}\033[0;0H{PINK}preds[0] = {preds[0]}; degenerate_result = np.all(preds==preds[0]) = {np.all(preds==preds[0])}            {RESET}{RESTORE_CURSOR}", end='', flush=True )
+          print (  f"preds = {CLEAR_LINE}{preds}{BOLD_ORANGE if degenerate_result else BLACK}   <<< warning !!! degenerate result{RESET}", flush=True   )
           if len(class_names)<10:
             GAP=' '
             np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else BLACK}{x:>1d}{RESET}"}) 
@@ -3869,10 +3876,11 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
   
         pplog.log(f"epoch = {epoch}" )
         pplog.log(f"test: truth/prediction for first {number_to_display} examples from the most recent test batch ( number correct this batch: {correct}/{batch_size} = {pct:>3.0f}%  )  ( number correct overall: {global_correct_prediction_count+correct}/{global_number_tested+batch_size} = {global_pct:>3.0f}% (number tested this run = epochs x test batches x batch size)" )
-        pplog.log(f"{CLEAR_LINE}        truth = {labs}" )
-        pplog.log(f"{CLEAR_LINE}        preds = {preds}")
-        pplog.log(f"{CLEAR_LINE}        delta = {delta}") 
-   
+        pplog.log(f"{CLEAR_LINE}        truth = {labs}"  )
+        pplog.log(f"{CLEAR_LINE}        preds = {preds}" )
+        pplog.log(f"{CLEAR_LINE}        delta = {delta}" ) 
+        if degenerate_result:
+         pplog.log(f"{CLEAR_LINE}        warning !!! degenerate result")  
  
 
     if args.input_mode=='image':   
@@ -4018,12 +4026,12 @@ def determine_top_up_factors ( args, n_classes, class_names, n_tiles, case_desig
       col    = 100
     else:
       row    = 0
-      col    = 220
+      col    = 200
       colour = ASPARAGUS
     
     if args.just_test=='True':
       row    = 0
-      col    = 220
+      col    = 200
       colour = CAMEL  
     
     if DEBUG>0:
@@ -4043,15 +4051,15 @@ def determine_top_up_factors ( args, n_classes, class_names, n_tiles, case_desig
     if case_designation_flag!='UNIMODE_CASE____IMAGE_TEST':
       row    = 0
       colour = AMETHYST
-      col    = 120
+      col    = 100
     else:
       row    = 0
-      col    = 220
+      col    = 200
       colour = ORANGE
     
     if args.just_test=='True':
       row    = 0
-      col    = 220
+      col    = 200
       colour = CHARTREUSE  
   
       
