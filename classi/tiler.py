@@ -37,6 +37,7 @@ np.set_printoptions(edgeitems=38)
 np.set_printoptions(linewidth=350)
 
 BB="\033[35;1m"
+FG3="\033[38;5;100m"
 
 from constants  import *
 
@@ -47,6 +48,7 @@ INSUFFICIENT_QUALIFYING_TILES=3
 MISSING_IMAGE_FILE=4
 
 DEBUG=1
+
 
 num_cpus = multiprocessing.cpu_count()
 start_column = 112
