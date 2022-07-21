@@ -1413,7 +1413,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
   fnames_new      = np.zeros( ( estimated_total_tiles                           ), dtype=np.int64   )              # np.int64 is equiv of torch.long
   img_labels_new  = np.zeros( ( estimated_total_tiles,                          ), dtype=np.int_    )              # img_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
 
-  if DEBUG>0:
+  if DEBUG>10:
     print( f"{CLEAR_LINE}GENERATE:       INFO:     making empty images_new.shape                                 = {PINK}{images_new.shape}{RESET}",             flush=True       ) 
     print( f"{CLEAR_LINE}GENERATE:       INFO:     making empty img_labels_new.shape                             = {PINK}{img_labels_new.shape}{RESET}",         flush=True       ) 
     print( f"{CLEAR_LINE}GENERATE:       INFO:     making empty fnames_new.shape                                 = {PINK}{fnames_new.shape}{RESET}",             flush=True       )
@@ -1682,9 +1682,9 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
 
 
   if DEBUG>0:
-    print( f"{CLEAR_LINE}GENERATE:       INFO:    tiles drawn from each of the {MIKADO}{highest_class_number+1}{RESET} cancer types                                     = {MIKADO}{class_counts}{RESET}",             flush=True       )
+    print( f"{CLEAR_LINE}GENERATE:       INFO:    tiles drawn from each of the {MIKADO}{highest_class_number+1}{RESET} cancer sub/types                                     = {MIKADO}{class_counts}{RESET}",             flush=True       )
     print( f"{CLEAR_LINE}GENERATE:       INFO:    total tiles generated (actual)                                                  = {MIKADO}{np.sum(class_counts)}{RESET}",     flush=True       )
-    print( f"{CLEAR_LINE}GENERATE:       INFO:    for reference, space was allocated for this many tiles                            {MIKADO}{estimated_total_tiles}{RESET}",     flush=True       )
+    print( f"{CLEAR_LINE}GENERATE:       INFO:    for reference, space was allocated in advance for this many tiles               {MIKADO}{estimated_total_tiles}{RESET}",     flush=True       )
 
 
 
