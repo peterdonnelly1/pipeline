@@ -174,20 +174,20 @@ def tiler_scheduler( args, r_norm, flag, count, n_samples, n_tiles, top_up_facto
                   if slides_processed>=my_expanded_slide_quota:
                     break              
                 elif result==INSUFFICIENT_TILES:
-                  print(f"{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus};0H{BOLD_ORANGE}{CLEAR_LINE}TILER_SCHEDULER_{FG3}{my_thread}: {BB}WARNING: it would not be possible to extract the required number of tiles from this slide, even if they all qualified ! ({BOLD_CYAN}{pqn}{RESET}{BB}). Slide will be skipped. {RESTORE_CURSOR}", flush=True)
+                  print(f"{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus};0H{BOLD_ORANGE}{CLEAR_LINE}TILER_SCHEDULER_{FG3}{my_thread}: {BB}WARNING: it would not be possible to extract the required number of tiles from this slide, even if they all qualified ! ({BOLD_CYAN}{pqn}{RESET}{BOLD}{BB}). Slide will be skipped. {RESTORE_CURSOR}", flush=True)
                   time.sleep(1)
                   # ~ if slides_processed<n_samples:
                     # ~ print( f"{RED}TILER_SCHEDULER_{FG3}: FATAL:  n_samples has been reduced to {CYAN}{n_samples}{RESET}{RED} ... halting{RESET}" )
                     # ~ n_samples=slides_processed
                 elif result==INSUFFICIENT_QUALIFYING_TILES:
                   time.sleep(1)
-                  print(f"{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus};0H{BOLD_ORANGE}{CLEAR_LINE}TILER_SCHEDULER_{FG3}{my_thread}: {BB}WARNING: not enough qualifying tiles for this case ! ({BOLD_CYAN}{pqn}{RESET}{BB}). Slide will be skipped. {RESET}{RESTORE_CURSOR}", flush=True)
+                  print(f"{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus};0H{BOLD_ORANGE}{CLEAR_LINE}TILER_SCHEDULER_{FG3}{my_thread}: {BB}WARNING: not enough qualifying tiles for this case ! ({BOLD_CYAN}{pqn}{RESET}{BOLD}{BB}). Slide will be skipped. {RESET}{RESTORE_CURSOR}", flush=True)
                   # ~ if slides_processed<n_samples:
                     # ~ print( f"{RED}TILER_SCHEDULER_{FG3}: FATAL:  n_samples has been reduced to {CYAN}{n_samples}{RESET}{RED} ... halting{RESET}" )
                     # ~ n_samples=slides_processed
                 elif result==MISSING_IMAGE_FILE:
                   time.sleep(1)
-                  print(f"{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus};0H{BOLD_ORANGE}{CLEAR_LINE}TILER_SCHEDULER_{FG3}{my_thread}: {BB}WARNING: there was no svs file for this case! ({BOLD_CYAN}{pqn}{RESET}{BB}). Slide will be skipped. {RESET}{RESTORE_CURSOR}", flush=True)
+                  print(f"{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus};0H{BOLD_ORANGE}{CLEAR_LINE}TILER_SCHEDULER_{FG3}{my_thread}: {BB}WARNING: there was no svs file for this case! ({BOLD_CYAN}{pqn}{RESET}{BOLD}{BB}). Slide will be skipped. {RESET}{RESTORE_CURSOR}", flush=True)
                   # ~ if slides_processed<n_samples:
                     # ~ print( f"{RED}TILER_SCHEDULER_{FG3}: FATAL:  n_samples has been reduced to {CYAN}{n_samples}{RESET}{RED} ... halting{RESET}" )
                     # ~ n_samples=slides_processed
