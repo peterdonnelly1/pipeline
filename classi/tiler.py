@@ -436,7 +436,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
 \033[{start_row-1};3f{RESET}{BOLD}cpu\
 \033[{start_row-1};12f{RESET}{CLEAR_LINE}{BOLD}slide optical magnification\
 \033[{start_row-1};{start_column-52}f{RESET}mag\
-\033[{start_row-1};{start_column-42}f{RESET}         (all tiles are saved as {tile_size}x{tile_size})\
+\033[{start_row-1};{start_column-42}f{RESET}      (all tiles saved as {CYAN}TILE_SIZE{RESET}={MIKADO}{tile_size}x{tile_size}{RESET})\
 \033[{start_row-1};{start_column+6+1}f{RESET}subtype\
 \033[{start_row-1};{start_column+14+4}fneeded\
 \033[{start_row-1};{start_column+25+3}f{BRIGHT_GREEN}have{RESET}\
