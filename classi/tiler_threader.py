@@ -118,7 +118,7 @@ def tiler_threader( args, flag, count, n_samples, n_tiles, top_up_factors, tile_
     total_slides_processed = sum(results) if ( ( just_test!='True' ) | ( multimode=='image_rna' ) ) else results
     
     np.set_printoptions(formatter={'int': lambda x: "{:>5d}".format(x)})
-    print ( f"{SAVE_CURSOR}\r\033[{start_row-offset};0f{CLEAR_LINE}{RESET}TILER_THREADER: INFO: {CARRIBEAN_GREEN}total slides processed: total: {MIKADO}{total_slides_processed:3d}; per thread: {MIKADO}{results}{RESET}{RESTORE_CURSOR}", flush=True, end=""  )                  
+    print ( f"{SAVE_CURSOR}\r\033[{start_row-offset};0f{CLEAR_LINE}{RESET}TILER_THREADER: INFO: {CARRIBEAN_GREEN}total slides processed: total: {MIKADO}{total_slides_processed:3d}; per thread: {MIKADO}{np.array(results)}{RESET}{RESTORE_CURSOR}", flush=True, end=""  )                  
     # ~ time.sleep(3)
         
   return SUCCESS
