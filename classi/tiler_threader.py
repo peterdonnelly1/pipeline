@@ -71,7 +71,7 @@ def tiler_threader( args, flag, count, n_samples, n_tiles, top_up_factors, tile_
     tasks.append(task)
   else:  # train
     if DEBUG>0:
-      print ( f"TILER_THREADER: INFO: about to launch {MIKADO}{num_cpus}{RESET} tiler_scheduler threads",  flush=True       )
+      print ( f"TILER_THREADER: INFO: about to launch {MIKADO}{num_cpus}{RESET} tiler_scheduler threads{CLEAR_LINE}",  flush=True       )
     if DEBUG>20:
       print( f"TILER_THREADER: INFO: number of image samples = {CARRIBEAN_GREEN}{count}{RESET}",           flush=True       )
       print( f"TILER_THREADER: INFO: tiles per image         = {CARRIBEAN_GREEN}{n_tiles}{RESET}",         flush=True       )

@@ -25,7 +25,7 @@ from constants  import *
 DEBUG=1
 
     
-def tiler_scheduler( args, r_norm, flag, count, n_samples, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method, my_thread, num_threads ):
+def tiler_scheduler( args, r_norm, flag, slide_count, n_samples, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method, my_thread, num_threads ):
   
   num_cpus = multiprocessing.cpu_count()
 
@@ -54,36 +54,20 @@ def tiler_scheduler( args, r_norm, flag, count, n_samples, n_tiles, top_up_facto
 
   if (DEBUG>1):
     print ( f"TILER_SCHEDULER_{FG3}:         INFO:                          my_thread = {FG4}{my_thread:2d}{RESET}     ", flush=True ) 
-    print ( f"TILER_SCHEDULER_{FG3}:         INFO:                          count     = {FG4}{count:2d}{RESET}         ",     flush=True ) 
+    print ( f"TILER_SCHEDULER_{FG3}:         INFO:                          slide_count     = {FG4}{slide_count:2d}{RESET}         ",     flush=True ) 
 
   slides_processed     = 0
   dirs_which_have_flag = 0
   
 
-  my_slide_quota             = -(count//-num_cpus)                                                         # how many slides each process has to handle
-
-  if count>10:
-    my_expanded_slide_quota  = int (1. * my_slide_quota)                                                   # because some threads will be "luckier" than others in coming across slides with the correct flag
-  else:                                                                                                    # low count
-    my_expanded_slide_quota  = int (2.  * my_slide_quota)                                                  # because some threads will be "luckier" than others in coming across slides with the correct flag
-
-  if tile_size>=100:
-    my_expanded_slide_quota  = int (3.  * my_slide_quota)                                                  # the larger the file size, the fewer tiles will be avalable because of increased chance of hitting degenerate areas and background
-    
-  if just_test=='True':
-    my_expanded_slide_quota  = int (3.  * my_slide_quota)                                                  # the larger the file size, the fewer tiles will be avalable because of increased chance of hitting degenerate areas and background
-
-  if my_expanded_slide_quota<3:
-    my_expanded_slide_quota = 3
+  my_slide_quota             = -(slide_count//-num_cpus)                                                   # how many slides each process has to handle
+  my_expanded_slide_quota    = 3*my_slide_quota                                                              # because some threads will be "luckier" than others in coming across slides with the correct flag
 
   
   if DEBUG>0:
-    # ~ if (my_thread>15) & (my_thread<20):
-    if (my_thread>9):
-      print ( f"{SAVE_CURSOR}{RESET}\r\033[{start_row-7};0HTILER_SCHEDULER_thread_{PINK}{my_thread:2d}{RESET}:      INFO:  tiles/slide                    = {MIKADO}{n_tiles}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}",            flush=True ) 
-      print ( f"{SAVE_CURSOR}{RESET}\r\033[{start_row-6};0HTILER_SCHEDULER_thread_{PINK}{my_thread:2d}{RESET}:      INFO:  qualifying slides count        = {MIKADO}{count}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}",            flush=True ) 
-      print ( f"{SAVE_CURSOR}{RESET}\r\033[{start_row-5};0HTILER_SCHEDULER_thread_{PINK}{my_thread:2d}{RESET}:      INFO:  my_slide_quota                 = {MIKADO}{my_slide_quota}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}",            flush=True ) 
-      print ( f"{SAVE_CURSOR}{RESET}\r\033[{start_row-4};0HTILER_SCHEDULER_thread_{PINK}{my_thread:2d}{RESET}:      INFO:  my_expanded_slide_quota        = {MIKADO}{my_expanded_slide_quota}  {RESET}{DULL_WHITE}<< quantization introduced by threading means that some threads will be 'luckier' than others in coming across slides that belong to the required subset (e.g. 'UNIMODE_CASE') if not all slides are used{RESET}{CLEAR_LINE}{RESTORE_CURSOR}", flush=True ) 
+    print ( f"{SAVE_CURSOR}{RESET}\r\033[{start_row-7};0HTILER_SCHEDULER_thread_{PINK}{my_thread:02d}{RESET}:      INFO:  tiles/slide                    = {MIKADO}{n_tiles}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}",            flush=True ) 
+    print ( f"{SAVE_CURSOR}{RESET}\r\033[{start_row-6};0HTILER_SCHEDULER_thread_{PINK}{my_thread:02d}{RESET}:      INFO:  qualifying slides count        = {MIKADO}{slide_count}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}",            flush=True ) 
+    print ( f"{SAVE_CURSOR}{RESET}\r\033[{start_row-5};0HTILER_SCHEDULER_thread_{PINK}{my_thread:02d}{RESET}:      INFO:  thread's slide quote           = {MIKADO}{my_slide_quota}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}",            flush=True ) 
   
   for root, dirs, files in walker:                                                                         # go through all the directories, but only tackle every my_thread'th directory
     
@@ -170,7 +154,7 @@ def tiler_scheduler( args, r_norm, flag, count, n_samples, n_tiles, top_up_facto
                       print ( f"{SAVE_CURSOR}\033[{start_row-2};272H{RESET}{CARRIBEAN_GREEN}{slides_processed:3d} slide{s if slides_processed>1 else ' '} done (quota {my_slide_quota}){RESET}{CLEAR_LINE}{RESTORE_CURSOR}", flush=True ) 
                   else:
                     if DEBUG>0:
-                      print ( f"{SAVE_CURSOR}\033[{start_row+my_thread};292H{RESET}{CARRIBEAN_GREEN}{slides_processed} slide{s if slides_processed>1 else ' '} done (quota {my_slide_quota}){RESET}{CLEAR_LINE}{RESTORE_CURSOR}S", flush=True )                           
+                      print ( f"{SAVE_CURSOR}\033[{start_row+my_thread};292H{RESET}{CARRIBEAN_GREEN}{slides_processed:3d} slide{s if slides_processed>1 else ' '} done (quota {my_slide_quota}){RESET}{CLEAR_LINE}{RESTORE_CURSOR}S", flush=True )                           
                   if slides_processed>=my_expanded_slide_quota:
                     break              
                 elif result==INSUFFICIENT_TILES:

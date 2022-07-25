@@ -174,7 +174,8 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
       if top_up_factors[subtype]==1.:                                                                      # no need to adjust n_tiles for the subtype which has the largest number of images
         pass
       else:
-        n_tiles = int(top_up_factors[subtype] * n_tiles)+1
+        # ~ n_tiles = int(top_up_factors[subtype] * n_tiles)+1
+        n_tiles = int(top_up_factors[subtype] * n_tiles)
   
       if DEBUG>0:
         print ( f"\033[{start_row-8};0f{BOLD}{ASPARAGUS}TILER:                          INFO:   adjusted value of n_tiles     = {CYAN}{n_tiles}{RESET}                                                                                       ",  end="" )
@@ -431,8 +432,8 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
                 print  (f"\
       {WHITE}\
 \033[{start_row-3};0f{RESET}{CLEAR_LINE}\
-\033[{start_row-2};0f{RESET}{CLEAR_LINE}                                                                     --------- tile dims being extracted ----------                        -------------------------------------------------------- tiling stats for current image file -----------------------------------------------------\
-\033[{start_row-2};{start_column+180}f{WHITE}overall progress{RESET}\
+\033[{start_row-2};0f{RESET}{CLEAR_LINE}                                                                     --------- tile dims being extracted ----------   -------------------------------------------------------------------- tiling stats for current image file -------------------------------------------------------------\
+\033[{start_row-2};{start_column+182}f{WHITE}overall progress{RESET}\
 \033[{start_row-1};3f{RESET}{BOLD}cpu\
 \033[{start_row-1};12f{RESET}{CLEAR_LINE}{BOLD}slide optical magnification\
 \033[{start_row-1};{start_column-52}f{RESET}mag\
@@ -703,14 +704,14 @@ def check_background( args, tile ):
   
   sample       = [  np_tile_grey[randint(0,np_tile_grey.shape[0]-1), randint(0,np_tile_grey.shape[0]-1)] for x in range(0, args.points_to_sample) ]
   sample_mean  = np.mean(sample)
-  sample_sd    = np.std (sample)
+  candidate_tile_sd    = np.std (sample)
   sample_t     = ttest_1samp(sample, popmean=sample_mean)
 
   IsBackground=False
-  if sample_sd<args.min_tile_sd:
+  if candidate_tile_sd<args.min_tile_sd:
     IsBackground=True
     if (DEBUG>0):
-      print ( f"\033[{start_row-14};0f{RESET}{RED}TILER:                          INFO:   background:   {CYAN}sample_sd       =  {RESET}{BITTER_SWEET}{RESET}{MIKADO}{sample_sd:>4.2f}{RESET}{DIM_WHITE} which is less than allowed user value for {CYAN}args.min_tile_sd{BITTER_SWEET} ({MIKADO}{args.min_tile_sd:>4.2f}{BITTER_SWEET}){RESET}            ",  end="" )
+      print ( f"\033[{start_row-14};0f{RESET}{RED}TILER:                          INFO:   background   filter: {CYAN}candidate_tile_sd \r\033[88C=  {RESET}{BITTER_SWEET}{RESET}{MIKADO}{candidate_tile_sd:>4.2f}{RESET}{DIM_WHITE} which is less than user provided {CYAN}MINIMUM_TILE_SD                    ({BOLD_MIKADO}{args.min_tile_sd:>4.2f}{CYAN})    {DULL_WHITE}(user provided {CYAN}POINTS_TO_SAMPLE = {MIKADO}{args.points_to_sample}{DULL_WHITE}){RESET}",  end="" )
   else:
     if (DEBUG>44):
       print ( f"TILER:            INFO: highest_uniques(): {BRIGHT_GREEN}No, it's not background tile{RESET}", flush=True )
@@ -723,19 +724,19 @@ def check_contrast( args, tile ):
 
   # check greyscale range, as a proxy for useful information content
   tile_grey         = tile.convert('L')                                                                    # make a greyscale copy of the image
-  greyscale_range   = np.max(np.array(tile_grey)) - np.min(np.array(tile_grey))                            # calculate the range of the greyscale copy
-  GreyscaleRangeOk  = greyscale_range>args.greyness
+  candidate_greyscale_range   = np.max(np.array(tile_grey)) - np.min(np.array(tile_grey))                            # calculate the range of the greyscale copy
+  GreyscaleRangeOk  = candidate_greyscale_range>args.greyness
   GreyscaleRangeBad = not GreyscaleRangeOk
 
   if DEBUG>44:
     print ( f"TILER:            check_contrast()                   greyscale max   = {CAMEL}{  np.max(np.array(tile_grey)) }{RESET}"      )
     print ( f"TILER:            check_contrast()                   greyscale min   = {CAMEL}{  np.min(np.array(tile_grey)) }{RESET}"      )
-    print ( f"TILER:            check_contrast()                                                                    greyscale range = { RED if GreyscaleRangeBad else BRIGHT_GREEN}{greyscale_range}{RESET}"  )
+    print ( f"TILER:            check_contrast()                                                                    greyscale range = { RED if GreyscaleRangeBad else BRIGHT_GREEN}{candidate_greyscale_range}{RESET}"  )
     time.sleep(1)
     
   if GreyscaleRangeBad:
     if (DEBUG>0):
-      print ( f"\033[{start_row-16};0f{RESET}{RED}TILER:                          INFO:   low contrast: {CYAN}greyscale_range ={RESET}{BITTER_SWEET}{RESET}{MIKADO}{greyscale_range:>6d}{RESET}{DIM_WHITE} which is less than allowed user value for {CYAN}args.greyness {BITTER_SWEET}   ({MIKADO}{args.greyness:>4d}{BITTER_SWEET}){RESET}            ",  end="" )
+      print ( f"\033[{start_row-16};0f{RESET}{RED}TILER:                          INFO:   low contrast filter: {CYAN}candidate_greyscale_range  \r\033[88C={RESET}{BITTER_SWEET}{RESET}{MIKADO}{candidate_greyscale_range:>6d}{RESET}{DIM_WHITE} which is less than user provided {CYAN}MINIMUM_PERMITTED_GREYSCALE_RANGE  ({BOLD_MIKADO}{args.greyness:>4d}{CYAN}){RESET}            ",  end="" )
 
       
   return GreyscaleRangeBad
@@ -744,18 +745,18 @@ def check_contrast( args, tile ):
 def check_degeneracy( args, tile ):
 
   # check number of unique values in the image, which we will use as a proxy to discover degenerate (articial) images
-  unique_values = len(np.unique(tile )) 
+  candidate_unique_values = len(np.unique(tile )) 
 
-  IsDegenerate = unique_values<args.min_uniques
+  IsDegenerate = candidate_unique_values<args.min_uniques
 
   if DEBUG>44:
-    print ( f"\n{RESET}{CLEAR_LINE}TILER:            check_degeneracy()  unique_values = {RED if IsDegenerate else BRIGHT_GREEN}{unique_values}{RESET}"      )
+    print ( f"\n{RESET}{CLEAR_LINE}TILER:            check_degeneracy()  candidate_unique_values = {RED if IsDegenerate else BRIGHT_GREEN}{candidate_unique_values}{RESET}"      )
     time.sleep(1)
     
     
   if IsDegenerate:
     if (DEBUG>0):
-      print ( f"\033[{start_row-15};0f{RESET}{RED}TILER:                          INFO:   degeneracy:   {CYAN}unique_values   = {RESET}{BITTER_SWEET}{RESET}{MIKADO}{unique_values:>5d}{RESET}{DIM_WHITE} which is less than allowed user value for {CYAN}args.min_uniques{BITTER_SWEET} ({MIKADO}{args.min_uniques:4d}{BITTER_SWEET}){RESET}            ",  end="" )
+      print ( f"\033[{start_row-15};0f{RESET}{RED}TILER:                          INFO:   degeneracy   filter: {CYAN}candidate_unique_values   \r\033[88C= {RESET}{BITTER_SWEET}{RESET}{MIKADO}{candidate_unique_values:>5d}{RESET}{DIM_WHITE} which is less than user provided {CYAN}MINIMUM_PERMITTED_UNIQUE_VALUES    ({BOLD_MIKADO}{args.min_uniques:4d}{CYAN}){RESET}            ",  end="" )
       
   return IsDegenerate
   

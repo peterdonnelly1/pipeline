@@ -109,7 +109,7 @@ def main(args):
   
     if (DEBUG>0):
       if cases_reviewed_count % 50==0:
-        print ( f"PROCESS_CLASSES:        INFO: {MIKADO}{cases_reviewed_count}{RESET} cases listed; class (subtype) labels allocated to {MIKADO}{cases_processed_count}{RESET} cases in the working dataset directory accordingly {RESET}",  flush=True )
+        print ( f"PROCESS_CLASSES:        INFO: {MIKADO}{cases_reviewed_count}{RESET} cases listed; class (subtype) labels allocated to {MIKADO}{cases_processed_count}{RESET} cases in the working dataset directory accordingly {RESET}{DULL_WHITE} << this includes cases which have images only, cases which have RNA-Seq data only, and cases which have both image and RNA-Seq data",  flush=True )
         print ( "\033[2A",  flush=True )
 
   if (DEBUG>0):                                                                                            # this will show the final count

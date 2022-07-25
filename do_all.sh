@@ -44,10 +44,10 @@ JUST_PROFILE="False"                                                            
 DDP="False"                                                                                                # PRE_COMPRESS mode only: if "True", use PyTorch 'Distributed Data Parallel' to make use of multiple GPUs. (Works on single GPU machines, but is of no benefit and has additional overhead, so should be disabled)
 
 
-MINIMUM_PERMITTED_GREYSCALE_RANGE=170                                                                      # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
-MINIMUM_PERMITTED_UNIQUE_VALUES=170                                                                      # tile must have at least this many unique values or it will be assumed to be degenerate
-MIN_TILE_SD=1.9                                                                                              # Used to cull slides with a very reduced greyscale palette such as background tiles
-POINTS_TO_SAMPLE=500                                                                                       # Used for determining/culling background tiles via 'min_tile_sd', how many points to sample on a tile when making determination if it is mostly background
+MINIMUM_PERMITTED_GREYSCALE_RANGE=200                                                                      # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
+MINIMUM_PERMITTED_UNIQUE_VALUES=200                                                                      # tile must have at least this many unique values or it will be assumed to be degenerate
+MINIMUM_TILE_SD=2.0                                                                                              # Used to cull slides with a very reduced greyscale palette such as background tiles
+POINTS_TO_SAMPLE=250                                                                                       # Used for determining/culling background tiles via 'min_tile_sd', how many points to sample on a tile when making determination if it is mostly background
 MOMENTUM=0.8                                                                                               # for use with t-sne, if desired
 BAR_CHART_X_LABELS="case_id"                                                                               # if "case_id" use the case id as the x-axis label for bar charts, otherwise use integer sequence
 BAR_CHART_SORT_HI_LO="False"                                                                               # Some less important bar charts will be suppressed if it is set to 'False'
@@ -435,7 +435,7 @@ CUDA_LAUNCH_BLOCKING=1 python ${MAIN_APPLICATION_NAME} \
 --n_epochs ${N_EPOCHS} --n_iterations ${N_ITERATIONS} --batch_size ${BATCH_SIZE} --learning_rate ${LEARNING_RATE} \
 --latent_dim ${LATENT_DIM} --max_consecutive_losses ${MAX_CONSECUTIVE_LOSSES} --min_uniques ${MINIMUM_PERMITTED_UNIQUE_VALUES} \
 --greyness ${MINIMUM_PERMITTED_GREYSCALE_RANGE} --make_grey_perunit ${MAKE_GREY_PCT}  --peer_noise_perunit ${PEER_NOISE_PCT} --label_swap_pct ${LABEL_SWAP_PCT} \
---target_tile_offset ${TARGET_TILE_OFFSET} --stain_norm ${STAIN_NORMALIZATION} --stain_norm_target ${STAIN_NORM_TARGET} --min_tile_sd ${MIN_TILE_SD}  --points_to_sample ${POINTS_TO_SAMPLE} \
+--target_tile_offset ${TARGET_TILE_OFFSET} --stain_norm ${STAIN_NORMALIZATION} --stain_norm_target ${STAIN_NORM_TARGET} --min_tile_sd ${MINIMUM_TILE_SD}  --points_to_sample ${POINTS_TO_SAMPLE} \
 --show_rows ${SHOW_ROWS} --show_cols ${SHOW_COLS} --figure_width ${FIGURE_WIDTH} --figure_height ${FIGURE_HEIGHT} --annotated_tiles ${ANNOTATED_TILES} --supergrid_size ${SUPERGRID_SIZE} \
 --patch_points_to_sample ${PATCH_POINTS_TO_SAMPLE} --scattergram ${SCATTERGRAM} --box_plot ${BOX_PLOT} --box_plot_show ${BOX_PLOT_SHOW} --minimum_job_size ${MINIMUM_JOB_SIZE} --show_patch_images ${SHOW_PATCH_IMAGES} \
 --bar_chart_x_labels=${BAR_CHART_X_LABELS} --bar_chart_sort_hi_lo=${BAR_CHART_SORT_HI_LO}  --bar_chart_show_all=${BAR_CHART_SHOW_ALL} \
