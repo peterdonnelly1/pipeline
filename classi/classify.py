@@ -348,7 +348,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       sys.exit(0)
     if any(i >= 0.9 for i in pct_test):
       print ( f"{BOLD}{ORANGE}CLASSI:         WARNG: in training mode, and {CYAN}pct_test={MIKADO}{pct_test}{RESET}{BOLD}{ORANGE}. One of more of these values are greater than or equal to 0.9 which seems unusual.{RESET}",        flush=True  )                                        
-      print ( f"{BOLD}{ORANGE}CLASSI:         WARNG: proceeding, but be aware that for such values, fewer than 10% of the examples will be used for training{RESET}",             flush=True  )
+      print ( f"{BOLD}{ORANGE}CLASSI:         WARNG: proceeding, but be aware that for these values, fewer than 10% of the examples will be used for training{RESET}",             flush=True  )
       time.sleep(5)       
   
   we_are_autoencoding=False
@@ -466,7 +466,7 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
         print ( f"{BOLD}{ORANGE}CLASSI:         WARNG:          consider using the the {CYAN}-r {RESET}{BOLD}{ORANGE}option ('{CYAN}REGEN{RESET}{BOLD}{ORANGE}') to force the dataset to be regenerated{RESET}" )
         print ( f"{BOLD}{ORANGE}CLASSI:         WARNG:          e.g. '{CYAN}./do_all.sh -d <cancer type code> -i image ... {CHARTREUSE}-r True{RESET}{BOLD}{ORANGE}'{RESET}" )
         print ( f"{BOLD}{ORANGE}CLASSI:         WARNG: ... continuing, but it's kind of pointless{RESET}\n\n\n" )
-        time.sleep(10)                           
+        time.sleep(5)                           
 
 
       if just_test != True:
@@ -543,12 +543,12 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
     print( f"{BOLD_RED}CLASSI:         INFO:  pct_test = {MIKADO}{pct_test}{BOLD_RED}. At least one of these is less than 0.05 (5%){RESET}{BOLD_RED}'. This is such a low percentage for hold out testing that it might be unintended.{RESET}", flush=True)
     print( f"{BOLD_RED}CLASSI:         INFO:    further information: correct if necessary by changing the percent test option: Bash long form: {BOLD_CYAN}PCT_TEST{BOLD_RED}; Bash short form '{CYAN}-1'{BOLD_ORANGE}; python {BOLD_CYAN}--pct_test{RESET}", flush=True)
     print( f"{BOLD_RED}CLASSI:         INFO:    not halting ... resuming in 7 seconds", flush=True)
-    time.sleep(7)
+    time.sleep(5)
   elif  any(el<0.1 for el in pct_test):
     print( f"{BOLD_ORANGE}CLASSI:         INFO:  pct_tests) = {MIKADO}{pct_test}{BOLD_ORANGE}. At least one of these is less than 0.1 (10%){RESET}{BOLD_ORANGE}'. Is this intended?{RESET}", flush=True)
     print( f"{BOLD_ORANGE}CLASSI:         INFO:    further information: correct if necessary by changing the percent test option: Bash long form: BOLD_CYANPCT_TEST{BOLD_ORANGE}; Bash short form '{CYAN}-1'{BOLD_ORANGE}; python {BOLD_CYAN}--pct_test{RESET}", flush=True)
     print( f"{BOLD_ORANGE}CLASSI:         INFO:    not halting ... resuming in 7 seconds", flush=True)
-    time.sleep(7)
+    time.sleep(5)
 
   if DEBUG>1:
     if  0 in highest_class_number:
@@ -941,8 +941,6 @@ f"\
         multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count =  \
                     segment_cases( args, n_classes, class_names, n_tiles, pct_test )  # boils down to setting flags in the directories of certain cases, esp. 'MULTIMODE_CASE_FLAG'
 
-        time.sleep(3)
-
       else:
         print( f"{RED}CLASSI:         FATAL: user option  {CYAN}-v ('args.cases'){RESET}{RED} is not allowed in test mode ({CYAN}JUST_TEST=True{RESET}, {CYAN}--just_test 'True'{RESET}){RED}{RESET}" )
         print( f"{RED}CLASSI:         FATAL: explanation:  it will resegment the cases, meaning there is every chance cases you've trained on will end up in the test set{RESET}" )
@@ -1005,12 +1003,14 @@ f"\
       print( f"{RED}CLASSI:         FATAL:    ... cannot continue, halting now{RESET}" )
       sys.exit(0)
 
+    balanced     ="BALANCED"
+    not_balanced ="NOTBLNCD"
     if input_mode=='image':
-      descriptor = f"_{run+1:02d}_OF_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.lower():_<9s}_{args.cases[0:20]:_<20s}_{nn_type_img:_<15s}_{stain_norm:_<4s}_{nn_optimizer:_<8s}_e_{args.n_epochs:03d}_N_{n_samples:04d}\
-_hi_{n_classes:02d}_bat_{batch_size:03d}_test_{int(100*pct_test):03d}_lr_{lr:09.6f}_tiles_{n_tiles:04d}_tlsz_{tile_size:03d}__mag_{mags}__prob_{prob:_<20s}"
+      descriptor = f"_{run+1:02d}_OF_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.lower():_<9s}_{balanced if make_balanced=='True' else not_balanced}_{args.cases[0:20]:_<20s}_{nn_type_img:_<15s}_{stain_norm:_<4s}_{nn_optimizer:_<8s}_e_{args.n_epochs:03d}_N_{n_samples:04d}\
+_hi_{n_classes:02d}_bat_{batch_size:03d}_test_{int(100*pct_test):03d}_lr_{lr:09.6f}_tiles_{n_tiles:04d}_tlsz_{tile_size:04d}__mag_{mags}__prob_{prob:_<20s}"
       descriptor = descriptor[0:200]
 
-      descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}  Tiles/Slide={n_tiles:d}   Tile size={tile_size:d}x{tile_size:d}\n\
+      descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}  Tiles/Slide={n_tiles:d}   Tile size={tile_size}x{tile_size}\n\
 Magnif'n vector={mags}   Stain Norm={stain_norm}   Peer Noise Pct={peer_noise_pct}   Grey Scale Pct={make_grey_pct}   Batch Size={batch_size:d}   Held Out={int(100*pct_test):03d}%   Learning Rate={lr:<09.6f}   Selected from cases subset: {args.cases[0:50]}"
 
       descriptor_clustering = f'{args.dataset.upper()}_HighClass_{highest_class_number:d}_Encoder_{nn_type_img}_e_{args.n_epochs:d}_tiles_{n_tiles:d}_tsz_{tile_size:d}x{tile_size:d}_\
@@ -1182,15 +1182,15 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
             print( f"CLASSI:         INFO: {BOLD}1  first or only run in job - will perform tiling{RESET}" )  
             pass
           else:
-            print( f"\033[70;0HCLASSI:         INFO: {BOLD}2  will re-tile, for the following reason(s):{RESET}" )            
+            print( f"\033[79;0HCLASSI:         INFO: {BOLD}2  will re-tile, for the following reason(s):{RESET}" )            
             if n_tiles>n_tiles_last:
-              print( f"\033[71;0HCLASSI:         INFO:           -- value of n_tiles    ({MIKADO}{n_tiles}{RESET})        \r\033[60Chas increased since last run (was {MIKADO}{n_tiles_last}){RESET}" )
+              print( f"CLASSI:         INFO:           -- value of n_tiles    ({MIKADO}{n_tiles}{RESET})        \r\033[60Chas increased since last run (was {MIKADO}{n_tiles_last}){RESET}" )
             if ( (n_samples!=0) & (n_samples>n_samples_last)):
-              print( f"\033[72;0HCLASSI:         INFO:           -- value of n_samples  ({MIKADO}{n_samples_last}{RESET}) \r\033[60Chas increased since last run (was {MIKADO}{n_samples_last}){RESET}")
+              print( f"CLASSI:         INFO:           -- value of n_samples  ({MIKADO}{n_samples_last}{RESET}) \r\033[60Chas increased since last run (was {MIKADO}{n_samples_last}){RESET}")
             if tile_size_last!=tile_size:
-              print( f"\033[73;0HCLASSI:         INFO:           -- value of tile_size  ({MIKADO}{tile_size}{RESET})      \r\033[60Chas changed   since last run (was {MIKADO}{tile_size_last}){RESET}")
+              print( f"CLASSI:         INFO:           -- value of tile_size  ({MIKADO}{tile_size}{RESET})      \r\033[60Chas changed   since last run (was {MIKADO}{tile_size_last}){RESET}")
             if stain_norm!=last_stain_norm:
-              print( f"\033[74;0HCLASSI:         INFO:           -- value of stain_norm ({MIKADO}{stain_norm}{RESET})     \r\033[60Chas changed   since last run (was {MIKADO}{last_stain_norm}){RESET}")
+              print( f"CLASSI:         INFO:           -- value of stain_norm ({MIKADO}{stain_norm}{RESET})     \r\033[60Chas changed   since last run (was {MIKADO}{last_stain_norm}){RESET}")
 
           delete_selected( data_dir, "png" )
           last_stain_norm=stain_norm
@@ -1288,7 +1288,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
               flag  = 'UNIMODE_CASE____IMAGE'
               total_slides_counted_train, total_tiles_required_train, top_up_factors_train  = determine_top_up_factors ( args, n_classes, class_names, n_tiles, flag )
 
-              if DEBUG>0:
+              if DEBUG>1:
                 np.set_printoptions(formatter={'float': lambda x: "{:>.2f}".format(x)})
                 print( f"\r{WHITE}CLASSI:         INFO: about to call {MAGENTA}tiler_threader{RESET}: flag={CYAN}{flag}{RESET}; train_count={MIKADO}{total_slides_counted_train:3d}{RESET}; top_up_factors_train  = {MIKADO}{top_up_factors_train}{RESET}; %_test={MIKADO}{pct_test:2.2f}{RESET}; n_samples={MIKADO}{n_samples_max:3d}{RESET}; n_tiles={MIKADO}{n_tiles_max}{RESET}", flush=True )
 
@@ -1297,14 +1297,11 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
               flag  = 'UNIMODE_CASE____IMAGE_TEST'
               total_slides_counted_test, total_tiles_required_test, top_up_factors_test  = determine_top_up_factors ( args, n_classes, class_names, n_tiles, flag )
 
-              if DEBUG>0:
+              if DEBUG>1:
                 np.set_printoptions(formatter={'float': lambda x: "{:>.2f}".format(x)})
                 print( f"\r{WHITE}CLASSI:         INFO: about to call {MAGENTA}tiler_threader{RESET}: flag={BLEU}{flag}{RESET}; test_count={PINK}{total_slides_counted_test:3d}{RESET}; top_up_factors_test  = {PINK}{top_up_factors_test}{RESET}; %_test={PINK}{pct_test:2.2f}{RESET}; n_samples={PINK}{n_samples_max:3d}{RESET}; n_tiles={PINK}{n_tiles_max}{RESET}", flush=True )
               slides_tiled_count = tiler_threader( args, flag, total_slides_counted_test, n_samples, n_tiles_max, top_up_factors_train, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
               
-
-          print ( f"{RESTORE_CURSOR}" )
-
 
           if just_profile=='True':                                                                         # then we are all done
             sys.exit(0)
@@ -1325,18 +1322,16 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
           print( f"CLASSI:         INFO: {BOLD}2  first or only run in job  - will generate torch '.pt' file from files{RESET}" )  
           pass
         else:
-          print( f"\033[70;0HCLASSI:         INFO: {BOLD}2  will regenerate torch '.pt' file from files, for the following reason(s):{RESET}" )            
+          print( f"CLASSI:         INFO: {BOLD}2  will regenerate torch '.pt' file from files, for the following reason(s):{RESET}" )            
           if n_tiles>n_tiles_last:
-            print( f"\033[71;0HCLASSI:         INFO:           -- value of n_tiles    ({MIKADO}{n_tiles}{RESET})        \r\033[60Chas increased since last run (was {MIKADO}{n_tiles_last}){RESET}" )
+            print( f"CLASSI:         INFO:           -- value of n_tiles    ({MIKADO}{n_tiles}{RESET})        \r\033[60Chas increased since last run (was {MIKADO}{n_tiles_last}){RESET}" )
           if ( (n_samples!=0) & (n_samples>n_samples_last)):
-            print( f"\033[72;0HCLASSI:         INFO:           -- value of n_samples  ({MIKADO}{n_samples_last}{RESET}) \r\033[60Chas increased since last run (was {MIKADO}{n_samples_last}){RESET}")
+            print( f"CLASSI:         INFO:           -- value of n_samples  ({MIKADO}{n_samples_last}{RESET}) \r\033[60Chas increased since last run (was {MIKADO}{n_samples_last}){RESET}")
           if not tile_size_last==tile_size:
-            print( f"\033[73;0HCLASSI:         INFO:           -- value of tile_size  ({MIKADO}{tile_size}{RESET})      \r\033[60Chas changed   since last run (was {MIKADO}{tile_size_last}){RESET}")
+            print( f"CLASSI:         INFO:           -- value of tile_size  ({MIKADO}{tile_size}{RESET})      \r\033[60Chas changed   since last run (was {MIKADO}{tile_size_last}){RESET}")
           if not stain_norm==last_stain_norm:
-            print( f"\033[73;0HCLASSI:         INFO:           -- value of stain_norm ({MIKADO}{stain_norm}{RESET})     \r\033[60Chas changed   since last run (was {MIKADO}{last_stain_norm}){RESET}")
+            print( f"CLASSI:         INFO:           -- value of stain_norm ({MIKADO}{stain_norm}{RESET})     \r\033[60Chas changed   since last run (was {MIKADO}{last_stain_norm}){RESET}")
 
-          # ~ time.sleep(5)
-       
         if DEBUG>8:
           print( f"CLASSI:         INFO: n_samples               = {MAGENTA}{n_samples}{RESET}",        flush=True  )
           print( f"CLASSI:         INFO: args.n_samples          = {MAGENTA}{args.n_samples}{RESET}",   flush=True  )
@@ -3269,7 +3264,6 @@ def train( args, epoch, train_loader, model, optimizer, loss_function, loss_type
           
           if DEBUG>2:
             print ( f"CLASSI:         INFO:      test: {MAGENTA}loss_images{RESET} (for this mini-batch)  = {PURPLE}{loss_images_value:6.3f}{RESET}" )
-            # ~ time.sleep(.25)
         
         if (args.input_mode=='rna') | (args.input_mode=='image_rna'):
           if DEBUG>9:
@@ -4062,7 +4056,7 @@ def determine_top_up_factors ( args, n_classes, class_names, n_tiles, case_desig
       print( f"\033[{row+3};{col}f{CLEAR_LINE}{leader}total slides counted         = {colour}{np.sum(class_counts)}{RESET}",                       flush=True  )
   
     if np.any( class_counts < 1):
-        print ( f"{BOLD}{RED}\033[90;0HCLASSI:       FATAL: one of the subtypes has no examples{CLEAR_LINE}",                                                                                                                              flush=True  )                                        
+        print ( f"{BOLD}{RED}\033[75;0HCLASSI:       FATAL: one of the subtypes has no examples{CLEAR_LINE}",                                                                                                                              flush=True  )                                        
         print ( f"{BOLD}{RED}CLASSI:       FATAL: {CYAN}class_counts{RESET}{BOLD}{RED} are {MIKADO}{class_counts}{BOLD}{RED} for class names (subtypes) {MIKADO}{class_names}{BOLD}{RED} respectively{RESET}{CLEAR_LINE}",                 flush=True  )                                        
         print ( f"{BOLD}{RED}CLASSI:       FATAL: possible remedy (i):  it could be that all cases were allocated to just the training or just the test set. Re-run the experiment with option {CYAN}-v {RESET}{BOLD}{RED} set to {CYAN}True{RESET}{BOLD}{RED} to have cases re-divided and flagged{RESET}{CLEAR_LINE}",       flush=True  )                                        
         print ( f"{BOLD}{RED}CLASSI:       FATAL: possible remedy (ii): if al else failes, remove any class or classes that has only a tiny number of examples from the applicable master spreadsheet",                                    flush=True  )                                        
@@ -4489,7 +4483,7 @@ def segment_cases( args, n_classes, class_names, n_tiles, pct_test ):
                 else:
                   class_counts[label[0]]+=1
                   
-                if DEBUG>0:
+                if DEBUG>2:
                   np.set_printoptions(formatter={'int': lambda x: "{:>6d}".format(x)}) 
                   print( f"\033[61;200H{BOLD}{BB}  CLASSI:         INFO: class_counts                         = {CARRIBEAN_GREEN}{class_counts}{RESET}{CLEAR_LINE}", flush=True  )
   

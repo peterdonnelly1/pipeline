@@ -431,7 +431,6 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
             if DEBUG>0:
                 print  (f"\
       {WHITE}\
-\033[{start_row-3};0f{RESET}{CLEAR_LINE}\
 \033[{start_row-2};0f{RESET}{CLEAR_LINE}                                                                     --------- tile dims being extracted ----------   -------------------------------------------------------------------- tiling stats for current image file -------------------------------------------------------------\
 \033[{start_row-2};{start_column+182}f{WHITE}overall progress{RESET}\
 \033[{start_row-1};3f{RESET}{BOLD}cpu\
@@ -934,7 +933,6 @@ end='', flush=True )
       print( f'{SAVE_CURSOR}\033[10;0H{RESET}TILER:          INFO: \
 multiplier for current tile (selected randomly from {MIKADO}{zoom_out_mags}{RESET}) = {CLEAR_LINE}{BOLD}\033[{int(10*multiplier)}C{BOLD}{CHARTREUSE if multiplier <1 else PINK if multiplier <1.9 else ASPARAGUS if multiplier <3 else CAMEL if multiplier <4  else ORANGE if multiplier <5 else AZURE if multiplier <6 else BRIGHT_GREEN}{multiplier}{RESET}{RESTORE_CURSOR}', 
 end='', flush=True )
-    
     
   return multiplier
 

@@ -34,7 +34,7 @@ BB=f"\033[38;2;{a};{b};{c}m"
   
 def tiler_threader( args, flag, count, n_samples, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method ):
 
-  print ( f"{SAVE_CURSOR}\033[30;0H\033[0J{RESTORE_CURSOR}", end='', flush=True )
+  # ~ print ( f"{SAVE_CURSOR}\033[30;0H\033[0J{RESTORE_CURSOR}", end='', flush=True )
   
   zoom_out_prob = args.zoom_out_prob
   
@@ -111,18 +111,20 @@ def tiler_threader( args, flag, count, n_samples, n_tiles, top_up_factors, tile_
 
   if DEBUG>0:
     if flag == 'UNIMODE_CASE____IMAGE':
-      offset=22
+      offset=4
     else:
-      offset=21
+      offset=3
     
     total_slides_processed = sum(results) if ( ( just_test!='True' ) | ( multimode=='image_rna' ) ) else results
     
     np.set_printoptions(formatter={'int': lambda x: "{:>5d}".format(x)})
-    print ( f"{SAVE_CURSOR}\r\033[{start_row-offset};0f{CLEAR_LINE}{RESET}TILER_THREADER: INFO: {CARRIBEAN_GREEN}total slides processed: total: {MIKADO}{total_slides_processed:3d}; per thread: {MIKADO}{np.array(results)}{RESET}{RESTORE_CURSOR}", flush=True, end=""  )                  
-    # ~ time.sleep(3)
+    print ( f"{SAVE_CURSOR}\r\033[{start_row-offset};0f{CLEAR_LINE}{RESET}TILER_THREADER: INFO: {CYAN}{flag} \r\033[50Ctotal slides processed: total: {MIKADO}{total_slides_processed:3d}; per thread: {MIKADO}{np.array(results)}{RESET}{RESTORE_CURSOR}", flush=True, end=""  )                  
+    time.sleep(1)
+    
+  
+  print (f"\033[{start_row+num_cpus+4};0H", end='' )
         
   return SUCCESS
-
 
 
 
