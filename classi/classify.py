@@ -570,10 +570,10 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
     # ~ args.zoom_out_prob[0]=1.
     # ~ zoom_out_prob[0]=1.
 
-  if math.fsum(args.zoom_out_prob) != 1.0:
-   print( f"\r{RESET}{BOLD}{RED}CLASSI:         FATAL: probabilities in configuration vector '{CYAN}zoom_out_prob{RESET}{BOLD}{RED}' add up to more than {MIKADO}1.0{RESET}{BOLD}{RED} (FYI they add up to {MIKADO}{sum(args.zoom_out_prob)}{RESET}{BOLD}{RED})", flush=True)
-   print( f"\r{RESET}{BOLD}{RED}CLASSI:         FATAL: can't continue ... halting now{RESET}" )   
-   sys.exit(0)
+  # ~ if math.fsum(args.zoom_out_prob) != 1.0:
+   # ~ print( f"\r{RESET}{BOLD}{RED}CLASSI:         FATAL: probabilities in configuration vector '{CYAN}zoom_out_prob{RESET}{BOLD}{RED}' add up to more than {MIKADO}1.0{RESET}{BOLD}{RED} (FYI they add up to {MIKADO}{sum(args.zoom_out_prob)}{RESET}{BOLD}{RED})", flush=True)
+   # ~ print( f"\r{RESET}{BOLD}{RED}CLASSI:         FATAL: can't continue ... halting now{RESET}" )   
+   # ~ sys.exit(0)
    
    
      
