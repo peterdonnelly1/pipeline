@@ -44,10 +44,10 @@ JUST_PROFILE="False"                                                            
 DDP="False"                                                                                                # PRE_COMPRESS mode only: if "True", use PyTorch 'Distributed Data Parallel' to make use of multiple GPUs. (Works on single GPU machines, but is of no benefit and has additional overhead, so should be disabled)
 
 
-MINIMUM_PERMITTED_GREYSCALE_RANGE=2                                                                      # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
-MINIMUM_PERMITTED_UNIQUE_VALUES=2                                                                      # tile must have at least this many unique values or it will be assumed to be degenerate
-MINIMUM_TILE_SD=.1                                                                                              # Used to cull slides with a very reduced greyscale palette such as background tiles
-POINTS_TO_SAMPLE=2                                                                                       # Used for determining/culling background tiles via 'min_tile_sd', how many points to sample on a tile when making determination if it is mostly background
+MINIMUM_PERMITTED_GREYSCALE_RANGE=210                                                                      # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
+MINIMUM_PERMITTED_UNIQUE_VALUES=210                                                                      # tile must have at least this many unique values or it will be assumed to be degenerate
+MINIMUM_TILE_SD=2.1                                                                                              # Used to cull slides with a very reduced greyscale palette such as background tiles
+POINTS_TO_SAMPLE=500                                                                                        # Used for determining/culling background tiles via 'min_tile_sd', how many points to sample on a tile when making determination if it is mostly background
 MOMENTUM=0.8                                                                                               # for use with t-sne, if desired
 BAR_CHART_X_LABELS="case_id"                                                                               # if "case_id" use the case id as the x-axis label for bar charts, otherwise use integer sequence
 BAR_CHART_SORT_HI_LO="False"                                                                               # Some less important bar charts will be suppressed if it is set to 'False'
@@ -64,7 +64,7 @@ MAX_CONSECUTIVE_LOSSES=3                                                        
 #~ ZOOM_OUT_PROB="0.1  0.2 0.55 0.1 0.05"                                                                  # image only. Chosen for magnification according to these probabilities, which must add up to 1
 
 ZOOM_OUT_MAGS=1                                                                                            # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_PROB
-ZOOM_OUT_PROB=1        
+#~ ZOOM_OUT_PROB=0                                                                                         # image only. ZOOM_OUT_PROB=0 will instruct the system to generate random tile extraction magnificatins
 
 COLOUR_MAP="tab20"                                                                                         # see 'https://matplotlib.org/3.3.3/tutorials/colors/colormaps.html' for allowed COLOUR_MAPs (Pastel1', 'Pastel2', 'Accent', 'Dark2' etc.)
 #~ COLOUR_MAP="tab40"                                                                                      # see 'https://matplotlib.org/3.3.3/tutorials/colors/colormaps.html' for allowed COLOUR_MAPs (Pastel1', 'Pastel2', 'Accent', 'Dark2' etc.)

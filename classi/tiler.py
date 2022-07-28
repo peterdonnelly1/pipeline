@@ -896,7 +896,7 @@ def choose_mag_level( my_thread, zoom_out_prob, zoom_out_mags, r_norm ):
     print( f"\r{RESET}{RED}TILER:     FATAL: ... halting now{RESET}" )
     sys.exit(0)
   
-  if sum(zoom_out_prob)==0:                                                                                # then user wants zoom_out_prob to be random
+  if sum(zoom_out_prob)==0.:                                                                                # then user wants zoom_out_prob to be random
     
     if DEBUG>3:  
       print( f'\r{RESET}TILER:          INFO: system generated {CYAN}zoom_out_prob vector{RESET}', end='', flush=True  )
