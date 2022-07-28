@@ -802,7 +802,7 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
     print ( f"CLASSI:         INFO:  param_values    =  \n{BOLD}{HOT_PINK}{param_values}{RESET}"  )
 
   start_column  = 0
-  offset        = 14
+  offset        = 12
   second_offset = 12
 
   total_runs_in_job = len(list(product(*param_values)))
@@ -843,7 +843,9 @@ f"\
 \r\033[{start_column+10*offset}Cstain_norm\
 \r\033[{start_column+11*offset}Clabel_swap\
 \r\033[{start_column+12*offset}Cgreyscale\
-\r\033[{start_column+13*offset}Cjitter vector\
+\r\033[{start_column+13*offset}Ctile extraction dims (multipliers for base tile_size)\
+\r\033[{start_column+14*offset+55}C probabilities applied to extraction dims\
+\r\033[{start_column+15*offset+105}Cjitter vector\
 "
 
   rna_headings =\
@@ -867,7 +869,8 @@ f"\
   if DEBUG>0:
     if input_mode=='image':
       print(f"\n{UNDER}JOB LIST:{RESET}")
-      print(f"\033[2C{image_headings}{RESET}")      
+      print(f"\r\033[155C ---------------------------------------- tile extraction parameters ---------------------------------------- {RESET}")      
+      print(f"\r\033[2C{image_headings}{RESET}")      
       for repeater, stain_norm, tile_size, lr, pct_test, n_samples, batch_size, n_tiles, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, low_expression_threshold, cutoff_percentile, embedding_dimensions, dropout_1, dropout_2, nn_optimizer, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values):    
 
         print( f"{CARRIBEAN_GREEN}\
@@ -885,7 +888,9 @@ f"\
 \r\033[{start_column+10*offset}C{stain_norm:<10s}\
 \r\033[{start_column+11*offset}C{label_swap_pct:<6.1f}\
 \r\033[{start_column+12*offset}C{make_grey_pct:<5.1f}\
-\r\033[{start_column+13*offset}C{jitter:}\
+\r\033[{start_column+13*offset}C{zoom_out_mags:}\
+\r\033[{start_column+14*offset+55}C{zoom_out_prob:}\
+\r\033[{start_column+15*offset+105}C{jitter:}\
 {RESET}" )
 
 
