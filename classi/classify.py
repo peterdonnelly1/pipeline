@@ -30,6 +30,7 @@ import matplotlib.gridspec   as gridspec
 # ~ from matplotlib import rc
 # ~ rc('text', usetex=True)
 
+from   select                       import select
 from   IPython.display              import display
 from   pathlib                      import Path
 from   random                       import randint
@@ -832,7 +833,7 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
 f"\
 \r\033[{start_column+0*offset}Clr\
 \r\033[{start_column+1*offset}Cpct_test\
-\r\033[{start_column+2*offset}Csamples\
+\r\033[{start_column+2*offset}Cexamples\
 \r\033[{start_column+3*offset}Cbatch_size\
 \r\033[{start_column+4*offset}Ctiles/image\
 \r\033[{start_column+5*offset}Cnum_classes\
@@ -843,8 +844,8 @@ f"\
 \r\033[{start_column+10*offset}Cstain_norm\
 \r\033[{start_column+11*offset}Clabel_swap\
 \r\033[{start_column+12*offset}Cgreyscale\
-\r\033[{start_column+13*offset}Ctile extraction dims (multipliers for base tile_size)\
-\r\033[{start_column+14*offset+55}C probabilities applied to extraction dims\
+\r\033[{start_column+13*offset}Cextraction dimensions (multiples of base tile size)\
+\r\033[{start_column+14*offset+52}Cprobability for each of the extraction dimensions\
 \r\033[{start_column+15*offset+105}Cjitter vector\
 "
 
@@ -869,7 +870,7 @@ f"\
   if DEBUG>0:
     if input_mode=='image':
       print(f"\n{UNDER}JOB LIST:{RESET}")
-      print(f"\r\033[155C ---------------------------------------- tile extraction parameters ---------------------------------------- {RESET}")      
+      print(f"\r\033[155C ------------ tile extraction parameters (all tiles will be saved at base tile size ({MIKADO}{tile_size[0]}x{tile_size[0]}{RESET}) -------------- {RESET}")      
       print(f"\r\033[2C{image_headings}{RESET}")      
       for repeater, stain_norm, tile_size, lr, pct_test, n_samples, batch_size, n_tiles, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, low_expression_threshold, cutoff_percentile, embedding_dimensions, dropout_1, dropout_2, nn_optimizer, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values):    
 
@@ -920,18 +921,22 @@ f"\
 {RESET}" )
   
 
+  # ~ if total_runs_in_job>1:
+    # ~ while(True):
+      # ~ key = input("review job list, then press any key to continue ...")
+      # ~ if(len(key) >= 0):
+        # ~ break
+
   if total_runs_in_job>1:
-    while(True):
-      key = input("review job list, then press any key to continue ...")
-      if(len(key) >= 0):
-        break
+    print ( "Execution will continue in 20 seconds, or press any key to continue now ..." )
+    timeout = 20
+    rlist, wlist, xlist = select([sys.stdin], [], [], timeout)
 
 
   if (just_test=='True') & (input_mode=='image') & (multimode!= 'image_rna'):   
     if not ( batch_size == int( math.sqrt(batch_size) + 0.5) ** 2 ):
       print( f"{RED}CLASSI:         FATAL:  in test mode {CYAN}BATCH_SIZE ('-b') {RESET}{RED}(currently {MIKADO}{batch_size}{RESET}{RED}) must be a perfect square (4, 9, 16, 25 ...) to permit selection of a a 2D contiguous patch. Halting [2989].\033[m" )
       sys.exit(0)      
-
 
 
   # (B) RUN JOB LOOP
