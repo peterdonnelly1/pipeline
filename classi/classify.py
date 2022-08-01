@@ -310,6 +310,38 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   case_column                   = args.case_column
   class_column                  = args.class_column
 
+
+
+  if (len(args.n_tiles)>=3) & (args.n_tiles[2]<0):
+    lo=args.n_tiles[0]
+    hi=args.n_tiles[1]
+    num=abs(args.n_tiles[2])
+    n_tiles_new = [ lo + int( (n/(num+1))*(hi-lo)  ) for n in range (0, num+2) ]
+    print( f"{ASPARAGUS}CLASSI:         INFO: the third value in {CYAN}N_TILES{RESET}{ASPARAGUS} \r\033[51C is negative {BOLD_MIKADO}{args.n_tiles}{RESET}{ASPARAGUS}, \r\033[80C indicating user wants CLASSI to generate intermediate values for {CYAN}N_TILES{RESET}{ASPARAGUS}.  \r\033[157C {BOLD_MIKADO}{abs(args.n_tiles[2])}{RESET}{ASPARAGUS} random values will be generated, in between and in addition to {BOLD_MIKADO}{abs(args.n_tiles[0])}{RESET}{ASPARAGUS} and {BOLD_MIKADO}{abs(args.n_tiles[1])}{RESET}{ASPARAGUS}. \r\033[234C New value of {CYAN}N_TILES{RESET}{ASPARAGUS} = {BOLD_MIKADO}{n_tiles_new}{RESET}{ASPARAGUS}{RESET}" )
+    args.n_tiles =  n_tiles_new
+    n_tiles      =  n_tiles_new
+
+  if (len(args.tile_size)>=3) & (args.tile_size[2]<0):
+    lo=args.tile_size[0]
+    hi=args.tile_size[1]
+    num=abs(args.tile_size[2])
+    tile_size_new  = [ lo + int( (n/(num+1))*(hi-lo)  ) for n in range (0, num+2) ]
+    print( f"{CAMEL}CLASSI:         INFO: the third value in {CYAN}TILE_SIZE{RESET}{CAMEL} \r\033[51C is negative {BOLD_MIKADO}{args.tile_size}{RESET}{CAMEL}, \r\033[80C indicating user wants CLASSI to generate intermediate values for {CYAN}TILE_SIZE{RESET}{CAMEL}.  \r\033[157C {BOLD_MIKADO}{abs(args.tile_size[2])}{RESET}{CAMEL} random values will be generated, in between and in addition to {BOLD_MIKADO}{abs(args.tile_size[0])}{RESET}{CAMEL} and {BOLD_MIKADO}{abs(args.tile_size[1])}{RESET}{CAMEL}. \r\033[234C New value of {CYAN}TILE_SIZE{RESET}{CAMEL} = {BOLD_MIKADO}{tile_size_new}{RESET}{CAMEL}{RESET}" )
+    args.tile_size =  tile_size_new
+    tile_size      =  tile_size_new  
+  
+  if (len(args.batch_size)>=3) & (args.batch_size[2]<0):
+    lo=args.batch_size[0]
+    hi=args.batch_size[1]
+    num=abs(args.batch_size[2])
+    batch_size_new  = [ lo + int( (n/(num+1))*(hi-lo)  ) for n in range (0, num+2) ]
+    print( f"{PINK}CLASSI:         INFO: the third value in {CYAN}BATCH_SIZE{RESET}{PINK} \r\033[51C is negative {BOLD_MIKADO}{args.batch_size}{RESET}{PINK}, \r\033[80C indicating user wants CLASSI to generate intermediate values for {CYAN}BATCH_SIZE{RESET}{PINK}.  \r\033[157C {BOLD_MIKADO}{abs(args.batch_size[2])}{RESET}{PINK} random values will be generated, in between and in addition to {BOLD_MIKADO}{abs(args.batch_size[0])}{RESET}{PINK} and {BOLD_MIKADO}{abs(args.batch_size[1])}{RESET}{PINK}. \r\033[234C New value of {CYAN}BATCH_SIZE{RESET}{PINK} = {BOLD_MIKADO}{batch_size_new}{RESET}{PINK}{RESET}" )
+    args.batch_size =  batch_size_new
+    batch_size      =  batch_size_new
+
+  
+
+
   (args.n_samples).sort  ( reverse=True )                                                                  # to minimise retiling and regenerating in multi-run jobs, move from largest to smallest value of n_samples 
   n_samples.sort         ( reverse=True )                                                                  # to minimise retiling and regenerating in multi-run jobs, move from largest to smallest value of n_samples 
   (args.batch_size).sort ( reverse=True )                                                                  # ditto

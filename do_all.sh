@@ -5,17 +5,17 @@
 
 ########################################################################################################################################################
 #
-# NOTES REGARDING PARAMETERS THAT ARE ALLOWED TO HAVE MORE THAN ONE VALUE
+# NOTES REGARDING PARAMETERS THAT ARE 'range-able' i.e., ALLOWED TO HAVE MORE THAN ONE VALUE
 #
 # More than one value can be specified for the following ...
 #
-#   COMMON parameters: 
+#   COMMON parameters (7): 
 #     N_SAMPLES, BATCH_SIZE, NN_OPTIMIZER, LEARNING_RATE, PCT_TEST, LABEL_SWAP_PCT,  LABEL_SWAP_PCT
 #
-#   IMAGE parameters: 
+#   IMAGE parameters (7): 
 #     NN_TYPE_IMG, TILE_SIZE, N_TILES, RANDOM_TILES, STAIN_NORM, JITTER, MAKE_GREY_PCT
 #
-#   RNA parameters: 
+#   RNA parameters (9): 
 #     NN_TYPE_RNA, HIDDEN_LAYER_NEURONS, NN_DENSE_DROPOUT_1, NN_DENSE_DROPOUT_2, GENE_DATA_NORM, GENE_DATA_TRANSFORM, EMBEDDING_DIMENSIONS, CUTOFF_PERCENTILE, LOW_EXPRESSION_THRESHOLD
 #
 # If more than one value is specified for any of these, an experiment 'job' will be created and run
