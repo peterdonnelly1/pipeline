@@ -312,33 +312,75 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
 
 
-  if (len(args.n_tiles)>=3) & (args.n_tiles[2]<0):
-    lo=args.n_tiles[0]
-    hi=args.n_tiles[1]
-    num=abs(args.n_tiles[2])
-    n_tiles_new = [ lo + int( (n/(num+1))*(hi-lo)  ) for n in range (0, num+2) ]
-    print( f"{ASPARAGUS}CLASSI:         INFO: the third value in {CYAN}N_TILES{RESET}{ASPARAGUS} \r\033[51C is negative {BOLD_MIKADO}{args.n_tiles}{RESET}{ASPARAGUS}, \r\033[80C indicating user wants CLASSI to generate intermediate values for {CYAN}N_TILES{RESET}{ASPARAGUS}.  \r\033[157C {BOLD_MIKADO}{abs(args.n_tiles[2])}{RESET}{ASPARAGUS} random values will be generated, in between and in addition to {BOLD_MIKADO}{abs(args.n_tiles[0])}{RESET}{ASPARAGUS} and {BOLD_MIKADO}{abs(args.n_tiles[1])}{RESET}{ASPARAGUS}. \r\033[234C New value of {CYAN}N_TILES{RESET}{ASPARAGUS} = {BOLD_MIKADO}{n_tiles_new}{RESET}{ASPARAGUS}{RESET}" )
-    args.n_tiles =  n_tiles_new
-    n_tiles      =  n_tiles_new
+  # ~ RANDOM_N_TILES_CHOICES = False
+  # ~ if len(args.n_tiles)>=3:
+    # ~ if args.n_tiles[2]<0:
+      # ~ lo=args.n_tiles[0]
+      # ~ hi=args.n_tiles[1]
+      # ~ num=abs(args.n_tiles[2])
+      # ~ if len(args.n_tiles)>=4:
+        # ~ if args.n_tiles[3]<0:
+          # ~ RANDOM_N_TILES_CHOICES = True
+          # ~ if abs(args.n_tiles[2])>=(abs(hi-lo)):
+            # ~ num = abs(hi-lo)-1
+          # ~ if num<0:
+            # ~ num=1
+          # ~ if (hi-lo)<0:
+            # ~ hi-lo+1
+      # ~ if RANDOM_N_TILES_CHOICES!=True:
+        # ~ n_tiles_new = [ lo + int( (      n / (num+1) )*(hi-lo)  ) for n in range (0, num+2) ]
+        # ~ print( f"{ASPARAGUS}CLASSI:         INFO: the third value in {CYAN}N_TILES{RESET}{ASPARAGUS} \r\033[51C is negative {BOLD_MIKADO}{args.n_tiles}{RESET}{ASPARAGUS}, \r\033[80C indicating user wants CLASSI to generate {BOLD}EQUI-DISTANT{RESET} intermediate values for {CYAN}N_TILES{RESET}{ASPARAGUS}.  \r\033[157C {BOLD_MIKADO}{abs(args.n_tiles[2])}{RESET}{ASPARAGUS} random values will be generated, in between and in addition to {BOLD_MIKADO}{abs(args.n_tiles[0])}{RESET}{ASPARAGUS} and {BOLD_MIKADO}{abs(args.n_tiles[1])}{RESET}{ASPARAGUS}. \r\033[234C New value of {CYAN}N_TILES{RESET}{ASPARAGUS} = {BOLD_MIKADO}{n_tiles_new}{RESET}{ASPARAGUS}{RESET}" )
+      # ~ else:
+        # ~ n_tiles_new = random.sample( range(lo+1, hi), num)
+        # ~ n_tiles_new.insert(0, lo)
+        # ~ n_tiles_new.append(hi)
+        # ~ n_tiles_new.sort  ( reverse=False )
+        # ~ print( f"{ASPARAGUS}CLASSI:         INFO: the third value in {CYAN}N_TILES{RESET}{ASPARAGUS} \r\033[51C is negative {BOLD_MIKADO}{args.n_tiles}{RESET}{ASPARAGUS}, \r\033[80C indicating user wants CLASSI to generate {BOLD}RANDOM{RESET}      intermediate values for {CYAN}N_TILES{RESET}{ASPARAGUS}.        \r\033[157C {BOLD_MIKADO}{abs(args.n_tiles[2])}{RESET}{ASPARAGUS} random values will be generated, in between and in addition to {BOLD_MIKADO}{abs(args.n_tiles[0])}{RESET}{ASPARAGUS} and {BOLD_MIKADO}{abs(args.n_tiles[1])}{RESET}{ASPARAGUS}. \r\033[234C New value of {CYAN}N_TILES{RESET}{ASPARAGUS} = {BOLD_MIKADO}{n_tiles_new}{RESET}{ASPARAGUS}{RESET}" )
 
-  if (len(args.tile_size)>=3) & (args.tile_size[2]<0):
-    lo=args.tile_size[0]
-    hi=args.tile_size[1]
-    num=abs(args.tile_size[2])
-    tile_size_new  = [ lo + int( (n/(num+1))*(hi-lo)  ) for n in range (0, num+2) ]
-    print( f"{CAMEL}CLASSI:         INFO: the third value in {CYAN}TILE_SIZE{RESET}{CAMEL} \r\033[51C is negative {BOLD_MIKADO}{args.tile_size}{RESET}{CAMEL}, \r\033[80C indicating user wants CLASSI to generate intermediate values for {CYAN}TILE_SIZE{RESET}{CAMEL}.  \r\033[157C {BOLD_MIKADO}{abs(args.tile_size[2])}{RESET}{CAMEL} random values will be generated, in between and in addition to {BOLD_MIKADO}{abs(args.tile_size[0])}{RESET}{CAMEL} and {BOLD_MIKADO}{abs(args.tile_size[1])}{RESET}{CAMEL}. \r\033[234C New value of {CYAN}TILE_SIZE{RESET}{CAMEL} = {BOLD_MIKADO}{tile_size_new}{RESET}{CAMEL}{RESET}" )
-    args.tile_size =  tile_size_new
-    tile_size      =  tile_size_new  
-  
-  if (len(args.batch_size)>=3) & (args.batch_size[2]<0):
-    lo=args.batch_size[0]
-    hi=args.batch_size[1]
-    num=abs(args.batch_size[2])
-    batch_size_new  = [ lo + int( (n/(num+1))*(hi-lo)  ) for n in range (0, num+2) ]
-    print( f"{PINK}CLASSI:         INFO: the third value in {CYAN}BATCH_SIZE{RESET}{PINK} \r\033[51C is negative {BOLD_MIKADO}{args.batch_size}{RESET}{PINK}, \r\033[80C indicating user wants CLASSI to generate intermediate values for {CYAN}BATCH_SIZE{RESET}{PINK}.  \r\033[157C {BOLD_MIKADO}{abs(args.batch_size[2])}{RESET}{PINK} random values will be generated, in between and in addition to {BOLD_MIKADO}{abs(args.batch_size[0])}{RESET}{PINK} and {BOLD_MIKADO}{abs(args.batch_size[1])}{RESET}{PINK}. \r\033[234C New value of {CYAN}BATCH_SIZE{RESET}{PINK} = {BOLD_MIKADO}{batch_size_new}{RESET}{PINK}{RESET}" )
-    args.batch_size =  batch_size_new
-    batch_size      =  batch_size_new
+      # ~ args.n_tiles =  n_tiles_new
+      # ~ n_tiles      =  n_tiles_new
 
+
+  def expand_args( parm, bash_name, highlight_colour ):
+    
+    COL = highlight_colour
+    
+    if len(parm)>=3:
+      if parm[2]<0:
+        lo=parm[0]
+        hi=parm[1]
+        num=abs(parm[2])
+        RANDOM_CHOICES = False
+        if len(parm)>=4:
+          if parm[3]<0:
+            RANDOM_CHOICES = True
+            if abs(parm[2])>=(abs(hi-lo)):
+              num = abs(hi-lo)-1
+            if num<0:
+              num=1
+            if (hi-lo)<0:
+              hi-lo+1
+        if RANDOM_CHOICES!=True:
+          parm_new = [ lo + int( (      n / (num+1) )*(hi-lo)  ) for n in range (0, num+2) ]
+          print( f"{COL}CLASSI:         INFO: 3rd &/or 4th value in {CYAN}{bash_name}{RESET}{COL} \r\033[55C are negative, {BOLD_MIKADO}{parm}{RESET}{COL}  \r\033[88C therefore {BOLD_MIKADO}{abs(parm[2]):2d}{RESET}{COL} additional {CARRIBEAN_GREEN}EQUIDISTANT{RESET}{COL} values will be generated, in between and in addition to {BOLD_MIKADO}{abs(parm[0]):2d}{RESET}{COL} and {BOLD_MIKADO}{abs(parm[1]):2d}{RESET}{COL}. \r\033[194C New value of {CYAN}{bash_name}{RESET}{COL} \r\033[222C= {BOLD_MIKADO}{parm_new}{RESET}{COL}{RESET}" )
+        else:
+          parm_new = random.sample( range(lo+1, hi), num)
+          parm_new.insert(0, lo)
+          parm_new.append(hi)
+          parm_new.sort  ( reverse=False )
+          print( f"{COL}CLASSI:         INFO: 3rd &/or 4th value in {CYAN}{bash_name}{RESET}{COL} \r\033[55C are negative, {BOLD_MIKADO}{parm}{RESET}{COL}  \r\033[88C therefore {BOLD_MIKADO}{abs(parm[2]):2d}{RESET}{COL} additional {AMETHYST}RANDOM     {RESET}{COL} values will be generated, in between and in addition to {BOLD_MIKADO}{abs(parm[0]):2d}{RESET}{COL} and {BOLD_MIKADO}{abs(parm[1]):2d}{RESET}{COL}. \r\033[194C New value of {CYAN}{bash_name}{RESET}{COL} \r\033[222C= {BOLD_MIKADO}{parm_new}{RESET}{COL}{RESET}" )
+      else:
+        return parm
+        
+      parm = parm_new
+      
+    return parm
+    
+  n_tiles     = expand_args( args.n_tiles,    "N_TILES",     CAMEL   )
+  tile_size   = expand_args( args.tile_size,  "TILE_SIZE",   CAMEL       )
+  batch_size  = expand_args( args.batch_size, "BATCH_SIZE",  CAMEL        )
+  n_samples   = expand_args( args.n_samples,  "N_SAMPLES",   CAMEL  )
+  # ~ pct_test    = expand_args( args.pct_test,   "PCT_TEST",   CAMEL  )
   
 
 
