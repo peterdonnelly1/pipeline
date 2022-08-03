@@ -37,7 +37,7 @@ export MKL_DEBUG_CPU_TYPE=5
 export KMP_WARNINGS=FALSE
 
 
-MINIMUM_JOB_SIZE=2                                                                                         # Only do a box plot if the job has at least this many runs (otherwise it's a bit meaningless)
+MINIMUM_JOB_SIZE=2                                                                                         # Only do a box plot if the job has at least this many runs
 CASES_RESERVED_FOR_IMAGE_RNA=0                                                                             # number of cases to be reserved for image+rna testing. <<< HAS TO BE ABOVE ABOUT 5 FOR SOME REASON -- NO IDEA WHY ATM
 USE_SAME_SEED="False"                                                                                      # set to TRUE to use the same seed every time for random numbers generation, for reproducability across runs (i.e. so that results can be more validly compared)
 JUST_PROFILE="False"                                                                                       # if "True" just analyse slide/tiles then exit

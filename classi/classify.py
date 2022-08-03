@@ -311,45 +311,16 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   class_column                  = args.class_column
 
 
-
-  # ~ RANDOM_N_TILES_CHOICES = False
-  # ~ if len(args.n_tiles)>=3:
-    # ~ if args.n_tiles[2]<0:
-      # ~ lo=args.n_tiles[0]
-      # ~ hi=args.n_tiles[1]
-      # ~ num=abs(args.n_tiles[2])
-      # ~ if len(args.n_tiles)>=4:
-        # ~ if args.n_tiles[3]<0:
-          # ~ RANDOM_N_TILES_CHOICES = True
-          # ~ if abs(args.n_tiles[2])>=(abs(hi-lo)):
-            # ~ num = abs(hi-lo)-1
-          # ~ if num<0:
-            # ~ num=1
-          # ~ if (hi-lo)<0:
-            # ~ hi-lo+1
-      # ~ if RANDOM_N_TILES_CHOICES!=True:
-        # ~ n_tiles_new = [ lo + int( (      n / (num+1) )*(hi-lo)  ) for n in range (0, num+2) ]
-        # ~ print( f"{ASPARAGUS}CLASSI:         INFO: the third value in {CYAN}N_TILES{RESET}{ASPARAGUS} \r\033[51C is negative {BOLD_MIKADO}{args.n_tiles}{RESET}{ASPARAGUS}, \r\033[80C indicating user wants CLASSI to generate {BOLD}EQUI-DISTANT{RESET} intermediate values for {CYAN}N_TILES{RESET}{ASPARAGUS}.  \r\033[157C {BOLD_MIKADO}{abs(args.n_tiles[2])}{RESET}{ASPARAGUS} random values will be generated, in between and in addition to {BOLD_MIKADO}{abs(args.n_tiles[0])}{RESET}{ASPARAGUS} and {BOLD_MIKADO}{abs(args.n_tiles[1])}{RESET}{ASPARAGUS}. \r\033[234C New value of {CYAN}N_TILES{RESET}{ASPARAGUS} = {BOLD_MIKADO}{n_tiles_new}{RESET}{ASPARAGUS}{RESET}" )
-      # ~ else:
-        # ~ n_tiles_new = random.sample( range(lo+1, hi), num)
-        # ~ n_tiles_new.insert(0, lo)
-        # ~ n_tiles_new.append(hi)
-        # ~ n_tiles_new.sort  ( reverse=False )
-        # ~ print( f"{ASPARAGUS}CLASSI:         INFO: the third value in {CYAN}N_TILES{RESET}{ASPARAGUS} \r\033[51C is negative {BOLD_MIKADO}{args.n_tiles}{RESET}{ASPARAGUS}, \r\033[80C indicating user wants CLASSI to generate {BOLD}RANDOM{RESET}      intermediate values for {CYAN}N_TILES{RESET}{ASPARAGUS}.        \r\033[157C {BOLD_MIKADO}{abs(args.n_tiles[2])}{RESET}{ASPARAGUS} random values will be generated, in between and in addition to {BOLD_MIKADO}{abs(args.n_tiles[0])}{RESET}{ASPARAGUS} and {BOLD_MIKADO}{abs(args.n_tiles[1])}{RESET}{ASPARAGUS}. \r\033[234C New value of {CYAN}N_TILES{RESET}{ASPARAGUS} = {BOLD_MIKADO}{n_tiles_new}{RESET}{ASPARAGUS}{RESET}" )
-
-      # ~ args.n_tiles =  n_tiles_new
-      # ~ n_tiles      =  n_tiles_new
-
-
   def expand_args( parm, bash_name, highlight_colour ):
     
     COL = highlight_colour
+    c=57
     
     if len(parm)>=3:
       if parm[2]<0:
         lo=parm[0]
         hi=parm[1]
-        num=abs(parm[2])
+        num=abs(int(parm[2]))
         RANDOM_CHOICES = False
         if len(parm)>=4:
           if parm[3]<0:
@@ -361,14 +332,27 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
             if (hi-lo)<0:
               hi-lo+1
         if RANDOM_CHOICES!=True:
-          parm_new = [ lo + int( (      n / (num+1) )*(hi-lo)  ) for n in range (0, num+2) ]
-          print( f"{COL}CLASSI:         INFO: 3rd &/or 4th value in {CYAN}{bash_name}{RESET}{COL} \r\033[55C are negative, {BOLD_MIKADO}{parm}{RESET}{COL}  \r\033[88C therefore {BOLD_MIKADO}{abs(parm[2]):2d}{RESET}{COL} additional {CARRIBEAN_GREEN}EQUIDISTANT{RESET}{COL} values will be generated, in between and in addition to {BOLD_MIKADO}{abs(parm[0]):2d}{RESET}{COL} and {BOLD_MIKADO}{abs(parm[1]):2d}{RESET}{COL}. \r\033[194C New value of {CYAN}{bash_name}{RESET}{COL} \r\033[222C= {BOLD_MIKADO}{parm_new}{RESET}{COL}{RESET}" )
+          if isinstance( parm[0], int ):
+            parm_new = [ lo + int( ( n / (num+1) )*(hi-lo) ) for n in range (0, num+2) ]
+            print( f"{COL}CLASSI:         INFO: 3rd &/or 4th value in {CYAN}{bash_name}{RESET}{COL} \r\033[{c}C are negative: {BOLD_MIKADO}{parm}{RESET}{COL}  \r\033[{c+40}C therefore {BOLD_MIKADO}{abs(parm[2]):2d}{RESET}{COL} additional {CARRIBEAN_GREEN}EQUIDISTANT{RESET}{COL} values will be generated, in between and in addition to {BOLD_MIKADO}{abs(parm[0]):4d}{RESET}{COL} and {BOLD_MIKADO}{abs(parm[1]):4d}{RESET}{COL}. \r\033[{c+150}C New value of {CYAN}{bash_name}{RESET}{COL} \r\033[{c+183}C= {BOLD_MIKADO}{parm_new}{RESET}{COL}{RESET}" )
+          elif isinstance( parm[0], float ):
+            parm_new = [ lo +  ( n / (num+1) )*(hi-lo) for n in range (0, num+2) ]
+            np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
+            print( f"{COL}CLASSI:         INFO: 3rd &/or 4th value in {CYAN}{bash_name}{RESET}{COL} \r\033[{c}C are negative: {BOLD_MIKADO}{parm}{RESET}{COL}  \r\033[{c+40}C therefore {BOLD_MIKADO}{abs(parm[2]):2.0f}{RESET}{COL} additional {AMETHYST}RANDOM     {RESET}{COL} values will be generated, in between and in addition to {BOLD_MIKADO}{abs(parm[0]):4.2f}{RESET}{COL} and {BOLD_MIKADO}{abs(parm[1]):4.2f}{RESET}{COL}. \r\033[{c+150}C New value of {CYAN}{bash_name}{RESET}{COL} \r\033[{c+183}C= {BOLD_MIKADO}{np.array(parm_new)}{RESET}{COL}{RESET}" )
         else:
-          parm_new = random.sample( range(lo+1, hi), num)
-          parm_new.insert(0, lo)
-          parm_new.append(hi)
+          if isinstance( parm[0], int ):
+            parm_new = random.sample( range(lo+1, hi), num)
+            parm_new.insert(0, lo)
+            parm_new.append(hi)
+            print( f"{COL}CLASSI:         INFO: 3rd &/or 4th value in {CYAN}{bash_name}{RESET}{COL} \r\033[{c}C are negative: {BOLD_MIKADO}{parm}{RESET}{COL}  \r\033[{c+40}C therefore {BOLD_MIKADO}{abs(parm[2]):2d}{RESET}{COL} additional {AMETHYST}RANDOM     {RESET}{COL} values will be generated, in between and in addition to {BOLD_MIKADO}{abs(parm[0]):4d}{RESET}{COL} and {BOLD_MIKADO}{abs(parm[1]):4d}{RESET}{COL}. \r\033[{c+150}C New value of {CYAN}{bash_name}{RESET}{COL} \r\033[{c+183}C= {BOLD_MIKADO}{parm_new}{RESET}{COL}{RESET}" )
+          elif isinstance( parm[0], float ):
+            parm_new = [ random.uniform( lo, hi) for el in parm ]
+            np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
+            print( f"{COL}CLASSI:         INFO: 3rd &/or 4th value in {CYAN}{bash_name}{RESET}{COL} \r\033[{c}C are negative: {BOLD_MIKADO}{parm}{RESET}{COL}  \r\033[{c+40}C therefore {BOLD_MIKADO}{abs(parm[2]):2.0f}{RESET}{COL} additional {AMETHYST}RANDOM     {RESET}{COL} values will be generated, in between and in addition to {BOLD_MIKADO}{abs(parm[0]):4.2f}{RESET}{COL} and {BOLD_MIKADO}{abs(parm[1]):4.2f}{RESET}{COL}. \r\033[{c+150}C New value of {CYAN}{bash_name}{RESET}{COL} \r\033[{c+183}C= {BOLD_MIKADO}{np.array(parm_new)}{RESET}{COL}{RESET}" )
+
+            
           parm_new.sort  ( reverse=False )
-          print( f"{COL}CLASSI:         INFO: 3rd &/or 4th value in {CYAN}{bash_name}{RESET}{COL} \r\033[55C are negative, {BOLD_MIKADO}{parm}{RESET}{COL}  \r\033[88C therefore {BOLD_MIKADO}{abs(parm[2]):2d}{RESET}{COL} additional {AMETHYST}RANDOM     {RESET}{COL} values will be generated, in between and in addition to {BOLD_MIKADO}{abs(parm[0]):2d}{RESET}{COL} and {BOLD_MIKADO}{abs(parm[1]):2d}{RESET}{COL}. \r\033[194C New value of {CYAN}{bash_name}{RESET}{COL} \r\033[222C= {BOLD_MIKADO}{parm_new}{RESET}{COL}{RESET}" )
+
       else:
         return parm
         
@@ -377,10 +361,10 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     return parm
     
   n_tiles     = expand_args( args.n_tiles,    "N_TILES",     CAMEL   )
-  tile_size   = expand_args( args.tile_size,  "TILE_SIZE",   CAMEL       )
-  batch_size  = expand_args( args.batch_size, "BATCH_SIZE",  CAMEL        )
-  n_samples   = expand_args( args.n_samples,  "N_SAMPLES",   CAMEL  )
-  # ~ pct_test    = expand_args( args.pct_test,   "PCT_TEST",   CAMEL  )
+  tile_size   = expand_args( args.tile_size,  "TILE_SIZE",   CAMEL   )
+  batch_size  = expand_args( args.batch_size, "BATCH_SIZE",  CAMEL   )
+  n_samples   = expand_args( args.n_samples,  "N_SAMPLES",   CAMEL   )
+  pct_test    = expand_args( args.pct_test,   "PCT_TEST",   CAMEL  )
   
 
 
@@ -620,8 +604,9 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
     print( f"{BOLD_RED}CLASSI:         INFO:    not halting ... resuming in 7 seconds", flush=True)
     time.sleep(5)
   elif  any(el<0.1 for el in pct_test):
-    print( f"{BOLD_ORANGE}CLASSI:         INFO:  pct_tests) = {MIKADO}{pct_test}{BOLD_ORANGE}. At least one of these is less than 0.1 (10%){RESET}{BOLD_ORANGE}'. Is this intended?{RESET}", flush=True)
-    print( f"{BOLD_ORANGE}CLASSI:         INFO:    further information: correct if necessary by changing the percent test option: Bash long form: BOLD_CYANPCT_TEST{BOLD_ORANGE}; Bash short form '{CYAN}-1'{BOLD_ORANGE}; python {BOLD_CYAN}--pct_test{RESET}", flush=True)
+    np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
+    print( f"{BOLD_ORANGE}CLASSI:         INFO:  pct_test = {MIKADO}{np.array(pct_test)}{BOLD_ORANGE}. At least one of these is less than 0.1 (10%){RESET}{BOLD_ORANGE}'. Is this intended?{RESET}", flush=True)
+    print( f"{BOLD_ORANGE}CLASSI:         INFO:    further information: correct if necessary by changing the percent test option: Bash long form: {BOLD_CYAN}PCT_TEST{BOLD_ORANGE}; Bash short form '{CYAN}-1'{BOLD_ORANGE}; python {BOLD_CYAN}--pct_test{RESET}", flush=True)
     print( f"{BOLD_ORANGE}CLASSI:         INFO:    not halting ... resuming in 7 seconds", flush=True)
     time.sleep(5)
 
