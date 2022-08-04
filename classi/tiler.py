@@ -926,7 +926,7 @@ def choose_mag_level( my_thread, zoom_out_prob, zoom_out_mags, r_norm ):
     if DEBUG>0:
       np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})      
       print( f'{SAVE_CURSOR}\033[9;0H{RESET}TILER:          INFO: \
-user supplied  {BOLD}{CYAN}prob vector{RESET} = {MIKADO}{zoom_out_prob}{RESET}  \
+user supplied  {BOLD}{CYAN}prob vector{RESET} = {MIKADO}{np.round(np.array(zoom_out_prob),3)}{RESET}  \
 user supplied  {BOLD}{CYAN}mags vector{RESET} = {MIKADO}{zoom_out_mags}{RESET}', 
 end='', flush=True )
 

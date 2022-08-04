@@ -316,6 +316,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     COL = highlight_colour
     c=57
     
+    
     if len(parm)>=3:
       if parm[2]<0:
         lo=parm[0]
@@ -325,48 +326,69 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         if len(parm)>=4:
           if parm[3]<0:
             RANDOM_CHOICES = True
-            if abs(parm[2])>=(abs(hi-lo)):
-              num = abs(hi-lo)-1
-            if num<0:
-              num=1
-            if (hi-lo)<0:
-              hi-lo+1
+            if bash_name != 'ZOOM_OUT_PROB':
+              if abs(parm[2])>=(abs(hi-lo)):
+                num = int(abs(hi-lo)-1)
+              if num<0:
+                num=1
+              if (hi-lo)<0:
+                hi-lo+1
         if RANDOM_CHOICES!=True:
           if isinstance( parm[0], int ):
             parm_new = [ lo + int( ( n / (num+1) )*(hi-lo) ) for n in range (0, num+2) ]
-            print( f"{COL}CLASSI:         INFO: 3rd &/or 4th value in {CYAN}{bash_name}{RESET}{COL} \r\033[{c}C are negative: {BOLD_MIKADO}{parm}{RESET}{COL}  \r\033[{c+40}C therefore {BOLD_MIKADO}{abs(parm[2]):2d}{RESET}{COL} additional {CARRIBEAN_GREEN}EQUIDISTANT{RESET}{COL} values will be generated, in between and in addition to {BOLD_MIKADO}{abs(parm[0]):4d}{RESET}{COL} and {BOLD_MIKADO}{abs(parm[1]):4d}{RESET}{COL}. \r\033[{c+150}C New value of {CYAN}{bash_name}{RESET}{COL} \r\033[{c+183}C= {BOLD_MIKADO}{parm_new}{RESET}{COL}{RESET}" )
+            print( f"{PINK}CLASSI:         INFO: 3rd &/or 4th value in {CYAN}{bash_name}{RESET}{COL} \r\033[{c}C are negative: {BOLD_MIKADO}{parm}{RESET}{COL}  \r\033[{c+40}C therefore {BOLD_MIKADO}{abs(parm[2]):2d}{RESET}{COL} additional {CARRIBEAN_GREEN}EQUIDISTANT{RESET}{COL} values will be generated, in between and in addition to {BOLD_MIKADO}{abs(parm[0]):5d}{RESET}{COL} and {BOLD_MIKADO}{abs(parm[1]):5d}{RESET}{COL}. \r\033[{c+150}C New value of {CYAN}{bash_name}{RESET}{COL} \r\033[{c+183}C= {BOLD_MIKADO}{parm_new}{RESET}{COL}{RESET}" )
           elif isinstance( parm[0], float ):
-            parm_new = [ lo +  ( n / (num+1) )*(hi-lo) for n in range (0, num+2) ]
-            np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
-            print( f"{COL}CLASSI:         INFO: 3rd &/or 4th value in {CYAN}{bash_name}{RESET}{COL} \r\033[{c}C are negative: {BOLD_MIKADO}{parm}{RESET}{COL}  \r\033[{c+40}C therefore {BOLD_MIKADO}{abs(parm[2]):2.0f}{RESET}{COL} additional {AMETHYST}RANDOM     {RESET}{COL} values will be generated, in between and in addition to {BOLD_MIKADO}{abs(parm[0]):4.2f}{RESET}{COL} and {BOLD_MIKADO}{abs(parm[1]):4.2f}{RESET}{COL}. \r\033[{c+150}C New value of {CYAN}{bash_name}{RESET}{COL} \r\033[{c+183}C= {BOLD_MIKADO}{np.array(parm_new)}{RESET}{COL}{RESET}" )
+            if bash_name == 'ZOOM_OUT_PROB':
+              parm_new = [ round(1/(num+2),3) for n in range( 0, num+2) ]              
+            elif bash_name == 'ZOOM_OUT_MAGS':
+              parm_new = [ round(lo +  ( n / (num+1) )*(hi-lo), 3) for n in range (0, num+2) ]
+            else:
+              parm_new = [ lo +  ( n / (num+1) )*(hi-lo) for n in range (0, num+2) ]
+            np.set_printoptions(formatter={'float': lambda x: "{:>5.3f}".format(x)})
+            print( f"{COL}CLASSI:         INFO: 3rd &/or 4th value in {CYAN}{bash_name}{RESET}{COL} \r\033[{c}C are negative: {BOLD_MIKADO}{parm}{RESET}{COL}  \r\033[{c+40}C therefore {BOLD_MIKADO}{abs(parm[2]):2.0f}{RESET}{COL} additional {AMETHYST}RANDOM     {RESET}{COL} values will be generated, in between and in addition to {BOLD_MIKADO}{abs(parm[0]):5.3f}{RESET}{COL} and {BOLD_MIKADO}{abs(parm[1]):5.5f}{RESET}{COL}. \r\033[{c+150}C New value of {CYAN}{bash_name}{RESET}{COL} \r\033[{c+183}C= {BOLD_MIKADO}{np.array(parm_new)}{RESET}{COL}{RESET}" )
         else:
           if isinstance( parm[0], int ):
             parm_new = random.sample( range(lo+1, hi), num)
             parm_new.insert(0, lo)
             parm_new.append(hi)
-            print( f"{COL}CLASSI:         INFO: 3rd &/or 4th value in {CYAN}{bash_name}{RESET}{COL} \r\033[{c}C are negative: {BOLD_MIKADO}{parm}{RESET}{COL}  \r\033[{c+40}C therefore {BOLD_MIKADO}{abs(parm[2]):2d}{RESET}{COL} additional {AMETHYST}RANDOM     {RESET}{COL} values will be generated, in between and in addition to {BOLD_MIKADO}{abs(parm[0]):4d}{RESET}{COL} and {BOLD_MIKADO}{abs(parm[1]):4d}{RESET}{COL}. \r\033[{c+150}C New value of {CYAN}{bash_name}{RESET}{COL} \r\033[{c+183}C= {BOLD_MIKADO}{parm_new}{RESET}{COL}{RESET}" )
+            print( f"{COL}CLASSI:         INFO: 3rd &/or 4th value in {CYAN}{bash_name}{RESET}{COL} \r\033[{c}C are negative: {BOLD_MIKADO}{parm}{RESET}{COL}  \r\033[{c+40}C therefore {BOLD_MIKADO}{abs(parm[2]):2d}{RESET}{COL} additional {AMETHYST}RANDOM     {RESET}{COL} values will be generated, in between and in addition to {BOLD_MIKADO}{abs(parm[0]):5d}{RESET}{COL} and {BOLD_MIKADO}{abs(parm[1]):5d}{RESET}{COL}. \r\033[{c+150}C New value of {CYAN}{bash_name}{RESET}{COL} \r\033[{c+183}C= {BOLD_MIKADO}{parm_new}{RESET}{COL}{RESET}" )
           elif isinstance( parm[0], float ):
-            parm_new = [ random.uniform( lo, hi) for el in parm ]
-            np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
-            print( f"{COL}CLASSI:         INFO: 3rd &/or 4th value in {CYAN}{bash_name}{RESET}{COL} \r\033[{c}C are negative: {BOLD_MIKADO}{parm}{RESET}{COL}  \r\033[{c+40}C therefore {BOLD_MIKADO}{abs(parm[2]):2.0f}{RESET}{COL} additional {AMETHYST}RANDOM     {RESET}{COL} values will be generated, in between and in addition to {BOLD_MIKADO}{abs(parm[0]):4.2f}{RESET}{COL} and {BOLD_MIKADO}{abs(parm[1]):4.2f}{RESET}{COL}. \r\033[{c+150}C New value of {CYAN}{bash_name}{RESET}{COL} \r\033[{c+183}C= {BOLD_MIKADO}{np.array(parm_new)}{RESET}{COL}{RESET}" )
-
+            if bash_name == 'ZOOM_OUT_PROB':
+              parm_new = [ random.uniform( 0.0, 1.0 ) for el in range (0, num+2) ]
+              parm_new = [ (parm_new[n] / sum(parm_new)) for n in range (0, len(parm_new)) ]
+              parm_new[0] = 1-sum(parm_new[1:])
+            else:
+              parm_new = [ random.uniform(  lo,  hi ) for el in range (0, num) ]
+              parm_new.insert(0, lo)
+              parm_new.append(hi)
+            if bash_name == 'ZOOM_OUT_MAGS':
+              parm_new = [ round(el,3) for el in parm_new ]
+            np.set_printoptions(formatter={'float': lambda x: "{:>5.3f}".format(x)})
+            print( f"{COL}CLASSI:         INFO: 3rd &/or 4th value in {CYAN}{bash_name}{RESET}{COL} \r\033[{c}C are negative: {BOLD_MIKADO}{parm}{RESET}{COL}  \r\033[{c+40}C therefore {BOLD_MIKADO}{abs(parm[2]):2.0f}{RESET}{COL} additional {AMETHYST}RANDOM     {RESET}{COL} values will be generated, in between and in addition to {BOLD_MIKADO}{abs(parm[0]):5.3f}{RESET}{COL} and {BOLD_MIKADO}{abs(parm[1]):5.3f}{RESET}{COL}. \r\033[{c+150}C New value of {CYAN}{bash_name}{RESET}{COL} \r\033[{c+183}C= {BOLD_MIKADO}{np.round(np.array(parm_new),3)}{RESET}{COL}{RESET}" )
             
-          parm_new.sort  ( reverse=False )
-
       else:
         return parm
         
       parm = parm_new
       
     return parm
-    
-  n_tiles     = expand_args( args.n_tiles,    "N_TILES",     CAMEL   )
-  tile_size   = expand_args( args.tile_size,  "TILE_SIZE",   CAMEL   )
-  batch_size  = expand_args( args.batch_size, "BATCH_SIZE",  CAMEL   )
-  n_samples   = expand_args( args.n_samples,  "N_SAMPLES",   CAMEL   )
-  pct_test    = expand_args( args.pct_test,   "PCT_TEST",   CAMEL  )
-  
 
+
+  args.n_tiles        = expand_args( args.n_tiles,       "N_TILES",         CAMEL  )
+  args.tile_size      = expand_args( args.tile_size,     "TILE_SIZE",       CAMEL  )
+  args.batch_size     = expand_args( args.batch_size,    "BATCH_SIZE",      CAMEL  )
+  args.n_samples      = expand_args( args.n_samples,     "N_SAMPLES",       CAMEL  )
+  args.pct_test       = expand_args( args.pct_test,      "PCT_TEST",        CAMEL  )
+  args.zoom_out_mags  = expand_args( args.zoom_out_mags, "ZOOM_OUT_MAGS",   BITTER_SWEET  )
+  args.zoom_out_prob  = expand_args( args.zoom_out_prob, "ZOOM_OUT_PROB",   MAGENTA  )
+  
+  n_tiles       = args.n_tiles
+  tile_size     = args.tile_size
+  batch_size    = args.batch_size
+  n_samples     = args.n_samples
+  pct_test      = args.pct_test
+  zoom_out_mags = args.zoom_out_mags
+  zoom_out_prob = args.zoom_out_prob
 
   (args.n_samples).sort  ( reverse=True )                                                                  # to minimise retiling and regenerating in multi-run jobs, move from largest to smallest value of n_samples 
   n_samples.sort         ( reverse=True )                                                                  # to minimise retiling and regenerating in multi-run jobs, move from largest to smallest value of n_samples 
@@ -949,7 +971,7 @@ f"\
 \r\033[{start_column+11*offset}C{label_swap_pct:<6.1f}\
 \r\033[{start_column+12*offset}C{make_grey_pct:<5.1f}\
 \r\033[{start_column+13*offset}C{zoom_out_mags:}\
-\r\033[{start_column+14*offset+55}C{zoom_out_prob:}\
+\r\033[{start_column+14*offset+55}C{np.round(np.array(zoom_out_prob),3):}\
 \r\033[{start_column+15*offset+105}C{jitter:}\
 {RESET}" )
 

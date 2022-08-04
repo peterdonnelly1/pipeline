@@ -47,6 +47,12 @@ DDP="False"                                                                     
 MINIMUM_PERMITTED_GREYSCALE_RANGE=210                                                                      # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
 MINIMUM_PERMITTED_UNIQUE_VALUES=210                                                                        # tile must have at least this many unique values or it will be assumed to be degenerate
 MINIMUM_TILE_SD=2.1                                                                                        # Used to cull slides with a very reduced greyscale palette such as background tiles
+
+MINIMUM_PERMITTED_GREYSCALE_RANGE=2                                                                      # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
+MINIMUM_PERMITTED_UNIQUE_VALUES=2                                                                        # tile must have at least this many unique values or it will be assumed to be degenerate
+MINIMUM_TILE_SD=0.1                                                                                     # Used to cull slides with a very reduced greyscale palette such as background tiles
+
+
 POINTS_TO_SAMPLE=500                                                                                       # Used for determining/culling background tiles via 'min_tile_sd', how many points to sample on a tile when making determination if it is mostly background
 MOMENTUM=0.8                                                                                               # for use with t-sne, if desired
 BAR_CHART_X_LABELS="case_id"                                                                               # if "case_id" use the case id as the x-axis label for bar charts, otherwise use integer sequence
@@ -57,8 +63,11 @@ BOX_PLOT="True"                                                                 
 BOX_PLOT_SHOW="False"                                                                                      # If true, present the graphic using pyplot
 MAX_CONSECUTIVE_LOSSES=3                                                                                   # training will stop after this many consecutive losses, regardless of nthe value of N_EPOCHS
 
-ZOOM_OUT_MAGS="0.125 0.25  0.5  0.75  1.0   2.0   4.0  8.0"                                             # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_PROB
-ZOOM_OUT_PROB="0.1   0.1   0.1  0.15  0.2   0.15  0.1  0.1"  
+#~ ZOOM_OUT_MAGS="0.125 0.25  0.5  0.75  1.0   2.0   4.0  8.0"                                                # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_PROB
+#~ ZOOM_OUT_PROB="0.1   0.1   0.1  0.15  0.2   0.15  0.1  0.1"  
+
+ZOOM_OUT_MAGS="0.125 8.0  -6  -1"                                                                          # interpolate 6 additional values between 0.125 and 8.0. -1 means choose them randomly.
+ZOOM_OUT_PROB="0.1   1.0  -6  -1"                                                                              
 
 #~ ZOOM_OUT_MAGS="0.125 0.25  0.5  0.75  1.0   2.0   4.0  8.0"                                             # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_PROB
 #~ ZOOM_OUT_PROB=0.  
