@@ -103,7 +103,12 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
   points_to_sample       = args.points_to_sample                                                           # In support of culling slides using 'min_tile_sd', how many points to sample on a tile when making determination
   supergrid_size         = args.supergrid_size
   scattergram            = args.scattergram
-    
+ 
+
+  
+  zoom_out_prob[0]=1.-sum(zoom_out_prob[1:])                                                               # just in case. If they don't add up to 1.0, the program willcrash
+
+  
   if ( ( just_test=='True')  & ( multimode!='image_rna' ) ):  
     greyness=60
     min_uniques=100
@@ -915,7 +920,7 @@ def choose_mag_level( my_thread, zoom_out_prob, zoom_out_mags, r_norm ):
   else:
   
     r      = [ random.random() for i in range(1, len(zoom_out_prob)+1 ) ]
-    r_norm = [ i/(sum(r)) for i in r ]                                                                     # make the probabilities add up to 1
+    r_norm = [ i/(sum(r)) for i in r ]
     
     multiplier = float(np.random.choice(
       zoom_out_mags, 
@@ -926,8 +931,8 @@ def choose_mag_level( my_thread, zoom_out_prob, zoom_out_mags, r_norm ):
     if DEBUG>0:
       np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})      
       print( f'{SAVE_CURSOR}\033[9;0H{RESET}TILER:          INFO: \
-user supplied  {BOLD}{CYAN}prob vector{RESET} = {MIKADO}{np.round(np.array(zoom_out_prob),3)}{RESET}  \
-user supplied  {BOLD}{CYAN}mags vector{RESET} = {MIKADO}{zoom_out_mags}{RESET}', 
+{BOLD}{CYAN}prob vector{RESET} = {MIKADO}{np.round(np.array(zoom_out_prob),3)}{RESET}  \
+{BOLD}{CYAN}mags vector{RESET} = {MIKADO}{zoom_out_mags}{RESET}{CLEAR_LINE}', 
 end='', flush=True )
 
       print( f'{SAVE_CURSOR}\033[10;0H{RESET}TILER:          INFO: \

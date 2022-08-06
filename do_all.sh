@@ -71,9 +71,7 @@ ZOOM_OUT_PROB="0.1   1.0  -6  -1"
 
 #~ ZOOM_OUT_MAGS="0.125 0.25  0.5  0.75  1.0   2.0   4.0  8.0"                                             # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_PROB
 #~ ZOOM_OUT_PROB=0.  
-
-#~ ZOOM_OUT_MAGS="0.25 0.5 1.0 2.0 3.0"                                                                    # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_PROB
-#~ ZOOM_OUT_PROB="0.1  0.2 0.55 0.1 0.05"                                                                  # image only. Chosen for magnification according to these probabilities, which must add up to 1
+                                                              # image only. Chosen for magnification according to these probabilities, which must add up to 1
 
 #~ ZOOM_OUT_MAGS=1.                                                                                           # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_PROB
 #~ ZOOM_OUT_PROB=1.        
