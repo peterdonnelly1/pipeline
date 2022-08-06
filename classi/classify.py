@@ -387,6 +387,10 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   else:
     args.zoom_out_mags  = expand_args( args.zoom_out_mags, "ZOOM_OUT_MAGS",   BITTER_SWEET  )
     args.zoom_out_prob  = expand_args( args.zoom_out_prob, "ZOOM_OUT_PROB",   MAGENTA       )
+    zoom_out_prob = np.around( np.array(zoom_out_prob), 3)                                                 # for readability on console, I rounded down to 3, but then have to make sure they still add up to exactly 1.0 
+    zoom_out_prob[0] = np.around(1.-np.sum(zoom_out_prob[1:]), 3)
+    zoom_out_prob = zoom_out_prob.tolist()                                                              # convert back to python list
+    
     
   n_tiles       = args.n_tiles
   tile_size     = args.tile_size
@@ -1041,9 +1045,12 @@ f"\
         if  (  (args.zoom_out_mags[4]<0) &     (args.zoom_out_prob[4]<0) ):
           zoom_out_mags  = expand_args( args.zoom_out_mags, "ZOOM_OUT_MAGS",   BITTER_SWEET  )
           zoom_out_prob  = expand_args( args.zoom_out_prob, "ZOOM_OUT_PROB",   MAGENTA       )
-          print( f"CLASSI:         INFO:  for this run (only) random selection for {RESET}{CYAN}zoom_out_mags{RESET} = {MIKADO}{zoom_out_mags}{RESET}", flush=True) 
-          print( f"CLASSI:         INFO:  for this run (only) random selection for {RESET}{CYAN}zoom_out_prob{RESET} = {MIKADO}{np.around(np.array(zoom_out_prob),3)}{RESET}", flush=True) 
-          time.sleep(5) 
+          zoom_out_prob = np.around( np.array(zoom_out_prob), 3)                                                 # for readability on console, I rounded down to 3, but then have to make sure they still add up to exactly 1.0 
+          zoom_out_prob[0] = np.around(1.-np.sum(zoom_out_prob[1:]), 3)
+          zoom_out_prob = zoom_out_prob.tolist()
+          print( f"CLASSI:         INFO:  for this run (only) random selection for {RESET}{CYAN}zoom_out_mags{RESET} = {MIKADO}{np.around(np.array(zoom_out_mags), 3)}{RESET}{CLEAR_LINE}", flush=True) 
+          print( f"CLASSI:         INFO:  for this run (only) random selection for {RESET}{CYAN}zoom_out_prob{RESET} = {MIKADO}{np.around(np.array(zoom_out_prob), 3)}{RESET}{CLEAR_LINE}", flush=True) 
+          time.sleep(4) 
    
     if ( divide_cases == 'True' ):
       
@@ -1159,9 +1166,6 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     
     zoom_out_mags_string = " ".join([str(i) for i in np.around( np.array(zoom_out_mags), 3)])
 
-    zoom_out_prob = np.around( np.array(zoom_out_prob), 3)                                                 # for readability on console, I rounded down to 3, but then have to make sure they still add up to exactly 1.0 
-    zoom_out_prob[-1] = 1.-np.sum(zoom_out_prob[:-2])
-    zoom_out_prob = zoom_out_prob.tolist()                                                                 # convert back to python list
     zoom_out_prob_string = np.around(np.array(zoom_out_prob), 3)
     zoom_out_prob_string = " ".join([str(i) for i in zoom_out_prob])
 
@@ -1294,11 +1298,19 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
     # ~ if (input_mode=='image') & (multimode!='image_rna'):
     if (input_mode=='image'):
-      
+
+      must_tile     = False
+      must_generate = False
+            
       if skip_tiling=='False':
-                  
+        if input_mode=='image':  
+          if ( (len(args.zoom_out_mags)>=5)  & (len(args.zoom_out_prob)>=5) ):
+            if  (  (args.zoom_out_mags[4]<0) &     (args.zoom_out_prob[4]<0) ):
+              must_tile     = True
+              must_generate = True
+
         # need to re-tile if certain parameters have eiher INCREASED ('n_tiles' or 'n_samples') or simply CHANGED ( 'stain_norm' or 'tile_size') since the last run
-        if ( ( already_tiled==True ) & ( ( stain_norm==last_stain_norm ) | (last_stain_norm=="NULL") ) & (n_tiles<=n_tiles_last ) & ( n_samples<=n_samples_last ) & ( tile_size_last==tile_size ) ):
+        if ( ( already_tiled==True ) & ( ( stain_norm==last_stain_norm ) | (last_stain_norm=="NULL") ) & (n_tiles<=n_tiles_last ) & ( n_samples<=n_samples_last ) & ( tile_size_last==tile_size ) & ( must_tile==False )):
           if DEBUG>0:
             print( f"CLASSI:         INFO: {BOLD}!! no need to perform tiling again: existing tiles are of the correct size and there are sufficient of them for the next run configured in this job{RESET}" )
           pass                                                                                             # no need to re-tile 
@@ -1438,7 +1450,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
     if  (input_mode=='image') & ( skip_generation!='True' ):
       
-      if ( ( already_tiled==True ) & (n_tiles==n_tiles_last ) & ( n_samples<=n_samples_last ) & ( tile_size_last==tile_size ) & ( stain_norm==last_stain_norm ) ):    # all have to be true, or else we must regenerate the .pt file
+      if ( ( already_tiled==True ) & (n_tiles==n_tiles_last ) & ( n_samples<=n_samples_last ) & ( tile_size_last==tile_size ) & ( stain_norm==last_stain_norm ) & ( must_generate==False )  ):    # all have to be true, or else we must regenerate the .pt file
         if DEBUG>0:
           print( f"CLASSI:         INFO: {BOLD}!! no need to re-generate the pytorch dataset. the existing dataset contains sufficient tiles of the correct size{RESET}" )
         pass

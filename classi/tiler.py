@@ -892,7 +892,7 @@ def highest_uniques(args, oslide, level, slide_width, slide_height, tile_size, s
 # ------------------------------------------------------------------------------
 
 def choose_mag_level( my_thread, zoom_out_prob, zoom_out_mags, r_norm ):
-
+   
    
   if len(zoom_out_prob)!=len(zoom_out_mags)!=1:
     print( f"\r{RESET}{RED}TILER:     FATAL: configuration vectors '{CYAN}zoom_out_prob{RESET}{RED}' and '{CYAN}zoom_out_mags{RESET}{RED}' have differing numbers of entries ({MIKADO}{len(zoom_out_prob)}{RESET}{RED} and {MIKADO}{len(zoom_out_mags)}{RESET}{RED} entries respectively){RESET}", flush=True)
@@ -903,7 +903,6 @@ def choose_mag_level( my_thread, zoom_out_prob, zoom_out_mags, r_norm ):
     
     if DEBUG>3:  
       print( f'\r{RESET}TILER:          INFO: system generated {CYAN}zoom_out_prob vector{RESET}', end='', flush=True  )
-
     
     multiplier = int(np.random.choice(
       zoom_out_mags, 
@@ -923,7 +922,7 @@ def choose_mag_level( my_thread, zoom_out_prob, zoom_out_mags, r_norm ):
     multiplier = float(np.random.choice(
       zoom_out_mags, 
       1,
-      p=zoom_out_prob
+      p=[ abs(zoom_out_prob[el]) for el in range(0, len(zoom_out_prob)) ]
     ))
 
     if DEBUG>0:
