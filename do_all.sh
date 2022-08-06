@@ -101,7 +101,7 @@ JUST_CLUSTER="False"
 JUST_TEST="False"
 LABEL_SWAP_PCT=0                                                                                           # (no getopts option) Swap this percentage of truth labels to random. Used for testing.
 LEARNING_RATE=".0001"
-MAKE_BALANCED="True"
+MAKE_BALANCED="False"
 MAKE_GREY_PCT="0.0"                                                                                        # (no getopts option) Proportion of tiles to convert to greyscale. Use to check effect of color on learning. 
 METRIC="manhattan"                                                                                         
 MIN_CLUSTER_SIZE="10"
@@ -163,7 +163,7 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:H:h:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:
     case "${option}"
     in
     a) NN_TYPE_IMG=${OPTARG};;                                                                             
-    A) AE_ADD_NOISE=${OPTARG};;                                                                             
+    A) HIGHEST_CLASS_NUMBER=${OPTARG};;                                                                             
     b) BATCH_SIZE=${OPTARG};;                                                                             
     B) BATCH_SIZE_TEST=${OPTARG};;                                                                             
     c) CASES=${OPTARG};;                                                                                   # (Flagged) subset of cases to use. At the moment: 'ALL_ELIGIBLE', 'DESIGNATED_UNIMODE_CASES' or 'DESIGNATED_MULTIMODE_CASES'. See user settings DIVIDE_CASES and CASES_RESERVED_FOR_IMAGE_RNA
@@ -195,7 +195,7 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:H:h:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:
     p) PERPLEXITY=${OPTARG};;                                                                              
     P) PRETRAIN=${OPTARG};;                                                                                # pre-train: exactly the same as training mode, but pre-trained model will be used rather than starting with random weights
     q) PCT_TEST___TRAIN=${OPTARG};;                                                                        
-    Q) SHOW_COLS=${OPTARG};;
+    Q) ZOOM_OUT_PROB=${OPTARG};;
     r) REGEN=${OPTARG};;                                                                                   # True or False. If 'True' copies either the entire dataset or just rna-seq files across from the applicable source directory (e.g. 'stad') to the working dataset directory (${DATA_ROOT}), depending on the value of INPUT_MODE (if INPUT_MODE is rna, assumption is that uer probably doesn't want to copy across image files, which can take a long time)
     R) REPEAT=${OPTARG};;                                                                                  # number of times to repeat the experiment
     s) SKIP_TILING=${OPTARG};;                                                                             # 'True'   or 'False'. If True,   skip tiling (to save - potentially quite a lot of time - if the desired tiles already exists)
@@ -203,7 +203,7 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:H:h:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:
     t) N_ITERATIONS=${OPTARG};;                                                                            # Number of iterations. Used by clustering algorithms only (neural networks use N_EPOCHS)
     T) TILE_SIZE=${OPTARG};;
     u) USE_AUTOENCODER_OUTPUT=${OPTARG};;                                                                  # 'True'   or 'False'. if 'True', use file containing auto-encoder output (which must exist, in log_dir) as input rather than the usual input (e.g. rna-seq values) 
-    U) SHOW_COLS=${OPTARG};; 
+    U) ZOOM_OUT_MAGS=${OPTARG};; 
     v) DIVIDE_CASES=${OPTARG};;                                                                             
     V) DO_COVARIANCE=${OPTARG};;
     w) PCT_TEST___JUST_TEST=${OPTARG};;                                                                    

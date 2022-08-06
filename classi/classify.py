@@ -130,6 +130,7 @@ final_test_batch_size = 0
 #@profile
 def main(args):
   
+  
   if DEBUG>0:
     print  ( f"pid = {os.getpid()}" )
   os.system("taskset -p 0xfffff %d" % os.getpid())
@@ -1134,11 +1135,20 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         # ~ n_samples = int(pct_test * n_samples )
 
 
-    now  = datetime.datetime.now()    
+    now  = datetime.datetime.now()
     pplog.set_logfiles( log_dir, descriptor, now )
     pplog.log_section(f"run = {now:%y-%m-%d %H:%M}   parameters = {descriptor}")
-    pplog.log_section(f"      zoom_out_mags = {zoom_out_mags}")
-    pplog.log_section(f"      zoom_out_prob = {zoom_out_prob}")
+    zoom_out_mags_string = " ".join([str(i) for i in np.around( np.array(zoom_out_mags), 3)])
+    zoom_out_prob_string = " ".join([str(i) for i in zoom_out_prob])
+    bash_command = f"cls; ./do_all.sh -d {args.dataset}  -i {input_mode}   -S {n_samples}  -A {highest_class_number}  -f {n_tiles}   -T {tile_size}  -b {batch_size}  -o {n_epochs}  -1 {pct_test}  -a {nn_type_img}  -c {args.cases}   -0 {stain_norm}  -U '{zoom_out_mags_string}' -Q '{zoom_out_prob_string}'  "
+    print ( f"\033[79;0H{bash_command}" )
+    time.sleep(1)
+
+    pplog.log_section(f"{bash_command}" )
+    pplog.log_section(f"      zoom_out_mags = {np.around(np.array(zoom_out_mags),3)}")
+    pplog.log_section(f"      zoom_out_mags = {np.around(np.array(zoom_out_prob),3)}")
+
+    pplog.log_section(f"      run args      = {sys.argv}")
     
 
     run+=1
@@ -6298,7 +6308,7 @@ def color_negative_red(val):  # not currently used
 
 if __name__ == '__main__':
   
-  if DEBUG>2:
+  if DEBUG>1:
     print ( f"{BLEU}{sys.argv[1:]}{RESET}" );
   
   # using this to handle booleans in user parms, which argparse doesn't support
