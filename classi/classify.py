@@ -1138,8 +1138,15 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     now  = datetime.datetime.now()
     pplog.set_logfiles( log_dir, descriptor, now )
     pplog.log_section(f"run = {now:%y-%m-%d %H:%M}   parameters = {descriptor}")
+    
     zoom_out_mags_string = " ".join([str(i) for i in np.around( np.array(zoom_out_mags), 3)])
+
+    zoom_out_prob = np.around( np.array(zoom_out_prob), 3)                                                 # for readability on console, I rounded down to 3, but then have to make sure they still add up to exactly 1.0 
+    zoom_out_prob[-1] = 1.-np.sum(zoom_out_prob[:-2])
+    zoom_out_prob = zoom_out_prob.tolist()                                                                 # convert back to python list
+    zoom_out_prob_string = np.around(np.array(zoom_out_prob), 3)
     zoom_out_prob_string = " ".join([str(i) for i in zoom_out_prob])
+
     bash_command = f"cls; ./do_all.sh -d {args.dataset}  -i {input_mode}   -S {n_samples}  -A {highest_class_number}  -f {n_tiles}   -T {tile_size}  -b {batch_size}  -o {n_epochs}  -1 {pct_test}  -a {nn_type_img}  -c {args.cases}   -0 {stain_norm}  -U '{zoom_out_mags_string}' -Q '{zoom_out_prob_string}'  "
     print ( f"\033[79;0H{bash_command}" )
     time.sleep(1)
