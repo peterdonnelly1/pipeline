@@ -56,7 +56,7 @@ start_row    = 60-num_cpus
 
 thread_to_monitor = 7
 
-def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method, d, f, my_thread, r ):
+def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob, d, f, my_thread, r ):
 
   start = time.time()
 
@@ -95,8 +95,6 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
   multimode              = args.multimode                                                                  # if set, suppress tile quality filters (i.e. accept every tile)
   data_dir               = args.data_dir
   log_dir                = args.log_dir
-  zoom_out_prob          = args.zoom_out_prob
-  zoom_out_mags          = args.zoom_out_mags
   greyness               = args.greyness                                                                   # Used to filter out images with very low information value
   min_uniques            = args.min_uniques                                                                # tile must have at least this many unique values or it will be assumed to be degenerate
   min_tile_sd            = args.min_tile_sd                                                                # Used to cull slides with a very reduced greyscale palette such as background tiles 

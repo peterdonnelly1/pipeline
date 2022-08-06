@@ -317,7 +317,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     COL = highlight_colour
     c=57
     
-    
     if len(parm)>=3:
       if parm[2]<0:
         lo=parm[0]
@@ -374,15 +373,21 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       
     return parm
 
-
+  per_run_zoom_out_parameters=False
   args.n_tiles        = expand_args( args.n_tiles,       "N_TILES",         CAMEL  )
   args.tile_size      = expand_args( args.tile_size,     "TILE_SIZE",       CAMEL  )
   args.batch_size     = expand_args( args.batch_size,    "BATCH_SIZE",      CAMEL  )
   args.n_samples      = expand_args( args.n_samples,     "N_SAMPLES",       CAMEL  )
   args.pct_test       = expand_args( args.pct_test,      "PCT_TEST",        CAMEL  )
-  args.zoom_out_mags  = expand_args( args.zoom_out_mags, "ZOOM_OUT_MAGS",   BITTER_SWEET  )
-  args.zoom_out_prob  = expand_args( args.zoom_out_prob, "ZOOM_OUT_PROB",   MAGENTA  )
-  
+  if ( (len(zoom_out_mags)>=5) & (len(zoom_out_prob)>=5) ):                                                # zoom_out_mags[4]<0 indicates users wants random values to be generate per job, rather than per run, so expand later, not here
+    if  ( (zoom_out_mags[4]>0) & (zoom_out_prob[4]>0) ):
+      pass
+    else:
+      per_run_zoom_out_parameters=True
+  else:
+    args.zoom_out_mags  = expand_args( args.zoom_out_mags, "ZOOM_OUT_MAGS",   BITTER_SWEET  )
+    args.zoom_out_prob  = expand_args( args.zoom_out_prob, "ZOOM_OUT_PROB",   MAGENTA       )
+    
   n_tiles       = args.n_tiles
   tile_size     = args.tile_size
   batch_size    = args.batch_size
@@ -889,6 +894,7 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
   second_offset = 12
 
   total_runs_in_job = len(list(product(*param_values)))
+
   
   if skip_tiling=='True':
 
@@ -906,7 +912,6 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
   run_level_classifications_matrix     =  np.zeros( (n_classes, n_classes), dtype=int )
   job_level_classifications_matrix     =  np.zeros( (n_classes, n_classes), dtype=int )
   run_level_classifications_matrix_acc =  np.zeros( ( total_runs_in_job, n_classes, n_classes ), dtype=int )     
-  
   
   if DEBUG>0:
     print ( f"CLASSI:         INFO:  total_runs_in_job    =  {CARRIBEAN_GREEN}{total_runs_in_job}{RESET}"  )
@@ -926,8 +931,8 @@ f"\
 \r\033[{start_column+10*offset}Cstain_norm\
 \r\033[{start_column+11*offset}Clabel_swap\
 \r\033[{start_column+12*offset}Cgreyscale\
-\r\033[{start_column+13*offset}Cextraction dimensions (multiples of base tile size)\
-\r\033[{start_column+14*offset+52}Cprobability for each of the extraction dimensions\
+\r\033[{start_column+13*offset}C{BLACK if per_run_zoom_out_parameters==True else CARRIBEAN_GREEN}extraction dimensions (multiples of base tile size)\
+\r\033[{start_column+14*offset+52}C{BLACK if per_run_zoom_out_parameters==True else CARRIBEAN_GREEN}probability for each of the extraction dimensions{RESET}\
 \r\033[{start_column+15*offset+105}Cjitter vector\
 "
 
@@ -948,14 +953,17 @@ f"\
 \r\033[{start_column+13*offset+3}Ctransform\
 \r\033[{start_column+14*offset+3}Clabel_swap\
 "
+
   
   if DEBUG>0:
     if input_mode=='image':
       print(f"\n{UNDER}JOB LIST:{RESET}")
-      print(f"\r\033[155C ------------ tile extraction parameters (all tiles will be saved at base tile size ({MIKADO}{tile_size[0]}x{tile_size[0]}{RESET}) -------------- {RESET}")      
+      if per_run_zoom_out_parameters==False:
+        print(f"\r\033[155C ------------ tile extraction parameters (all tiles will be saved at base tile size ({MIKADO}{tile_size[0]}x{tile_size[0]}{RESET}) -------------- {RESET}")      
       print(f"\r\033[2C{image_headings}{RESET}")      
       for repeater, stain_norm, tile_size, lr, pct_test, n_samples, batch_size, n_tiles, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, low_expression_threshold, cutoff_percentile, embedding_dimensions, dropout_1, dropout_2, nn_optimizer, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values):    
 
+      
         print( f"{CARRIBEAN_GREEN}\
 \r\033[2C\
 \r\033[{start_column+0*offset}C{lr:<9.6f}\
@@ -971,10 +979,11 @@ f"\
 \r\033[{start_column+10*offset}C{stain_norm:<10s}\
 \r\033[{start_column+11*offset}C{label_swap_pct:<6.1f}\
 \r\033[{start_column+12*offset}C{make_grey_pct:<5.1f}\
-\r\033[{start_column+13*offset}C{zoom_out_mags:}\
-\r\033[{start_column+14*offset+55}C{np.round(np.array(zoom_out_prob),3):}\
+\r\033[{start_column+13*offset}C{BLACK if per_run_zoom_out_parameters==True else CARRIBEAN_GREEN}{zoom_out_mags:}\
+\r\033[{start_column+14*offset+55}C{BLACK if per_run_zoom_out_parameters==True else CARRIBEAN_GREEN}{np.round(np.array(zoom_out_prob),3):}{RESET}{CARRIBEAN_GREEN}\
 \r\033[{start_column+15*offset+105}C{jitter:}\
 {RESET}" )
+
 
 
 
@@ -1026,7 +1035,16 @@ f"\
   run=0
   
   for repeater, stain_norm, tile_size, lr, pct_test, n_samples, batch_size, n_tiles, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, low_expression_threshold, cutoff_percentile, embedding_dimensions, dropout_1, dropout_2, nn_optimizer, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values): 
- 
+
+    if input_mode=='image':  
+      if ( (len(args.zoom_out_mags)>=5)  & (len(args.zoom_out_prob)>=5) ):
+        if  (  (args.zoom_out_mags[4]<0) &     (args.zoom_out_prob[4]<0) ):
+          zoom_out_mags  = expand_args( args.zoom_out_mags, "ZOOM_OUT_MAGS",   BITTER_SWEET  )
+          zoom_out_prob  = expand_args( args.zoom_out_prob, "ZOOM_OUT_PROB",   MAGENTA       )
+          print( f"CLASSI:         INFO:  for this run (only) random selection for {RESET}{CYAN}zoom_out_mags{RESET} = {MIKADO}{zoom_out_mags}{RESET}", flush=True) 
+          print( f"CLASSI:         INFO:  for this run (only) random selection for {RESET}{CYAN}zoom_out_prob{RESET} = {MIKADO}{np.around(np.array(zoom_out_prob),3)}{RESET}", flush=True) 
+          time.sleep(5) 
+   
     if ( divide_cases == 'True' ):
       
       if just_test=='False':                                                                      
@@ -1153,7 +1171,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
     pplog.log_section(f"{bash_command}" )
     pplog.log_section(f"      zoom_out_mags = {np.around(np.array(zoom_out_mags),3)}")
-    pplog.log_section(f"      zoom_out_mags = {np.around(np.array(zoom_out_prob),3)}")
+    pplog.log_section(f"      zoom_out_prob = {np.around(np.array(zoom_out_prob),3)}")
 
     pplog.log_section(f"      run args      = {sys.argv}")
     
@@ -1339,7 +1357,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
                 if DEBUG>1:
                   print( f"{SAVE_CURSOR}\r\033[{num_cpus}B{WHITE}CLASSI:         INFO: about to call tiler_threader with flag = {BLEU}{flag}{RESET}; total_slides_counted_test = {MIKADO}{total_slides_counted_test:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles = {MIKADO}{n_tiles}{RESET}{RESTORE_CURSOR}", flush=True )
 
-                slides_tiled_count = tiler_threader( args, flag, total_slides_counted_test, n_samples, n_tiles, top_up_factors_test, tile_size, batch_size, stain_norm, norm_method )
+                slides_tiled_count = tiler_threader( args, flag, total_slides_counted_test, n_samples, n_tiles, top_up_factors_test, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob  )
 
               if (  args.cases == 'MULTIMODE____TEST' ):
                 
@@ -1350,7 +1368,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
                 if DEBUG>1:
                   print( f"{SAVE_CURSOR}\r\033[{num_cpus}B{WHITE}CLASSI:         INFO: about to call tiler_threader with flag = {BLEU}{flag}{RESET}; count = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles = {MIKADO}{n_tiles}{RESET}{RESTORE_CURSOR}", flush=True )
 
-                slides_tiled_count = tiler_threader( args, flag, total_slides_counted_test, n_samples, n_tiles, top_up_factors_test, tile_size, batch_size, stain_norm, norm_method )
+                slides_tiled_count = tiler_threader( args, flag, total_slides_counted_test, n_samples, n_tiles, top_up_factors_test, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob  )
 
               if (  args.cases == 'ALL_ELIGIBLE_CASES' ):
                 
@@ -1362,11 +1380,11 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
                 if DEBUG>1:
                   print( f"{SAVE_CURSOR}\r\033[{num_cpus+1}B{WHITE}CLASSI:         INFO: about to call tiler_threader with flag = {BLEU}{flag}{RESET}; slides_to_be_tiled = {MIKADO}{slides_to_be_tiled:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
 
-                slides_tiled_count = tiler_threader( args, flag, slides_to_be_tiled, n_samples, n_tiles_max, top_up_factors_test, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
+                slides_tiled_count = tiler_threader( args, flag, slides_to_be_tiled, n_samples, n_tiles_max, top_up_factors_test, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob  )               # we tile the largest number of samples & tiles that is required for any run within the job
 
 
           else:
-
+            
             if (  args.cases == 'ALL_ELIGIBLE_CASES' ):
               
               slides_to_be_tiled = n_samples
@@ -1382,7 +1400,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
             
               if DEBUG>1:
                 print( f"{SAVE_CURSOR}\r\033[{num_cpus+1}B{WHITE}CLASSI:         INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; slides_to_be_tiled = {MIKADO}{slides_to_be_tiled:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
-              slides_tiled_count = tiler_threader( args, flag, slides_to_be_tiled, n_samples, n_tiles_max, top_up_factors_train, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
+              slides_tiled_count = tiler_threader( args, flag, slides_to_be_tiled, n_samples, n_tiles_max, top_up_factors_train, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob  )               # we tile the largest number of samples & tiles that is required for any run within the job
 
               
             if (  args.cases == 'UNIMODE_CASE' ):
@@ -1400,7 +1418,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
                 np.set_printoptions(formatter={'float': lambda x: "{:>.2f}".format(x)})
                 print( f"\r{WHITE}CLASSI:         INFO: about to call {MAGENTA}tiler_threader{RESET}: flag={CYAN}{flag}{RESET}; train_count={MIKADO}{total_slides_counted_train:3d}{RESET}; top_up_factors_train  = {MIKADO}{top_up_factors_train}{RESET}; %_test={MIKADO}{pct_test:2.2f}{RESET}; n_samples={MIKADO}{n_samples_max:3d}{RESET}; n_tiles={MIKADO}{n_tiles_max}{RESET}", flush=True )
 
-              slides_tiled_count = tiler_threader( args, flag, total_slides_counted_train, n_samples, n_tiles_max, top_up_factors_train, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
+              slides_tiled_count = tiler_threader( args, flag, total_slides_counted_train, n_samples, n_tiles_max, top_up_factors_train, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob  )               # we tile the largest number of samples & tiles that is required for any run within the job
 
               flag  = 'UNIMODE_CASE____IMAGE_TEST'
               total_slides_counted_test, total_tiles_required_test, top_up_factors_test  = determine_top_up_factors ( args, n_classes, class_names, n_tiles, flag )
@@ -1408,7 +1426,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
               if DEBUG>1:
                 np.set_printoptions(formatter={'float': lambda x: "{:>.2f}".format(x)})
                 print( f"\r{WHITE}CLASSI:         INFO: about to call {MAGENTA}tiler_threader{RESET}: flag={BLEU}{flag}{RESET}; test_count={PINK}{total_slides_counted_test:3d}{RESET}; top_up_factors_test  = {PINK}{top_up_factors_test}{RESET}; %_test={PINK}{pct_test:2.2f}{RESET}; n_samples={PINK}{n_samples_max:3d}{RESET}; n_tiles={PINK}{n_tiles_max}{RESET}", flush=True )
-              slides_tiled_count = tiler_threader( args, flag, total_slides_counted_test, n_samples, n_tiles_max, top_up_factors_train, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
+              slides_tiled_count = tiler_threader( args, flag, total_slides_counted_test, n_samples, n_tiles_max, top_up_factors_train, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob  )               # we tile the largest number of samples & tiles that is required for any run within the job
               
 
           if just_profile=='True':                                                                         # then we are all done

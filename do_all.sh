@@ -44,13 +44,13 @@ JUST_PROFILE="False"                                                            
 DDP="False"                                                                                                # PRE_COMPRESS mode only: if "True", use PyTorch 'Distributed Data Parallel' to make use of multiple GPUs. (Works on single GPU machines, but is of no benefit and has additional overhead, so should be disabled)
 
 
-MINIMUM_PERMITTED_GREYSCALE_RANGE=210                                                                      # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
-MINIMUM_PERMITTED_UNIQUE_VALUES=210                                                                        # tile must have at least this many unique values or it will be assumed to be degenerate
-MINIMUM_TILE_SD=2.1                                                                                        # Used to cull slides with a very reduced greyscale palette such as background tiles
+#~ MINIMUM_PERMITTED_GREYSCALE_RANGE=210                                                                      # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
+#~ MINIMUM_PERMITTED_UNIQUE_VALUES=210                                                                        # tile must have at least this many unique values or it will be assumed to be degenerate
+#~ MINIMUM_TILE_SD=2.1                                                                                        # Used to cull slides with a very reduced greyscale palette such as background tiles
 
-#~ MINIMUM_PERMITTED_GREYSCALE_RANGE=2                                                                      # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
-#~ MINIMUM_PERMITTED_UNIQUE_VALUES=2                                                                        # tile must have at least this many unique values or it will be assumed to be degenerate
-#~ MINIMUM_TILE_SD=0.1                                                                                     # Used to cull slides with a very reduced greyscale palette such as background tiles
+MINIMUM_PERMITTED_GREYSCALE_RANGE=2                                                                      # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
+MINIMUM_PERMITTED_UNIQUE_VALUES=2                                                                        # tile must have at least this many unique values or it will be assumed to be degenerate
+MINIMUM_TILE_SD=0.1                                                                                     # Used to cull slides with a very reduced greyscale palette such as background tiles
 
 
 POINTS_TO_SAMPLE=500                                                                                       # Used for determining/culling background tiles via 'min_tile_sd', how many points to sample on a tile when making determination if it is mostly background
@@ -63,17 +63,16 @@ BOX_PLOT="True"                                                                 
 BOX_PLOT_SHOW="False"                                                                                      # If true, present the graphic using pyplot
 MAX_CONSECUTIVE_LOSSES=3                                                                                   # training will stop after this many consecutive losses, regardless of nthe value of N_EPOCHS
 
-#~ ZOOM_OUT_MAGS="0.125 0.25  0.5  0.75  1.0   2.0   4.0  8.0"                                                # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_PROB
+#~ ZOOM_OUT_MAGS="0.125 0.25  0.5  0.75  1.0   2.0   4.0  8.0"                                             # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_PROB
 #~ ZOOM_OUT_PROB="0.1   0.1   0.1  0.15  0.2   0.15  0.1  0.1"  
 
-ZOOM_OUT_MAGS="0.125 8.0  -6  -1"                                                                          # interpolate 6 additional values between 0.125 and 8.0. -1 means choose them randomly.
-ZOOM_OUT_PROB="0.1   1.0  -6  -1"                                                                              
+ZOOM_OUT_MAGS="0.125 8.0  -6  -1  -1"                                                                      # interpolate 6 additional values between 0.125 and 8.0. -1 means choose them randomly.
+ZOOM_OUT_PROB="0.1   1.0  -6  -1  -1"                                                                              
 
 #~ ZOOM_OUT_MAGS="0.125 0.25  0.5  0.75  1.0   2.0   4.0  8.0"                                             # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_PROB
 #~ ZOOM_OUT_PROB=0.  
-                                                              # image only. Chosen for magnification according to these probabilities, which must add up to 1
 
-#~ ZOOM_OUT_MAGS=1.                                                                                           # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_PROB
+#~ ZOOM_OUT_MAGS=1.                                                                                        # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_PROB
 #~ ZOOM_OUT_PROB=1.        
 
 COLOUR_MAP="tab20"                                                                                         # see 'https://matplotlib.org/3.3.3/tutorials/colors/colormaps.html' for allowed COLOUR_MAPs (Pastel1', 'Pastel2', 'Accent', 'Dark2' etc.)
@@ -99,7 +98,7 @@ JUST_CLUSTER="False"
 JUST_TEST="False"
 LABEL_SWAP_PCT=0                                                                                           # (no getopts option) Swap this percentage of truth labels to random. Used for testing.
 LEARNING_RATE=".0001"
-MAKE_BALANCED="False"
+MAKE_BALANCED="True"
 MAKE_GREY_PCT="0.0"                                                                                        # (no getopts option) Proportion of tiles to convert to greyscale. Use to check effect of color on learning. 
 METRIC="manhattan"                                                                                         
 MIN_CLUSTER_SIZE="10"

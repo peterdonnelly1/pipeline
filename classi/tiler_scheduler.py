@@ -25,7 +25,8 @@ from constants  import *
 DEBUG=1
 
     
-def tiler_scheduler( args, r_norm, flag, slide_count, n_samples, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method, my_thread, num_threads ):
+def tiler_scheduler( args, r_norm, flag, slide_count, n_samples, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob, my_thread, num_threads ):
+
   
   num_cpus = multiprocessing.cpu_count()
 
@@ -106,7 +107,7 @@ def tiler_scheduler( args, r_norm, flag, slide_count, n_samples, n_tiles, top_up
                 
                 pqn = f"{d}/{f}"
                 
-                result = tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method, d, f, my_thread, r )
+                result = tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method,  zoom_out_mags, zoom_out_prob, d, f, my_thread, r )
                 
                 if result==SUCCESS:
                   slides_processed+=1
@@ -140,7 +141,7 @@ def tiler_scheduler( args, r_norm, flag, slide_count, n_samples, n_tiles, top_up
                 
                 pqn = f"{d}/{f}"
                 
-                result = tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method, d, f, my_thread, r )
+                result = tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob, d, f, my_thread, r )
 
                 a = random.choice( range(150+2*my_thread,255) )
                 b = random.choice( range(50,225) )
