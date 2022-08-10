@@ -327,12 +327,11 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           if parm[3]<0:
             RANDOM_CHOICES = True
             if bash_name != 'ZOOM_OUT_PROB':
-              if abs(parm[2])>=(abs(hi-lo)):
-                num = int(abs(hi-lo)-1)
-              if num<0:
-                num=1
-              if (hi-lo)<0:
-                hi-lo+1
+              if isinstance( parm[0], int ):
+                if abs(parm[2])>=(abs(hi-lo)):
+                  num = int(abs(hi-lo)-1)
+                if num<0:
+                  num=1
         if RANDOM_CHOICES!=True:
           if isinstance( parm[0], int ):
             parm_new = [ lo + int( ( n / (num+1) )*(hi-lo) ) for n in range (0, num+2) ]
@@ -4931,10 +4930,9 @@ def analyse_probs( y1_hat, image_labels_values ):
 
     p_full_softmax_matrix = functional.softmax( y1_hat, dim=1).cpu().numpy()
 
-    if DEBUG>9:
-      np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
-      print ( "CLASSI:         INFO:      analyse_probs():              type(p_full_softmax_matrix)     = {:}".format( type(p_full_softmax_matrix) )  )
-      print ( "CLASSI:         INFO:      analyse_probs():               p_full_softmax_matrix          = \n{:}".format( np.transpose(p_full_softmax_matrix[0:22,:])   )  )
+    if DEBUG>0:
+      np.set_printoptions(formatter={'float': lambda x: "{:>5.3f}".format(x)})
+      print ( f"CLASSI:         INFO:      analyse_probs():               p_full_softmax_matrix          = \n{p_full_softmax_matrix}", flush=True )
 
     # make a vector of the HIGHEST probability (for each example in the batch)    
     p_highest  = np.array(  [ functional.softmax( el, dim=0)[i].item() for i, el in zip(preds, y1_hat) ]   )
