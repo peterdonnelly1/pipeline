@@ -124,6 +124,7 @@ PRETRAIN="False"
 SKIP_GENERATION="False"                                                                                    
 REGEN="False"
 REPEAT=1                                                                                    
+SKIP_IMAGE_PREPROCESSING="False"
 SKIP_RNA_PREPROCESSING="False"
 SKIP_TILING="False"                                                                                        # supported: any of the sklearn metrics
 SKIP_TRAINING="False"
@@ -207,7 +208,7 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:H:h:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:
     W) DO_CORRELATION=${OPTARG};;
     x) N_CLUSTERS=${OPTARG};;                                                                              # 'yes'   or nothing. If 'true'  carve out (by flagging) CASES_RESERVED_FOR_IMAGE_RNA and CASES_RESERVED_FOR_IMAGE_RNA_TESTING. 
     X) SKIP_RNA_PREPROCESSING=${OPTARG};;                                                                  
-    y) A_D_USE_CUPY=${OPTARG};;
+    y) SKIP_IMAGE_PREPROCESSING=${OPTARG};;
     Y) TARGET_GENES_REFERENCE_FILE=${OPTARG};;    
     z) NN_TYPE_RNA=${OPTARG};;                                                                             
     Z) N_TESTS=${OPTARG};;                                                                             
@@ -327,7 +328,7 @@ fi
 echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '*${RNA_FILE_REDUCED_SUFFIX}'"
 find ${DATA_DIR} -type f -name *${RNA_FILE_REDUCED_SUFFIX} -delete
 
-if [[ ${SKIP_RNA_PREPROCESSING} != "True" &&  ${SKIP_GENERATION} != "True" && ${SKIP_TILING} != "True" ]] ; then
+if [[ ${SKIP_IMAGE_PREPROCESSING} != "True" &&  ${SKIP_RNA_PREPROCESSING} != "True" &&  ${SKIP_GENERATION} != "True" && ${SKIP_TILING} != "True" ]] ; then
   echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '${CLASS_NUMPY_FILENAME}'"
   find ${DATA_DIR} -type f -name ${CLASS_NUMPY_FILENAME}     -delete
 fi
@@ -404,7 +405,7 @@ fi
     
     echo "=====> STEP 2B OF 3: (IF APPLICABLE) PRE-PROCESSING CLASS (GROUND TRUTH) INFORMATION AND SAVING AS NUMPY FILES"
     
-    if [[ ${SKIP_RNA_PREPROCESSING} != "True" &&  ${SKIP_GENERATION} != "True" && ${SKIP_TILING} != "True" ]] ; then
+    if [[  ${SKIP_IMAGE_PREPROCESSING} != "True" && ${SKIP_RNA_PREPROCESSING} != "True" &&  ${SKIP_GENERATION} != "True" && ${SKIP_TILING} != "True" ]] ; then
 
       sleep ${SLEEP_TIME}
       cp ${GLOBAL_DATA}/${MAPPING_FILE_NAME}                                    ${DATA_DIR}
