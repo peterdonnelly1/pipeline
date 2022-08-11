@@ -4966,7 +4966,7 @@ def analyse_probs( y1_hat, image_labels_values ):
 
     p_full_softmax_matrix = functional.softmax( y1_hat, dim=1).cpu().numpy()
 
-    if DEBUG>0:
+    if DEBUG>1:
       np.set_printoptions(formatter={'float': lambda x: "{:>5.3f}".format(x)})
       print ( f"CLASSI:         INFO:      analyse_probs():               p_full_softmax_matrix          = \n{p_full_softmax_matrix}", flush=True )
 
