@@ -250,7 +250,7 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}",                                 flush=True )
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) cases_required (training cases = int(n_samples * (1 - pct_test ) ) ................ = {MIKADO}{cases_required}{RESET}",                           flush=True )
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) hence tiles required for training = cases_required * n_tiles ) .................... = {MIKADO}{cases_required * n_tiles}{RESET}",                 flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) tiles_required ............................................................. = {MIKADO}{tiles_required}{RESET}",                           flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) tiles_required .................................................................... = {MIKADO}{tiles_required}{RESET}",                           flush=True )
 
 
           if target=='image_test':

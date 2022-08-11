@@ -64,7 +64,7 @@ BOX_PLOT_SHOW="False"                                                           
 MAX_CONSECUTIVE_LOSSES=3                                                                                   # training will stop after this many consecutive losses, regardless of nthe value of N_EPOCHS
 
 #~ ZOOM_OUT_MAGS="0.125 0.25  0.5  0.75  1.0   2.0   4.0  8.0"                                             # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_PROB
-#~ ZOOM_OUT_PROB="0.1   0.1   0.1  0.15  0.2   0.15  0.1  0.1"  
+#~ ZOOM_OUT_PROB="0.1   0.1   0.1  0.15  0.2   0.15  0.1  0.1"    
 
 ZOOM_OUT_MAGS="0.125 8.0  -6  -1  -1"                                                                      # interpolate 6 additional values between 0.125 and 8.0. -1 means choose them randomly.
 ZOOM_OUT_PROB="0.1   1.0  -6  -1  -1"                                                                              
@@ -98,7 +98,7 @@ JUST_CLUSTER="False"
 JUST_TEST="False"
 LABEL_SWAP_PCT=0                                                                                           # (no getopts option) Swap this percentage of truth labels to random. Used for testing.
 LEARNING_RATE=".0001"
-MAKE_BALANCED="True"
+MAKE_BALANCED="False"
 MAKE_GREY_PCT="0.0"                                                                                        # (no getopts option) Proportion of tiles to convert to greyscale. Use to check effect of color on learning. 
 METRIC="manhattan"                                                                                         
 MIN_CLUSTER_SIZE="10"
@@ -324,11 +324,11 @@ if [[ ${SKIP_RNA_PREPROCESSING} != 'True' ]]; then
   find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}       -delete
 fi
 
-#~ echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '*${RNA_FILE_REDUCED_SUFFIX}'"
-#~ find ${DATA_DIR} -type f -name *${RNA_FILE_REDUCED_SUFFIX} -delete
+echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '*${RNA_FILE_REDUCED_SUFFIX}'"
+find ${DATA_DIR} -type f -name *${RNA_FILE_REDUCED_SUFFIX} -delete
 
 if [[ ${SKIP_RNA_PREPROCESSING} != "True" &&  ${SKIP_GENERATION} != "True" && ${SKIP_TILING} != "True" ]] ; then
-  #~ echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '${CLASS_NUMPY_FILENAME}'"
+  echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '${CLASS_NUMPY_FILENAME}'"
   find ${DATA_DIR} -type f -name ${CLASS_NUMPY_FILENAME}     -delete
 fi
 
@@ -377,7 +377,6 @@ fi
   cd ${BASE_DIR}
 
     
-echo "=====> STEP 2 OF 3: PRE-PROCESS TRUTH VALUES (TRUE SUBTYPES) AND IF APPLICABLE, ALSO (i) REMOVE ROWS (RNA EXPRESSION DATA) FROM FPKM-UQ FILES THAT DO NOT CORRESPOND TO TARGET GENE LIST (ii) EXTRACT RNA-SEQ GENE EXPRESSION INFORMATION AND SAVE AS NUMPY FILES"
 
     if [[ ${INPUT_MODE} == "rna" ]] || [[ ${INPUT_MODE} == "image_rna" ]] ;
       then

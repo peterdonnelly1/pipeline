@@ -197,7 +197,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
 
   except Exception as e:
     if DEBUG>0:
-      print(f"{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus};0H{BOLD_ORANGE}TILER_SCHEDULER_{FG3}: WARNING: there was no slide file for this case !!! {BOLD_CYAN}{fqn}{RESET}{BOLD_ORANGE}. Skipping and moving to next case{RESET}{RESTORE_CURSOR}", flush=True)
+      print(f"{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus-1};0H{BOLD_ORANGE}TILER_{FG3}{my_thread}:           WARNING: there was no slide file for this case !!! {BOLD_CYAN}{fqn}{RESET}{BOLD_ORANGE}  <---Skipping and moving to next case{RESET}{RESTORE_CURSOR}", flush=True)
     return MISSING_IMAGE_FILE
 
   level            = 0
@@ -217,7 +217,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
       print( f"TILER:          INFO: slide height x width (pixels) = {BB}{height:6d} x {width:6d}{RESET} and potential ({BB}{tile_width:3d}x{tile_width:3d}{RESET} sized ) tiles for this slide = {BB}{potential_tiles:7d}{RESET} ", end ="", flush=True )
 
   if potential_tiles<n_tiles:
-    print( f"{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus};0H{BOLD_ORANGE}TILER_SCHEDULER_{FG3}: WARNING: requested tiles (n_tiles) = {CYAN}{n_tiles:,}{RESET}{ORANGE} but only {RESET}{CYAN}{potential_tiles:,}{RESET}{ORANGE} possible. Slide will be skipped. ({CYAN}{fqn}{RESET}{ORANGE}){RESET}{RESTORE_CURSOR}", flush=True)
+    print( f"{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus};0H{BOLD_ORANGE}TILER_{FG3}: WARNING: requested tiles (n_tiles) = {CYAN}{n_tiles:,}{RESET}{ORANGE} but only {RESET}{CYAN}{potential_tiles:,}{RESET}{ORANGE} possible. Slide will be skipped. ({CYAN}{fqn}{RESET}{ORANGE}){RESET}{RESTORE_CURSOR}", flush=True)
     return INSUFFICIENT_TILES
 
 
@@ -308,7 +308,19 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
   
   # (3b) Set up parameters for selection of tiles (for training mode and multimode: random; for test mode: 2D contiguous patch taking into account the supergrid ('SUPERGRID_SIZE') setting)
   
-  if ( ( just_test!='True' ) | ( multimode=='image_rna' ) ):
+  just_one_tile_from_origin=False
+  if n_tiles==0:
+    just_one_tile_from_origin=True                                                                              # n_tiles=0 indicates signals that user wants one tile only (we aren't really tiling)
+    n_tiles = 1
+    
+  if ( just_one_tile_from_origin==True  ):
+    x_start=0
+    y_start=0
+    tiles_to_get = 1                                                                                       # length of one side of the patch, in number of tiles (the patch is square, and the  batch_size is chosen to be precisely equal to the n_tiles for test mode) 
+    tile_height  = tile_width
+    x_span=range(x_start, x_start + tiles_to_get*tile_width, tile_width)                                   # steps of tile_width
+    y_span=range(y_start, y_start + tiles_to_get*tile_width, tile_height)                                 # steps of tile_height
+  elif ( ( just_test!='True' ) | ( multimode=='image_rna' )  ):
     x_start=0
     y_start=0
     x_span=range(x_start, width, tile_width)                                                               # steps of tile_width
@@ -377,7 +389,10 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
       for y in y_span:
     
           tiles_considered_count+=1
-                                  
+
+          if   ( ( just_one_tile_from_origin=='True' ) & ( tiles_processed==1 )  ):
+            break_now=True
+            break                                  
           if   ( ( just_test=='True' ) & ( multimode!='image_rna' ) ) & ( tiles_processed==n_tiles*(supergrid_size**2) ):
             break_now=True
             break
@@ -389,12 +404,12 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
             if (x>width-2*tile_width) & (y>height-2*tile_width):
               if just_profile=='True':
                 if already_displayed==False:
-                  print(f'{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus};0H{BOLD_ORANGE}TILER_SCHEDULER_{FG3}: WARNING: have covered the entire slide and there are not enough tiles that meet the quality criteria. (At coords {CYAN}{x},{y}{RESET}) with {CYAN}{tiles_processed}{RESET}) -- skipping {CYAN}{fqn}{RESET}{RESTORE_CURSOR}', flush=True)
+                  print(f'{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus+3};0H{BOLD_ORANGE}TILER_{FG3}: WARNING: have covered the entire slide and there are not enough tiles that meet the quality criteria. (At coords {CYAN}{x},{y}{RESET}) with {CYAN}{tiles_processed}{RESET}) -- skipping {CYAN}{fqn}{RESET}{RESTORE_CURSOR}', flush=True)
                   already_displayed=True
                   return INSUFFICIENT_QUALIFYING_TILES
               else:
                 if ( ( just_test!='True' ) | ( multimode=='image_rna') ):
-                  print(f'{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus};0H{BOLD_ORANGE}TILER_SCHEDULER_{FG3}: WARNING: have covered the entire slide and there are not enough tiles that meet the quality criteria. (At coords {CYAN}{x},{y}{RESET}) with {CYAN}{tiles_processed}{RESET}) -- skipping {CYAN}{fqn}{RESET}{RESTORE_CURSOR}', flush=True)
+                  print(f'{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus+3};0H{BOLD_ORANGE}TILER_{FG3}: WARNING: have covered the entire slide and there are not enough tiles that meet the quality criteria. (At coords {CYAN}{x},{y}{RESET}) with {CYAN}{tiles_processed}{RESET}) -- skipping {CYAN}{fqn}{RESET}{RESTORE_CURSOR}', flush=True)
                   return INSUFFICIENT_QUALIFYING_TILES
               
             if x + tile_width > width:
@@ -637,12 +652,12 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
               print ( f"{RESTORE_CURSOR}", end="" )
   
   if (DEBUG>9):
-    print('TILER: INFO: time taken to tile this SVS image: \033[1m{0:.2f}s\033[m'.format((time.time() - start)/60.0))
+    print('TILER: INFO: time taken to tile source image: \033[1m{0:.2f}s\033[m'.format((time.time() - start)/60.0))
 
   fq_name = f"{data_dir}/{d}/SLIDE_TILED"
 
   with open(fq_name, 'w') as f:
-    f.write( f"this SVS or TIF file has been tiled" )
+    f.write( f"this source image file has been tiled" )
   f.close  
   
 

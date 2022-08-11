@@ -7,7 +7,9 @@ import numpy as np
 import multiprocessing
 import multiprocessing
 from pathlib import Path
-from tiler import tiler
+import pyvips
+
+from tiler   import tiler
 
 SUCCESS=1
 FAIL=0
@@ -62,11 +64,14 @@ def tiler_scheduler( args, r_norm, flag, slide_count, n_samples, n_tiles, top_up
   
 
   my_slide_quota             = -(slide_count//-num_cpus)                                                   # how many slides each process has to handle
-  my_expanded_slide_quota    = 3*my_slide_quota                                                              # because some threads will be "luckier" than others in coming across slides with the correct flag
+  if n_tiles!=0:
+    my_expanded_slide_quota    = 3*my_slide_quota                                                          # because some threads will be "luckier" than others in coming across slides with the correct flag
+  else:
+    my_expanded_slide_quota    = my_slide_quota
 
   
   if DEBUG>0:
-    print ( f"{SAVE_CURSOR}{RESET}\r\033[{start_row-7};0HTILER_SCHEDULER_thread_{PINK}{my_thread:02d}{RESET}:      INFO:  tiles/slide                    = {MIKADO}{n_tiles}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}",            flush=True ) 
+    print ( f"{SAVE_CURSOR}{RESET}\r\033[{start_row-7};0HTILER_SCHEDULER_thread_{PINK}{my_thread:02d}{RESET}:      INFO:  tiles/slide                    = {MIKADO}{n_tiles if n_tiles!=0 else 1}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}",            flush=True ) 
     print ( f"{SAVE_CURSOR}{RESET}\r\033[{start_row-6};0HTILER_SCHEDULER_thread_{PINK}{my_thread:02d}{RESET}:      INFO:  qualifying slides count        = {MIKADO}{slide_count}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}",            flush=True ) 
     print ( f"{SAVE_CURSOR}{RESET}\r\033[{start_row-5};0HTILER_SCHEDULER_thread_{PINK}{my_thread:02d}{RESET}:      INFO:  thread's slide quote           = {MIKADO}{my_slide_quota}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}",            flush=True ) 
   
@@ -87,7 +92,7 @@ def tiler_scheduler( args, r_norm, flag, slide_count, n_samples, n_tiles, top_up
           fqn = f"{root}/{d}/{flag}"        
           f = open( fqn, 'r' )
           has_flag=True
-          dirs_which_have_flag+=1   
+          dirs_which_have_flag+=1
           if DEBUG>48:
             print ( f"{GREEN}{flag}{RESET}", flush=True )          
         except Exception:
@@ -137,9 +142,22 @@ def tiler_scheduler( args, r_norm, flag, slide_count, n_samples, n_tiles, top_up
 
             else:
                                                                                                            # look for and use normal versions of the slides
-              if ( f.endswith( "svs" ) ) | ( f.endswith( "SVS" ) ) | ( f.endswith( "tif" ) ) | ( f.endswith( "tif" ) )  | ( f.endswith( "TIF" ) ) | ( f.endswith( "TIFF" ) ):
-                
+              if ( f.endswith( "svs" ) ) | ( f.endswith( "SVS" ) ) | ( f.endswith( "tif" ) ) | ( f.endswith( "tif" ) )  | ( f.endswith( "TIF" ) ) | ( f.endswith( "TIFF" ) )  | ( f.endswith( "jpg" ) ) | ( f.endswith( "jpeg" ) ):
+
                 pqn = f"{d}/{f}"
+
+                if  ( f.endswith( "jpg" ) ) | ( f.endswith( "jpeg" ) ):                                     # openslide can't handle jpg as a source image type, so we need to convert to tif
+
+                  if DEBUG>5:
+                    print ( f"{BOLD}{ORANGE}TILER_SCHEDULER_{FG3}{num_cpus}:         INFO:  converting jpeg image source file to tif so that openslide can handle it{RESET}", flush=True )
+
+                  fqn = f"{data_dir}/{d}/{f}"
+                  image = pyvips.Image.new_from_file(fqn)
+
+                  f  = f"{f}.tif"                                                                          # point f to the tif file
+                  new_fqn = f"{data_dir}/{d}/{f}"
+                  image.write_to_file(new_fqn,  tile=True)                                                 # save as tif. Has to be 'tiled' or else Openslide won't accept it
+ 
                 
                 result = tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob, d, f, my_thread, r )
 
@@ -172,7 +190,7 @@ def tiler_scheduler( args, r_norm, flag, slide_count, n_samples, n_tiles, top_up
                     # ~ n_samples=slides_processed
                 elif result==MISSING_IMAGE_FILE:
                   time.sleep(1)
-                  print(f"{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus};0H{BOLD_ORANGE}{CLEAR_LINE}TILER_SCHEDULER_{FG3}{my_thread}: {BB}WARNING: there was no svs file for this case! ({BOLD_CYAN}{pqn}{RESET}{BOLD}{BB}). Slide will be skipped. {RESET}{RESTORE_CURSOR}", flush=True)
+                  print(f"{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus};0H{BOLD_ORANGE}{CLEAR_LINE}TILER_SCHEDULER_{FG3}{my_thread}: {BB}WARNING: there was no image file for this case! ({BOLD_CYAN}{pqn}{RESET}{BOLD}{BB}). Slide will be skipped. {RESET}{RESTORE_CURSOR}", flush=True)
                   # ~ if slides_processed<n_samples:
                     # ~ print( f"{RED}TILER_SCHEDULER_{FG3}: FATAL:  n_samples has been reduced to {CYAN}{n_samples}{RESET}{RED} ... halting{RESET}" )
                     # ~ n_samples=slides_processed
