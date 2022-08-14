@@ -216,6 +216,39 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                   {RESET}"
   , flush=True )
 
+  
+  if ( args.input_mode=='image' ) & ( args.strong_supervision=='True' ):                                   # rna_seq is always strongly supervised, but for image mode, it doesn't have to be and for my experiments, usually isn't                                                                
+
+    all_tiles_from_origin='False'
+    ignore_tile_quality_hyperparameters='True'
+    args.n_tiles = [ 1 for el in args.n_tiles ]
+    args.make_balanced='False'
+
+    print( f"{BOLD_ORANGE}CLASSI:         INFO: config setting '{BOLD_CYAN}STRONG_SUPERVISION{RESET}{BOLD_ORANGE}'={BOLD_MIKADO}'True'{RESET}{BOLD_ORANGE} (corresponding to python argument '{BOLD_CYAN}--strong_supervision{RESET}{BOLD_ORANGE}'). \
+  Ensure this is intentional!{RESET}", flush=True)
+    print( f"{ORANGE}CLASSI:         INFO:   CONSEQUENTIALLY: config setting '{CYAN}TILES_PER_IMAGE{RESET}{ORANGE}'                     (corresponding to python argument '{CYAN}--n_tiles{RESET}{ORANGE}')                              \
+has been set to {RESET}{BOLD_MIKADO}1{RESET}{ORANGE}", flush=True)
+    print( f"{ORANGE}CLASSI:         INFO:   CONSEQUENTIALLY: config setting '{CYAN}ALL_TILES_FROM_ORIGIN{RESET}{ORANGE}'               (corresponding to python argument '{CYAN}--all_tiles_from_origin{RESET}{ORANGE}')                \
+has been set to {RESET}{BOLD_MIKADO}'True'{RESET}{ORANGE}", flush=True)
+    print( f"{ORANGE}CLASSI:         INFO:   CONSEQUENTIALLY: config setting '{CYAN}IGNORE_TILE_QUALITY_HYPERPARAMETERS{RESET}{ORANGE}' (corresponding to python argument '{CYAN}--ignore_tile_quality_hyperparameters{RESET}{ORANGE}')  \
+has been set to {RESET}{BOLD_MIKADO}'True'{RESET}{ORANGE}", flush=True)
+    print( f"{ORANGE}CLASSI:         INFO:   CONSEQUENTIALLY: config setting '{CYAN}MAKE_BALANCED{RESET}{ORANGE}'                       (corresponding to python argument '{CYAN}--make_balanced{RESET}{ORANGE}')                        \
+has been set to {RESET}{BOLD_MIKADO}'False'{RESET}{ORANGE} (the dataset balancing technique - drawing differing numbers of tiles from each subtype according to their relative proportions - is only valid for weak supervision){RESET}{ORANGE}", flush=True)
+    print( f"{ORANGE}CLASSI:         INFO: continuing...{RESET}", flush=True)
+    time.sleep(1)
+
+  elif ( args.input_mode=='image' ):
+    if args.all_tiles_from_origin=='True':
+      print( f"{BOLD_ORANGE}CLASSI:         INFO: config setting '{BOLD_CYAN}ALL_TILES_FROM_ORIGIN{RESET}={BOLD_MIKADO}'True'{RESET}{BOLD_ORANGE}'               (corresponding to python argument '{BOLD_CYAN}--all_tiles_from_origin{RESET}{BOLD_ORANGE}')               \
+  Ensure this is intentional.{RESET}", flush=True)
+    if args.ignore_tile_quality_hyperparameters=='True':
+      print( f"{BOLD_ORANGE}CLASSI:         INFO: config setting '{BOLD_CYAN}IGNORE_TILE_QUALITY_HYPERPARAMETERS{RESET}={BOLD_MIKADO}'True'{RESET}{BOLD_ORANGE}' (corresponding to python argument '{BOLD_CYAN}--ignore_tile_quality_hyperparameters{RESET}{BOLD_ORANGE}') \
+  Ensure this is intentional.{RESET}", flush=True)
+    if (any(item==1 for item in args.n_tiles)):
+      print( f"{BOLD_ORANGE}CLASSI:         INFO: one of more values of config setting '{BOLD_CYAN}TILES_PER_IMAGE[]{RESET}{BOLD_ORANGE}'    (corresponding to python argument '{BOLD_CYAN}--n_tiles{RESET}{ORANGE}') = {RESET}{BOLD_MIKADO}1{RESET}{BOLD_ORANGE}                         \
+  Ensure this is intentional.{RESET}", flush=True)
+
+    
   repeat                        = args.repeat
   pretrain                      = args.pretrain
   skip_tiling                   = args.skip_tiling
@@ -234,6 +267,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   class_colours                 = args.class_colours
   colour_map                    = args.colour_map
   input_mode                    = args.input_mode
+  strong_supervision            = args.strong_supervision  
   multimode                     = args.multimode
   mode                          = args.mode
   nn_type_img                   = args.nn_type_img
@@ -250,7 +284,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   nn_optimizer                  = args.optimizer
   n_samples                     = args.n_samples
   n_tiles                       = args.n_tiles
+  all_tiles_from_origin         = args.all_tiles_from_origin
   make_balanced                 = args.make_balanced
+  make_balanced_margin          = args.make_balanced_margin
   n_iterations                  = args.n_iterations
   pct_test                      = args.pct_test
   batch_size                    = args.batch_size
@@ -263,6 +299,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   gene_data_norm                = args.gene_data_norm 
   gene_data_transform           = args.gene_data_transform    
   n_epochs                      = args.n_epochs
+  ignore_tile_quality_hyperparameters = args.ignore_tile_quality_hyperparameters
   greyness                      = args.greyness
   min_tile_sd                   = args.min_tile_sd
   min_uniques                   = args.min_uniques  
@@ -310,6 +347,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   names_column                  = args.names_column
   case_column                   = args.case_column
   class_column                  = args.class_column
+
 
 
   def expand_args( parm, bash_name, highlight_colour ):
@@ -455,8 +493,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       print ( f"{BOLD}{RED}CLASSI:       FATAL: cannot continue - halting now{RESET}" )                 
       sys.exit(0)
     if any(i >= 0.9 for i in pct_test):
-      print ( f"{BOLD}{ORANGE}CLASSI:         WARNG: in training mode, and {CYAN}pct_test={MIKADO}{pct_test}{RESET}{BOLD}{ORANGE}. One of more of these values are greater than or equal to 0.9 which seems unusual.{RESET}",        flush=True  )                                        
-      print ( f"{BOLD}{ORANGE}CLASSI:         WARNG: proceeding, but be aware that for these values, fewer than 10% of the examples will be used for training{RESET}",             flush=True  )
+      print ( f"{BOLD_ORANGE}CLASSI:         WARNG: in training mode, and {CYAN}pct_test={MIKADO}{pct_test}{RESET}{BOLD_ORANGE}. One of more of these values are greater than or equal to 0.9 which seems unusual.{RESET}",        flush=True  )                                        
+      print ( f"{BOLD_ORANGE}CLASSI:         WARNG: proceeding, but be aware that for these values, fewer than 10% of the examples will be used for training{RESET}",             flush=True  )
       time.sleep(5)       
   
   we_are_autoencoding=False
@@ -513,11 +551,11 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     print ( f"CLASSI:         INFO:  subtype_names_as_list[0:highest_class_number] = {CYAN}{subtype_names_as_list[0:highest_class_number+1]}{RESET}" )
 
   if highest_class_number > len(subtype_names_as_list)-1:
-    print( f"{BOLD}{ORANGE}CLASSI:         WARNG: config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{BOLD}{ORANGE}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{BOLD}{ORANGE}') = \
-{MIKADO}{highest_class_number}{RESET}{BOLD}{ORANGE}, which is greater than the highest class (subtype) in the dataset ({MIKADO}{len(subtype_names_as_list)-1}{RESET}{BOLD}{ORANGE}) (note that class numbers start at zero){RESET}", flush=True)
+    print( f"{BOLD_ORANGE}CLASSI:         WARNG: config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{BOLD_ORANGE}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{BOLD_ORANGE}') = \
+{MIKADO}{highest_class_number}{RESET}{BOLD_ORANGE}, which is greater than the highest class (subtype) in the dataset ({MIKADO}{len(subtype_names_as_list)-1}{RESET}{BOLD_ORANGE}) (note that class numbers start at {MIKADO}0{RESET}{BOLD_ORANGE}){RESET}", flush=True)
     print( f"{ORANGE}CLASSI:         WARNG:   therefore this config setting will be ignored. Continuing ...{RESET}", flush=True)
   
-  if highest_class_number < 2:
+  if highest_class_number < 1:
     print( f"{BOLD}{RED}CLASSI:         FATAL: config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{BOLD}{RED}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{BOLD}{RED}') = \
 {MIKADO}{highest_class_number}{RESET}{BOLD}{RED}, but there must be at least two classes (cancer subtypes) for classification to be meaningful", flush=True)
     print( f"{BOLD}{RED}CLASSI:         FATAL: cannot continue ... halting{RESET}", flush=True)
@@ -540,7 +578,6 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
   if DEBUG>0:
     print ( f"CLASSI:         INFO:  subtype names  = {CYAN}{class_names}{RESET}" )
 
-
   if ( input_mode=='image' ):
   
     if stain_norm[0]!='spcn':
@@ -556,7 +593,7 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
           
           for f in files:
            
-            if (   ( f.endswith( 'svs' ))  |  ( f.endswith( 'SVS' ))  | ( f.endswith( 'tif' ))  |  ( f.endswith( 'tiff' ))   )   | ( f.endswith( 'jpg' ))  |  ( f.endswith( 'jpeg' )):
+            if (   ( f.endswith( 'svs' ))  |  ( f.endswith( 'SVS' ))  | ( f.endswith( 'tif' ))  |  ( f.endswith( 'tiff' ))   ):
               source_image_file_count +=1
 
 
@@ -570,17 +607,17 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
         sys.exit(0)
         
       if source_image_file_count<10:
-        print ( f"{BOLD}{ORANGE}\n\nCLASSI:         WARNG:  there are fewer than 10 image files in the working data directory, which seems odd{RESET}" )
-        print ( f"{BOLD}{ORANGE}CLASSI:         WARNG:          consider using the the {CYAN}-r {RESET}{BOLD}{ORANGE}option ('{CYAN}REGEN{RESET}{BOLD}{ORANGE}') to force the dataset to be regenerated{RESET}" )
-        print ( f"{BOLD}{ORANGE}CLASSI:         WARNG:          e.g. '{CYAN}./do_all.sh -d <cancer type code> -i image ... {CHARTREUSE}-r True{RESET}{BOLD}{ORANGE}'{RESET}" )
-        print ( f"{BOLD}{ORANGE}CLASSI:         WARNG: ... continuing, but it's kind of pointless{RESET}\n\n\n" )
+        print ( f"{BOLD_ORANGE}\n\nCLASSI:         WARNG:  there are fewer than 10 image files in the working data directory, which seems odd{RESET}" )
+        print ( f"{BOLD_ORANGE}CLASSI:         WARNG:          consider using the the {CYAN}-r {RESET}{BOLD_ORANGE}option ('{CYAN}REGEN{RESET}{BOLD_ORANGE}') to force the dataset to be regenerated{RESET}" )
+        print ( f"{BOLD_ORANGE}CLASSI:         WARNG:          e.g. '{CYAN}./do_all.sh -d <cancer type code> -i image ... {CHARTREUSE}-r True{RESET}{BOLD_ORANGE}'{RESET}" )
+        print ( f"{BOLD_ORANGE}CLASSI:         WARNG: ... continuing, but it's kind of pointless{RESET}\n\n\n" )
         time.sleep(5)                           
 
 
       if just_test != True:
         if source_image_file_count<np.max(args.n_samples):
-          print( f"{BOLD}{ORANGE}CLASSI:         WARNG: there aren't enough samples. A file count reveals a total of {MIKADO}{source_image_file_count}{RESET}{BOLD}{ORANGE} source image files (SVS or TIF or JPEG) files in {MAGENTA}{args.data_dir}{RESET}{BOLD}{ORANGE}, whereas the largest value in user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{BOLD}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
-          print( f"{ORANGE}CLASSI:         WARNG:   changing values of '{CYAN}N_SAMPLES{RESET}{ORANGE} that are greater than {RESET}{MIKADO}{source_image_file_count}{RESET}{ORANGE} to exactly {MIKADO}{source_image_file_count}{RESET}{ORANGE} and continuing{RESET}" )
+          print( f"{BOLD_ORANGE}CLASSI:         WARNG: there aren't enough samples. A file count reveals a total of {MIKADO}{source_image_file_count}{RESET}{BOLD_ORANGE} source image files (SVS or TIF or JPEG) files in {MAGENTA}{args.data_dir}{RESET}{BOLD_ORANGE}, whereas the largest value in user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{BOLD_ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
+          print( f"{ORANGE}CLASSI:         WARNG:   changing values of '{BOLD_CYAN  }N_SAMPLES[]{RESET}{ORANGE} that are greater than {RESET}{BOLD_MIKADO}{source_image_file_count}{RESET}{ORANGE} to exactly {BOLD_MIKADO}{source_image_file_count}{RESET}{ORANGE} and continuing{RESET}" )
           args.n_samples = [  el if el<=source_image_file_count else source_image_file_count for el in args.n_samples   ]
           n_samples = args.n_samples
         else:
@@ -588,12 +625,12 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
       else:
         min_required = int(np.max(args.n_samples) * pct_test  )
         if source_image_file_count< min_required:
-          print( f"{BOLD}{ORANGE}CLASSI:         WARNG: there aren't enough samples. A file count reveals a total of {MIKADO}{source_image_file_count}{RESET}{BOLD}{ORANGE} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}{BOLD}{ORANGE}, whereas the absolute minimum number required for this test run is {MIKADO}{min_required}{RESET}" ) 
+          print( f"{BOLD_ORANGE}CLASSI:         WARNG: there aren't enough samples. A file count reveals a total of {MIKADO}{source_image_file_count}{RESET}{BOLD_ORANGE} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}{BOLD_ORANGE}, whereas the absolute minimum number required for this test run is {MIKADO}{min_required}{RESET}" ) 
           print( f"{ORANGE}CLASSI:         WARNG: changing values of '{CYAN}N_SAMPLES{RESET}{ORANGE} that are greater than {RESET}{MIKADO}{source_image_file_count}{RESET}{ORANGE} to exactly {MIKADO}{source_image_file_count}{RESET}{ORANGE} and continuing{RESET}" )
           args.n_samples = [  el if el<=source_image_file_count else source_image_file_count for el in args.n_samples   ]
           n_samples = args.n_samples
         else:
-          print( f"CLASSI:         INFO:  {WHITE}a file count shows there is a total of {MIKADO}{source_image_file_count}{RESET} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}, which may be sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}{BOLD}{ORANGE}' depending on the case subset used = {MIKADO}{np.max(args.n_samples)}{RESET})" )
+          print( f"CLASSI:         INFO:  {WHITE}a file count shows there is a total of {MIKADO}{source_image_file_count}{RESET} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}, which may be sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}{BOLD_ORANGE}' depending on the case subset used = {MIKADO}{np.max(args.n_samples)}{RESET})" )
 
 
     if stain_norm[0]=='spcn':
@@ -612,8 +649,8 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
               spcn_file_count +=1
             
       if spcn_file_count<np.max(args.n_samples):
-        print( f"{BOLD}{ORANGE}CLASSI:         WARNG:  there aren't enough samples. A file count reveals a total of {MIKADO}{spcn_file_count}{RESET} {BOLD}{MAGENTA}spcn{RESET}{BOLD_ORANGE} files in {BOLD}{MAGENTA}{args.data_dir}{RESET}{BOLD}{ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{BOLD}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
-        print( f"{BOLD}{ORANGE}CLASSI:         WARNG:  changing values of '{CYAN}N_SAMPLES{RESET}{BOLD_ORANGE} that are greater than {RESET}{BOLD}{MIKADO}{spcn_file_count}{RESET}{BOLD}{ORANGE} to exactly {MIKADO}{spcn_file_count}{RESET}{BOLD}{ORANGE} and continuing{RESET}" )
+        print( f"{BOLD_ORANGE}CLASSI:         WARNG:  there aren't enough samples. A file count reveals a total of {MIKADO}{spcn_file_count}{RESET} {BOLD}{MAGENTA}spcn{RESET}{BOLD_ORANGE} files in {BOLD}{MAGENTA}{args.data_dir}{RESET}{BOLD_ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{BOLD_ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
+        print( f"{BOLD_ORANGE}CLASSI:         WARNG:  changing values of '{CYAN}N_SAMPLES{RESET}{BOLD_ORANGE} that are greater than {RESET}{BOLD}{MIKADO}{spcn_file_count}{RESET}{BOLD_ORANGE} to exactly {MIKADO}{spcn_file_count}{RESET}{BOLD_ORANGE} and continuing{RESET}" )
         args.n_samples = [  el if el<=spcn_file_count else spcn_file_count for el in args.n_samples   ]
         n_samples = args.n_samples
       else:
@@ -632,7 +669,7 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
           
           for f in files:
            
-            if (   ( f.endswith( 'png' ))  | ( f.endswith( 'jpeg' ))   ):
+            if  f.endswith( 'png' ):
               tile_file_count +=1
             
       if tile_file_count<20:
@@ -820,7 +857,7 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
   if ( ( just_test=='True')  & ( multimode!='image_rna' ) ):
     
     if ( rand_tiles=='True'):
-      print ( f"\r{BOLD}{ORANGE}CLASSI:         WARNG: {CYAN}( just_test=={MIKADO}'True'{RESET}{CYAN})  & ( multimode!={MIKADO}'image_rna'{RESET}{CYAN}){BOLD}{ORANGE} but user argument {CYAN}rand_tiles=={MIKADO}'True'{RESET}{BOLD}{ORANGE}. It will  be changed to {MIKADO}'False'{RESET}{BOLD}{ORANGE} since test mode requires sequentially generated tiles{RESET}\n\n" )
+      print ( f"\r{BOLD_ORANGE}CLASSI:         WARNG: {CYAN}( just_test=={MIKADO}'True'{RESET}{CYAN})  & ( multimode!={MIKADO}'image_rna'{RESET}{CYAN}){BOLD_ORANGE} but user argument {CYAN}rand_tiles=={MIKADO}'True'{RESET}{BOLD_ORANGE}. It will  be changed to {MIKADO}'False'{RESET}{BOLD_ORANGE} since test mode requires sequentially generated tiles{RESET}\n\n" )
 
       args.rand_tiles = 'False'
       rand_tiles      = 'False'
@@ -847,8 +884,8 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
             rna_file_count +=1
           
     if rna_file_count<np.max(args.n_samples):
-      print( f"{BOLD}{ORANGE}CLASSI:         WARNG: there are not {MIKADO}{np.max(args.n_samples)}{BOLD}{ORANGE} RNA-Seq examples available to be used. A file count reveals a total of {MIKADO}{rna_file_count}{RESET}{BOLD}{ORANGE} rna files in {MAGENTA}{args.data_dir}{RESET}{BOLD}{ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES{RESET}{BOLD}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET}" ) 
-      print( f"{BOLD}{ORANGE}CLASSI:         WARNG: changing all values in the user configuration parameter '{CYAN}N_SAMPLES{RESET}{BOLD}{ORANGE}' that are greater than {RESET}{BOLD}{MIKADO}{rna_file_count}{RESET}{BOLD}{ORANGE} to exactly {MIKADO}{rna_file_count}{RESET}{BOLD}{ORANGE}{RESET}" )
+      print( f"{BOLD_ORANGE}CLASSI:         WARNG: there are not {MIKADO}{np.max(args.n_samples)}{BOLD_ORANGE} RNA-Seq examples available to be used. A file count reveals a total of {MIKADO}{rna_file_count}{RESET}{BOLD_ORANGE} rna files in {MAGENTA}{args.data_dir}{RESET}{BOLD_ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES{RESET}{BOLD_ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET}" ) 
+      print( f"{BOLD_ORANGE}CLASSI:         WARNG: changing all values in the user configuration parameter '{CYAN}N_SAMPLES{RESET}{BOLD_ORANGE}' that are greater than {RESET}{BOLD}{MIKADO}{rna_file_count}{RESET}{BOLD_ORANGE} to exactly {MIKADO}{rna_file_count}{RESET}{BOLD_ORANGE}{RESET}" )
       args.n_samples = [  el if el<=rna_file_count else rna_file_count for el in args.n_samples   ]
       n_samples      = args.n_samples
 
@@ -919,10 +956,10 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
   
   if skip_tiling=='True':
 
-    if (total_runs_in_job==1) & (args.make_balanced=='True'):
+    if (total_runs_in_job==1) & (args.make_balanced=='level_up'):
 
-      print( f"{SAVE_CURSOR}\033[77;0H{BOLD}{ORANGE}CLASSI:         WARNG:  skip tiling flag is set ({CYAN}-s True{RESET}{BOLD}{ORANGE}), but cannot skip tiling if there is only one run in a job and {CYAN}MAKE_BALANCED=True{RESET}{BOLD}{ORANGE}, as {CYAN}top_up_factors{RESET}{BOLD}{ORANGE}, which are necessary to adjust tiles per subtype per slide, would not be calculated{RESET}" ) 
-      print( f"\033[78;0H{BOLD}{ORANGE}CLASSI:         WARNG:  ignoring skip tiling flag tiling will be performed{RESET}{RESTORE_CURSOR}"      ) 
+      print( f"{SAVE_CURSOR}\033[77;0H{BOLD_ORANGE}CLASSI:         WARNG:  skip tiling flag is set ({CYAN}-s True{RESET}{BOLD_ORANGE}), but cannot skip tiling if there is only one run in a job and {CYAN}MAKE_BALANCED{RESET} is not set to {BOLD_MIKADO}NONE{RESET}{BOLD_ORANGE}, as {CYAN}top_up_factors{RESET}{BOLD_ORANGE}, which are necessary to adjust tiles per subtype per slide, would not be calculated{RESET}" ) 
+      print( f"\033[78;0H{BOLD_ORANGE}CLASSI:         WARNG:  ignoring skip tiling flag tiling will be performed{RESET}{RESTORE_CURSOR}"      ) 
       skip_tiling='False'
       args.skip_tiling='False'
       time.sleep(1)
@@ -1140,7 +1177,7 @@ f"\
     balanced     ="BALANCED"
     not_balanced ="NOTBLNCD"
     if input_mode=='image':
-      descriptor = f"_{run+1:02d}_OF_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.lower():_<9s}_{balanced if make_balanced=='True' else not_balanced}_{args.cases[0:20]:_<20s}_{nn_type_img:_<15s}_{stain_norm:_<4s}_{nn_optimizer:_<8s}_e_{args.n_epochs:03d}_N_{n_samples:04d}\
+      descriptor = f"_{run+1:02d}_OF_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.lower():_<9s}_{balanced if make_balanced=='level_up' else not_balanced}_{args.cases[0:20]:_<20s}_{nn_type_img:_<15s}_{stain_norm:_<4s}_{nn_optimizer:_<8s}_e_{args.n_epochs:03d}_N_{n_samples:04d}\
 _hi_{n_classes:02d}_bat_{batch_size:03d}_test_{int(100*pct_test):03d}_lr_{lr:09.6f}_tiles_{n_tiles:04d}_tlsz_{tile_size:04d}__mag_{mags}__prob_{prob:_<20s}"
       descriptor = descriptor[0:200]
 
@@ -1276,10 +1313,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       if DEBUG>0:
         print ("")
     
-    if n_tiles!=0:
-      final_test_batch_size =   int(n_samples * n_tiles * pct_test)
-    else:
-      final_test_batch_size =   int(n_samples *    1    * pct_test)      
+    final_test_batch_size =   int(n_samples * n_tiles * pct_test)
     
     if DEBUG>99:
       print( f"CLASSI:         INFO:          requested FINAL_TEST_BATCH_SIZE = {MIKADO}{int(args.final_test_batch_size)}{RESET}" )      
@@ -1443,6 +1477,12 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
               flag  = 'UNIMODE_CASE____IMAGE'
               total_slides_counted_train, total_tiles_required_train, top_up_factors_train  = determine_top_up_factors ( args, n_classes, class_names, n_tiles, flag )
+              
+              # ~ if DEBUG>0:
+                # ~ if n_tiles==0:
+                  # ~ print(f'{SAVE_CURSOR}{RESET}\033[84;0H{BOLD_RED}n_tiles==0.  This should not be possible{RESET}{RESTORE_CURSOR}', flush=True)
+                # ~ else:
+                  # ~ print(f'{SAVE_CURSOR}{RESET}\033[85;0H{BOLD_GREEN}All good.{RESET}{RESTORE_CURSOR}', flush=True)               
 
               if DEBUG>0:
                 np.set_printoptions(formatter={'float': lambda x: "{:>.2f}".format(x)})
@@ -1488,7 +1528,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
           if not stain_norm==last_stain_norm:
             print( f"CLASSI:         INFO:           -- value of stain_norm ({MIKADO}{stain_norm}{RESET})     \r\033[60Chas changed   since last run (was {MIKADO}{last_stain_norm}){RESET}")
 
-        if DEBUG>0:
+        if DEBUG>2:
           print( f"CLASSI:         INFO: n_samples                  = {MAGENTA}{n_samples}{RESET}",                  flush=True  )
           print( f"CLASSI:         INFO: args.n_samples             = {MAGENTA}{args.n_samples}{RESET}",             flush=True  )
           print( f"CLASSI:         INFO: batch_size                 = {MAGENTA}{batch_size}{RESET}",                 flush=True  )
@@ -1502,16 +1542,12 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
           print( f"CLASSI:         INFO: total_tiles_required_train = {MAGENTA}{total_tiles_required_train}{RESET}", flush=True  )            
   
         highest_class_number = n_classes-1
-        
-        if n_tiles==0:
-          n_t = 1
-        else:
-          n_t = n_tiles
+
           
-        _, _,  _ = generate( args, class_names, n_samples, total_slides_counted_train, total_slides_counted_test, total_tiles_required_train, total_tiles_required_test, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, 
-                             unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_t, top_up_factors_train, top_up_factors_test, tile_size, 
-                             low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform  
-                           ) 
+        _,    _,    _                  = generate( args, class_names, n_samples, total_slides_counted_train, total_slides_counted_test, total_tiles_required_train, total_tiles_required_test, batch_size, highest_class_number, 
+                                                   multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, 
+                                                   unimode_case____rna_test_count, pct_test, n_tiles, top_up_factors_train, top_up_factors_test, tile_size, low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform  
+                                                 ) 
             
           
         n_tiles_last   = n_tiles                                                                           # for the next run
@@ -1525,14 +1561,9 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         
         highest_class_number = n_classes-1
         
-        if n_tiles==0:
-          n_t = 1
-        else:
-          n_t = n_tiles        
-        
-        n_genes, n_samples, batch_size = generate( args, class_names, n_samples, total_slides_counted_train, total_slides_counted_test, total_tiles_required_train, total_tiles_required_test, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, 
-                                                    unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_t, top_up_factors_train, top_up_factors_test, tile_size, 
-                                                    low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform  
+        n_genes, n_samples, batch_size = generate( args, class_names, n_samples, total_slides_counted_train, total_slides_counted_test, total_tiles_required_train, total_tiles_required_test, batch_size, highest_class_number, 
+                                                   multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, 
+                                                   unimode_case____rna_test_count, pct_test, n_tiles, top_up_factors_train, top_up_factors_test, tile_size, low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform  
                                                  )
   
         if DEBUG>0:
@@ -1547,8 +1578,8 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
     if clustering!='NONE':
        if args.input_mode == 'rna':
-        print ( f"{BOLD}{ORANGE}CLASSI:         WARNG:  there are almost certainly not enough data points to do meaningful clustering on rna gene expression values{RESET}",   flush=True )
-        print ( f"{BOLD}{ORANGE}CLASSI:         WARNG:  continuing, but don't be surprised if the clustering algorithm crashes{RESET}",                                        flush=True )
+        print ( f"{BOLD_ORANGE}CLASSI:         WARNG:  there are almost certainly not enough data points to do meaningful clustering on rna gene expression values{RESET}",   flush=True )
+        print ( f"{BOLD_ORANGE}CLASSI:         WARNG:  continuing, but don't be surprised if the clustering algorithm crashes{RESET}",                                        flush=True )
      
     if clustering=='o_tsne':
       o_tsne   ( args, class_names, pct_test)
@@ -4152,19 +4183,20 @@ def determine_top_up_factors ( args, n_classes, class_names, n_tiles, case_desig
   #  Specifically, we count the number of images per subtype for the chosen subset (e.g. UNIMODE_CASE) and from this calculate 'top up factors' which are used in generate() 
   #  to increase the number of tiles extracted for subtypes which have fewer images than the subtype with the most number of cases (images)  
 
+  if  args.make_balanced=='level_up':
+    leader = "CLASSI: (level up info)      "
+  elif args.make_balanced=='level_down':
+    leader = "CLASSI: (level down info)      "
+        
   class_counts = determine_class_counts ( args, n_classes, class_names, n_tiles, case_designation_flag )
   
-  if args.make_balanced!='True':                                                                           # cater for the default case
+  if (args.make_balanced!='level_up') & (args.make_balanced!='level_down'):                                                                       # cater for the default case
 
     total_slides_counted     = np.sum(class_counts)  
     top_up_factors           = np.ones(len(class_names) )                                                  # top_up_factors are all 1 if we aren't going to balance the dataset
-    if n_tiles!=0:
-      tiles_needed_per_example = n_tiles
-      total_tiles_required     = total_slides_counted * n_tiles
-    else:
-      tiles_needed_per_example = 1
-      total_tiles_required     = total_slides_counted * 1                                   
-
+    tiles_needed_per_example = n_tiles
+    total_tiles_required     = total_slides_counted * n_tiles
+                               
 
     if case_designation_flag!='UNIMODE_CASE____IMAGE_TEST':
       row    = 0
@@ -4182,16 +4214,16 @@ def determine_top_up_factors ( args, n_classes, class_names, n_tiles, case_desig
     
     if DEBUG>0:
       np.set_printoptions(formatter={'int':   lambda x: "{:>6d}".format(x)})
-      print( f"\033[{row+1};{col}f{CLEAR_LINE}INFO:         {colour}{case_designation_flag}{RESET}", flush=True  )
-      print( f"\033[{row+2};{col}f{CLEAR_LINE}INFO:           final class_counts           = {colour}{class_counts}{RESET}",                               flush=True  )
-      print( f"\033[{row+3};{col}f{CLEAR_LINE}INFO:           total slides counted         = {colour}{total_slides_counted}{RESET}",                       flush=True  )      
+      print( f"\033[{row+1};{col}f{CLEAR_LINE}INFO:         {colour}{case_designation_flag}{RESET}",                                                                                   flush=True  )
+      print( f"\033[{row+2};{col}f{CLEAR_LINE}INFO:           total slides counted         = {BOLD}{colour}    {total_slides_counted}{RESET}",                                         flush=True  )      
+      print( f"\033[{row+3};{col}f{CLEAR_LINE}INFO:           final class_counts           = {colour}{class_counts}{RESET}",                                                           flush=True  )
       np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})
-      print( f"\033[{row+4};{col}f{CLEAR_LINE}{BOLD}   INFO:           top up factors               = {colour}{top_up_factors}{RESET}  ",                             flush=True  )
-      print( f"\033[{row+5};{col}f{CLEAR_LINE}INFO:                                         {ORANGE}^^^ note that {CYAN}{BOLD}MAKE_BALANCED{RESET}{ORANGE} is disabled ^^^{RESET}  ",                             flush=True  )
+      print( f"\033[{row+4};{col}f{CLEAR_LINE}{BOLD}   INFO:           top up factors               = {colour}{top_up_factors}{RESET}  ",                                              flush=True  )
+      print( f"\033[{row+5};{col}f{CLEAR_LINE}INFO:                                         {ORANGE}^^^ note that {CYAN}{BOLD}MAKE_BALANCED{RESET}{ORANGE} is disabled ^^^{RESET}  ",  flush=True  )
       np.set_printoptions(formatter={'int':   lambda x: "{:>6d}".format(x)})
-      print( f"\033[{row+6};{col}f{CLEAR_LINE}INFO:           tiles_needed_per_example     = {colour}{tiles_needed_per_example}{RESET}",                   flush=True  )
-      print( f"\033[{row+7};{col}f{CLEAR_LINE}INFO:           hence tiles per subtype      = {colour}{tiles_needed_per_example * class_counts}{RESET}",                   flush=True  )
-      print( f"\033[{row+8};{col}f{CLEAR_LINE}INFO:           total_tiles_required         = {colour}{total_tiles_required:,}{RESET}",                    flush=True  )
+      print( f"\033[{row+6};{col}f{CLEAR_LINE}INFO:           tiles_needed_per_example     = {colour}{tiles_needed_per_example}{RESET}",                                               flush=True  )
+      print( f"\033[{row+7};{col}f{CLEAR_LINE}INFO:           hence tiles per subtype      = {colour}{tiles_needed_per_example * class_counts}{RESET}",                                flush=True  )
+      print( f"\033[{row+8};{col}f{CLEAR_LINE}INFO:           total_tiles_required         = {colour}{total_tiles_required:,}{RESET}",                                                 flush=True  )
 
   else:
 
@@ -4199,7 +4231,7 @@ def determine_top_up_factors ( args, n_classes, class_names, n_tiles, case_desig
     if case_designation_flag!='UNIMODE_CASE____IMAGE_TEST':
       row    = 0
       colour = AMETHYST
-      leader = "CLASSI: (level up info)      "
+
     else:
       row    = 0
       col    = col+150
@@ -4215,8 +4247,8 @@ def determine_top_up_factors ( args, n_classes, class_names, n_tiles, case_desig
     if DEBUG>0:
       np.set_printoptions(formatter={'int':   lambda x: "{:>6d}".format(x)})
       print( f"\033[{row+1};{col}f{CLEAR_LINE}{leader}{colour}{case_designation_flag}{RESET}",                                                       flush=True  )
-      print( f"\033[{row+2};{col}f{CLEAR_LINE}{leader}final class_counts           = {colour}{class_counts}{RESET}",                               flush=True  )
-      print( f"\033[{row+3};{col}f{CLEAR_LINE}{leader}total slides counted         = {colour}{np.sum(class_counts)}{RESET}",                       flush=True  )
+      print( f"\033[{row+2};{col}f{CLEAR_LINE}{leader}total slides counted         = {BOLD}{colour}    {np.sum(class_counts)}{RESET}",               flush=True  )
+      print( f"\033[{row+3};{col}f{CLEAR_LINE}{leader}final class_counts           = {colour}{class_counts}{RESET}",                                 flush=True  )
   
     if np.any( class_counts < 1):
         print ( f"{BOLD}{RED}\033[75;0HCLASSI:       FATAL: one of the subtypes has no examples{CLEAR_LINE}",                                                                                                                              flush=True  )                                        
@@ -4225,32 +4257,34 @@ def determine_top_up_factors ( args, n_classes, class_names, n_tiles, case_desig
         print ( f"{BOLD}{RED}CLASSI:       FATAL: possible remedy (ii): if al else failes, remove any class or classes that has only a tiny number of examples from the applicable master spreadsheet",                                    flush=True  )                                        
         print ( f"{BOLD}{RED}CLASSI:       FATAL: cannot continue - halting now{RESET}{CLEAR_LINE}" )                 
         sys.exit(0)
-  
-    relative_ratios = class_counts/np.max(class_counts)
+
+    if   args.make_balanced=='level_up':
+      relative_ratios = class_counts/np.max(class_counts)
+    elif args.make_balanced=='level_down': 
+      relative_ratios = class_counts/np.min(class_counts)
   
     if DEBUG>0:
       np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})
       print( f"\033[{row+4};{col}f{CLEAR_LINE}{leader}relative class ratios        = {colour}{relative_ratios}{RESET}",                            flush=True  )
-  
-    top_up_factors           = np.divide(1,relative_ratios)
-    # ~ tiles_needed_per_example = (top_up_factors*n_tiles).astype(int) + 1                                # add one extra to be safe 
+
+    top_up_factors           = np.divide( 1, relative_ratios)
     total_slides_counted     = np.sum(class_counts)  
-    if n_tiles!=0:
-      tiles_needed_per_example = (top_up_factors*n_tiles).astype(int) 
-      tiles_needed_per_example = (top_up_factors*n_tiles).astype(int) 
-    else:
-      tiles_needed_per_example = 1
-      tiles_needed_per_example = (top_up_factors*1).astype(int)                                    
+    tiles_needed_per_example = np.around((top_up_factors*n_tiles), 0).astype(int)
+    tiles_needed_per_example = np.array( [ el if el!=0 else 1 for el in tiles_needed_per_example ] )
+    # ~ tiles_needed_per_example = tiles_needed_per_example + 1                                        # add one extra tile to be safe 
+
+      
     tiles_needed_per_subtype = tiles_needed_per_example * class_counts
     total_tiles_required     = np.sum(tiles_needed_per_subtype)
   
+  
     if DEBUG>0:
       np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})
-      print( f"\033[{row+5};{col}f{CLEAR_LINE}{leader}top up factors               = {colour}{top_up_factors}{RESET}",                             flush=True  )
+      print( f"\033[{row+5};{col}f{CLEAR_LINE}{leader}top up factors               = {colour}{top_up_factors}{RESET}",                                 flush=True  )
       np.set_printoptions(formatter={'int':   lambda x: "{:>6d}".format(x)})
-      print( f"\033[{row+6};{col}f{CLEAR_LINE}{leader}tiles_needed_per_example     = {colour}{tiles_needed_per_example}{RESET}",                   flush=True  )
-      print( f"\033[{row+7};{col}f{CLEAR_LINE}{leader}tiles_needed_per_subtype     = {colour}{tiles_needed_per_subtype}{RESET}",    flush=True  )
-      print( f"\033[{row+8};{col}f{CLEAR_LINE}{leader}total_tiles_required         = {colour}{total_tiles_required:,}{RESET}",                    flush=True  )
+      print( f"\033[{row+6};{col}f{CLEAR_LINE}{leader}tiles_needed_per_{BOLD}example{RESET}     = {colour}{tiles_needed_per_example}{RESET}", flush=True  )
+      print( f"\033[{row+7};{col}f{CLEAR_LINE}{leader}tiles_needed_per_{BOLD}subtype{colour}     = {colour}{tiles_needed_per_subtype}{RESET}",        flush=True  )
+      print( f"\033[{row+8};{col}f{CLEAR_LINE}{leader}total_tiles_required         = {colour}{total_tiles_required:,}{RESET}",                        flush=True  )
 
   return total_slides_counted, total_tiles_required, top_up_factors
 
@@ -4414,7 +4448,7 @@ def segment_cases( args, n_classes, class_names, n_tiles, pct_test ):
               g.write( f"this directory contains rna data" )
             g.close  
             rna_file  = f
-          if ( ( f.endswith( 'svs' ))  |  ( f.endswith( 'tif' ) )  |  ( f.endswith( 'tiff' ) )   |  ( f.endswith( 'jpg' ) )  |  ( f.endswith( 'jpeg' ) ) ):
+          if ( ( f.endswith( 'svs' ))  |  ( f.endswith( 'tif' ) )  |  ( f.endswith( 'tiff' ) )   ):
             dir_also_has_image=True
             fqn = f"{dir_path}/HAS_IMAGE"
             has_image_count += 1
@@ -6432,10 +6466,13 @@ if __name__ == '__main__':
   p.add_argument('--mapping_file_name',                                             type=str,    default='mapping_file'                         )
   p.add_argument('--target_genes_reference_file',                                   type=str                                                    )
   p.add_argument('--input_mode',                                                    type=str,    default='NONE'                                 )
+  p.add_argument('--strong_supervision',                                            type=str,    default='False'                                )
   p.add_argument('--multimode',                                                     type=str,    default='NONE'                                 )
   p.add_argument('--n_samples',                                         nargs="+",  type=int,    default="101"                                  )                                    
   p.add_argument('--n_tiles',                                           nargs="+",  type=int,    default="50"                                   )       
-  p.add_argument('--make_balanced',                                                 type=str,    default='True'                                 )
+  p.add_argument('--all_tiles_from_origin',                                         type=str,    default='False'                                )
+  p.add_argument('--make_balanced',                                                 type=str,    default='level_up'                             )
+  p.add_argument('--make_balanced_margin',                                          type=int,    default=15                                     )
   p.add_argument('--highest_class_number',                                          type=int,    default="777"                                  )                                                             
   p.add_argument('--supergrid_size',                                                type=int,    default=1                                      )                                      
   p.add_argument('--patch_points_to_sample',                                        type=int,    default=1000                                   )                                   
@@ -6466,6 +6503,7 @@ if __name__ == '__main__':
   p.add_argument('--rand_tiles',                                                    type=str,   default='True'                                  )                         
   p.add_argument('--points_to_sample',                                              type=int,   default=100                                     )                            
   p.add_argument('--min_uniques',                                                   type=int,   default=0                                       )                              
+  p.add_argument('--ignore_tile_quality_hyperparameters',                           type=str,   default='False'                                 )                              
   p.add_argument('--min_tile_sd',                                                   type=float, default=3                                       )                              
   p.add_argument('--greyness',                                                      type=int,   default=0                                       )                              
   p.add_argument('--stain_norm',                                        nargs="+",  type=str,   default='NONE'                                  )                         
@@ -6476,7 +6514,7 @@ if __name__ == '__main__':
   p.add_argument('--colour_map',                                                    type=str,   default='tab20'                                 )    
   p.add_argument('--target_tile_coords',                                nargs=2,    type=int,   default=[2000,2000]                             )                 
   p.add_argument('--zoom_out_prob',                                     nargs="*",  type=float,                                                 )                 
-  p.add_argument('--zoom_out_mags',                                     nargs="*",  type=float,                                                   )                 
+  p.add_argument('--zoom_out_mags',                                     nargs="*",  type=float,                                                 )                 
 
   p.add_argument('--a_d_use_cupy',                                                  type=str,   default='True'                                  )                    
   p.add_argument('--cutoff_percentile',                                 nargs="+",  type=float, default=100                                     )                    

@@ -13,7 +13,7 @@
 #     N_SAMPLES, BATCH_SIZE, NN_OPTIMIZER, LEARNING_RATE, PCT_TEST, LABEL_SWAP_PCT,  LABEL_SWAP_PCT
 #
 #   IMAGE parameters (7): 
-#     NN_TYPE_IMG, TILE_SIZE, N_TILES, RANDOM_TILES, STAIN_NORM, JITTER, MAKE_GREY_PCT
+#     NN_TYPE_IMG, TILE_SIZE, TILES_PER_IMAGE, RANDOM_TILES, STAIN_NORM, JITTER, MAKE_GREY_PCT
 #
 #   RNA parameters (9): 
 #     NN_TYPE_RNA, HIDDEN_LAYER_NEURONS, NN_DENSE_DROPOUT_1, NN_DENSE_DROPOUT_2, GENE_DATA_NORM, GENE_DATA_TRANSFORM, EMBEDDING_DIMENSIONS, CUTOFF_PERCENTILE, LOW_EXPRESSION_THRESHOLD
@@ -44,16 +44,15 @@ JUST_PROFILE="False"                                                            
 DDP="False"                                                                                                # PRE_COMPRESS mode only: if "True", use PyTorch 'Distributed Data Parallel' to make use of multiple GPUs. (Works on single GPU machines, but is of no benefit and has additional overhead, so should be disabled)
 
 
-MINIMUM_PERMITTED_GREYSCALE_RANGE=210                                                                      # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
-MINIMUM_PERMITTED_UNIQUE_VALUES=210                                                                        # tile must have at least this many unique values or it will be assumed to be degenerate
-MINIMUM_TILE_SD=2.1                                                                                        # Used to cull slides with a very reduced greyscale palette such as background tiles
+#~ MINIMUM_PERMITTED_GREYSCALE_RANGE=210                                                                      # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
+#~ MINIMUM_PERMITTED_UNIQUE_VALUES=210                                                                        # tile must have at least this many unique values or it will be assumed to be degenerate
+#~ MINIMUM_TILE_SD=2.1                                                                                        # Used to cull slides with a very reduced greyscale palette such as background tiles
 
-#~ MINIMUM_PERMITTED_GREYSCALE_RANGE=2                                                                      # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
-#~ MINIMUM_PERMITTED_UNIQUE_VALUES=2                                                                        # tile must have at least this many unique values or it will be assumed to be degenerate
-#~ MINIMUM_TILE_SD=0.1                                                                                     # Used to cull slides with a very reduced greyscale palette such as background tiles
-
-
+MINIMUM_PERMITTED_GREYSCALE_RANGE=0                                                                        # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
+MINIMUM_PERMITTED_UNIQUE_VALUES=0                                                                          # tile must have at least this many unique values or it will be assumed to be degenerate
+MINIMUM_TILE_SD=0.0                                                                                        # Used to cull slides with a very reduced greyscale palette such as background tiles
 POINTS_TO_SAMPLE=500                                                                                       # Used for determining/culling background tiles via 'min_tile_sd', how many points to sample on a tile when making determination if it is mostly background
+
 MOMENTUM=0.8                                                                                               # for use with t-sne, if desired
 BAR_CHART_X_LABELS="case_id"                                                                               # if "case_id" use the case id as the x-axis label for bar charts, otherwise use integer sequence
 BAR_CHART_SORT_HI_LO="False"                                                                               # Some less important bar charts will be suppressed if it is set to 'False'
@@ -66,14 +65,14 @@ MAX_CONSECUTIVE_LOSSES=3                                                        
 #~ ZOOM_OUT_MAGS="0.125 0.25  0.5  0.75  1.0   2.0   4.0  8.0"                                             # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_PROB
 #~ ZOOM_OUT_PROB="0.1   0.1   0.1  0.15  0.2   0.15  0.1  0.1"    
 
-ZOOM_OUT_MAGS="0.125 8.0  -6  -1  -1"                                                                      # interpolate 6 additional values between 0.125 and 8.0. -1 means choose them randomly.
-ZOOM_OUT_PROB="0.1   1.0  -6  -1  -1"                                                                              
+#~ ZOOM_OUT_MAGS="0.125 8.0  -6  -1  -1"                                                                      # interpolate 6 additional values between 0.125 and 8.0. -1 means choose them randomly.
+#~ ZOOM_OUT_PROB="0.1   1.0  -6  -1  -1"                                                                              
 
 #~ ZOOM_OUT_MAGS="0.125 0.25  0.5  0.75  1.0   2.0   4.0  8.0"                                             # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_PROB
 #~ ZOOM_OUT_PROB=0.  
 
-#~ ZOOM_OUT_MAGS=1.                                                                                        # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_PROB
-#~ ZOOM_OUT_PROB=1.        
+ZOOM_OUT_MAGS=1.                                                                                        # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_PROB
+ZOOM_OUT_PROB=1.        
 
 COLOUR_MAP="tab20"                                                                                         # see 'https://matplotlib.org/3.3.3/tutorials/colors/colormaps.html' for allowed COLOUR_MAPs (Pastel1', 'Pastel2', 'Accent', 'Dark2' etc.)
 #~ COLOUR_MAP="tab40"                                                                                      # see 'https://matplotlib.org/3.3.3/tutorials/colors/colormaps.html' for allowed COLOUR_MAPs (Pastel1', 'Pastel2', 'Accent', 'Dark2' etc.)
@@ -81,6 +80,7 @@ CLASS_COLOURS="darkorange       lime      olive      firebrick     dodgerblue   
 
 
 AE_ADD_NOISE="False"
+ALL_TILES_FROM_ORIGIN="False"                                                                              # used when you don't want to tile (e.g. strongly supervised dataset where you want to use the whole image).
 BATCH_SIZE="42"
 BATCH_SIZE_TEST="36"
 CASES="ALL_ELIGIBLE_CASES"                                                                                 # DON'T CHANGE THIS DEFAULT. OTHER VALUES GENERATE AND LEAVE FLAGS IN PLACE WHICH CAN CAUSE CONFUSION IF FORGOTTEN ABOUT!
@@ -93,12 +93,14 @@ GENE_DATA_NORM="GAUSSIAN"                                                       
 GENE_DATA_TRANSFORM="LOG2PLUS1"                                                                            # supported options are NONE LN LOG2 LOG2PLUS1 LOG10 LOG10PLUS1 RANKED
 EMBEDDING_DIMENSIONS="100"
 HIDDEN_LAYER_NEURONS="1100"
+IGNORE_TILE_QUALITY_HYPERPARAMETERS="True"                                                                # (Use when whole image is used as a single tile) Don't apply tests that use MINIMUM_PERMITTED_GREYSCALE_RANGE, MINIMUM_PERMITTED_UNIQUE_VALUES or MINIMUM_TILE_SD
 INPUT_MODE="rna"
 JUST_CLUSTER="False"
 JUST_TEST="False"
 LABEL_SWAP_PCT=0                                                                                           # (no getopts option) Swap this percentage of truth labels to random. Used for testing.
 LEARNING_RATE=".0001"
-MAKE_BALANCED="False"
+MAKE_BALANCED="level_down"
+MAKE_BALANCED_MARGIN=20                                                                                    # (Percentage). If MAKE_BALANCED="level_down", allw the subtype with the most slides to have this many % more tiles than the subtype with the least number of tiles
 MAKE_GREY_PCT="0.0"                                                                                        # (no getopts option) Proportion of tiles to convert to greyscale. Use to check effect of color on learning. 
 METRIC="manhattan"                                                                                         
 MIN_CLUSTER_SIZE="10"
@@ -128,6 +130,7 @@ SKIP_IMAGE_PREPROCESSING="False"
 SKIP_RNA_PREPROCESSING="False"
 SKIP_TILING="False"                                                                                        # supported: any of the sklearn metrics
 SKIP_TRAINING="False"
+STRONG_SUPERVISION='False'                                                                                 # Convenience variable. all it does is change --all_tiles_from_origin to 'True', '--ignore_tile_quality_hyperparameters' to 'True' and 'n_tiles' to 1 in classify.py.  Could achieve same effect the these flags separately, but may also want to othe things with those flags.
 SUPERGRID_SIZE="4"
 TILES_PER_IMAGE="10"
 TILE_SIZE="64"
@@ -154,7 +157,7 @@ SHOW_ROWS=1000                                                                  
 SHOW_COLS=100                                                                                              # used by "analyse_data". 
 
 
-HIGHEST_CLASS_NUMBER=4                                                                                     # Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Can only omit cases from the top (e.g. 'normal' has the highest class number for 'stad' - see conf/variables). Currently only implemented for unimode/image (not implemented for rna_seq)
+HIGHEST_CLASS_NUMBER=99                                                                                     # Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Can only omit cases from the top (e.g. 'normal' has the highest class number for 'stad' - see conf/variables). Currently only implemented for unimode/image (not implemented for rna_seq)
 
 while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:H:h:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:Q:r:R:s:S:t:T:u:U:v:V:w:W:x:X:y:Y:z:Z:0:1:2:3:4:5:6:7:8:9: option
   do
@@ -175,7 +178,7 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:H:h:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:
     g) SKIP_GENERATION=${OPTARG};;                                                                         # 'True'   or 'False'. If True, skip generation of the pytorch dataset (to save time if it already exists)
     G) SUPERGRID_SIZE=${OPTARG};;                                                                          
     H) HIDDEN_LAYER_NEURONS=${OPTARG};;                                                                    
-    h) MAKE_BALANCED=${OPTARG};;                                                                           # If True, adjust tiling so that all subtypes will have as many tiles as the subtype which has the most number of images                                    
+    h) MAKE_BALANCED=${OPTARG};;                                                                           # If 'level_up', adjust tiling so that all subtypes will have as many tiles as the subtype which has the most number of images. If level_down, do the opposite                                    
     i) INPUT_MODE=${OPTARG};;                                                                              
     I) USE_UNFILTERED_DATA=${OPTARG};;
     j) JUST_TEST=${OPTARG};;                                                                               
@@ -424,7 +427,7 @@ echo "=====> STEP 3 OF 3: RUNNING THE NETWORK (PYTORCH DATASET WILL BE GENERATED
 sleep ${SLEEP_TIME}
 cd ${APPLICATION_DIR}
 CUDA_LAUNCH_BLOCKING=1 python ${MAIN_APPLICATION_NAME} \
---input_mode ${INPUT_MODE} --multimode ${MULTIMODE} --just_profile ${JUST_PROFILE} --just_test ${JUST_TEST} --skip_tiling ${SKIP_TILING} --skip_generation ${SKIP_GENERATION} \
+--input_mode ${INPUT_MODE}   --strong_supervision ${STRONG_SUPERVISION} --multimode ${MULTIMODE} --just_profile ${JUST_PROFILE} --just_test ${JUST_TEST} --skip_tiling ${SKIP_TILING} --skip_generation ${SKIP_GENERATION} \
 --dataset ${DATASET} --cases ${CASES} --application_dir ${APPLICATION_DIR}  --data_dir ${DATA_DIR} --data_source ${DATA_SOURCE} --divide_cases ${DIVIDE_CASES} --cases_reserved_for_image_rna ${CASES_RESERVED_FOR_IMAGE_RNA} \
 --global_data ${GLOBAL_DATA} --mapping_file_name ${MAPPING_FILE_NAME} \
 --log_dir ${LOG_DIR} --save_model_name ${SAVE_MODEL_NAME} \
@@ -440,15 +443,15 @@ CUDA_LAUNCH_BLOCKING=1 python ${MAIN_APPLICATION_NAME} \
 --encoder_activation ${ENCODER_ACTIVATION} --optimizer ${NN_OPTIMIZER} --n_samples ${N_SAMPLES} --pct_test ${PCT_TEST} --n_tests ${N_TESTS} --final_test_batch_size ${FINAL_TEST_BATCH_SIZE} \
 --gene_data_norm ${GENE_DATA_NORM} --gene_data_transform ${GENE_DATA_TRANSFORM} --embedding_dimensions ${EMBEDDING_DIMENSIONS} --hidden_layer_neurons ${HIDDEN_LAYER_NEURONS} --hidden_layer_encoder_topology ${HIDDEN_LAYER_ENCODER_TOPOLOGY} \
 --cancer_type ${CANCER_TYPE} --cancer_type_long ${CANCER_TYPE_LONG} --class_names ${CLASS_NAMES} --long_class_names ${LONG_CLASS_NAMES} --class_colours ${CLASS_COLOURS} --colour_map ${COLOUR_MAP} \
---n_tiles ${TILES_PER_IMAGE} --make_balanced ${MAKE_BALANCED} --rand_tiles ${RANDOM_TILES} --tile_size ${TILE_SIZE} --zoom_out_mags ${ZOOM_OUT_MAGS} --zoom_out_prob ${ZOOM_OUT_PROB} \
+--n_tiles ${TILES_PER_IMAGE} --make_balanced ${MAKE_BALANCED} --make_balanced_margin ${MAKE_BALANCED_MARGIN} --rand_tiles ${RANDOM_TILES} --tile_size ${TILE_SIZE} --all_tiles_from_origin ${ALL_TILES_FROM_ORIGIN} --zoom_out_mags ${ZOOM_OUT_MAGS} --zoom_out_prob ${ZOOM_OUT_PROB} \
 --n_epochs ${N_EPOCHS} --n_iterations ${N_ITERATIONS} --batch_size ${BATCH_SIZE} --learning_rate ${LEARNING_RATE} \
---latent_dim ${LATENT_DIM} --max_consecutive_losses ${MAX_CONSECUTIVE_LOSSES} --min_uniques ${MINIMUM_PERMITTED_UNIQUE_VALUES} \
+--latent_dim ${LATENT_DIM} --max_consecutive_losses ${MAX_CONSECUTIVE_LOSSES} --min_uniques ${MINIMUM_PERMITTED_UNIQUE_VALUES} --ignore_tile_quality_hyperparameters ${IGNORE_TILE_QUALITY_HYPERPARAMETERS} \
 --greyness ${MINIMUM_PERMITTED_GREYSCALE_RANGE} --make_grey_perunit ${MAKE_GREY_PCT}  --peer_noise_perunit ${PEER_NOISE_PCT} --label_swap_pct ${LABEL_SWAP_PCT} \
 --target_tile_offset ${TARGET_TILE_OFFSET} --stain_norm ${STAIN_NORMALIZATION} --stain_norm_target ${STAIN_NORM_TARGET} --min_tile_sd ${MINIMUM_TILE_SD}  --points_to_sample ${POINTS_TO_SAMPLE} \
 --show_rows ${SHOW_ROWS} --show_cols ${SHOW_COLS} --figure_width ${FIGURE_WIDTH} --figure_height ${FIGURE_HEIGHT} --annotated_tiles ${ANNOTATED_TILES} --supergrid_size ${SUPERGRID_SIZE} \
 --patch_points_to_sample ${PATCH_POINTS_TO_SAMPLE} --scattergram ${SCATTERGRAM} --box_plot ${BOX_PLOT} --box_plot_show ${BOX_PLOT_SHOW} --minimum_job_size ${MINIMUM_JOB_SIZE} --show_patch_images ${SHOW_PATCH_IMAGES} \
 --bar_chart_x_labels=${BAR_CHART_X_LABELS} --bar_chart_sort_hi_lo=${BAR_CHART_SORT_HI_LO}  --bar_chart_show_all=${BAR_CHART_SHOW_ALL} \
---probs_matrix ${PROBS_MATRIX} --probs_matrix_interpolation ${PROBS_MATRIX_INTERPOLATION} 
+--probs_matrix ${PROBS_MATRIX} --probs_matrix_interpolation ${PROBS_MATRIX_INTERPOLATION}
 cd ${BASE_DIR}
 
 # instructions for using the autoencoder front end

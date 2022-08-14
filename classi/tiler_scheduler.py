@@ -49,6 +49,7 @@ def tiler_scheduler( args, r_norm, flag, slide_count, n_samples, n_tiles, top_up
   rna_file_suffix         = args.rna_file_suffix  
   just_test               = args.just_test
   multimode               = args.multimode
+  all_tiles_from_origin   = args.all_tiles_from_origin
   
   
   walker     = os.walk( data_dir, topdown=True )
@@ -64,16 +65,15 @@ def tiler_scheduler( args, r_norm, flag, slide_count, n_samples, n_tiles, top_up
   
 
   my_slide_quota             = -(slide_count//-num_cpus)                                                   # how many slides each process has to handle
-  if n_tiles!=0:
-    my_expanded_slide_quota    = 3*my_slide_quota                                                          # because some threads will be "luckier" than others in coming across slides with the correct flag
-  else:
-    my_expanded_slide_quota    = my_slide_quota
+  my_expanded_slide_quota    = 3*my_slide_quota                                                            # because some threads will be "luckier" than others in coming across slides with the correct flag
+                                                                                                           # ('my_expanded_slide_quota' is an internal artifact: only 'my_slide_quota' is shown to the user)
+                                                                                                           # it doesn't increase tiling time, just makes sure that each thread looks at every example that it is allocated
 
   
   if DEBUG>0:
-    print ( f"{SAVE_CURSOR}{RESET}\r\033[{start_row-7};0HTILER_SCHEDULER_thread_{PINK}{my_thread:02d}{RESET}:      INFO:  tiles/slide                    = {MIKADO}{n_tiles if n_tiles!=0 else 1}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}",            flush=True ) 
-    print ( f"{SAVE_CURSOR}{RESET}\r\033[{start_row-6};0HTILER_SCHEDULER_thread_{PINK}{my_thread:02d}{RESET}:      INFO:  qualifying slides count        = {MIKADO}{slide_count}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}",            flush=True ) 
-    print ( f"{SAVE_CURSOR}{RESET}\r\033[{start_row-5};0HTILER_SCHEDULER_thread_{PINK}{my_thread:02d}{RESET}:      INFO:  thread's slide quote           = {MIKADO}{my_slide_quota}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}",            flush=True ) 
+    print ( f"{SAVE_CURSOR}{RESET}\r\033[{start_row-7};0HTILER_SCHEDULER_thread_{PINK}{my_thread:02d}{RESET}:      INFO:  unadjusted tiles/slide         = {MIKADO}{n_tiles}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}",         flush=True ) 
+    print ( f"{SAVE_CURSOR}{RESET}\r\033[{start_row-6};0HTILER_SCHEDULER_thread_{PINK}{my_thread:02d}{RESET}:      INFO:  qualifying slides count        = {MIKADO}{slide_count}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}",     flush=True ) 
+    print ( f"{SAVE_CURSOR}{RESET}\r\033[{start_row-5};0HTILER_SCHEDULER_thread_{PINK}{my_thread:02d}{RESET}:      INFO:  thread's slide quote           = {MIKADO}{my_slide_quota}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}",  flush=True ) 
   
   for root, dirs, files in walker:                                                                         # go through all the directories, but only tackle every my_thread'th directory
     
@@ -142,7 +142,7 @@ def tiler_scheduler( args, r_norm, flag, slide_count, n_samples, n_tiles, top_up
 
             else:
                                                                                                            # look for and use normal versions of the slides
-              if ( f.endswith( "svs" ) ) | ( f.endswith( "SVS" ) ) | ( f.endswith( "tif" ) ) | ( f.endswith( "tif" ) )  | ( f.endswith( "TIF" ) ) | ( f.endswith( "TIFF" ) )  | ( f.endswith( "jpg" ) ) | ( f.endswith( "jpeg" ) ):
+              if ( f.endswith( "svs" ) ) | ( f.endswith( "SVS" ) ) | ( f.endswith( "tif" ) ) | ( f.endswith( "tif" ) )  | ( f.endswith( "TIF" ) ) | ( f.endswith( "TIFF" ) ):
 
                 pqn = f"{d}/{f}"
 
@@ -157,7 +157,12 @@ def tiler_scheduler( args, r_norm, flag, slide_count, n_samples, n_tiles, top_up
                   f  = f"{f}.tif"                                                                          # point f to the tif file
                   new_fqn = f"{data_dir}/{d}/{f}"
                   image.write_to_file(new_fqn,  tile=True)                                                 # save as tif. Has to be 'tiled' or else Openslide won't accept it
- 
+
+
+                if DEBUG>0:
+                  if n_tiles==0:
+                    print(f'{SAVE_CURSOR}{RESET}\033[84;0H{BOLD_AMETHYST}n_tiles==0.  This should not be possible{RESET}{RESTORE_CURSOR}', flush=True) 
+                     
                 
                 result = tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob, d, f, my_thread, r )
 

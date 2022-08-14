@@ -35,7 +35,7 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
               unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, top_up_factors_train, top_up_factors_test, tile_size, 
               low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform ):
 
-  # DON'T USE args.n_samples or batch_size or args.n_tiles or args.gene_data_norm or args.tile_size or args.highest_class_number or args.low_expression_threshold or args.cutoff_percentile since these are job-level lists. 
+  # DON'T USE args.n_samples or args.batch_size or args.n_tiles or args.gene_data_norm or args.tile_size or args.highest_class_number or args.low_expression_threshold or args.cutoff_percentile since these are job-level lists. 
   # Here we are using one value of each, passed in as per the above parameters
   just_test                    = args.just_test
   data_dir                     = args.data_dir
@@ -181,7 +181,7 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
       
     if args.just_test=='True':
 
-      #  (2Ba) generate Test dataset
+      #  (2A) generate Test dataset
 
       if args.cases == 'UNIMODE_CASE':
 
@@ -225,11 +225,11 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
 
     else:
 
-      #  (2C)   Generate Training dataset
+      #  (2B)   Generate Training dataset
 
       if args.cases=='UNIMODE_CASE':
         
-        # (2Ca) case_designation_flag for training set = UNIMODE_CASE____IMAGE
+        # (2Ba) case_designation_flag for training set = UNIMODE_CASE____IMAGE
         #       case_designation_flag for test     set = UNIMODE_CASE____IMAGE_TEST
       
         test_cases      = int( n_samples * pct_test )
@@ -249,7 +249,7 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) n_tiles   (this run)............................................................... = {MIKADO}{n_tiles}{RESET}",                                  flush=True )
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}",                                 flush=True )
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) cases_required (training cases = int(n_samples * (1 - pct_test ) ) ................ = {MIKADO}{cases_required}{RESET}",                           flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) hence tiles required for training = cases_required * n_tiles ) .................... = {MIKADO}{cases_required * n_tiles}{RESET}",                 flush=True )
+              # ~ print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) hence tiles required for training = cases_required * n_tiles ) .................... = {MIKADO}{cases_required * n_tiles}{RESET}",                 flush=True )
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) tiles_required .................................................................... = {MIKADO}{tiles_required}{RESET}",                           flush=True )
 
 
@@ -265,7 +265,7 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) n_tiles   (this run)-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -   = {BLEU}{n_tiles}{RESET}",                                  flush=True )
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) pct_test  (this run)-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -   = {BLEU}{pct_test}{RESET}",                                 flush=True )
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) cases_required (test cases = n_samples - training_cases) -  -  -  -  -  -  -  -  -  = {BLEU}{cases_required}{RESET}",                           flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) hence tiles required for in-training testing = test cases * n_tiles ) -  -  -  -  - = {BLEU}{cases_required * n_tiles}{RESET}",                 flush=True )
+              # ~ print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) hence tiles required for in-training testing = test cases * n_tiles ) -  -  -  -  - = {BLEU}{cases_required * n_tiles}{RESET}",                 flush=True )
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) tiles_required-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -   = {BLEU}{tiles_required}{RESET}",                           flush=True )
 
     
@@ -275,7 +275,7 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
           print ( f"{DULL_WHITE}GENERATE:       INFO:    global_tiles_processed  (this run)-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  . = {MIKADO}{global_tiles_processed}{RESET}{CLEAR_LINE}", flush=True )
 
 
-        # (2Cb) case_designation_flag for training set = args.cases
+        # (2Bb) case_designation_flag for training set = args.cases
         #       case_designation_flag for test set     = args.cases
         #       both training and test sets will be drawn from the same set of examples
       
@@ -1401,8 +1401,8 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
 
   
   images_new      = np.ones ( ( tiles_required,  3, tile_size, tile_size ), dtype=np.uint8   )              
-  fnames_new      = np.zeros( ( tiles_required                           ), dtype=np.int64   )              # np.int64 is equiv of torch.long
-  img_labels_new  = np.zeros( ( tiles_required,                          ), dtype=np.int_    )              # img_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
+  fnames_new      = np.zeros( ( tiles_required                           ), dtype=np.int64   )             # np.int64 is equiv of torch.long
+  img_labels_new  = np.zeros( ( tiles_required,                          ), dtype=np.int_    )             # img_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
 
   if DEBUG>10:
     print( f"{CLEAR_LINE}GENERATE:       INFO:     making empty images_new.shape                                 = {PINK}{images_new.shape}{RESET}",             flush=True       ) 
@@ -1468,22 +1468,24 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
       # if user has requested 'MAKE_BALANCED', then adjust the number of tiles to be including according to the subtype using the 'top_up_factors' array
       # the tiling process will have ensured that at least this many tiles is available
       
-      if args.make_balanced=='True':
+      if ( (args.make_balanced=='level_up') | (args.make_balanced=='level_down')  ):
  
         if DEBUG>2:
           print ( f"\r{CLEAR_LINE}{BOLD}{CARRIBEAN_GREEN}GENERATE:       INFO:   base value of n_tiles       = {CYAN}{n_tiles_base}{RESET}"            )
           np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})
           print ( f"\r{CLEAR_LINE}{BOLD}{CARRIBEAN_GREEN}GENERATE:       INFO:   tile top_up_factors         = {CYAN}{top_up_factors}{RESET}"                  )
           print ( f"\r{CLEAR_LINE}{BOLD}{CARRIBEAN_GREEN}GENERATE:       INFO:   applicable top up factor    = {CYAN}{top_up_factors[subtype]:<4.2f}{RESET}"   )
-      
-        if top_up_factors[subtype]==1.:                                                                        # no need to adjust n_tiles for the subtype which has the largest number of images
+            
+        if top_up_factors[subtype]==1.:                                                                      # no need to adjust n_tiles for the subtype which has the largest number of images
           n_tiles = n_tiles_base
         else:
-          n_tiles = int(top_up_factors[subtype] * n_tiles_base)
-    
+          tiles_needed_by_subtype = np.around((top_up_factors*n_tiles_base), 0).astype(int)
+          tiles_needed_by_subtype = np.array( [ el if el!=0 else 1 for el in tiles_needed_by_subtype ] )  
+          n_tiles = tiles_needed_by_subtype[subtype]
+  
         if DEBUG>2:
           print ( f"\r{CLEAR_LINE}{BOLD}{CARRIBEAN_GREEN}GENERATE:       INFO:   new value of n_tiles        = {CYAN}{n_tiles}{RESET}"       )
-          
+            
       else:
         n_tiles = n_tiles_base
 
@@ -1531,6 +1533,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
           if DEBUG>90:
             print( f"GENERATE:       INFO:                    svs_file_link_id =  {MAGENTA}{svs_file_link_id}{RESET}"          )
             print( f"GENERATE:       INFO:                  svs_file_link_name = '{MAGENTA}{svs_file_link_name}{RESET}'"       )
+
 
       # (3) set up the array for each png entry in this directory
       

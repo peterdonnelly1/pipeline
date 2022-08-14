@@ -58,9 +58,14 @@ thread_to_monitor = 7
 
 def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob, d, f, my_thread, r ):
 
+  if DEBUG>0:
+    if n_tiles==0:
+      print(f'{SAVE_CURSOR}{RESET}\033[87;0H{BOLD_RED}n_tiles==0.  This should not be possible{RESET}{RESTORE_CURSOR}', flush=True)
+                    
   start = time.time()
 
   num_cpus = multiprocessing.cpu_count()
+  
   
   pid = os.getpid()
   process   = psutil.Process(pid)
@@ -101,17 +106,18 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
   points_to_sample       = args.points_to_sample                                                           # In support of culling slides using 'min_tile_sd', how many points to sample on a tile when making determination
   supergrid_size         = args.supergrid_size
   scattergram            = args.scattergram
- 
+  all_tiles_from_origin  = args.all_tiles_from_origin
+  ignore_tile_quality_hyperparameters = args.ignore_tile_quality_hyperparameters
 
   
   zoom_out_prob[0]=1.-sum(zoom_out_prob[1:])                                                               # just in case. If they don't add up to 1.0, the program willcrash
 
   
-  if ( ( just_test=='True')  & ( multimode!='image_rna' ) ):  
-    greyness=60
-    min_uniques=100
-    min_tile_sd=3
-    points_to_sample=100
+  # ~ if ( ( just_test=='True')  & ( multimode!='image_rna' ) ):  
+    # ~ greyness=60
+    # ~ min_uniques=100
+    # ~ min_tile_sd=3
+    # ~ points_to_sample=100
     
 
   if not just_profile=='True':
@@ -166,7 +172,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
 
   # (1B) increase n_tiles accordingly
 
-  if make_balanced=='True':
+  if ( (make_balanced=='level_up') | (make_balanced=='level_down')  ):
 
     if DEBUG>0:
       print ( f"\033[{start_row-9};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   base value of n_tiles         = {CYAN}{n_tiles}{RESET}                                                                      ",  end="" )
@@ -174,17 +180,16 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
       print ( f"\033[{start_row-11};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   tile top_up_factors           = {CYAN}{top_up_factors}{RESET}                                                              ",  end="" )
       print ( f"\033[{start_row-10};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   applicable top_up_factor      = {CYAN}{top_up_factors[subtype]:<4.2f}{RESET}                                                                  ",  end="" )
   
-      if top_up_factors[subtype]==1.:                                                                      # no need to adjust n_tiles for the subtype which has the largest number of images
-        pass
-      else:
-        # ~ n_tiles = int(top_up_factors[subtype] * n_tiles)+1
-        n_tiles = int(top_up_factors[subtype] * n_tiles)
+    if top_up_factors[subtype]==1.:                                                                      # no need to adjust n_tiles for the subtype which has the largest number of images
+      pass
+    else:
+      tiles_needed_by_subtype = np.around((top_up_factors*n_tiles), 0).astype(int)
+      tiles_needed_by_subtype = np.array( [ el if el!=0 else 1 for el in tiles_needed_by_subtype ] )  
+      n_tiles = tiles_needed_by_subtype[subtype]
+
+    if DEBUG>0:
+      print ( f"\033[{start_row-8};0f{BOLD}{ASPARAGUS}TILER:                          INFO:   adjusted value of n_tiles     = {CYAN}{n_tiles}{RESET}                                                                                       ",  end="" )
   
-      if DEBUG>0:
-        print ( f"\033[{start_row-8};0f{BOLD}{ASPARAGUS}TILER:                          INFO:   adjusted value of n_tiles     = {CYAN}{n_tiles}{RESET}                                                                                       ",  end="" )
-  
-      
-    
 
   
   if (DEBUG>2):  
@@ -308,19 +313,8 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
   
   # (3b) Set up parameters for selection of tiles (for training mode and multimode: random; for test mode: 2D contiguous patch taking into account the supergrid ('SUPERGRID_SIZE') setting)
   
-  just_one_tile_from_origin=False
-  if n_tiles==0:
-    just_one_tile_from_origin=True                                                                              # n_tiles=0 indicates signals that user wants one tile only (we aren't really tiling)
-    n_tiles = 1
-    
-  if ( just_one_tile_from_origin==True  ):
-    x_start=0
-    y_start=0
-    tiles_to_get = 1                                                                                       # length of one side of the patch, in number of tiles (the patch is square, and the  batch_size is chosen to be precisely equal to the n_tiles for test mode) 
-    tile_height  = tile_width
-    x_span=range(x_start, x_start + tiles_to_get*tile_width, tile_width)                                   # steps of tile_width
-    y_span=range(y_start, y_start + tiles_to_get*tile_width, tile_height)                                 # steps of tile_height
-  elif ( ( just_test!='True' ) | ( multimode=='image_rna' )  ):
+
+  if ( ( just_test!='True' ) | ( multimode=='image_rna' )  ):
     x_start=0
     y_start=0
     x_span=range(x_start, width, tile_width)                                                               # steps of tile_width
@@ -380,19 +374,20 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
   
   break_now=False
 
-
   for x in x_span:
 
       if break_now==True:
         break
 
       for y in y_span:
+        
+          if DEBUG>0:
+            if n_tiles==0:
+              print(f'{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus+randint(0,10)};0H{BB}TILER_{num_cpus}: ERROR: n_tiles==0.  This should not be possible{RESET}{RESTORE_CURSOR}', flush=True)
+
     
           tiles_considered_count+=1
-
-          if   ( ( just_one_tile_from_origin=='True' ) & ( tiles_processed==1 )  ):
-            break_now=True
-            break                                  
+                               
           if   ( ( just_test=='True' ) & ( multimode!='image_rna' ) ) & ( tiles_processed==n_tiles*(supergrid_size**2) ):
             break_now=True
             break
@@ -479,12 +474,17 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
             else:
               optical_mag_adjustment_factor=1
             
-            new_width = int(multiplier * optical_mag_adjustment_factor * tile_width_x)                                  
-            tile = oslide.read_region( (extraction_x_coord,  extraction_y_coord),  level, (new_width, new_width))       # extract an area from the slide of size determined by the result returned by choose_mag_level
+            new_width = int(multiplier * optical_mag_adjustment_factor * tile_width_x)     
 
-            if DEBUG>10:
+            if ( all_tiles_from_origin=='True'  ):
+              extraction_x_coord=0
+              extraction_y_coord=0            
+                                         
+            tile = oslide.read_region( (extraction_x_coord,  extraction_y_coord),  level, (new_width, new_width))       # extract an area from the slide of size determined by the result returned by choose_mag_level
+ 
+            if DEBUG>0:
               if my_thread==5:
-                print ( f"{SAVE_CURSOR}\033[77;50H{BOLD_GREEN if tiles_processed+1==n_tiles else BB}for thread {my_thread}: slide: fqn= {fqn};  subtype={subtype}; tiles_processed = {tiles_processed+1:2d};  tile start coords: x={extraction_x_coord:6d}, y={extraction_y_coord:6d};   slide width={new_width:<4d}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}", flush=True )
+                print ( f"{SAVE_CURSOR}\033[77;0H{BB}for thread {my_thread}: slide: fqn= {fqn};  subtype={subtype}; tiles_processed = {tiles_processed+1:2d};  tile start coords: x={extraction_x_coord:6d}, y={extraction_y_coord:6d};   slide width={new_width:<4d}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}", flush=True )
 
 
 
@@ -531,7 +531,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
             IsLowContrast = False
             IsDegenerate  = False
 
-            if( args.just_test!='True' ):                                                                  # If 'just_test' = True, all tiles must be accepted
+            if( args.just_test!='True' )  & ( args.ignore_tile_quality_hyperparameters!='True' ):              # If 'just_test' = True, all tiles must be accepted, otehrwise would wll be gaps in the patch
 
               # decide by means of a heuristic whether the tile contains is background or else contains too much background
               IsBackground   = check_background( args, tile )
@@ -600,9 +600,9 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
                 print ( f"{RESET}\rTILER: INFO: \r\033[25Ctile -> numpy array = {YELLOW}{np.array(tile)[0:10,0,0]}{RESET}",                 flush=True    ) 
 
               tile.save(fname);                                                                            # save to the filename we made for this tile earlier              
-              tiles_processed += 1
+              tiles_processed+=1
 
-              # "Note that just calling a file .png doesn't make it one so you need to specify the file format as a second parameter.  tile.save("tile.png","PNG")"
+              # "Note that just labelling a file .png doesn't make it one so you need to specify the file format as a second parameter.  tile.save("tile.png","PNG")"
               
 #             print ( "\033[s\033[{:};{:}f\033[32;1m{:}{:2d};{:>4d} \033[m\033[u".format( randint(1,68), int(1500/num_cpus)+7*my_thread, BB, my_thread+1, tiles_processed ), end="", flush=True )
               if (DEBUG>99):
