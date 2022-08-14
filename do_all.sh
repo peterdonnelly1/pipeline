@@ -93,13 +93,13 @@ GENE_DATA_NORM="GAUSSIAN"                                                       
 GENE_DATA_TRANSFORM="LOG2PLUS1"                                                                            # supported options are NONE LN LOG2 LOG2PLUS1 LOG10 LOG10PLUS1 RANKED
 EMBEDDING_DIMENSIONS="100"
 HIDDEN_LAYER_NEURONS="1100"
-IGNORE_TILE_QUALITY_HYPERPARAMETERS="True"                                                                # (Use when whole image is used as a single tile) Don't apply tests that use MINIMUM_PERMITTED_GREYSCALE_RANGE, MINIMUM_PERMITTED_UNIQUE_VALUES or MINIMUM_TILE_SD
+IGNORE_TILE_QUALITY_HYPERPARAMETERS="False"                                                                # (Use when whole image is used as a single tile) Don't apply tests that use MINIMUM_PERMITTED_GREYSCALE_RANGE, MINIMUM_PERMITTED_UNIQUE_VALUES or MINIMUM_TILE_SD
 INPUT_MODE="rna"
 JUST_CLUSTER="False"
 JUST_TEST="False"
 LABEL_SWAP_PCT=0                                                                                           # (no getopts option) Swap this percentage of truth labels to random. Used for testing.
 LEARNING_RATE=".0001"
-MAKE_BALANCED="level_down"
+MAKE_BALANCED="level_up"
 MAKE_BALANCED_MARGIN=20                                                                                    # (Percentage). If MAKE_BALANCED="level_down", allw the subtype with the most slides to have this many % more tiles than the subtype with the least number of tiles
 MAKE_GREY_PCT="0.0"                                                                                        # (no getopts option) Proportion of tiles to convert to greyscale. Use to check effect of color on learning. 
 METRIC="manhattan"                                                                                         
