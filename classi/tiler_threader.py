@@ -33,14 +33,15 @@ c=random.choice( range(50,225) )
 BB=f"\033[38;2;{a};{b};{c}m"
   
 def tiler_threader( args, flag, count, n_samples, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob ):
-
-  
-  # ~ print ( f"{SAVE_CURSOR}\033[30;0H\033[0J{RESTORE_CURSOR}", end='', flush=True )
   
   num_cpus = multiprocessing.cpu_count()
 
   start_column = 112
   start_row    = 60-num_cpus
+  
+  for r in range ( start_row-28, start_row+20 ):
+    print(f"\033[{r};0f{CLEAR_LINE}", end="", flush=True )  
+  
   
   random_array = [ random.random() for i in range(1, len(zoom_out_prob)+1 ) ]
   r_norm       = [ i/(sum(random_array)) for i in random_array ]                                           # make the vector add up to 1
@@ -68,7 +69,7 @@ def tiler_threader( args, flag, count, n_samples, n_tiles, top_up_factors, tile_
     print( f"{ORANGE}TILER_THREADER: INFO: CAUTION! 'just_test' flag is set (and multimode flag not set). Only one process will be used (to ensure the same tiles aren't selected more than one time){RESET}" )     
     task=executor.submit( tiler_scheduler, args, r_norm, flag, count, n_samples, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob, 0, 1)
     tasks.append(task)
-  else:  # train
+  else:                                                                                                    # train
     if DEBUG>0:
       print ( f"TILER_THREADER: INFO: about to launch {MIKADO}{num_cpus}{RESET} tiler_scheduler threads{CLEAR_LINE}",  flush=True       )
     if DEBUG>20:

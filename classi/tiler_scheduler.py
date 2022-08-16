@@ -64,8 +64,12 @@ def tiler_scheduler( args, r_norm, flag, slide_count, n_samples, n_tiles, top_up
   dirs_which_have_flag = 0
   
 
-  my_slide_quota             = -(slide_count//-num_cpus)                                                   # how many slides each process has to handle
-  my_expanded_slide_quota    = 3*my_slide_quota                                                            # because some threads will be "luckier" than others in coming across slides with the correct flag
+  if args.just_test=='True':
+    my_slide_quota              = n_samples if n_samples < slide_count else slide_count
+    my_expanded_slide_quota     = my_slide_quota 
+  else:
+    my_slide_quota             = -(slide_count//-num_cpus)                                                   # how many slides each process has to handle
+    my_expanded_slide_quota    = 3*my_slide_quota                                                            # because some threads will be "luckier" than others in coming across slides with the correct flag
                                                                                                            # ('my_expanded_slide_quota' is an internal artifact: only 'my_slide_quota' is shown to the user)
                                                                                                            # it doesn't increase tiling time, just makes sure that each thread looks at every example that it is allocated
 
@@ -73,7 +77,7 @@ def tiler_scheduler( args, r_norm, flag, slide_count, n_samples, n_tiles, top_up
   if DEBUG>0:
     print ( f"{SAVE_CURSOR}{RESET}\r\033[{start_row-7};0HTILER_SCHEDULER_thread_{PINK}{my_thread:02d}{RESET}:      INFO:  unadjusted tiles/slide         = {MIKADO}{n_tiles}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}",         flush=True ) 
     print ( f"{SAVE_CURSOR}{RESET}\r\033[{start_row-6};0HTILER_SCHEDULER_thread_{PINK}{my_thread:02d}{RESET}:      INFO:  qualifying slides count        = {MIKADO}{slide_count}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}",     flush=True ) 
-    print ( f"{SAVE_CURSOR}{RESET}\r\033[{start_row-5};0HTILER_SCHEDULER_thread_{PINK}{my_thread:02d}{RESET}:      INFO:  thread's slide quote           = {MIKADO}{my_slide_quota}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}",  flush=True ) 
+    print ( f"{SAVE_CURSOR}{RESET}\r\033[{start_row-5};0HTILER_SCHEDULER_thread_{PINK}{my_thread:02d}{RESET}:      INFO:  thread's slide quota           = {MIKADO}{my_slide_quota}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}",  flush=True ) 
   
   for root, dirs, files in walker:                                                                         # go through all the directories, but only tackle every my_thread'th directory
     
@@ -118,7 +122,7 @@ def tiler_scheduler( args, r_norm, flag, slide_count, n_samples, n_tiles, top_up
                   slides_processed+=1
                   if ( ( just_test=='True' ) & ( multimode!='image_rna') )  & (my_thread==0):
                     if DEBUG>0:
-                      print ( f"{SAVE_CURSOR}\033[{start_row-2};272H{RESET}{CARRIBEAN_GREEN}{slides_processed:3d} slide{s if slides_processed>1 else ' '} done (quota {my_slide_quota}){RESET}{CLEAR_LINE}{RESTORE_CURSOR}", flush=True ) 
+                      print ( f"{SAVE_CURSOR}\033[{start_row};292H{RESET}{CARRIBEAN_GREEN}{slides_processed:3d} slide{s if slides_processed>1 else ' '} done (quota {my_slide_quota}){RESET}{CLEAR_LINE}{RESTORE_CURSOR}", flush=True ) 
                   else:
                     if DEBUG>0:
                       print ( f"{SAVE_CURSOR}\033[{start_row+my_thread};292H{RESET}{CARRIBEAN_GREEN}{slides_processed} slide{s if slides_processed>1 else ' '} done (quota {my_slide_quota}){RESET}{CLEAR_LINE}{RESTORE_CURSOR}S", flush=True )                           
@@ -175,7 +179,7 @@ def tiler_scheduler( args, r_norm, flag, slide_count, n_samples, n_tiles, top_up
                   slides_processed+=1
                   if ( ( just_test=='True' ) & ( multimode!='image_rna') )  & (my_thread==0):
                     if DEBUG>0:
-                      print ( f"{SAVE_CURSOR}\033[{start_row-2};272H{RESET}{CARRIBEAN_GREEN}{slides_processed:3d} slide{s if slides_processed>1 else ' '} done (quota {my_slide_quota}){RESET}{CLEAR_LINE}{RESTORE_CURSOR}", flush=True ) 
+                      print ( f"{SAVE_CURSOR}\033[{start_row};292H{RESET}{CARRIBEAN_GREEN}{slides_processed:3d} slide{s if slides_processed>1 else ' '} done (quota {my_slide_quota}){RESET}{CLEAR_LINE}{RESTORE_CURSOR}", flush=True ) 
                   else:
                     if DEBUG>0:
                       print ( f"{SAVE_CURSOR}\033[{start_row+my_thread};292H{RESET}{CARRIBEAN_GREEN}{slides_processed:3d} slide{s if slides_processed>1 else ' '} done (quota {my_slide_quota}){RESET}{CLEAR_LINE}{RESTORE_CURSOR}S", flush=True )                           

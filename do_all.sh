@@ -47,10 +47,11 @@ DDP="False"                                                                     
 #~ MINIMUM_PERMITTED_GREYSCALE_RANGE=210                                                                      # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
 #~ MINIMUM_PERMITTED_UNIQUE_VALUES=210                                                                        # tile must have at least this many unique values or it will be assumed to be degenerate
 #~ MINIMUM_TILE_SD=2.1                                                                                        # Used to cull slides with a very reduced greyscale palette such as background tiles
+                                                                                       # Used to cull slides with a very reduced greyscale palette such as background tiles
+MINIMUM_PERMITTED_GREYSCALE_RANGE=110                                                                      # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
+MINIMUM_PERMITTED_UNIQUE_VALUES=110                                                                        # tile must have at least this many unique values or it will be assumed to be degenerate
+MINIMUM_TILE_SD=1.1                                                                                        # Used to cull slides with a very reduced greyscale palette such as background tiles
 
-MINIMUM_PERMITTED_GREYSCALE_RANGE=0                                                                        # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
-MINIMUM_PERMITTED_UNIQUE_VALUES=0                                                                          # tile must have at least this many unique values or it will be assumed to be degenerate
-MINIMUM_TILE_SD=0.0                                                                                        # Used to cull slides with a very reduced greyscale palette such as background tiles
 POINTS_TO_SAMPLE=500                                                                                       # Used for determining/culling background tiles via 'min_tile_sd', how many points to sample on a tile when making determination if it is mostly background
 
 MOMENTUM=0.8                                                                                               # for use with t-sne, if desired
@@ -99,7 +100,8 @@ JUST_CLUSTER="False"
 JUST_TEST="False"
 LABEL_SWAP_PCT=0                                                                                           # (no getopts option) Swap this percentage of truth labels to random. Used for testing.
 LEARNING_RATE=".0001"
-MAKE_BALANCED="level_up"
+#~ MAKE_BALANCED="level_up"
+MAKE_BALANCED="NONE"
 MAKE_BALANCED_MARGIN=20                                                                                    # (Percentage). If MAKE_BALANCED="level_down", allw the subtype with the most slides to have this many % more tiles than the subtype with the least number of tiles
 MAKE_GREY_PCT="0.0"                                                                                        # (no getopts option) Proportion of tiles to convert to greyscale. Use to check effect of color on learning. 
 METRIC="manhattan"                                                                                         
@@ -131,7 +133,7 @@ SKIP_RNA_PREPROCESSING="False"
 SKIP_TILING="False"                                                                                        # supported: any of the sklearn metrics
 SKIP_TRAINING="False"
 STRONG_SUPERVISION='False'                                                                                 # Convenience variable. all it does is change --all_tiles_from_origin to 'True', '--ignore_tile_quality_hyperparameters' to 'True' and 'n_tiles' to 1 in classify.py.  Could achieve same effect the these flags separately, but may also want to othe things with those flags.
-SUPERGRID_SIZE="4"
+SUPERGRID_SIZE="2"
 TILES_PER_IMAGE="10"
 TILE_SIZE="64"
 USE_AUTOENCODER_OUTPUT="False"

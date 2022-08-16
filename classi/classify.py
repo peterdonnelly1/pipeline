@@ -78,7 +78,7 @@ np.set_printoptions(linewidth=300)
 #torch.backends.cudnn.benchmark   = False                                                                  #for CUDA memory optimization
 torch.backends.cudnn.enabled     = True                                                                    #for CUDA memory optimization
 
-pd.set_option('display.max_rows',     99 )
+pd.set_option('display.max_rows',     999 )
 pd.set_option('display.max_columns',  99 )
 pd.set_option('display.width',        80 )
 pd.set_option('display.max_colwidth',  8 ) 
@@ -687,14 +687,14 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
   if  any( el<0.05 for el in pct_test ):
     print( f"{BOLD_RED}CLASSI:         INFO:  pct_test = {MIKADO}{pct_test}{BOLD_RED}. At least one of these is less than 0.05 (5%){RESET}{BOLD_RED}'. This is such a low percentage for hold out testing that it might be unintended.{RESET}", flush=True)
     print( f"{BOLD_RED}CLASSI:         INFO:    further information: correct if necessary by changing the percent test option: Bash long form: {BOLD_CYAN}PCT_TEST{BOLD_RED}; Bash short form '{CYAN}-1'{BOLD_ORANGE}; python {BOLD_CYAN}--pct_test{RESET}", flush=True)
-    print( f"{BOLD_RED}CLASSI:         INFO:    not halting ... resuming in 7 seconds", flush=True)
-    time.sleep(5)
+    print( f"{BOLD_RED}CLASSI:         INFO:    not halting ... resuming in 3 seconds", flush=True)
+    time.sleep(3)
   elif  any(el<0.1 for el in pct_test):
     np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
     print( f"{BOLD_ORANGE}CLASSI:         INFO:  pct_test = {MIKADO}{np.array(pct_test)}{BOLD_ORANGE}. At least one of these is less than 0.1 (10%){RESET}{BOLD_ORANGE}'. Is this intended?{RESET}", flush=True)
     print( f"{BOLD_ORANGE}CLASSI:         INFO:    further information: correct if necessary by changing the percent test option: Bash long form: {BOLD_CYAN}PCT_TEST{BOLD_ORANGE}; Bash short form '{CYAN}-1'{BOLD_ORANGE}; python {BOLD_CYAN}--pct_test{RESET}", flush=True)
-    print( f"{BOLD_ORANGE}CLASSI:         INFO:    not halting ... resuming in 7 seconds", flush=True)
-    time.sleep(5)
+    print( f"{BOLD_ORANGE}CLASSI:         INFO:    not halting ... resuming in 3 seconds", flush=True)
+    time.sleep(3)
 
   if DEBUG>1:
     if  0 in highest_class_number:
@@ -767,6 +767,7 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
   if  ( args.cases!='ALL_ELIGIBLE_CASES' ) & ( args.divide_cases == 'False' ):
     print( f"{ORANGE}CLASSI:         INFO:  user option {CYAN}-v ('divide_cases') {RESET}{ORANGE} = {CYAN}False{RESET}{ORANGE}, however option {CYAN}-c ('cases'){RESET}{ORANGE} is NOT '{CYAN}ALL_ELIGIBLE_CASES{RESET}{ORANGE}'.  The requested subset of cases may or may not already exist{RESET}" )
     print( f"{ORANGE}CLASSI:         INFO:    this will cause problems if the requested subset ({RESET}{ORANGE}'{CYAN}{args.cases}{RESET}{ORANGE}') does not exist (in {RESET}{ORANGE}'{CYAN}{args.data_dir}{RESET}{ORANGE}') from a previous run with {CYAN}-v {'divide_cases'}{RESET}{ORANGE} flag set. NOT halting, but if CLASSI crashes, you'll know why.{RESET}" )
+    time.sleep(2)
       
   c_m = f"plt.cm.{eval('colour_map')}"                                                                     # the 'eval' is so that the user input string will be treated as a variable
   class_colors = [ eval(c_m)(i) for i in range(len(class_names))]                                          # makes an array of colours by calling the user defined colour map (which is a function, not a variable)
@@ -847,6 +848,7 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
     if ( input_mode=='image' ) &  ( pretrain!='True' ):
       if not tile_size_max**0.5 == int(tile_size_max**0.5):
         print( f"{ORANGE}CLASSI:         WARNG: '{CYAN}TILE_SIZE{RESET}{ORANGE}' ({BOLD}{MIKADO}{tile_size_max}{RESET}{ORANGE}) isn't a perfect square, which is fine for training, but will mean you won't be able to use test mode on the model you train here{RESET}" )
+        time.sleep(2)
       if supergrid_size>1:
         if DEBUG>99:
           print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'  flag is NOT set, so supergrid_size (currently {MIKADO}{supergrid_size}{RESET}{ORANGE}) will be ignored{RESET}" )
@@ -959,7 +961,7 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
     if (total_runs_in_job==1) & (args.make_balanced=='level_up'):
 
       print( f"{SAVE_CURSOR}\033[77;0H{BOLD_ORANGE}CLASSI:         WARNG:  skip tiling flag is set ({CYAN}-s True{RESET}{BOLD_ORANGE}), but cannot skip tiling if there is only one run in a job and {CYAN}MAKE_BALANCED{RESET} is not set to {BOLD_MIKADO}NONE{RESET}{BOLD_ORANGE}, as {CYAN}top_up_factors{RESET}{BOLD_ORANGE}, which are necessary to adjust tiles per subtype per slide, would not be calculated{RESET}" ) 
-      print( f"\033[78;0H{BOLD_ORANGE}CLASSI:         WARNG:  ignoring skip tiling flag tiling will be performed{RESET}{RESTORE_CURSOR}"      ) 
+      print( f"\033[78;0H{BOLD_ORANGE}CLASSI:         WARNG:  ignoring skip tiling flag - tiling WILL be performed{RESET}{RESTORE_CURSOR}"      ) 
       skip_tiling='False'
       args.skip_tiling='False'
       time.sleep(1)
@@ -1349,8 +1351,11 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
     # (2) Maybe schedule and run tiler threads
 
+
     # ~ if (input_mode=='image') & (multimode!='image_rna'):
     if (input_mode=='image'):
+      
+      total_slides_counted_train = total_tiles_required_train =  total_slides_counted_test = total_tiles_required_test = 0
 
       must_tile     = False
       must_generate = False
@@ -1461,7 +1466,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
               flag  = 'HAS_IMAGE'
               total_slides_counted_train, total_tiles_required_train, top_up_factors_train  = determine_top_up_factors ( args, n_classes, class_names, n_tiles, flag )
-            
+                     
               if DEBUG>1:
                 print( f"{SAVE_CURSOR}\r\033[{num_cpus+1}B{WHITE}CLASSI:         INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; slides_to_be_tiled = {MIKADO}{slides_to_be_tiled:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
               slides_tiled_count = tiler_threader( args, flag, slides_to_be_tiled, n_samples, n_tiles_max, top_up_factors_train, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob  )               # we tile the largest number of samples & tiles that is required for any run within the job
@@ -1504,7 +1509,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
 
 
-    # (3) Maybe Regenerate Torch '.pt' file
+    # (3) Maybe (re)generate Torch '.pt' file
 
     if  (input_mode=='image') & ( skip_generation!='True' ):
       
@@ -2398,7 +2403,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         else:
           c_id = [i for i in range(pd_aggregate_tile_probabilities_matrix.shape[0])]
 
-        if DEBUG>1:
+        if DEBUG>0:
           print ( "\033[20B" )
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
           print ( f"\nCLASSI:         INFO:       (extended) pd_aggregate_tile_probabilities_matrix = \n{CHARTREUSE}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True )
@@ -2622,7 +2627,13 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
             print ( f"CLASSI:         INFO:      arg_max                                                                 = {COTTON_CANDY}{arg_max}{RESET}", flush=True ) 
             print ( f"CLASSI:         INFO:      class_names[ arg_max ]                                                  = {COTTON_CANDY}{class_names[ arg_max ]}{RESET}", flush=True ) 
             print ( f"CLASSI:         INFO:      height = [ aggregate_tile_probabilities_matrix[i,arg_max] / agg_prob ]  = {COTTON_CANDY}{[ aggregate_tile_probabilities_matrix[i,arg_max] / agg_prob ]}{RESET}", flush=True ) 
-          plt.bar( x=[ str(c_id[i]) ],   height=[ aggregate_tile_probabilities_matrix[i,arg_max] / agg_prob ],  color=class_colors[ arg_max ], label=class_names[ arg_max ] )  # just plots the maximum value
+
+          x      = [ str(c_id[i]) ]
+          height = [ aggregate_tile_probabilities_matrix[i,arg_max] / agg_prob ]
+          color  =   class_colors[ arg_max ]
+          label  =   class_names [ arg_max ]
+
+          plt.bar( x=x,   height=height,  color=color, label=label )                                       # just plots the maximum value
 
 
         plt.title   ("Input Data = Slide Image Tiles;  Bar Height = Probability Assigned to **TRUE** Cancer Sub-type",            fontsize=16 )

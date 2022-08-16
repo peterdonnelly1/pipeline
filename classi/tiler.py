@@ -243,6 +243,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
         print(f"\033[{start_row+num_cpus+3};0f\r{CLEAR_LINE}", end="", flush=True )
         print(f"\033[{start_row+num_cpus+4};0f\r{CLEAR_LINE}", end="", flush=True )
         print(f"\033[{start_row+num_cpus+2};0f\r{CLEAR_LINE}{BB}{PROPERTY_NAME_COMMENT[0:300]}{RESET}{RESTORE_CURSOR}", flush=True )
+
       
   objective_power = 0
   if openslide.PROPERTY_NAME_OBJECTIVE_POWER in oslide.properties:
@@ -291,13 +292,13 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
 
   # (3a) [test mode only] look for the best possible patch (of the requested size) to use
      
-  if ( ( just_test=='True')  & ( multimode!='image_rna' ) ):
+  if ( ( just_test=='True')  & ( multimode!='image_rna' ) &  (args.show_patch_images=='True' ) ):
 
-    samples      = args.patch_points_to_sample
+    patch_points_to_sample      = args.patch_points_to_sample
     high_uniques = 0
     if DEBUG>2:
-      print( f"\r{WHITE}TILER:          INFO: about to analyse {MIKADO}{samples}{RESET} randomly selected {MIKADO}{int(n_tiles**0.5)}x{int(n_tiles**0.5)}{RESET} patches to locate a patch with high nominal contrast and little background{RESET}" )  
-    x_start, y_start, high_uniques = highest_uniques( args, oslide, level, width, height, tile_width, samples, n_tiles )
+      print( f"\r{WHITE}TILER:          INFO: about to analyse {MIKADO}{patch_points_to_sample}{RESET} randomly selected {MIKADO}{int(n_tiles**0.5)}x{int(n_tiles**0.5)}{RESET} patches to locate a patch with high nominal contrast and little background{RESET}" )  
+    x_start, y_start, high_uniques = highest_uniques( args, oslide, level, width, height, tile_width, patch_points_to_sample, n_tiles, start_row, start_column )
     if high_uniques==0:                                                                                    # means we went found no qualifying tile to define the patch by (can happen)
       x_start=int( width//2)
       y_start=int(height//2)
@@ -320,6 +321,8 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
     x_span=range(x_start, width, tile_width)                                                               # steps of tile_width
     y_span=range(y_start, width, tile_width)                                                               # steps of tile_width
   else:                                                                                                    # test mode (for patching)
+    x_start=0
+    y_start=0
     tiles_to_get = int(batch_size**0.5)                                                                    # length of one side of the patch, in number of tiles (the patch is square, and the  batch_size is chosen to be precisely equal to the n_tiles for test mode) 
     tile_height  = tile_width
     patch_width  = (tiles_to_get*supergrid_size*tile_width)                                                # multiply by tile_width to get pixels
@@ -355,7 +358,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
     
     patch_rgb   = patch.convert('RGB')                                                                     # convert from PIL RGBA to RGB
     patch_npy   = (np.array(patch))                                                                        # convert to Numpy array
-    patch_fname = f"{data_dir}/{d}/entire_patch.npy"                                                       # same name for all patch since they are in different subdirectories of data_dur
+    patch_fname = f"{data_dir}/{d}/entire_patch.npy"                                                       # same name for all patches since they are in different subdirectories of data_dur
     #fname = '{0:}/{1:}/{2:06}_{3:06}.png'.format( data_dir, d, x_rand, y_rand)
     np.save(patch_fname, patch_npy)
       
@@ -512,7 +515,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
 
 
             if (DEBUG>999):
-              print ( f"{MAGENT}TILER:         CAUTION:                                 about to emboss tile with file name for debugging purposes{RESET}" )
+              print ( f"{MAGENTA}TILER:         CAUTION:                                 about to emboss tile with file name for debugging purposes{RESET}" )
               tile_dir=f"{d[-6:]}"
               x_coord=f"{x}"
               y_coord=f"{y}"                
@@ -531,7 +534,9 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
             IsLowContrast = False
             IsDegenerate  = False
 
-            if( args.just_test!='True' )  & ( args.ignore_tile_quality_hyperparameters!='True' ):              # If 'just_test' = True, all tiles must be accepted, otehrwise would wll be gaps in the patch
+                
+            if( args.just_test!='True' )  & ( args.ignore_tile_quality_hyperparameters!='True' ):          # If 'just_test' = True, all tiles must be accepted, otehrwise would wll be gaps in the patch
+
 
               # decide by means of a heuristic whether the tile contains is background or else contains too much background
               IsBackground   = check_background( args, tile )
@@ -557,8 +562,9 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
       
 
             else:
-              if (DEBUG>0):
-                print ( f"\033[{start_row-18};0f{CLEAR_LINE}{GREEN}TILER:                          INFO:   using    this tile candidate {BOLD}|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||{BOLD}",     end="" )
+              if args.just_test!='True':
+                if (DEBUG>0):
+                  print ( f"\033[{start_row-18};0f{CLEAR_LINE}{GREEN}TILER:                          INFO:   using    this tile candidate {BOLD}|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||{BOLD}",     end="" )
 
               # ~ if not stain_norm=="NONE":                                                               # then perform the selected stain normalization technique on the tile W
               if stain_norm=="reinhard":                                                                   # now handle 'spcn' at the slide level in the standalone process 'normalise_stain' 
@@ -731,7 +737,7 @@ def check_background( args, tile ):
       print ( f"\033[{start_row-14};0f{RESET}{RED}TILER:                          INFO:   background   filter: {CYAN}candidate_tile_sd \r\033[88C=  {RESET}{BITTER_SWEET}{RESET}{MIKADO}{candidate_tile_sd:>4.2f}{RESET}{DIM_WHITE} which is less than user provided {CYAN}MINIMUM_TILE_SD                    ({BOLD_MIKADO}{args.min_tile_sd:>4.2f}{CYAN})    {DULL_WHITE}(user provided {CYAN}POINTS_TO_SAMPLE = {MIKADO}{args.points_to_sample}{DULL_WHITE}){RESET}",  end="" )
   else:
     if (DEBUG>44):
-      print ( f"TILER:            INFO: highest_uniques(): {BRIGHT_GREEN}No, it's not background tile{RESET}", flush=True )
+      print ( f"TILER:            INFO: check_background(): {BRIGHT_GREEN}No, it's not background tile{RESET}", flush=True )
       # ~ show_image ( tile_PIL )
 
   return IsBackground
@@ -788,13 +794,13 @@ def check_badness( args, tile ):
   
   if IsBadTile:
     if (DEBUG>999):
-      print ( f"\033[1mTILER:            INFO: highest_uniques(): Yes, it's a bad tile\033[m" )
+      print ( f"\033[1mTILER:            INFO: check_badness(): Yes, it's a bad tile\033[m" )
       
   return IsBadTile
   
 # ------------------------------------------------------------------------------
 
-def highest_uniques(args, oslide, level, slide_width, slide_height, tile_size, samples, n_tiles):
+def highest_uniques(args, oslide, level, slide_width, slide_height, tile_size, patch_points_to_sample, n_tiles, start_row, start_column):
 
   x_high=0
   y_high=0
@@ -809,7 +815,7 @@ def highest_uniques(args, oslide, level, slide_width, slide_height, tile_size, s
   if (DEBUG>99):
     print ( f"TILER:            INFO: highest_uniques(): scan_range = {scan_range}" )
   
-  for n in range(0, samples):
+  for n in range(0, patch_points_to_sample):
   
     x = randint( 1, (slide_width  - tile_size)) 
     y = randint( 1, (slide_height - tile_size)) 
@@ -822,7 +828,7 @@ def highest_uniques(args, oslide, level, slide_width, slide_height, tile_size, s
     uniques = len(np.unique(tile ))
 
     if (DEBUG>0):
-      print ( f"{SAVE_CURSOR}\033[11;0H{CLEAR_LINE}\033[32Csearching image for coordinates of a good quality patch :  currently looking at (n={n:3d}) a patch with {BRIGHT_GREEN}{uniques:4d}{RESET} uniques at x={CYAN}{x:7d}{RESET}, y={CYAN}{y:7d}{RESET}     <<<< checking {CYAN}POINTS_TO_SAMPLE{RESET}={MIKADO}{args.points_to_sample}{RESET} potential patches and selecting the best of these" )
+      print ( f"{SAVE_CURSOR}\033[{start_row-18};0H{CLEAR_LINE}TILER:          INFO: searching image for coordinates of a good quality patch: currently looking at (n={MIKADO}{n:3d}{RESET}) a patch with {BRIGHT_GREEN}{uniques:4d}{RESET} uniques at x={CYAN}{x:,}{RESET} \r\033[146Cy={CYAN}{y:,}{RESET}     \r\033[164C<<<< for each slide in turn, checking ({CYAN}POINTS_TO_SAMPLE{RESET}=){MIKADO}{args.points_to_sample}{RESET} candidate patches and selecting the best of these{RESET}{RESTORE_CURSOR}" )
 
 
     if ( uniques>high_uniques ):                                                                                    # then check the tiles at the other three corners of the putative sqaure
