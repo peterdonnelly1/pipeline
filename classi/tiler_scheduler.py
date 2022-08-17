@@ -17,6 +17,7 @@ FAIL=0
 INSUFFICIENT_TILES=2
 INSUFFICIENT_QUALIFYING_TILES=3
 MISSING_IMAGE_FILE=4
+EXCLUDED_CLASS=5
 
 FG3="\033[38;5;100m"
 FG4="\033[38;5;150m"
@@ -216,8 +217,8 @@ def tiler_scheduler( args, r_norm, flag, slide_count, n_samples, n_tiles, top_up
                   time.sleep(1)
                   
                 if DEBUG>0:
-                  r = f'{RED}FAIL' if result==0 else f'{GREEN}SUCCESS{RESET}' if result==1 else f'{ORANGE}INSUF_TILES{RESET}' if result==2 else f'{ORANGE}INSUF_QUALIFYING{RESET}' if result==3 else f'{RED}MISSING_IMAGE_FILE{RESET}' if result==4 else f'{RED}ERROR{RESET}'
-                  print ( f"\033[{start_row+my_thread};{start_column+210}f{RESET}{r} tiles={MIKADO}{cumulative_tiles_processed:,}{RESET}", flush=True  )                
+                  r = f'{RED}FAIL' if result==0 else f'{BOLD_GREEN}SUCCESS{RESET}' if result==1 else f'{ORANGE}INSUF_TILES{RESET}' if result==2 else f'{ORANGE}INSUF_QUALIFYING{RESET}' if result==3 else f'{RED}MISSING_IMAGE_FILE{RESET}' if result==4 else f'{GREEN}EXCLUDED_CLASS{RESET}' if result==5 else f'{RED}ERROR{RESET}'
+                  print ( f"\033[{start_row+my_thread};{start_column+210}f{RESET}{r} \r\033[240Ctiles={MIKADO}{cumulative_tiles_processed:,}{RESET}", flush=True  )                
   
       if slides_processed>=my_expanded_slide_quota:
         break

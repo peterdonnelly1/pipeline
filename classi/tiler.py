@@ -43,9 +43,12 @@ from constants  import *
 
 SUCCESS=1
 FAIL=0
+
 INSUFFICIENT_TILES=2
 INSUFFICIENT_QUALIFYING_TILES=3
 MISSING_IMAGE_FILE=4
+EXCLUDED_CLASS=5
+
 
 DEBUG=1
 
@@ -168,7 +171,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
         print ( f"{SAVE_CURSOR}{BOLD_RED}\033[76;71Hfqn= {fqn};  subtype={subtype}{CLEAR_LINE}{RESTORE_CURSOR}", flush=True )
 
   if subtype>args.highest_class_number:                                                                    # class number is too high - skip
-    return tiles_processed, SUCCESS
+    return tiles_processed, EXCLUDED_CLASS
 
   # (1B) increase n_tiles accordingly
 
