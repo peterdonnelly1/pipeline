@@ -209,8 +209,8 @@ def tiler_scheduler( args, r_norm, flag, slide_count, n_samples, n_tiles, top_up
                   # ~ if slides_processed<n_samples:
                     # ~ print( f"{RED}TILER_SCHEDULER_{FG3}: FATAL:  n_samples has been reduced to {CYAN}{n_samples}{RESET}{RED} ... halting{RESET}" )
                     # ~ n_samples=slides_processed
-                # ~ elif result==EXCLUDED_CLASS:
-                  # ~ pass
+                elif result==EXCLUDED_CLASS:
+                  pass
                 else:
                   print (f"{SAVE_CURSOR}{RESET}\033[{start_row+my_thread};270H{BOLD_RED}{result}  <<< unknown error{RESET}{RESTORE_CURSOR}",flush=True )                    
                   time.sleep(1)
