@@ -13,6 +13,7 @@ from tiler   import tiler
 
 SUCCESS=1
 FAIL=0
+
 INSUFFICIENT_TILES=2
 INSUFFICIENT_QUALIFYING_TILES=3
 MISSING_IMAGE_FILE=4
@@ -78,6 +79,8 @@ def tiler_scheduler( args, r_norm, flag, slide_count, n_samples, n_tiles, top_up
     print ( f"{SAVE_CURSOR}{RESET}\r\033[{start_row-7};0HTILER_SCHEDULER_thread_{PINK}{my_thread:02d}{RESET}:      INFO:  unadjusted tiles/slide         = {MIKADO}{n_tiles}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}",         flush=True ) 
     print ( f"{SAVE_CURSOR}{RESET}\r\033[{start_row-6};0HTILER_SCHEDULER_thread_{PINK}{my_thread:02d}{RESET}:      INFO:  qualifying slides count        = {MIKADO}{slide_count}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}",     flush=True ) 
     print ( f"{SAVE_CURSOR}{RESET}\r\033[{start_row-5};0HTILER_SCHEDULER_thread_{PINK}{my_thread:02d}{RESET}:      INFO:  thread's slide quota           = {MIKADO}{my_slide_quota}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}",  flush=True ) 
+
+  cumulative_tiles_processed = 0
   
   for root, dirs, files in walker:                                                                         # go through all the directories, but only tackle every my_thread'th directory
     
@@ -116,7 +119,8 @@ def tiler_scheduler( args, r_norm, flag, slide_count, n_samples, n_tiles, top_up
                 
                 pqn = f"{d}/{f}"
                 
-                result = tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method,  zoom_out_mags, zoom_out_prob, d, f, my_thread, r )
+                tiles_processed, result = tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method,  zoom_out_mags, zoom_out_prob, d, f, my_thread, r )
+                cumulative_tiles_processed += tiles_processed
                 
                 if result==SUCCESS:
                   slides_processed+=1
@@ -144,13 +148,13 @@ def tiler_scheduler( args, r_norm, flag, slide_count, n_samples, n_tiles, top_up
                     # ~ print( f"{RED}TILER_SCHEDULER_{FG3}: FATAL:  n_samples has been reduced to {CYAN}{n_samples}{RESET}{RED} ... halting{RESET}" )
                     # ~ n_samples=slides_processed
 
-            else:
-                                                                                                           # look for and use normal versions of the slides
+            else:                                                                                          # look for and use normal versions of the slides
+                                                                                                           
               if ( f.endswith( "svs" ) ) | ( f.endswith( "SVS" ) ) | ( f.endswith( "tif" ) ) | ( f.endswith( "tif" ) )  | ( f.endswith( "TIF" ) ) | ( f.endswith( "TIFF" ) ):
 
                 pqn = f"{d}/{f}"
 
-                if  ( f.endswith( "jpg" ) ) | ( f.endswith( "jpeg" ) ):                                     # openslide can't handle jpg as a source image type, so we need to convert to tif
+                if  ( f.endswith( "jpg" ) ) | ( f.endswith( "jpeg" ) ):                                    # openslide can't handle jpg as a source image type, so we need to convert to tif
 
                   if DEBUG>5:
                     print ( f"{BOLD}{ORANGE}TILER_SCHEDULER_{FG3}{num_cpus}:         INFO:  converting jpeg image source file to tif so that openslide can handle it{RESET}", flush=True )
@@ -160,7 +164,7 @@ def tiler_scheduler( args, r_norm, flag, slide_count, n_samples, n_tiles, top_up
 
                   f  = f"{f}.tif"                                                                          # point f to the tif file
                   new_fqn = f"{data_dir}/{d}/{f}"
-                  image.write_to_file(new_fqn,  tile=True)                                                 # save as tif. Has to be 'tiled' or else Openslide won't accept it
+                  image.write_to_file(new_fqn,  tile=True)                                                 # save as tif. Has to be 'tile=True' (nothing to do with CLASSI tiling) or else Openslide won't accept it
 
 
                 if DEBUG>0:
@@ -168,7 +172,8 @@ def tiler_scheduler( args, r_norm, flag, slide_count, n_samples, n_tiles, top_up
                     print(f'{SAVE_CURSOR}{RESET}\033[84;0H{BOLD_AMETHYST}n_tiles==0.  This should not be possible{RESET}{RESTORE_CURSOR}', flush=True) 
                      
                 
-                result = tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob, d, f, my_thread, r )
+                tiles_processed, result = tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob, d, f, my_thread, r )
+                cumulative_tiles_processed += tiles_processed
 
                 a = random.choice( range(150+2*my_thread,255) )
                 b = random.choice( range(50,225) )
@@ -209,6 +214,10 @@ def tiler_scheduler( args, r_norm, flag, slide_count, n_samples, n_tiles, top_up
                   print (f"{BOLD_RED}unknown error 223344{RESET}{RESET}",flush=True )                    
                   print (f"{BOLD_RED}unknown error 223344{RESET}{RESET}",flush=True )
                   time.sleep(1)
+                  
+                if DEBUG>0:
+                  r = f'{RED}FAIL' if result==0 else f'{GREEN}SUCCESS{RESET}' if result==1 else f'{ORANGE}INSUF_TILES{RESET}' if result==2 else f'{ORANGE}INSUF_QUALIFYING{RESET}' if result==3 else f'{RED}MISSING_IMAGE_FILE{RESET}' if result==4 else f'{RED}ERROR{RESET}'
+                  print ( f"\033[{start_row+my_thread};{start_column+210}f{RESET}{r} tiles={MIKADO}{cumulative_tiles_processed:,}{RESET}", flush=True  )                
   
       if slides_processed>=my_expanded_slide_quota:
         break
@@ -223,6 +232,5 @@ def tiler_scheduler( args, r_norm, flag, slide_count, n_samples, n_tiles, top_up
       print ( f"\033[{start_row+my_thread};{start_column+130}f       {RESET}{MAGENTA}thread {MIKADO}{my_thread:2d}{RESET}{MAGENTA} exiting - over  slide quota{RESET}", flush=True )
     else:
       print ( f"\033[{start_row+my_thread};{start_column+130}f       {RESET}{RED    }thread {MIKADO}{my_thread:2d}{RESET}{RED    } exiting - under slide quota{RESET}", flush=True )
-
 
   return( slides_processed )

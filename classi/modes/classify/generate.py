@@ -1654,13 +1654,13 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
     
     if args.just_test=='True':
       print( f"{CLEAR_LINE}{BOLD_ORANGE}GENERATE:       WARNG:   (test mode) the number of cases found and processed ({MIKADO}{directories_processed}{RESET}{BOLD_ORANGE}) is less than the number required ({MIKADO}{cases_required}{RESET}{BOLD_ORANGE})",  flush=True        ) 
-      print( f"{CLEAR_LINE}{BOLD_ORANGE}GENERATE:       WARNG:   (test mode)   possible explanation: if you set '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{BOLD_ORANGE}' to a number less than the number of classes actually present in the dataset, none of the '{CYAN}{args.cases}{RESET}{BOLD_ORANGE}' cases belonging to the classes you removed will be available to be used",  flush=True        )
+      print( f"{CLEAR_LINE}{BOLD_ORANGE}GENERATE:       WARNG:   (test mode)   possible explanation: if you set '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{BOLD_ORANGE}' to a number less than the number of classes (subtypes) actually present in the dataset, none of the '{CYAN}{args.cases}{RESET}{BOLD_ORANGE}' cases belonging to the classes (subtypes) you removed will be available to be used",  flush=True        )
       print( f"{CLEAR_LINE}{BOLD_ORANGE}GENERATE:       WARNG:   (test mode)   not halting, but this will likely cause problems",  flush=True      )
       time.sleep(4)
     else:
       print( f"{CLEAR_LINE}{BOLD_ORANGE}GENERATE:       WARNG:   the number of cases found and processed ({MIKADO}{directories_processed}{RESET}{BOLD_ORANGE}) is less than the number required ({MIKADO}{cases_required}{RESET}{BOLD_ORANGE})",  flush=True        ) 
-      print( f"{CLEAR_LINE}{BOLD_ORANGE}GENERATE:       WARNG:   one possible explanation: if you set '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{BOLD_ORANGE}' to a number less than the number of classes actually present in the dataset, none of the '{CYAN}{args.cases}{RESET}{BOLD_ORANGE}' cases belonging to the classes you removed will be available to be used",  flush=True        )
-      print( f"{CLEAR_LINE}{BOLD_ORANGE}GENERATE:       WARNG:   not halting, but this might cause problems",  flush=True      )
+      print( f"{CLEAR_LINE}{BOLD_ORANGE}GENERATE:       WARNG:     one possible explanation: if you set '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{BOLD_ORANGE}' to a number less than the number of classes actually present in the dataset, none of the '{CYAN}{args.cases}{RESET}{BOLD_ORANGE}' cases belonging to the classes you removed will be available to be used",  flush=True        )
+      print( f"{CLEAR_LINE}{BOLD_ORANGE}GENERATE:       WARNG:     not halting, but this might cause problems",  flush=True      )
   
 
   

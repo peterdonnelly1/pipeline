@@ -47,7 +47,7 @@ DDP="False"                                                                     
 #~ MINIMUM_PERMITTED_GREYSCALE_RANGE=210                                                                      # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
 #~ MINIMUM_PERMITTED_UNIQUE_VALUES=210                                                                        # tile must have at least this many unique values or it will be assumed to be degenerate
 #~ MINIMUM_TILE_SD=2.1                                                                                        # Used to cull slides with a very reduced greyscale palette such as background tiles
-                                                                                       # Used to cull slides with a very reduced greyscale palette such as background tiles
+                                                                                       #~ # Used to cull slides with a very reduced greyscale palette such as background tiles
 MINIMUM_PERMITTED_GREYSCALE_RANGE=110                                                                      # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
 MINIMUM_PERMITTED_UNIQUE_VALUES=110                                                                        # tile must have at least this many unique values or it will be assumed to be degenerate
 MINIMUM_TILE_SD=1.1                                                                                        # Used to cull slides with a very reduced greyscale palette such as background tiles
@@ -100,8 +100,8 @@ JUST_CLUSTER="False"
 JUST_TEST="False"
 LABEL_SWAP_PCT=0                                                                                           # (no getopts option) Swap this percentage of truth labels to random. Used for testing.
 LEARNING_RATE=".0001"
-#~ MAKE_BALANCED="level_up"
-MAKE_BALANCED="NONE"
+MAKE_BALANCED="level_up"
+#~ MAKE_BALANCED="NONE"
 MAKE_BALANCED_MARGIN=20                                                                                    # (Percentage). If MAKE_BALANCED="level_down", allw the subtype with the most slides to have this many % more tiles than the subtype with the least number of tiles
 MAKE_GREY_PCT="0.0"                                                                                        # (no getopts option) Proportion of tiles to convert to greyscale. Use to check effect of color on learning. 
 METRIC="manhattan"                                                                                         

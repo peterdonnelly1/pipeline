@@ -168,7 +168,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
         print ( f"{SAVE_CURSOR}{BOLD_RED}\033[76;71Hfqn= {fqn};  subtype={subtype}{CLEAR_LINE}{RESTORE_CURSOR}", flush=True )
 
   if subtype>args.highest_class_number:                                                                    # class number is too high - skip
-    return SUCCESS
+    return tiles_processed, SUCCESS
 
   # (1B) increase n_tiles accordingly
 
@@ -203,7 +203,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
   except Exception as e:
     if DEBUG>0:
       print(f"{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus-1};0H{BOLD_ORANGE}TILER_{FG3}{my_thread}:           WARNING: there was no slide file for this case !!! {BOLD_CYAN}{fqn}{RESET}{BOLD_ORANGE}  <---Skipping and moving to next case{RESET}{RESTORE_CURSOR}", flush=True)
-    return MISSING_IMAGE_FILE
+    return tiles_processed, MISSING_IMAGE_FILE
 
   level            = 0
   tile_size_40X    = 2100;        
@@ -223,7 +223,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
 
   if potential_tiles<n_tiles:
     print( f"{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus};0H{BOLD_ORANGE}TILER_{FG3}: WARNING: requested tiles (n_tiles) = {CYAN}{n_tiles:,}{RESET}{ORANGE} but only {RESET}{CYAN}{potential_tiles:,}{RESET}{ORANGE} possible. Slide will be skipped. ({CYAN}{fqn}{RESET}{ORANGE}){RESET}{RESTORE_CURSOR}", flush=True)
-    return INSUFFICIENT_TILES
+    return tiles_processed, INSUFFICIENT_TILES
 
 
   if openslide.PROPERTY_NAME_VENDOR in oslide.properties:
@@ -404,11 +404,11 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
                 if already_displayed==False:
                   print(f'{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus+3};0H{BOLD_ORANGE}TILER_{FG3}: WARNING: have covered the entire slide and there are not enough tiles that meet the quality criteria. (At coords {CYAN}{x},{y}{RESET}) with {CYAN}{tiles_processed}{RESET}) -- skipping {CYAN}{fqn}{RESET}{RESTORE_CURSOR}', flush=True)
                   already_displayed=True
-                  return INSUFFICIENT_QUALIFYING_TILES
+                  return tiles_processed, INSUFFICIENT_QUALIFYING_TILES
               else:
                 if ( ( just_test!='True' ) | ( multimode=='image_rna') ):
                   print(f'{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus+3};0H{BOLD_ORANGE}TILER_{FG3}: WARNING: have covered the entire slide and there are not enough tiles that meet the quality criteria. (At coords {CYAN}{x},{y}{RESET}) with {CYAN}{tiles_processed}{RESET}) -- skipping {CYAN}{fqn}{RESET}{RESTORE_CURSOR}', flush=True)
-                  return INSUFFICIENT_QUALIFYING_TILES
+                  return tiles_processed, INSUFFICIENT_QUALIFYING_TILES
               
             if x + tile_width > width:
                 pass
@@ -672,7 +672,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
     # ~ result = display_processed_tiles( data_dir, DEBUG )
 
     
-  return SUCCESS
+  return tiles_processed, SUCCESS
 
 # ------------------------------------------------------------------------------
 # HELPER FUNCTIONS
