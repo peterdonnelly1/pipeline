@@ -209,12 +209,12 @@ def tiler_scheduler( args, r_norm, flag, slide_count, n_samples, n_tiles, top_up
                   # ~ if slides_processed<n_samples:
                     # ~ print( f"{RED}TILER_SCHEDULER_{FG3}: FATAL:  n_samples has been reduced to {CYAN}{n_samples}{RESET}{RED} ... halting{RESET}" )
                     # ~ n_samples=slides_processed
+                # ~ elif result==EXCLUDED_CLASS:
+                  # ~ pass
                 else:
-                  print (f"{BOLD_RED}unknown error 223344{RESET}{RESET}",flush=True )                    
-                  print (f"{BOLD_RED}unknown error 223344{RESET}{RESET}",flush=True )                    
-                  print (f"{BOLD_RED}unknown error 223344{RESET}{RESET}",flush=True )                    
-                  print (f"{BOLD_RED}unknown error 223344{RESET}{RESET}",flush=True )
+                  print (f"{SAVE_CURSOR}{RESET}\033[{start_row+my_thread};270H{BOLD_RED}{result}  <<< unknown error{RESET}{RESTORE_CURSOR}",flush=True )                    
                   time.sleep(1)
+                  
                   
                 if DEBUG>0:
                   r = f'{RED}FAIL' if result==0 else f'{GREEN}SUCCESS{RESET}' if result==1 else f'{ORANGE}INSUF_TILES{RESET}' if result==2 else f'{ORANGE}INSUF_QUALIFYING{RESET}' if result==3 else f'{RED}MISSING_IMAGE_FILE{RESET}' if result==4 else f'{GREEN}EXCLUDED_CLASS{RESET}' if result==5 else f'{RED}ERROR{RESET}'

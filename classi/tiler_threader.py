@@ -39,8 +39,9 @@ def tiler_threader( args, flag, count, n_samples, n_tiles, top_up_factors, tile_
   start_column = 112
   start_row    = 60-num_cpus
   
-  for r in range ( start_row-28, start_row+20 ):
-    print(f"\033[{r};0f{CLEAR_LINE}", end="", flush=True )  
+  if num_cpus<13:
+    for r in range ( start_row-28, start_row+20 ):
+      print(f"\033[{r};0f{CLEAR_LINE}", end="", flush=True )  
   
   
   random_array = [ random.random() for i in range(1, len(zoom_out_prob)+1 ) ]
