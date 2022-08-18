@@ -50,8 +50,11 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
   use_autoencoder_output       = args.use_autoencoder_output
   use_unfiltered_data          = args.use_unfiltered_data
 
+
+
+
   
-  # 'skip generation' option for rna (only). Even though we won't generate the pytorch files, we still need to open the existing .pth file to determine n_samples, n_genes; and possibly also modify batch_size
+  # (0) 'skip generation' option for rna (only). Even though we won't generate the pytorch files, we still need to open the existing .pth file to determine n_samples, n_genes; and possibly also modify batch_size
 
   if  (input_mode=='rna') & ( args.skip_generation=='True' ) & ( args.cases == 'ALL_ELIGIBLE_CASES') :    
 
@@ -116,6 +119,8 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
 
 
 
+
+
   # (1) analyse working data directory and save statistics for later use
 
   if use_unfiltered_data==True:
@@ -164,24 +169,25 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
 
 
 
+
   # (2) process IMAGE data if applicable
   
 
   if ( input_mode=='image' ) & ( pretrain!='True' ):
 
-    # check to see that there actually are tiles to process
-     
+    # (2A)  preliminary bits and pieces
+
+    if DEBUG>2:
+      print( f"{ORANGE}GENERATE:       NOTE:    input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so rna and other data will not be generated{RESET}" )  
+      
     if cumulative_png_file_count==0:
       print ( f"{RED}GENERATE:       FATAL:  there are no tile files ('png' files) at all. To generate tiles, run '{CYAN}./do_all.sh -d <cancer type code> -i image -c <CASES SELECTOR>{RESET}{RED}' ... halting now{RESET}", flush=True )                 
       sys.exit(0)         
-  
-    if DEBUG>2:
-      print( f"{ORANGE}GENERATE:       NOTE:    input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so rna and other data will not be generated{RESET}" )  
 
+
+    #  (2B) perhaps generate test dataset   
       
     if args.just_test=='True':
-
-      #  (2A) generate Test dataset
 
       if args.cases == 'UNIMODE_CASE':
 
@@ -191,18 +197,6 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
         tiles_required        = total_tiles_required_test
         top_up_factors        =  top_up_factors_test
         case_designation_flag = args.cases
-        
-        if DEBUG>0:
-          print ( f"{CLEAR_LINE}{WHITE}GENERATE:       INFO: (just_test) about to generate {CYAN}{target}{RESET} dataset:", flush=True )
-          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) case_designation_flag-------------------------------------------------------------- = {MIKADO}{case_designation_flag}{RESET}",  flush=True )
-          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) n_tiles (this run)----------------------------------------------------------------- = {MIKADO}{n_tiles}{RESET}",                flush=True )
-          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) cases_required -------------------------------------------------------------------- = {MIKADO}{cases_required}{RESET}",         flush=True )
-  
-        global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tiles_required, tile_size, top_up_factors )
-
-        if DEBUG>0:
-          print ( f"{DULL_WHITE}GENERATE:       INFO:    global_tiles_processed (this run)-------------------------------------------------- = {MIKADO}{global_tiles_processed}{RESET}{CLEAR_LINE}", flush=True )
-
 
       elif args.cases == 'MULTIMODE____TEST':
         target                = 'image_test'
@@ -210,27 +204,34 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
         tiles_required        = total_tiles_required_test
         top_up_factors        =  top_up_factors_test
         case_designation_flag = args.cases
+
+      else:
+        print ( f"{RED}GENERATE:       FATAL: target {CYAN}{target}{RESET} is not catered for in {CYAN}generate(){RESET} for case {CYAN}{just_test}{RESET}" )
+        print ( f"{RED}GENERATE:       FATAL: Cannot continue ... halting now{RESET}" )
+        sys.exit(0)
+
         
-        if DEBUG>0:
-          print ( f"{CLEAR_LINE}{WHITE}GENERATE:       INFO: (just_test) about to generate {CYAN}{target}{RESET} dataset:", flush=True )
-          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) case_designation_flag. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  = {MIKADO}{case_designation_flag}{RESET}",  flush=True )
-          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) n_tiles (this run). . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . = {MIKADO}{n_tiles}{RESET}",                flush=True )
-          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) cases_required . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  = {MIKADO}{cases_required}{RESET}",         flush=True )
-        
-        global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tiles_required, tile_size, top_up_factors )
+      if DEBUG>0:
+        print ( f"{CLEAR_LINE}{WHITE}GENERATE:       INFO: (just_test) about to generate {CYAN}{target}{RESET} dataset:", flush=True )
+        print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) case_designation_flag-------------------------------------------------------------- = {MIKADO}{case_designation_flag}{RESET}",  flush=True )
+        print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) n_tiles (this run)----------------------------------------------------------------- = {MIKADO}{n_tiles}{RESET}",                flush=True )
+        print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) cases_required -------------------------------------------------------------------- = {MIKADO}{cases_required}{RESET}",         flush=True )
 
-        if DEBUG>0:
-          print ( f"{DULL_WHITE}GENERATE:       INFO:    global_tiles_processed  (this run). . . . . . . . . . . . . . . . . . . . . . . . . = {MIKADO}{global_tiles_processed}{RESET}{CLEAR_LINE}", flush=True )
+      global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tiles_required, tile_size, top_up_factors )
+
+      if DEBUG>0:
+        print ( f"{DULL_WHITE}GENERATE:       INFO:    global_tiles_processed (this run)-------------------------------------------------- = {MIKADO}{global_tiles_processed}{RESET}{CLEAR_LINE}", flush=True )
 
 
+
+    #  (2Bii)  perhaps generate training dataset
+      
     else:
-
-      #  (2B)   Generate Training dataset
 
       if args.cases=='UNIMODE_CASE':
         
-        # (2Ba) case_designation_flag for training set = UNIMODE_CASE____IMAGE
-        #       case_designation_flag for test     set = UNIMODE_CASE____IMAGE_TEST
+        #  case_designation_flag for             training set = UNIMODE_CASE____IMAGE
+        #  case_designation_flag for in-training test     set = UNIMODE_CASE____IMAGE_TEST
       
         test_cases      = int( n_samples * pct_test )
         training_cases  = n_samples - test_cases
@@ -238,41 +239,45 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
         for target in [ 'image_train', 'image_test' ]:
     
           if target=='image_train':
+
             cases_required        =  total_slides_counted_train
             tiles_required        =  total_tiles_required_train
             top_up_factors        =  top_up_factors_train
             case_designation_flag =  'UNIMODE_CASE____IMAGE'
+            
             if DEBUG>0:
               print ( f"{CLEAR_LINE}{WHITE}GENERATE:       INFO:  about to generate {CYAN}{target}{RESET} dataset:", flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",                    flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) n_samples (this run)............................................................... = {MIKADO}{n_samples}{RESET}",                                flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) n_tiles   (this run)............................................................... = {MIKADO}{n_tiles}{RESET}",                                  flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}",                                 flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) cases_required (training cases = int(n_samples * (1 - pct_test ) ) ................ = {MIKADO}{cases_required}{RESET}",                           flush=True )
-              # ~ print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) hence tiles required for training = cases_required * n_tiles ) .................... = {MIKADO}{cases_required * n_tiles}{RESET}",                 flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) tiles_required .................................................................... = {MIKADO}{tiles_required}{RESET}",                           flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: ({target}) case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",                    flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: ({target}) n_samples (this run)............................................................... = {MIKADO}{n_samples}{RESET}",                                flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: ({target}) n_tiles   (this run)............................................................... = {MIKADO}{n_tiles}{RESET}",                                  flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: ({target}) pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}",                                 flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: ({target}) cases_required (training cases = int(n_samples * (1 - pct_test ) ) ................ = {MIKADO}{cases_required}{RESET}",                           flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: ({target}) tiles_required .................................................................... = {MIKADO}{tiles_required}{RESET}",                           flush=True )
 
 
           if target=='image_test':
+
             cases_required        =  total_slides_counted_test
             tiles_required        =  total_tiles_required_test
             top_up_factors        =  top_up_factors_test
             case_designation_flag =  'UNIMODE_CASE____IMAGE_TEST'
+            
             if DEBUG>0:
               print ( f"{CLEAR_LINE}{WHITE}GENERATE:       INFO:  about to generate {CYAN}{target}{RESET} dataset:", flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) case_designation_flag-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  = {BLEU}{case_designation_flag}{RESET}",                    flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) n_samples (this run)-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -   = {BLEU}{n_samples}{RESET}",                                flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) n_tiles   (this run)-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -   = {BLEU}{n_tiles}{RESET}",                                  flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) pct_test  (this run)-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -   = {BLEU}{pct_test}{RESET}",                                 flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) cases_required (test cases = n_samples - training_cases) -  -  -  -  -  -  -  -  -  = {BLEU}{cases_required}{RESET}",                           flush=True )
-              # ~ print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) hence tiles required for in-training testing = test cases * n_tiles ) -  -  -  -  - = {BLEU}{cases_required * n_tiles}{RESET}",                 flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) tiles_required-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -   = {BLEU}{tiles_required}{RESET}",                           flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: ({target}) case_designation_flag-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  = {BLEU}{case_designation_flag}{RESET}",                    flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: ({target}) n_samples (this run)-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -   = {BLEU}{n_samples}{RESET}",                                flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: ({target}) n_tiles   (this run)-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -   = {BLEU}{n_tiles}{RESET}",                                  flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: ({target}) pct_test  (this run)-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -   = {BLEU}{pct_test}{RESET}",                                 flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: ({target}) cases_required (test cases = n_samples - training_cases) -  -  -  -  -  -  -  -  -  = {BLEU}{cases_required}{RESET}",                           flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: ({target}) tiles_required-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -   = {BLEU}{tiles_required}{RESET}",                           flush=True )
 
     
           global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tiles_required, tile_size, top_up_factors )
 
         if DEBUG>0:
           print ( f"{DULL_WHITE}GENERATE:       INFO:    global_tiles_processed  (this run)-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  . = {MIKADO}{global_tiles_processed}{RESET}{CLEAR_LINE}", flush=True )
+
+
 
 
         # (2Bb) case_designation_flag for training set = args.cases
@@ -301,6 +306,7 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
 
     return ( SUCCESS, SUCCESS, SUCCESS )
     
+
 
 
 
