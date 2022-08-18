@@ -85,10 +85,7 @@ pd.set_option('display.max_colwidth',  8 )
 pd.set_option('display.float_format', lambda x: '%6.2f' % x)
 
 # ------------------------------------------------------------------------------
-
-
-DEBUG   = 1
-
+ 
 pkmn_type_colors = ['#78C850',  # Grass
                     '#F08030',  # Fire
                     '#6890F0',  # Water
@@ -116,7 +113,7 @@ start_row    = 60-num_cpus
 np.set_printoptions(linewidth=1000)
 
 global global_batch_count
-
+global DEBUG
 
 run_level_total_correct             = []
 
@@ -130,6 +127,7 @@ final_test_batch_size = 0
 #@profile
 def main(args):
   
+  DEBUG=args.debug_level_classify
   
   if DEBUG>0:
     print  ( f"pid = {os.getpid()}" )
@@ -696,18 +694,18 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
     print( f"{BOLD_ORANGE}CLASSI:         INFO:    not halting ... resuming in 3 seconds", flush=True)
     time.sleep(3)
 
-  if DEBUG>1:
-    if  0 in highest_class_number:
+  if DEBUG>2:
+    if  highest_class_number==0:
       print( f"{RED}CLASSI:         FATAL:  config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{RED}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{RED}') is not permitted to have the value {MIKADO}0{RESET}", flush=True)
       print( f"{RED}CLASSI:         FATAL: ... halting now{RESET}" )
       time.sleep(4)
   
-    if  1 in highest_class_number:
+    if  highest_class_number==1:
       print( f"\n{CHARTREUSE}CLASSI:         WARNG:  config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{CHARTREUSE}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{CHARTREUSE}') contains the value {MIKADO}1{RESET}{CHARTREUSE}, which seems very odd", flush=True)
       print( f"{CHARTREUSE}CLASSI:         WARNG: ... continuing{RESET}" )
       time.sleep(4)
   
-    if  2 in highest_class_number:
+    if  highest_class_number==2:
       print( f"\n{CHARTREUSE}CLASSI:         WARNG:  config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{CHARTREUSE}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{CHARTREUSE}') contains the value {MIKADO}2{RESET}{CHARTREUSE}, which is very low. Was this intentional?", flush=True)
       print( f"{CHARTREUSE}CLASSI:         WARNG: ... continuing{RESET}" )
       time.sleep(4)
@@ -1335,14 +1333,14 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
     # (1) set up Tensorboard
     
-    if DEBUG>1:    
+    if DEBUG>3:    
       print( "CLASSI:         INFO: \033[1m1 about to set up Tensorboard\033[m" )
     
     writer = SummaryWriter(comment=f'_{randint(100, 999)}_{descriptor}' )
 
 
     #print ( f"\033[36B",  flush=True )
-    if DEBUG>1:    
+    if DEBUG>3:    
       print( "CLASSI:         INFO:   \033[3mTensorboard has been set up\033[m" )
 
 
@@ -1423,7 +1421,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
                 flag  = 'UNIMODE_CASE____IMAGE_TEST'
                 total_slides_counted_test, total_tiles_required_test, top_up_factors_test  = determine_top_up_factors ( args, n_classes, class_names, n_tiles, flag )
 
-                if DEBUG>1:
+                if DEBUG>3:
                   print( f"{SAVE_CURSOR}\r\033[{num_cpus}B{WHITE}CLASSI:         INFO: about to call tiler_threader with flag = {BLEU}{flag}{RESET}; total_slides_counted_test = {MIKADO}{total_slides_counted_test:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles = {MIKADO}{n_tiles}{RESET}{RESTORE_CURSOR}", flush=True )
 
                 slides_tiled_count = tiler_threader( args, flag, total_slides_counted_test, n_samples, n_tiles, top_up_factors_test, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob  )
@@ -1434,7 +1432,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
                 total_slides_counted_test, total_tiles_required_test, top_up_factors_test  = determine_top_up_factors ( args, n_classes, class_names, n_tiles, flag )
                 count = cases_reserved_for_image_rna
 
-                if DEBUG>1:
+                if DEBUG>3:
                   print( f"{SAVE_CURSOR}\r\033[{num_cpus}B{WHITE}CLASSI:         INFO: about to call tiler_threader with flag = {BLEU}{flag}{RESET}; count = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles = {MIKADO}{n_tiles}{RESET}{RESTORE_CURSOR}", flush=True )
 
                 slides_tiled_count = tiler_threader( args, flag, total_slides_counted_test, n_samples, n_tiles, top_up_factors_test, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob  )
@@ -1446,7 +1444,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
                 flag  = 'HAS_IMAGE'
                 total_slides_counted_test, total_tiles_required_test, top_up_factors_test  = determine_top_up_factors ( args, n_classes, class_names, n_tiles, flag )
               
-                if DEBUG>1:
+                if DEBUG>3:
                   print( f"{SAVE_CURSOR}\r\033[{num_cpus+1}B{WHITE}CLASSI:         INFO: about to call tiler_threader with flag = {BLEU}{flag}{RESET}; slides_to_be_tiled = {MIKADO}{slides_to_be_tiled:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
 
                 slides_tiled_count = tiler_threader( args, flag, slides_to_be_tiled, n_samples, n_tiles_max, top_up_factors_test, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob  )               # we tile the largest number of samples & tiles that is required for any run within the job
@@ -1467,7 +1465,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
               flag  = 'HAS_IMAGE'
               total_slides_counted_train, total_tiles_required_train, top_up_factors_train  = determine_top_up_factors ( args, n_classes, class_names, n_tiles, flag )
                      
-              if DEBUG>1:
+              if DEBUG>3:
                 print( f"{SAVE_CURSOR}\r\033[{num_cpus+1}B{WHITE}CLASSI:         INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; slides_to_be_tiled = {MIKADO}{slides_to_be_tiled:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
               slides_tiled_count = tiler_threader( args, flag, slides_to_be_tiled, n_samples, n_tiles_max, top_up_factors_train, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob  )               # we tile the largest number of samples & tiles that is required for any run within the job
 
@@ -1659,7 +1657,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
     # (4) Load experiment config.  (NOTE: Almost all configurable parameters are now provided via user arguments rather than this config file)
     
-    if DEBUG>1:    
+    if DEBUG>3:    
       print( f"CLASSI:         INFO: {BOLD}4 about to load experiment config{RESET}" )
     cfg = loader.get_config( mode, lr, batch_size )                                                        #################################################################### change to just using args at some point
     classifyConfig.MAKE_GREY          = make_grey_pct                                                      # modify config class variable to take into account user preference
@@ -1669,7 +1667,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     # ~ pplog.log_section('Loading script arguments.')
     # ~ pplog.log_args(args)
 
-    if DEBUG>1:      
+    if DEBUG>3:      
       print( f"CLASSI:         INFO:   {ITALICS}experiment config has been loaded{RESET}" )
    
 
@@ -1738,10 +1736,10 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
     #(7) Send model to GPU(s)
     
-    if DEBUG>1:    
+    if DEBUG>3:    
       print( f"CLASSI:         INFO: {BOLD}6 about to send model to device{RESET}" )   
     model = model.to(device)
-    if DEBUG>1:
+    if DEBUG>3:
       print( f"CLASSI:         INFO:     {ITALICS}model sent to device{RESET}" ) 
   
     #pplog.log_section('Model specs.')
@@ -1760,7 +1758,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     rank       = 0
     
 
-    if DEBUG>1: 
+    if DEBUG>3: 
       print( f"CLASSI:         INFO: {BOLD}7 about to call dataset loader" )
     train_loader, test_loader, final_test_batch_size, final_test_loader = loader.get_data_loaders( args,
                                                          gpu,
@@ -1774,7 +1772,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
                                                          pct_test,
                                                          writer
                                                         )
-    if DEBUG>1:
+    if DEBUG>3:
       print( "CLASSI:         INFO:   \033[3mdataset loaded\033[m" )
   
     #if just_test=='False':                                                                                # c.f. loader() Sequential'SequentialSampler' doesn't return indices
@@ -1789,51 +1787,51 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
     if nn_optimizer=='ADAM':
       optimizer = optim.Adam       ( model.parameters(),  lr=lr,  weight_decay=0,  betas=(0.9, 0.999),  eps=1e-08,               amsgrad=False                                    )
-      if DEBUG>1:
+      if DEBUG>3:
         print( "CLASSI:         INFO:   \033[3mAdam optimizer selected and configured\033[m" )
     elif nn_optimizer=='ADAMAX':
       optimizer = optim.Adamax     ( model.parameters(),  lr=lr,  weight_decay=0,  betas=(0.9, 0.999),  eps=1e-08                                                                 )
-      if DEBUG>1:
+      if DEBUG>3:
         print( "CLASSI:         INFO:   \033[3mAdamax optimizer selected and configured\033[m" )
     elif nn_optimizer=='ADAMW':                                                                            # Decoupled Weight Decay Regularization (https://arxiv.org/abs/1711.05101)
       optimizer = optim.AdamW     ( model.parameters(),  lr=lr,  weight_decay=0.01,  betas=(0.9, 0.999),  eps=1e-08,   amsgrad=False                                              )
-      if DEBUG>1:
+      if DEBUG>3:
         print( "CLASSI:         INFO:   \033[3mAdamax optimizer selected and configured\033[m" )
     elif nn_optimizer=='ADAMW_AMSGRAD':                                                                            # Decoupled Weight Decay Regularization (https://arxiv.org/abs/1711.05101)
       optimizer = optim.AdamW     ( model.parameters(),  lr=lr,  weight_decay=0.01,  betas=(0.9, 0.999),  eps=1e-08,   amsgrad=True                                               )
-      if DEBUG>1:
+      if DEBUG>3:
         print( "CLASSI:         INFO:   \033[3mAdamax optimizer selected and configured\033[m" )
     elif nn_optimizer=='ADAGRAD':
       optimizer = optim.Adagrad    ( model.parameters(),  lr=lr,  weight_decay=0,                       eps=1e-10,               lr_decay=0, initial_accumulator_value=0          )
-      if DEBUG>1:
+      if DEBUG>3:
         print( "CLASSI:         INFO:   \033[3mAdam optimizer selected and configured\033[m" )
     elif nn_optimizer=='SPARSEADAM':
       optimizer = optim.SparseAdam ( model.parameters(),  lr=lr,                   betas=(0.9, 0.999),  eps=1e-08                                                                 )
-      if DEBUG>1:
+      if DEBUG>3:
         print( "CLASSI:         INFO:   \033[3mSparseAdam optimizer selected and configured\033[m" )
     elif nn_optimizer=='ADADELTA':
       optimizer = optim.Adadelta   ( model.parameters(),  lr=lr,  weight_decay=0,                       eps=1e-06, rho=0.9                                                        )
-      if DEBUG>1:
+      if DEBUG>3:
         print( "CLASSI:         INFO:   \033[3mAdagrad optimizer selected and configured\033[m" )
     elif nn_optimizer=='ASGD':
       optimizer = optim.ASGD       ( model.parameters(),  lr=lr,  weight_decay=0,                                               alpha=0.75, lambd=0.0001, t0=1000000.0            )
-      if DEBUG>1:
+      if DEBUG>3:
         print( "CLASSI:         INFO:   \033[3mAveraged Stochastic Gradient Descent optimizer selected and configured\033[m" )
     elif   nn_optimizer=='RMSPROP':
       optimizer = optim.RMSprop    ( model.parameters(),  lr=lr,  weight_decay=0,                       eps=1e-08,  momentum=0,  alpha=0.99, centered=False                       )
-      if DEBUG>1:
+      if DEBUG>3:
         print( "CLASSI:         INFO:   \033[3mRMSProp optimizer selected and configured\033[m" )
     elif   nn_optimizer=='RPROP':
       optimizer = optim.Rprop      ( model.parameters(),  lr=lr,                                                                etas=(0.5, 1.2), step_sizes=(1e-06, 50)           )
-      if DEBUG>1:
+      if DEBUG>3:
         print( "CLASSI:         INFO:   \033[3mResilient backpropagation algorithm optimizer selected and configured\033[m" )
     elif nn_optimizer=='SGD':
       optimizer = optim.SGD        ( model.parameters(),  lr=lr,  weight_decay=0,                                   momentum=0.9, dampening=0, nesterov=True                      )
-      if DEBUG>1:
+      if DEBUG>3:
         print( "CLASSI:         INFO:   \033[3mStochastic Gradient Descent optimizer selected and configured\033[m" )
     elif nn_optimizer=='LBFGS':
       optimizer = optim.LBFGS      ( model.parameters(),  lr=lr, max_iter=20, max_eval=None, tolerance_grad=1e-07, tolerance_change=1e-09, history_size=100, line_search_fn=None  )
-      if DEBUG>1:
+      if DEBUG>3:
         print( "CLASSI:         INFO:   \033[3mL-BFGS optimizer selected and configured\033[m" )
     else:
       print( f"{BOLD}{RED}CLASSI:         FATAL: optimizer '{MIKADO}{nn_optimizer}{RESET}{BOLD}{RED}' not supported", flush=True )
@@ -1906,7 +1904,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
    
     # (11) Train/Test
     
-    if DEBUG>1:
+    if DEBUG>3:
       print( f"CLASSI:         INFO:  {BOLD}about to commence main loop, one iteration per epoch{RESET}",  end='' )
 
     global_correct_prediction_count = 0
@@ -2207,7 +2205,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     
         show_all_test_examples=True
         
-        if DEBUG>1:
+        if DEBUG>0:
           print ( f"CLASSI:         INFO:      test: final_test_batch_size = {MIKADO}{final_test_batch_size}{RESET}" )
           
         # note that we pass 'final_test_loader' to test
@@ -2352,7 +2350,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         pd.set_option('display.max_colwidth', 300)      
         pd.set_option('display.width',       2000)
         
-        if DEBUG>1:
+        if DEBUG>3:
           print ( f"\nCLASSI:         INFO:      patches_true_classes                                        = {BITTER_SWEET}{patches_true_classes}{RESET}", flush=True )
           print ( f"CLASSI:         INFO:      patches_case_id                                             = {BITTER_SWEET}{patches_case_id}{RESET}",     flush=True )        
 
@@ -2473,7 +2471,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
                   correct_count+=1
             i+=1 
   
-        if DEBUG>1:
+        if DEBUG>3:
           print ( f"\nCLASSI:         INFO:      number correct (pd_aggregate_tile_probabilities_matrix) = {CHARTREUSE}{correct_count}{RESET}", flush=True )
   
         pct_correct = correct_count/n_samples
@@ -2523,7 +2521,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         else:
           c_id = [i for i in range(pd_aggregate_tile_probabilities_matrix.shape[0])]
 
-        if DEBUG>1:
+        if DEBUG>3:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
           print ( f"\nCLASSI:         INFO:       (extended) pd_aggregate_tile_level_winners_matrix  = \n{BLEU}{pd_aggregate_tile_level_winners_matrix}{RESET}", flush=True )  
           
@@ -2609,7 +2607,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ]  = true_class_prob[0:upper_bound_of_indices_to_plot_image]   # same
         # ~ pd_aggregate_tile_probabilities_matrix.sort_values( by='max_agg_prob', ascending=False, ignore_index=True, inplace=True )
 
-        if DEBUG>1:
+        if DEBUG>3:
           print ( f"\nCLASSI:         INFO:      pd_aggregate_tile_probabilities_matrix {CYAN}image{RESET} = \n{COTTON_CANDY}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True )    
                 
                 
@@ -4988,6 +4986,8 @@ def newline(ax, p1, p2):
 # ------------------------------------------------------------------------------
 def analyse_probs( y1_hat, image_labels_values ):
 
+    DEBUG=args.debug_level_classify
+
     # convert output probabilities to predicted class
     _, preds_tensor = torch.max( y1_hat, axis=1 )
 
@@ -5011,7 +5011,7 @@ def analyse_probs( y1_hat, image_labels_values ):
 
     p_full_softmax_matrix = functional.softmax( y1_hat, dim=1).cpu().numpy()
 
-    if DEBUG>1:
+    if DEBUG>9:
       np.set_printoptions(formatter={'float': lambda x: "{:>5.3f}".format(x)})
       print ( f"CLASSI:         INFO:      analyse_probs():               p_full_softmax_matrix          = \n{p_full_softmax_matrix}", flush=True )
 
@@ -6573,6 +6573,13 @@ if __name__ == '__main__':
   p.add_argument('--case_column',                                                   type=str, default="bcr_patient_uuid"                        )
   p.add_argument('--class_column',                                                  type=str, default="type_n"                                  )
 
+  p.add_argument('--debug_level_classify',                                          type=int,   default=1                                       ) 
+  p.add_argument('--debug_level_tiler',                                             type=int,   default=1                                       ) 
+  p.add_argument('--debug_level_generate',                                          type=int,   default=1                                       ) 
+  p.add_argument('--debug_level_dataset',                                           type=int,   default=1                                       ) 
+  p.add_argument('--debug_level_loader',                                            type=int,   default=1                                       ) 
+  p.add_argument('--debug_level_algorithm',                                         type=int,   default=1                                       ) 
+
 
   args, _ = p.parse_known_args()
 
@@ -6581,8 +6588,10 @@ if __name__ == '__main__':
   args.n_workers  = 0 if is_local else 12
   args.pin_memory = torch.cuda.is_available()
 
-  if DEBUG>2:
-    print ( f"{GOLD}args.zoom_out_prob{RESET} =           ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------>    {YELLOW}{args.zoom_out_prob}{RESET}", flush=True)
-    print ( f"{GOLD}args.zoom_out_mags{RESET} =           ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------>    {YELLOW}{args.zoom_out_mags}{RESET}", flush=True)
+  if DEBUG>0:
+    print ( f"{GOLD}args.debug_level_classify{RESET} =           ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------>    {YELLOW}{args.debug_level_classify}{RESET}", flush=True)
+    print ( f"{GOLD}args.debug_level_classify{RESET} =           ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------>    {YELLOW}{args.debug_level_classify}{RESET}", flush=True)
+    print ( f"{GOLD}args.debug_level_classify{RESET} =           ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------>    {YELLOW}{args.debug_level_classify}{RESET}", flush=True)
+    print ( f"{GOLD}args.debug_level_classify{RESET} =           ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------>    {YELLOW}{args.debug_level_classify}{RESET}", flush=True)
   
   main(args)
