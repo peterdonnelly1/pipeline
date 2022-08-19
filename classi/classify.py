@@ -1238,8 +1238,8 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
     # accumulator
     if just_test!='True':
-      aggregate_tile_probabilities_matrix =  np.zeros     ( ( n_samples, n_classes ),     dtype=float               )
-      aggregate_tile_level_winners_matrix =  np.full_like ( aggregate_tile_probabilities_matrix, 0                  )
+      aggregate_tile_probabilities_matrix         =  np.zeros     ( ( n_samples, n_classes ),     dtype=float               )
+      aggregate_tile_level_winners_matrix         =  np.full_like ( aggregate_tile_probabilities_matrix, 0                  )
       patches_true_classes                        =  np.zeros     ( ( n_samples            ),     dtype=int         )
       patches_case_id                             =  np.zeros     ( ( n_samples            ),     dtype=int         )    
       
@@ -1247,8 +1247,8 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       true_classes                                =  np.zeros     ( ( n_samples            ),     dtype=int         )              # same, but for rna 
       rna_case_id                                 =  np.zeros     ( ( n_samples            ),     dtype=int         )              # same, but for rna 
     else:
-      aggregate_tile_probabilities_matrix =  np.zeros     ( ( n_samples, n_classes ),     dtype=float               )
-      aggregate_tile_level_winners_matrix =  np.full_like ( aggregate_tile_probabilities_matrix, 0                  )
+      aggregate_tile_probabilities_matrix         =  np.zeros     ( ( n_samples, n_classes ),     dtype=float               ) 
+      aggregate_tile_level_winners_matrix         =  np.full_like ( aggregate_tile_probabilities_matrix, 0                  )
       patches_true_classes                        =  np.zeros     ( ( n_samples            ),     dtype=int         )
       patches_case_id                             =  np.zeros     ( ( n_samples            ),     dtype=int         )    
       
@@ -2341,7 +2341,6 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
     if (just_test=='True') & (multimode!="image_rna"):                                                     # don't currently produce bar-charts for embedded outputs ('image_rna')
 
-
       # case image:
         
       if input_mode=='image':
@@ -2357,7 +2356,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         if args.cases=='MULTIMODE____TEST':
           upper_bound_of_indices_to_plot_image = cases_reserved_for_image_rna
         else:  # correct for UNIMODE_CASE
-          upper_bound_of_indices_to_plot_image = n_samples
+          upper_bound_of_indices_to_plot_image = total_slides_counted_test
 
 
         # case image- 1: PREDICTED - AGGREGATE probabilities
@@ -2390,9 +2389,9 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         #fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
         
 
-        if DEBUG>88:
+        if DEBUG>0:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>3d}"})
-          print ( f"\nCLASSI:         INFO:      upper_bound_of_indices_to_plot_image                              = {CHARTREUSE}{upper_bound_of_indices_to_plot_image}{RESET}",     flush=True      ) 
+          print ( f"\n\n\n\n\n\nCLASSI:         INFO:      upper_bound_of_indices_to_plot_image                              = {BLEU}{upper_bound_of_indices_to_plot_image}{RESET}",     flush=True      ) 
           print ( f"\nCLASSI:         INFO:      pd_aggregate_tile_probabilities_matrix[ 'case_id' ]         = \n{CHARTREUSE}{pd_aggregate_tile_probabilities_matrix[ 'case_id' ]}{RESET}",     flush=True      ) 
           print ( f"\nCLASSI:         INFO:      pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]    = \n{CHARTREUSE}{pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]}{RESET}",     flush=True )            
   
@@ -2401,11 +2400,10 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         else:
           c_id = [i for i in range(pd_aggregate_tile_probabilities_matrix.shape[0])]
 
-        if DEBUG>0:
+        if DEBUG==2:
           print ( "\033[20B" )
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
           print ( f"\nCLASSI:         INFO:       (extended) pd_aggregate_tile_probabilities_matrix = \n{CHARTREUSE}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True )
-          # ~ print ( f"\nCLASSI:         INFO:       (extended) aggregate_tile_probabilities_matrix    = \n{CHARTREUSE}{aggregate_tile_probabilities_matrix}{RESET}", flush=True )
        
         if DEBUG>88:          
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
@@ -2614,13 +2612,16 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         if bar_chart_x_labels=='case_id':                                                                  # user wants case ids as labels
           c_id = pd_aggregate_tile_probabilities_matrix[ 'case_id' ]
         else:
-          c_id = [i for i in range(pd_aggregate_tile_probabilities_matrix.shape[0])]
+          c_id = [i for i in range(total_slides_counted_test)]
           
-        for i in range ( 0, aggregate_tile_probabilities_matrix.shape[0] ):
+        for i in range ( 0, total_slides_counted_test ):
+
+          if DEBUG>0:
+            print ( f"CLASSI:         INFO:      i                                                                       = {COTTON_CANDY}{i}{RESET}", flush=True ) 
+
           agg_prob = pd_aggregate_tile_probabilities_matrix[ 'agg_prob'][i]
           arg_max  = np.argmax( aggregate_tile_probabilities_matrix[i,:] )
-          if DEBUG>88:
-            print ( f"CLASSI:         INFO:      i                                                                       = {COTTON_CANDY}{i}{RESET}", flush=True ) 
+          if DEBUG>0:
             print ( f"CLASSI:         INFO:      str(c_id[i])                                                            = {COTTON_CANDY}{str(c_id[i])}{RESET}", flush=True ) 
             print ( f"CLASSI:         INFO:      arg_max                                                                 = {COTTON_CANDY}{arg_max}{RESET}", flush=True ) 
             print ( f"CLASSI:         INFO:      class_names[ arg_max ]                                                  = {COTTON_CANDY}{class_names[ arg_max ]}{RESET}", flush=True ) 
@@ -5952,10 +5953,16 @@ def box_plot_by_subtype( args, class_names, n_genes, start_time, parameters, mag
   if DEBUG>2:    
     print( f'CLASSI:           INFO:    all_predictions_plane mod to change subtypes with zero predictions overall so that they will have exactly one prediction = \n{CARRIBEAN_GREEN}{all_predictions_plane}{RESET}') 
 
+  expected_IFF_random_preds = np.zeros_like( total_predictions_by_subtype )
+  
+  for subtype in range( 0, len(total_predictions_by_subtype) ):                                                  # what we'd expect if the classifications were entirely random
+    
+    if total_predictions_made !=0:
+      expected_IFF_random_preds[subtype]      =   100* total_predictions_by_subtype[subtype] / total_predictions_made 
 
-  expected_IFF_random_preds      =   100* total_predictions_by_subtype / total_predictions_made                                                        # what we'd expect if the classifications were entirely random
+    
 
-  if DEBUG>2:
+  if DEBUG>0:
     np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:.1f}   "} )    
     print( f"CLASSI:           INFO:    expected correct if random class'n        = \n{CARRIBEAN_GREEN}{expected_IFF_random_preds}{RESET}")
 
@@ -6588,7 +6595,7 @@ if __name__ == '__main__':
   args.n_workers  = 0 if is_local else 12
   args.pin_memory = torch.cuda.is_available()
 
-  if DEBUG>0:
+  if DEBUG>12:
     print ( f"{GOLD}args.debug_level_classify{RESET} =           ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------>    {YELLOW}{args.debug_level_classify}{RESET}", flush=True)
     print ( f"{GOLD}args.debug_level_classify{RESET} =           ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------>    {YELLOW}{args.debug_level_classify}{RESET}", flush=True)
     print ( f"{GOLD}args.debug_level_classify{RESET} =           ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------>    {YELLOW}{args.debug_level_classify}{RESET}", flush=True)

@@ -831,7 +831,7 @@ def highest_uniques(args, oslide, level, slide_width, slide_height, tile_size, p
     uniques = len(np.unique(tile ))
 
     if (DEBUG>0):
-      print ( f"{SAVE_CURSOR}\033[{start_row-18};0H{CLEAR_LINE}TILER:          INFO: searching image for coordinates of a good quality patch: currently looking at (n={MIKADO}{n:3d}{RESET}) a patch with {BRIGHT_GREEN}{uniques:4d}{RESET} uniques at x={CYAN}{x:,}{RESET} \r\033[146Cy={CYAN}{y:,}{RESET}     \r\033[164C<<<< for each slide in turn, checking ({CYAN}POINTS_TO_SAMPLE{RESET}=){MIKADO}{args.points_to_sample}{RESET} candidate patches and selecting the best of these{RESET}{RESTORE_CURSOR}" )
+      print ( f"{SAVE_CURSOR}\033[{start_row-18};0H{CLEAR_LINE}TILER:          INFO: searching image for coordinates of a good quality patch: currently looking at (n={MIKADO}{n:3d}{RESET}) a patch with {BRIGHT_GREEN}{uniques:4d}{RESET} uniques at x={CYAN}{x:,}{RESET} \r\033[146Cy={CYAN}{y:,}{RESET}     \r\033[164C<<<< for each slide in turn, checking ({CYAN}POINTS_TO_SAMPLE{RESET}=){MIKADO}{args.points_to_sample}{RESET} candidate patches and selecting best{RESET}{RESTORE_CURSOR}", end='', flush=True )
 
 
     if ( uniques>high_uniques ):                                                                                    # then check the tiles at the other three corners of the putative sqaure

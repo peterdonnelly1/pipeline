@@ -217,7 +217,7 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
         print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) n_tiles (this run)----------------------------------------------------------------- = {MIKADO}{n_tiles}{RESET}",                flush=True )
         print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) cases_required -------------------------------------------------------------------- = {MIKADO}{cases_required}{RESET}",         flush=True )
 
-      global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tiles_required, tile_size, top_up_factors )
+      cases_processed, global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tiles_required, tile_size, top_up_factors )
 
       if DEBUG>0:
         print ( f"{DULL_WHITE}GENERATE:       INFO:    global_tiles_processed (this run)-------------------------------------------------- = {MIKADO}{global_tiles_processed}{RESET}{CLEAR_LINE}", flush=True )
@@ -272,7 +272,7 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: ({target}) tiles_required-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -   = {BLEU}{tiles_required}{RESET}",                           flush=True )
 
     
-          global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tiles_required, tile_size, top_up_factors )
+          cases_processed, global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tiles_required, tile_size, top_up_factors )
 
         if DEBUG>0:
           print ( f"{DULL_WHITE}GENERATE:       INFO:    global_tiles_processed  (this run)-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  . = {MIKADO}{global_tiles_processed}{RESET}{CLEAR_LINE}", flush=True )
@@ -299,7 +299,7 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
           print ( f"{DULL_WHITE}GENERATE:       INFO:    cases_required (this run).......................................................... = {MIKADO}{n_samples}{RESET}{CLEAR_LINE}",              flush=True )
           print ( f"{DULL_WHITE}GENERATE:       INFO:    pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}{CLEAR_LINE}",               flush=True )
   
-        global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tiles_required, tile_size, top_up_factors )
+        cases_processed, global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tiles_required, tile_size, top_up_factors )
 
         if DEBUG>0:
           print ( f"{DULL_WHITE}GENERATE:       INFO:    global_tiles_processed  (this run)................................................. = {MIKADO}{global_tiles_processed}{RESET}{CLEAR_LINE}", flush=True )
@@ -1745,7 +1745,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
   print( f"GENERATE:       INFO:    finished saving Torch dictionary to {MAGENTA}{fqn}{RESET}{CLEAR_LINE}" )
   
 
-  return global_tiles_processed
+  return directories_processed, global_tiles_processed
   
 
 
