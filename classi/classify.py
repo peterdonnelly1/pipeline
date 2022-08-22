@@ -3932,8 +3932,8 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
                   
                 if args.scattergram=='True':
                   
-                  plot_scatter( args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, p_full_softmax_matrix, show_patch_images='True')
-                  # ~ plot_scatter(args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, p_full_softmax_matrix, show_patch_images='False')
+                  plot_scatter( args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, grid_p_full_softmax_matrix, show_patch_images='True')
+                  # ~ plot_scatter(args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, grid_p_full_softmax_matrix, show_patch_images='False')
   
                 if (args.probs_matrix=='True') & (args.multimode!='image_rna'):
                   
@@ -5192,7 +5192,7 @@ def analyse_probs( y1_hat, image_labels_values ):
 
 
 # ------------------------------------------------------------------------------
-def plot_scatter( args, writer, i, background_image, tile_size, image_labels, class_names, class_colours, preds, p_full_softmax_matrix, show_patch_images ):
+def plot_scatter( args, writer, i, background_image, tile_size, image_labels, class_names, class_colours, preds, grid_p_full_softmax_matrix, show_patch_images ):
 
   number_to_plot = len(image_labels)  
   classes        = len(class_names)
@@ -5204,6 +5204,7 @@ def plot_scatter( args, writer, i, background_image, tile_size, image_labels, cl
   figure_height  = args.figure_height
 
 #  (0) define two functions which will be used to draw the secondary 'tile' axes (top and right)
+
   def forward(x):
       return x/tile_size
 
@@ -5227,7 +5228,7 @@ def plot_scatter( args, writer, i, background_image, tile_size, image_labels, cl
   
   if DEBUG>9:
     for n in range(0, classes):
-      if image_labels[idx]==n:                                                                         # Truth class for this slide
+      if image_labels[idx]==n:                                                                             # Truth class for this slide
         print ( f"{GREEN}", end="")
       else:
         print ( f"{RED}", end="")
@@ -5263,6 +5264,7 @@ def plot_scatter( args, writer, i, background_image, tile_size, image_labels, cl
     l.append(mpatches.Patch(color=class_colours[n], linewidth=0))
     fig.legend(l, class_names, loc='upper right', fontsize=10, facecolor='white') 
   
+  
   # (5) add patch level truth value and prediction 
 
   threshold_0=36     # total tiles, not width
@@ -5275,7 +5277,7 @@ def plot_scatter( args, writer, i, background_image, tile_size, image_labels, cl
   t3=f"True subtype for the slide:"
   t4=f"{class_names[image_labels[idx]]}"
   t5=f"Predicted subtype for this patch:"
-  t6=f"{class_names[np.argmax(np.sum(p_full_softmax_matrix, axis=0))]}"
+  t6=f"{class_names[np.argmax(np.sum(grid_p_full_softmax_matrix, axis=0))]}"
   
   if total_tiles >=threshold_4:                    ## NOT OPTIMISED!  Need some more thresholds for values closer to theshold_3
     #          x     y
@@ -5314,6 +5316,8 @@ def plot_scatter( args, writer, i, background_image, tile_size, image_labels, cl
     ax.text(  90,  -25,   t4, size=10, ha="left",   color="black", style="italic" )
     ax.text(   0,  -18,   t5, size=10, ha="left",   color="black", style="normal" )
     ax.text(  90,  -18,   t6, size=10, ha="left",   color="black", style="italic" )    
+
+
 
   # (6) plot the points, organised to be at the centre of where the tiles would be on the background image, if it were tiled (the grid lines are on the tile borders)
   

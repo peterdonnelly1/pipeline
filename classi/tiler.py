@@ -300,7 +300,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
 
 
   
-  # (3b) Set up parameters for selection of tiles (for training mode and multimode: random; for test mode: 2D contiguous patch taking into account the supergrid ('SUPERGRID_SIZE') setting)
+  # (3a) Set up parameters for selection of tiles (for training mode and multimode: random; for test mode: 2D contiguous patch taking into account the supergrid ('SUPERGRID_SIZE') setting)
   
 
   if ( ( just_test!='True' ) | ( multimode=='image_rna' )  ):
@@ -337,7 +337,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
       print( f"{WHITE}TILER:          INFO:  y_start (pixel coords)        = {y_start}{RESET}" ) 
 
 
-  # (3a) [test mode only] look for the best possible patch (of the requested size) to use
+  # (3b) [test mode only] look for the best possible patch (of the requested size) to use.  Extract and save a copy of it, for later use in the Tensorboard scattergram display
      
   if ( ( just_test=='True')  & ( multimode!='image_rna' ) &  (args.show_patch_images=='True' ) ):
 
@@ -359,12 +359,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
     if DEBUG>2:
       print( f"{ORANGE}TILER:          INFO: CAUTION! 'just_test' flag is set (and multimode flag is not). (Super-)patch origin will be set to the following coordinates, chosen for good contrast: x={CYAN}{x_start}{RESET}{ORANGE}, y={CYAN}{y_start}{RESET}" )  
 
-  # (3c) [test mode] extract and save a copy of the entire un-tiled patch, for later use in the Tensorboard scattergram display
-  
-  if ( ( just_test=='True')  & ( multimode!='image_rna' ) ):  
-            
     patch       = oslide.read_region((x_start, y_start), level, (patch_width, patch_height))               # matplotlibs' native format is PIL RGBA
-    
     patch_rgb   = patch.convert('RGB')                                                                     # convert from PIL RGBA to RGB
     patch_npy   = (np.array(patch))                                                                        # convert to Numpy array
     patch_fname = f"{data_dir}/{d}/entire_patch.npy"                                                       # same name for all patches since they are in different subdirectories of data_dur
