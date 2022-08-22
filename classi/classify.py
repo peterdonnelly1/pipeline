@@ -2386,8 +2386,8 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         pd_aggregate_tile_probabilities_matrix.columns            = class_names
         pd_aggregate_tile_probabilities_matrix[ 'agg_prob'     ]  = np.sum(aggregate_tile_probabilities_matrix,       axis=1 )[0:upper_bound_of_indices_to_plot_image]
         pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]  = pd_aggregate_tile_probabilities_matrix.max   (axis=1) [0:upper_bound_of_indices_to_plot_image]
-                                                            temp = pd_aggregate_tile_probabilities_matrix.iloc[:,0:len(class_names)]   # we only want the first columns, which correspond to the probabilities for each subtype
-        pd_aggregate_tile_probabilities_matrix[ 'pred_class'   ]  = temp.idxmax(axis=1)[0:upper_bound_of_indices_to_plot_image]        # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
+        temp = pd_aggregate_tile_probabilities_matrix.iloc[:,0:len(class_names)]                           # we only want the first columns, which correspond to the probabilities for each subtype
+        pd_aggregate_tile_probabilities_matrix[ 'pred_class'   ]  = temp.idxmax(axis=1)[0:upper_bound_of_indices_to_plot_image]  # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
         pd_aggregate_tile_probabilities_matrix[ 'true_class'   ]  = patches_true_classes                                  [0:upper_bound_of_indices_to_plot_image]
         pd_aggregate_tile_probabilities_matrix[ 'n_classes'    ]  = len(class_names) 
         pd_aggregate_tile_probabilities_matrix[ 'case_id'      ]  = patches_case_id                                       [0:upper_bound_of_indices_to_plot_image]

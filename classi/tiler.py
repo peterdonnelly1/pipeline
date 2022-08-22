@@ -59,6 +59,8 @@ start_row    = 60-num_cpus
 
 thread_to_monitor = 7
 
+
+
 def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob, d, f, my_thread, r ):
 
   if DEBUG>0:
@@ -198,6 +200,8 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
   if (DEBUG>2):  
     print('TILER:          INFO: now processing          {:}{:}{:}'.format( BB, fqn, RESET));
 
+
+
   # (2) open the SVS image and inspect statistics
 
   try:
@@ -293,25 +297,6 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
 
 
 
-  # (3a) [test mode only] look for the best possible patch (of the requested size) to use
-     
-  if ( ( just_test=='True')  & ( multimode!='image_rna' ) &  (args.show_patch_images=='True' ) ):
-
-    patch_points_to_sample      = args.patch_points_to_sample
-    high_uniques = 0
-    if DEBUG>2:
-      print( f"\r{WHITE}TILER:          INFO: about to analyse {MIKADO}{patch_points_to_sample}{RESET} randomly selected {MIKADO}{int(n_tiles**0.5)}x{int(n_tiles**0.5)}{RESET} patches to locate a patch with high nominal contrast and little background{RESET}" )  
-    x_start, y_start, high_uniques = highest_uniques( args, BB, oslide, level, width, height, tile_width, patch_points_to_sample, n_tiles, start_row, start_column )
-    if high_uniques==0:                                                                                    # means we went found no qualifying tile to define the patch by (can happen)
-      x_start=int( width//2)
-      y_start=int(height//2)
-      print( f"\033[38;2;255;165;0m\033[1mTILER:            INFO:  no suitable patch found: setting coordinates to centre of slide x={x_start:7d} y={y_start:7d}\033[m" )
-    else:
-      if DEBUG>1:
-        print( f"\033[1m\033[mTILER:            INFO:  coordinates of tile in slide with best contrast: x={x_start:7d} y={y_start:7d} and highest number of unique RGB values = {high_uniques:5d}\033[m" )
-
-    if DEBUG>2:
-      print( f"{ORANGE}TILER:          INFO: CAUTION! 'just_test' flag is set (and multimode flag is not). (Super-)patch origin will be set to the following coordinates, chosen for good contrast: x={CYAN}{x_start}{RESET}{ORANGE}, y={CYAN}{y_start}{RESET}" )  
 
 
   
@@ -352,6 +337,27 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
       print( f"{WHITE}TILER:          INFO:  y_start (pixel coords)        = {y_start}{RESET}" ) 
 
 
+  # (3a) [test mode only] look for the best possible patch (of the requested size) to use
+     
+  if ( ( just_test=='True')  & ( multimode!='image_rna' ) &  (args.show_patch_images=='True' ) ):
+
+    patch_points_to_sample      = args.patch_points_to_sample
+    high_uniques = 0
+    if DEBUG>2:
+      print( f"\r{WHITE}TILER:          INFO: about to analyse {MIKADO}{patch_points_to_sample}{RESET} randomly selected {MIKADO}{int(n_tiles**0.5)}x{int(n_tiles**0.5)}{RESET} patches to locate a patch with high nominal contrast and little background{RESET}" )  
+
+    x_start, y_start, high_uniques = highest_uniques( args, BB, oslide, level, width, height, tile_width, patch_points_to_sample, n_tiles, start_row, start_column )
+
+    if high_uniques==0:                                                                                    # means we went found no qualifying tile to define the patch by (can happen)
+      x_start=int( width//2)
+      y_start=int(height//2)
+      print( f"\033[38;2;255;165;0m\033[1mTILER:            INFO:  no suitable patch found: setting coordinates to centre of slide x={x_start:7d} y={y_start:7d}\033[m" )
+    else:
+      if DEBUG>1:
+        print( f"\033[1m\033[mTILER:            INFO:  coordinates of tile in slide with best contrast: x={x_start:7d} y={y_start:7d} and highest number of unique RGB values = {high_uniques:5d}\033[m" )
+
+    if DEBUG>2:
+      print( f"{ORANGE}TILER:          INFO: CAUTION! 'just_test' flag is set (and multimode flag is not). (Super-)patch origin will be set to the following coordinates, chosen for good contrast: x={CYAN}{x_start}{RESET}{ORANGE}, y={CYAN}{y_start}{RESET}" )  
 
   # (3c) [test mode] extract and save a copy of the entire un-tiled patch, for later use in the Tensorboard scattergram display
   
@@ -805,11 +811,11 @@ def check_badness( args, tile ):
 
 def highest_uniques(args, BB, oslide, level, slide_width, slide_height, tile_size, patch_points_to_sample, n_tiles, start_row, start_column):
 
-  x_high=0
-  y_high=0
-  uniques=0
-  high_uniques=0
-  second_high_uniques=0
+  x_high              = 0
+  y_high              = 0
+  uniques             = 0
+  high_uniques        = 0
+  second_high_uniques = 0
   excellent_starting_point_found  = False
   reasonable_starting_point_found = False
    
