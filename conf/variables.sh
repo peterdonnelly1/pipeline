@@ -33,7 +33,7 @@ SHOW_COLS=100
 # only used for image
 
 RANDOM_TILES="True"                                                                                        # select tiles at random coordinates from image. Done AFTER other quality filtering
-ANNOTATED_TILES="True"                                                                                    # show annotated tiles image in tensorboard (use SCATTERGRAM for larger numbers of tiles. ANNOTATED_TILES looks a little nicer but it generates each tile as a separate subplot which can be very slow, and also has a much lower upper limit on the number of tiles it can handle)
+ANNOTATED_TILES="False"                                                                                    # show annotated tiles image in tensorboard (use SCATTERGRAM for larger numbers of tiles. ANNOTATED_TILES looks a little nicer but it generates each tile as a separate subplot which can be very slow, and also has a much lower upper limit on the number of tiles it can handle)
 SCATTERGRAM="True"                                                                                         # show scattergram image in tensorboard
 SHOW_PATCH_IMAGES="True"                                                                                  # ..in scattergram image, show the patch image underneath the scattergram (normally you'd want this)      
 PROBS_MATRIX="True"                                                                                        # supplement scattergram with a probabilities matrix image in tensorboard

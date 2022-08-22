@@ -5679,9 +5679,16 @@ def plot_classes_preds(args, model, tile_size, batch_images, image_labels, batch
       ax0.yaxis.set_ticks_position("right")
       ax0.tick_params(labelsize=10) 
       ax0.set_ylim(0,number_to_plot) 
-      ax0.set_facecolor("xkcd:mint" if image_labels[0]==np.argmax(np.sum(p_full_softmax_matrix,axis=0)) else "xkcd:faded pink" )      
-      ax0.bar( x=[range(str(range(len(class_names))))], height=np.sum(p_full_softmax_matrix,axis=0),  width=int(number_to_plot/len(image_labels)), color=class_colours )
-      # [c[0] for c in class_names]
+      ax0.set_facecolor("xkcd:mint" if image_labels[0]==np.argmax(np.sum(p_full_softmax_matrix,axis=0)) else "xkcd:faded pink" )
+      
+      x      =   class_names
+      height =   height=np.sum(p_full_softmax_matrix,axis=0)
+      width  =   int(number_to_plot/len(image_labels))
+      color  =   class_colours
+      
+        
+      ax0.bar( x=x, height=height,  width=width, color=color )
+      
 
 
       # (2d) process each tile; which entails allocating the tile to the correct spot in the subplot grid together plus annotated class information encoded as border color and centred 'x' of prediction was incorrect
