@@ -301,7 +301,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
     high_uniques = 0
     if DEBUG>2:
       print( f"\r{WHITE}TILER:          INFO: about to analyse {MIKADO}{patch_points_to_sample}{RESET} randomly selected {MIKADO}{int(n_tiles**0.5)}x{int(n_tiles**0.5)}{RESET} patches to locate a patch with high nominal contrast and little background{RESET}" )  
-    x_start, y_start, high_uniques = highest_uniques( args, oslide, level, width, height, tile_width, patch_points_to_sample, n_tiles, start_row, start_column )
+    x_start, y_start, high_uniques = highest_uniques( args, BB, oslide, level, width, height, tile_width, patch_points_to_sample, n_tiles, start_row, start_column )
     if high_uniques==0:                                                                                    # means we went found no qualifying tile to define the patch by (can happen)
       x_start=int( width//2)
       y_start=int(height//2)
@@ -803,7 +803,7 @@ def check_badness( args, tile ):
   
 # ------------------------------------------------------------------------------
 
-def highest_uniques(args, oslide, level, slide_width, slide_height, tile_size, patch_points_to_sample, n_tiles, start_row, start_column):
+def highest_uniques(args, BB, oslide, level, slide_width, slide_height, tile_size, patch_points_to_sample, n_tiles, start_row, start_column):
 
   x_high=0
   y_high=0
@@ -831,7 +831,7 @@ def highest_uniques(args, oslide, level, slide_width, slide_height, tile_size, p
     uniques = len(np.unique(tile ))
 
     if (DEBUG>0):
-      print ( f"{SAVE_CURSOR}\033[{start_row-18};0H{CLEAR_LINE}TILER:          INFO: searching image for coordinates of a good quality patch: currently looking at (n={MIKADO}{n:3d}{RESET}) a patch with {BRIGHT_GREEN}{uniques:4d}{RESET} uniques at x={CYAN}{x:,}{RESET} \r\033[146Cy={CYAN}{y:,}{RESET}     \r\033[164C<<<< for each slide in turn, checking ({CYAN}POINTS_TO_SAMPLE{RESET}=){MIKADO}{args.points_to_sample}{RESET} candidate patches and selecting best{RESET}{RESTORE_CURSOR}", end='', flush=True )
+      print ( f"{SAVE_CURSOR}\033[{start_row-18};0H{CLEAR_LINE}{BB}TILER:          INFO: searching image for coordinates of a good quality patch: currently looking at (n={MIKADO}{n:3d}{RESET}{BB}) a patch with {BRIGHT_GREEN}{uniques:4d}{RESET}{BB} uniques at x={CYAN}{x:,}{RESET}{BB} \r\033[146Cy={CYAN}{y:,}{RESET}{BB}     \r\033[164C<<<< for each slide in turn, checking ({CYAN}POINTS_TO_SAMPLE{RESET}=) {MIKADO}{args.points_to_sample}{RESET}{BB} candidate patches and selecting best{RESET}{RESTORE_CURSOR}", end='', flush=True )
 
 
     if ( uniques>high_uniques ):                                                                                    # then check the tiles at the other three corners of the putative sqaure

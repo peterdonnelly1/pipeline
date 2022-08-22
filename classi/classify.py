@@ -1717,7 +1717,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         fqn = fqn_image_rna
 
       if DEBUG>0:
-        print( f"{ORANGE}CLASSI:         INFO:  'just_test' flag is set.  About to load model state dictionary {MAGENTA}{fqn}{RESET}" )
+        print( f"{ORANGE}CLASSI:         INFO:  'just_test' flag is set.  About to load model state dictionary {MAGENTA}{fqn}{RESET}{CLEAR_LINE}" )
         
       try:
         model.load_state_dict(torch.load(fqn))       
@@ -2356,7 +2356,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         if args.cases=='MULTIMODE____TEST':
           upper_bound_of_indices_to_plot_image = cases_reserved_for_image_rna
         else:  # correct for UNIMODE_CASE
-          upper_bound_of_indices_to_plot_image = total_slides_counted_test
+          upper_bound_of_indices_to_plot_image = min(n_samples, total_slides_counted_test)
 
 
         # case image- 1: PREDICTED - AGGREGATE probabilities
@@ -2391,9 +2391,9 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
         if DEBUG>0:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>3d}"})
-          print ( f"\n\n\n\n\n\nCLASSI:         INFO:      upper_bound_of_indices_to_plot_image                              = {BLEU}{upper_bound_of_indices_to_plot_image}{RESET}",     flush=True      ) 
-          print ( f"\nCLASSI:         INFO:      pd_aggregate_tile_probabilities_matrix[ 'case_id' ]         = \n{CHARTREUSE}{pd_aggregate_tile_probabilities_matrix[ 'case_id' ]}{RESET}",     flush=True      ) 
-          print ( f"\nCLASSI:         INFO:      pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]    = \n{CHARTREUSE}{pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]}{RESET}",     flush=True )            
+          print ( f"\n\n\n\n\n\nCLASSI:         INFO:      upper_bound_of_indices_to_plot_image                              = {BLEU}{upper_bound_of_indices_to_plot_image}{RESET}{CLEAR_LINE}",                 flush=True      ) 
+          print ( f"\nCLASSI:         INFO:      pd_aggregate_tile_probabilities_matrix[ 'case_id' ]         = \n{CHARTREUSE}{pd_aggregate_tile_probabilities_matrix[ 'case_id' ]}{RESET}{CLEAR_LINE}",          flush=True      ) 
+          print ( f"\nCLASSI:         INFO:      pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]    = \n{CHARTREUSE}{pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]}{RESET}{CLEAR_LINE}",     flush=True      )            
   
         if bar_chart_x_labels=='case_id':
           c_id = pd_aggregate_tile_probabilities_matrix[ 'case_id' ]
@@ -2612,9 +2612,9 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         if bar_chart_x_labels=='case_id':                                                                  # user wants case ids as labels
           c_id = pd_aggregate_tile_probabilities_matrix[ 'case_id' ]
         else:
-          c_id = [i for i in range(total_slides_counted_test)]
+          c_id = [i for i in range( min(n_samples, total_slides_counted_test)) ]
           
-        for i in range ( 0, total_slides_counted_test ):
+        for i in range ( 0, min(n_samples, total_slides_counted_test) ):
 
           if DEBUG>0:
             print ( f"CLASSI:         INFO:      i                                                                       = {COTTON_CANDY}{i}{RESET}", flush=True ) 
@@ -3437,29 +3437,37 @@ def train( args, epoch, train_loader, model, optimizer, loss_function, loss_type
 
 
         if (args.input_mode=='image'):
-          
-          if DEBUG>0:
+
+          if DEBUG>2:
             np.set_printoptions(formatter={'float': lambda x:   "{:>6.2f}".format(x)})
-            image_labels_numpy = (image_labels .cpu() .data) .numpy()
-            y1_hat_numpy       = (y1_hat       .cpu() .data) .numpy()
+            image_labels_values = (image_labels .cpu() .data) .numpy()
             batch_fnames_npy   = (batch_fnames .cpu() .data) .numpy()
             random_pick        = random.randint( 0, y1_hat_numpy.shape[0]-1 )
+            
             if DEBUG>2:            
               print ( f"CLASSI:         INFO:      test:        y1_hat_numpy       [{random_pick:3d}]  {ORANGE}(Predictions){RESET}     = {MIKADO}{y1_hat_numpy[random_pick]}{RESET}"     )            
-              print ( f"CLASSI:         INFO:      test:        image_labels_numpy [{random_pick:3d}]  {GREEN}(Truth)      {RESET}     = {MIKADO}{image_labels_numpy[random_pick]}{RESET}"     )            
-              print ( f"CLASSI:         INFO:      test:        predicted class    [{random_pick:3d}]                    = {RED if image_labels_numpy[random_pick]!=np.argmax(y1_hat_numpy[random_pick]) else GREEN}{np.argmax(y1_hat_numpy[random_pick])}{RESET}"     )
-              print ( f"CLASSI:         INFO:      test:        image_labels_numpy (all)  {GREEN}(Truth)       {RESET}     = {MIKADO}{image_labels_numpy}{RESET}"     )            
+              print ( f"CLASSI:         INFO:      test:        image_labels_values [{random_pick:3d}]  {GREEN}(Truth)      {RESET}     = {MIKADO}{image_labels_values[random_pick]}{RESET}"     )            
+              print ( f"CLASSI:         INFO:      test:        predicted class    [{random_pick:3d}]                    = {RED if image_labels_values[random_pick]!=np.argmax(y1_hat_numpy[random_pick]) else GREEN}{np.argmax(y1_hat_numpy[random_pick])}{RESET}"     )
+              print ( f"CLASSI:         INFO:      test:        image_labels_values (all)  {GREEN}(Truth)       {RESET}     = {MIKADO}{image_labels_values}{RESET}"     )            
             if DEBUG>100:    
               print ( f"CLASSI:         INFO:      test:        y1_hat_numpy.shape                     {ORANGE}(Predictions){RESET}     = {MIKADO}{y1_hat_numpy.shape}{RESET}"     )
               print ( f"CLASSI:         INFO:      test:        y1_hat_numpy                           {ORANGE}(Predictions){RESET}     = \n{MIKADO}{y1_hat_numpy}{RESET}"         )
-              print ( f"CLASSI:         INFO:      test:        image_labels_numpy.shape               {GREEN}(Truth)       {RESET}     = {MIKADO}{image_labels_numpy.shape}{RESET}"         )
-              print ( f"CLASSI:         INFO:      test:        image_labels_numpy                     {GREEN}(Truth)       {RESET}     = \n{MIKADO}{image_labels_numpy}{RESET}"         )
+              print ( f"CLASSI:         INFO:      test:        image_labels_values.shape               {GREEN}(Truth)       {RESET}     = {MIKADO}{image_labels_values.shape}{RESET}"         )
+              print ( f"CLASSI:         INFO:      test:        image_labels_values                     {GREEN}(Truth)       {RESET}     = \n{MIKADO}{image_labels_values}{RESET}"         )
             if DEBUG>100:            
               print ( f"CLASSI:         INFO:      test:        fq_link            [{random_pick:3d}]                                   = {MIKADO}{args.data_dir}/{batch_fnames_npy[random_pick]}.fqln{RESET}"     )            
             
           loss_images       = loss_function( y1_hat, image_labels )
-          loss_images_value = loss_images.item()                                                           # use .item() to extract value from tensor: don't create multiple new tensors each of which will have gradient histories
-
+          loss_images_value = loss_images.item()                                                           # use .item() to extract value from tensor: don't create multiple new tensors each of which will have gradient histories    
+  
+  
+          # ~ if loss_type!='mean_squared_error':                                                              # autoencoders don't produce predictions, so don't process
+  
+            # ~ if   ( args.input_mode=='image' ):
+              
+              # ~ preds_train, p_full_softmax_matrix_train, p_highest, p_2nd_highest_train, p_true_class_train = analyse_probs( y1_hat.cpu().detach(), image_labels.cpu().detach().numpy() ) 
+            
+            
           
           if DEBUG>2:
             print ( f"CLASSI:         INFO:      test: {MAGENTA}loss_images{RESET} (for this mini-batch)  = {PURPLE}{loss_images_value:6.3f}{RESET}" )
@@ -3681,7 +3689,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
               if DEBUG>0:
                   print ( f"CLASSI:         INFO:      test:           global_batch_count {DIM_WHITE}(super-patch number){RESET} = {global_batch_count+1:5d}  {DIM_WHITE}({((global_batch_count+1)/(args.supergrid_size**2)):04.2f}){RESET}" )
                         
-            if global_batch_count%(args.supergrid_size**2)==0:                                                                                 # establish grid arrays on the FIRST batch of each grid
+            if global_batch_count%(args.supergrid_size**2)==0:                                             # establish grid arrays on the FIRST batch for each grid
               grid_images                = batch_images.cpu().numpy()
               grid_labels                = image_labels.cpu().numpy()
               grid_preds                 = preds
@@ -5012,27 +5020,31 @@ def analyse_probs( y1_hat, image_labels_values ):
 
     p_full_softmax_matrix = functional.softmax( y1_hat, dim=1).cpu().numpy()
 
-    if DEBUG>9:
-      np.set_printoptions(formatter={'float': lambda x: "{:>5.3f}".format(x)})
-      print ( f"CLASSI:         INFO:      analyse_probs():               p_full_softmax_matrix          = \n{p_full_softmax_matrix}", flush=True )
+    if args.just_test=='True':
+      if DEBUG==2:
+        np.set_printoptions(formatter={'float': lambda x: "{:>5.3f}".format(x)})
+        print ( f"CLASSI:         INFO:      analyse_probs():               p_full_softmax_matrix          = \n{BOLD}{CAMEL}{p_full_softmax_matrix}{RESET}", flush=True )
 
     # make a vector of the HIGHEST probability (for each example in the batch)    
     p_highest  = np.array(  [ functional.softmax( el, dim=0)[i].item() for i, el in zip(preds, y1_hat) ]   )
 
 
-    if DEBUG>9:
-      np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
-      print ( "CLASSI:         INFO:      analyse_probs():               p_highest.shape                = {:}".format( (np.array(p_highest)).shape )  )
-      print ( "CLASSI:         INFO:      analyse_probs():               p_highest                      = \n{:}".format( np.array(p_highest) )  )
+    if args.just_test=='True':
+      if DEBUG>0:
+        np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
+        print ( f"CLASSI:         INFO:      analyse_probs():               p_highest.shape                = {MIKADO}{(np.array(p_highest)).shape}{RESET}"       )
+        print ( f"CLASSI:         INFO:      analyse_probs():               p_highest                      = \n{np.array(p_highest)}"                            )          
       
     # make a vector of the SECOND HIGHEST probability (for each example in the batch) (which is a bit trickier)
     p_2nd_highest = np.zeros((len(preds)))
     for i in range (0, len(p_2nd_highest)):
       p_2nd_highest[i] = max( [ el for el in p_full_softmax_matrix[i,:] if el != max(p_full_softmax_matrix[i,:]) ] )
 
-    if DEBUG>99:
-      np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
-      print ( "CLASSI:         INFO:      analyse_probs():               p_2nd_highest              = \n{:}".format( p_2nd_highest   )  )  
+    if args.just_test=='True':
+      if DEBUG>0:
+        np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
+        print ( f"CLASSI:         INFO:      analyse_probs():               p_2nd_highest.shape            = {MIKADO}{(np.array(p_2nd_highest)).shape}{RESET}"    )
+        print ( f"CLASSI:         INFO:      analyse_probs():               p_2nd_highest                  = \n{p_2nd_highest}"                                   ) 
 
     # make a vector of the probability the network gave for the true class (for each example in the batch)
     for i in range (0, len(image_labels_values)):
