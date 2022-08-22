@@ -472,6 +472,7 @@ has been set to {RESET}{BOLD_MIKADO}'False'{RESET}{ORANGE} (the dataset balancin
   global run_level_classifications_matrix_acc
   global job_level_classifications_matrix 
   global aggregate_tile_probabilities_matrix
+  global best_tile_probabilities_matrix
   global aggregate_tile_level_winners_matrix
   global patches_true_classes
   global patches_case_id  
@@ -1248,6 +1249,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       rna_case_id                                 =  np.zeros     ( ( n_samples            ),     dtype=int         )              # same, but for rna 
     else:
       aggregate_tile_probabilities_matrix         =  np.zeros     ( ( n_samples, n_classes ),     dtype=float               ) 
+      best_tile_probabilities_matrix              =  np.zeros     ( ( n_samples, n_classes ),     dtype=float               ) 
       aggregate_tile_level_winners_matrix         =  np.full_like ( aggregate_tile_probabilities_matrix, 0                  )
       patches_true_classes                        =  np.zeros     ( ( n_samples            ),     dtype=int         )
       patches_case_id                             =  np.zeros     ( ( n_samples            ),     dtype=int         )    
@@ -2359,6 +2361,9 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
           upper_bound_of_indices_to_plot_image = min(n_samples, total_slides_counted_test)
 
 
+
+
+
         # case image- 1: PREDICTED - AGGREGATE probabilities
         
         if DEBUG>88:
@@ -2379,9 +2384,10 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         #sns.set_theme(style="whitegrid")
         pd_aggregate_tile_probabilities_matrix                    = pd.DataFrame( aggregate_tile_probabilities_matrix )   [0:upper_bound_of_indices_to_plot_image]
         pd_aggregate_tile_probabilities_matrix.columns            = class_names
-        pd_aggregate_tile_probabilities_matrix[ 'agg_prob'     ]  = np.sum(aggregate_tile_probabilities_matrix,   axis=1 )[0:upper_bound_of_indices_to_plot_image]
+        pd_aggregate_tile_probabilities_matrix[ 'agg_prob'     ]  = np.sum(aggregate_tile_probabilities_matrix,       axis=1 )[0:upper_bound_of_indices_to_plot_image]
         pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]  = pd_aggregate_tile_probabilities_matrix.max   (axis=1) [0:upper_bound_of_indices_to_plot_image]
-        pd_aggregate_tile_probabilities_matrix[ 'pred_class'   ]  = pd_aggregate_tile_probabilities_matrix.idxmax(axis=1) [0:upper_bound_of_indices_to_plot_image]  # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
+                                                            temp = pd_aggregate_tile_probabilities_matrix.iloc[:,0:len(class_names)]   # we only want the first columns, which correspond to the probabilities for each subtype
+        pd_aggregate_tile_probabilities_matrix[ 'pred_class'   ]  = temp.idxmax(axis=1)[0:upper_bound_of_indices_to_plot_image]        # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
         pd_aggregate_tile_probabilities_matrix[ 'true_class'   ]  = patches_true_classes                                  [0:upper_bound_of_indices_to_plot_image]
         pd_aggregate_tile_probabilities_matrix[ 'n_classes'    ]  = len(class_names) 
         pd_aggregate_tile_probabilities_matrix[ 'case_id'      ]  = patches_case_id                                       [0:upper_bound_of_indices_to_plot_image]
@@ -2389,7 +2395,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         #fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
         
 
-        if DEBUG>0:
+        if DEBUG>2:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>3d}"})
           print ( f"\n\n\n\n\n\nCLASSI:         INFO:      upper_bound_of_indices_to_plot_image                              = {BLEU}{upper_bound_of_indices_to_plot_image}{RESET}{CLEAR_LINE}",                 flush=True      ) 
           print ( f"\nCLASSI:         INFO:      pd_aggregate_tile_probabilities_matrix[ 'case_id' ]         = \n{CHARTREUSE}{pd_aggregate_tile_probabilities_matrix[ 'case_id' ]}{RESET}{CLEAR_LINE}",          flush=True      ) 
@@ -2489,9 +2495,130 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         fig.savefig(fqn)
         
         
+
+
+
+        # case image 1+: PREDICTED - METRIC: INDIVIDUAL TILE WITH THE HIGHEST PROBABILITY SUBTYPE IN THE SLIDE
+        
+        if DEBUG>88:
+          np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
+          print ( f"\nCLASSI:         INFO:      best_tile_probabilities_matrix                      = \n{CHARTREUSE}{best_tile_probabilities_matrix}{RESET}", flush=True )
+
+        if DEBUG>88:
+          np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
+          print ( f"\nCLASSI:         INFO:      class_names                                         = \n{CHARTREUSE}{class_names}{RESET}", flush=True )
+          
+  
+        figure_width  = 20
+        figure_height = 10
+        fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
+        ax.set_title ( args.cancer_type_long )
+        plt.xticks( rotation=90 )
+        plt.ylim  ( 0, n_tiles  )     
+        
+        pd_best_tile_probabilities_matrix                    = pd.DataFrame( best_tile_probabilities_matrix )        [0:upper_bound_of_indices_to_plot_image]
+        pd_best_tile_probabilities_matrix.columns            = class_names
+        pd_best_tile_probabilities_matrix[ 'best_prob'    ]  = np.sum(best_tile_probabilities_matrix,   axis=1 )     [0:upper_bound_of_indices_to_plot_image]
+        pd_best_tile_probabilities_matrix[ 'pred_class'   ]  = pd_best_tile_probabilities_matrix.idxmax(axis=1)      [0:upper_bound_of_indices_to_plot_image]  # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
+        pd_best_tile_probabilities_matrix[ 'true_class'   ]  = patches_true_classes                                  [0:upper_bound_of_indices_to_plot_image]
+        pd_best_tile_probabilities_matrix[ 'n_classes'    ]  = len(class_names)  
+        pd_best_tile_probabilities_matrix[ 'case_id'      ]  = patches_case_id                                       [0:upper_bound_of_indices_to_plot_image]
+        
+
+        if DEBUG==2:
+          np.set_printoptions(formatter={'float': lambda x: f"{x:>3d}"})
+          print ( f"\n\n\n\n\n\nCLASSI:         INFO:      upper_bound_of_indices_to_plot_image                              = {BLEU}{upper_bound_of_indices_to_plot_image}{RESET}{CLEAR_LINE}",                 flush=True      ) 
+          print ( f"\nCLASSI:         INFO:      pd_best_tile_probabilities_matrix[ 'case_id' ]         = \n{CHARTREUSE}{pd_best_tile_probabilities_matrix[ 'case_id' ]}{RESET}{CLEAR_LINE}",          flush=True      ) 
+  
+        if bar_chart_x_labels=='case_id':
+          c_id = pd_best_tile_probabilities_matrix[ 'case_id' ]
+        else:
+          c_id = [i for i in range(pd_best_tile_probabilities_matrix.shape[0])]
+
+        if DEBUG==2:
+          print ( "\033[20B" )
+          np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
+          print ( f"\nCLASSI:         INFO:       (extended) pd_best_tile_probabilities_matrix = \n{CHARTREUSE}{pd_best_tile_probabilities_matrix}{RESET}", flush=True )
+       
+        if DEBUG>88:          
+          np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
+          print ( f"\nCLASSI:         INFO:                                             best_tile_probabilities_matrix = \n{CHARTREUSE}{best_tile_probabilities_matrix}{RESET}", flush=True )
+        if DEBUG>88:          
+          np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
+          print ( f"\nCLASSI:         INFO:          best_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot_image]  = \n{CHARTREUSE}{best_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot_image]}{RESET}", flush=True )
+          print ( f"\nCLASSI:         INFO: np.argmax(best_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot_image] = \n{CHARTREUSE}{np.argmax(best_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot_image], axis=1)}{RESET}", flush=True )
+          
+        x_labels = [  str(el) for el in c_id ]
+        cols     = [ class_colors[el] for el in np.argmax(best_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot_image], axis=1)  ]
+                  
+        if DEBUG>88:
+          print ( "\033[20B" )
+          np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
+          print ( f"\nCLASSI:         INFO:                                                     cols = \n{CHARTREUSE}{cols}{RESET}", flush=True )
+          print ( f"\nCLASSI:         INFO:                                                len(cols) = \n{CHARTREUSE}{len(cols)}{RESET}", flush=True )
+          
+        p1 = plt.bar( x=x_labels, height=pd_best_tile_probabilities_matrix[ 'best_prob' ], color=cols ) 
+              
+        ax.set_title   ("Score of the Individual Tile with the Highest Probability",     fontsize=16 )
+        ax.set_xlabel  ("Case (Patch)",                                                  fontsize=14 )
+        ax.set_ylabel  ("Best Probabilities",                                            fontsize=14 )
+        ax.tick_params (axis='x', labelsize=12,  labelcolor='black')
+                
+        correct_count = 0
+        i=0
+        for p in ax.patches:
+          #ax.annotate("%.0f" % p.get_height(), (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center',  fontsize=10, color='black', xytext=(0, 5), textcoords='offset points')
+          if not np.isnan(p.get_height()):                                                                 # if it's a number, then it will be a height (y value)
+            for index, row in pd_best_tile_probabilities_matrix.iterrows():
+              if DEBUG>888:
+                print ( f"CLASSI:         INFO:      row['best_prob']                          = {CHARTREUSE}{row['best_prob']}{RESET}", flush=True )            
+                print ( f"CLASSI:         INFO:      p.get_height()                            = {CHARTREUSE}{p.get_height()}{RESET}", flush=True )
+                print ( f"CLASSI:         INFO:      patches_true_classes[{MIKADO}{i}{RESET}]  = {CHARTREUSE}{patches_true_classes[i]}{RESET}", flush=True ) 
+              if row['true_class'] == p.get_height():                                                    # this logic is just used to map the bar back to the example (it's ugly, but couldn't come up with any other way)
+                true_class = row['true_class']
+                if DEBUG>888:
+                    print ( f"CLASSI:         INFO:      {GREEN}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< FOUND IT {RESET}",        flush=True ) 
+                    print ( f"CLASSI:         INFO:      {GREEN}index                                = {RESET}{MIKADO}{index}{RESET}",                               flush=True ) 
+                    print ( f"CLASSI:         INFO:      {GREEN}true class                           = {RESET}{MIKADO}{true_class}{RESET}",                          flush=True )
+                    print ( f"CLASSI:         INFO:      {GREEN}class_names[row['true_class']]  = {RESET}{MIKADO}{class_names[row['true_class']]}{RESET}", flush=True )
+                    print ( f"CLASSI:         INFO:      {GREEN}pred class                           = {RESET}{MIKADO}{row['pred_class'][0]}{RESET}",                flush=True )
+                    print ( f"CLASSI:         INFO:      {GREEN}correct_count                        = {RESET}{MIKADO}{correct_count}{RESET}",                       flush=True )                       
+                if not class_names[row['true_class']] == row['pred_class'][0]:                          # this logic determines whether the prediction was correct or not
+                  ax.annotate( f"{true_class}", (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center', fontsize=14, color=pkmn_type_colors[true_class], xytext=(0, 5), textcoords='offset points')
+                else:
+                  correct_count+=1
+            i+=1 
+  
+        if DEBUG>3:
+          print ( f"\nCLASSI:         INFO:      number correct (pd_best_tile_probabilities_matrix) = {CHARTREUSE}{correct_count}{RESET}", flush=True )
+  
+        pct_correct = correct_count/n_samples
+        stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
+        plt.figtext( 0.15, 0, stats, size=14, color="grey", style="normal" )
+  
+        plt.tight_layout()
+                  
+        if args.bar_chart_show_all=='True':
+          writer.add_figure('images___best_tile_level_probabs_matrix', fig, 0 )
+        
+        # save version to logs directory
+        now              = datetime.datetime.now()
+        
+        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_chart_images___best_tile_level_raw____probs"
+        fqn = f"{fqn[0:255]}.png"
+        fig.savefig(fqn)
+        
+        
+
+
+
+
+
+
+
             
 
-        # case image-2: PREDICTED - WINNER TAKE ALL probabilities
+      # case image-2: PREDICTED - WINNER TAKE ALL probabilities
         
         if DEBUG>88:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
@@ -2603,7 +2730,6 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
         pd_aggregate_tile_probabilities_matrix[ 'pred_class_idx'  ]  = pred_class_idx [0:upper_bound_of_indices_to_plot_image]   # possibly truncate rows  because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c MULTIMODE____TEST')
         pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ]  = true_class_prob[0:upper_bound_of_indices_to_plot_image]   # same
-        # ~ pd_aggregate_tile_probabilities_matrix.sort_values( by='max_agg_prob', ascending=False, ignore_index=True, inplace=True )
 
         if DEBUG>3:
           print ( f"\nCLASSI:         INFO:      pd_aggregate_tile_probabilities_matrix {CYAN}image{RESET} = \n{COTTON_CANDY}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True )    
@@ -2687,7 +2813,6 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         plt.xticks( rotation=90 )
         pd_aggregate_tile_probabilities_matrix[ 'pred_class_idx'  ]  = pred_class_idx                                        [0:upper_bound_of_indices_to_plot_image]   # possibly truncate rows  because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c MULTIMODE____TEST')
         pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ]  = true_class_prob                                       [0:upper_bound_of_indices_to_plot_image]   # same
-        # ~ pd_aggregate_tile_probabilities_matrix.sort_values( by='max_agg_prob', ascending=False, ignore_index=True, inplace=True )
         
         df = pd_aggregate_tile_probabilities_matrix
         
@@ -2808,7 +2933,6 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         pd_probabilities_matrix[ 'case_id'         ]  = rna_case_id                              [0:upper_bound_of_indices_to_plot_rna]    # same
         pd_probabilities_matrix[ 'pred_class_idx'  ]  = pred_class_idx                           [0:upper_bound_of_indices_to_plot_rna]    # possibly truncate rows  because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c MULTIMODE____TEST')
         pd_probabilities_matrix[ 'true_class_prob' ]  = true_class_prob                          [0:upper_bound_of_indices_to_plot_rna]    # same
-        # ~ pd_probabilities_matrix.sort_values( by='max_agg_prob', ascending=False, ignore_index=True, inplace=True )
  
         if DEBUG>0: ##################DON'T DELETE
           print ( "\033[20B" )
@@ -2967,7 +3091,6 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         plt.xticks( rotation=90 )
         pd_probabilities_matrix[ 'pred_class_idx'  ]  = pred_class_idx  [0:n_samples]                      # possibly truncate rows  because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c MULTIMODE____TEST')
         pd_probabilities_matrix[ 'true_class_prob' ]  = true_class_prob [0:n_samples]                      # same
-        # ~ pd_probabilities_matrix.sort_values( by='max_agg_prob', ascending=False, ignore_index=True, inplace=True )
 
         
         if bar_chart_x_labels=='case_id':
@@ -3710,7 +3833,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
                 print ( f"CLASSI:         INFO:      test:             grid_p_true_class.shape                                        = {BLEU}{grid_p_true_class.shape}{RESET}{CLEAR_LINE}"              )
                 print ( f"CLASSI:         INFO:      test:             grid_p_full_softmax_matrix.shape                               = {BLEU}{grid_p_full_softmax_matrix.shape}{RESET}{CLEAR_LINE}"     )
   
-            else:                                                                                                                              # ... accumulate for subsequent batches that will go into the same grid 
+            else:                                                                                                                     # ... accumulate for subsequent batches that will go into the same grid 
               grid_images                = np.append( grid_images,                batch_images.cpu().numpy(), axis=0 )
               grid_labels                = np.append( grid_labels,                image_labels.cpu().numpy(), axis=0 )
               grid_preds                 = np.append( grid_preds,                 preds,                      axis=0 )
@@ -3749,23 +3872,32 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
                   print ( f"{ASPARAGUS}CLASSI:         INFO:      test:             batch_fnames_npy                                               = {ASPARAGUS}{batch_fnames_npy}{RESET}" )
                   print ( f"{ASPARAGUS}CLASSI:         INFO:      test:             fq_link                                                        = {ASPARAGUS}{fq_link}{RESET}" )
 
-                patches_true_classes[index]                = image_labels.cpu().detach().numpy()[0]                                            # all tiles in a patch belong to the same case, so we can chose any of them - we choose the zero'th
-                patches_case_id     [index]                = batch_fnames_npy[0]                                                               # all tiles in a patch belong to the same case, so we can chose any of them - we choose the zero'th
-                grid_tile_probabs_totals_by_class          = np.transpose (np.expand_dims( grid_p_full_softmax_matrix.sum( axis=0 ), axis=1 )) # this is where we sum the totals across all tiles
-                binary_matrix                              = np.zeros_like (grid_p_full_softmax_matrix)                                        # new matrix same shape as grid_p_full_softmax_matrix, with all values set to zero
-                binary_matrix[ np.arange( len(grid_p_full_softmax_matrix)), grid_p_full_softmax_matrix.argmax(1) ] = 1                         # set the max value in each row to 1, all others left at zero
-                grid_tile_winners_totals_by_class          = np.transpose(np.expand_dims( binary_matrix.sum( axis=0 ), axis=1 ))               # same, but 'winner take all' at the tile level
-                aggregate_tile_probabilities_matrix[index] = grid_tile_probabs_totals_by_class
-                aggregate_tile_level_winners_matrix[index] = grid_tile_winners_totals_by_class + random.uniform( 0.001, 0.01)                  # necessary to make all the tile totals unique when we go looking for them later. ugly but it works
+                patches_true_classes[index]                = image_labels.cpu().detach().numpy()[0]                                                    # all tiles in a patch belong to the same case, so we can chose any of them - we choose the zero'th
+                patches_case_id     [index]                = batch_fnames_npy[0]                                                                       # all tiles in a patch belong to the same case, so we can chose any of them - we choose the zero'th
+                grid_tile_probabs_totals_by_class          = np.transpose (np.expand_dims( grid_p_full_softmax_matrix.sum( axis=0 ), axis=1 ))         # this is where we sum the totals across all tiles
 
-                if DEBUG>0:
+                grid_best_tile_probs_by_class              = np.transpose (np.expand_dims( grid_p_full_softmax_matrix.max( axis=0 ), axis=1 ))         # this is where we sum the totals across all tiles
+                grid_best_tile_probs_by_class += random.uniform( 0.0001, 0.001)
+                grid_best_tile_probs_by_class[ grid_best_tile_probs_by_class!=np.max(grid_best_tile_probs_by_class)] = 0.                              # only interested in the subtype with the  highest probability
+
+
+                binary_matrix                              = np.zeros_like (grid_p_full_softmax_matrix)                                                # new matrix same shape as grid_p_full_softmax_matrix, with all values set to zero
+                binary_matrix[ np.arange( len(grid_p_full_softmax_matrix)), grid_p_full_softmax_matrix.argmax(1) ] = 1                                 # set the max value in each row to 1, all others left at zero
+                grid_tile_winners_totals_by_class          = np.transpose(np.expand_dims( binary_matrix.sum( axis=0 ), axis=1 ))                       # same, but 'winner take all' at the tile level
+                aggregate_tile_probabilities_matrix[index] = grid_tile_probabs_totals_by_class
+                best_tile_probabilities_matrix[index]      = grid_best_tile_probs_by_class
+                aggregate_tile_level_winners_matrix[index] = grid_tile_winners_totals_by_class + random.uniform( 0.001, 0.01)                          # necessary to make all the tile totals unique when we go looking for them later. ugly but it works
+
+                if DEBUG>2:
                   np.set_printoptions(formatter={'float': lambda x:   "{:>6.2f}".format(x)})
                   print ( f"{ASPARAGUS}CLASSI:         INFO:      test:             aggregate_tile_probabilities_matrix[{ASPARAGUS}{index}{RESET}]                         = {BOLD}{ASPARAGUS}{aggregate_tile_probabilities_matrix[index]}{RESET}", flush=True  )
                   print ( f"{ASPARAGUS}CLASSI:         INFO:      test:             aggregate_tile_level_winners_matrix[{ASPARAGUS}{index}{RESET}]                         = {BOLD}{ASPARAGUS}{aggregate_tile_level_winners_matrix[index]}{RESET}",  flush=True  )
-                if DEBUG>2:
+                if DEBUG>0:
                   np.set_printoptions(formatter={'float': lambda x:   "{:>6.2f}".format(x)})
+                  print ( f"CLASSI:         INFO:      test:             grid_tile_probabs_totals_by_class{ASPARAGUS}{RESET}                              = \n{BOLD}{ASPARAGUS}{grid_tile_probabs_totals_by_class}{RESET}", flush=True  )
                   print ( f"CLASSI:         INFO:      test:             grid_p_full_softmax_matrix{ASPARAGUS}{RESET}                                     = \n{BOLD}{ASPARAGUS}{grid_p_full_softmax_matrix}{RESET}", flush=True  )
                   print ( f"CLASSI:         INFO:      test:             aggregate_tile_probabilities_matrix{ASPARAGUS}{RESET}                            = \n{BOLD}{ASPARAGUS}{aggregate_tile_probabilities_matrix}{RESET}", flush=True  )
+                  print ( f"CLASSI:         INFO:      test:             best_tile_probabilities_matrix{ASPARAGUS}{RESET}                                 = \n{BOLD}{ASPARAGUS}{best_tile_probabilities_matrix}{RESET}", flush=True  )
 
 
             global_batch_count+=1
