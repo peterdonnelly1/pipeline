@@ -5257,12 +5257,6 @@ def plot_scatter( args, writer, i, background_image, tile_size, image_labels, cl
     plt.imshow(img, aspect='auto')
 
   
-  # (4) add the legend
-
-  l=[]
-  for n in range (0, len(class_colours)):
-    l.append(mpatches.Patch(color=class_colours[n], linewidth=0))
-    fig.legend(l, class_names, loc='upper right', fontsize=10, facecolor='white') 
   
   
   # (5) add patch level truth value and prediction 
@@ -5277,7 +5271,7 @@ def plot_scatter( args, writer, i, background_image, tile_size, image_labels, cl
   t3=f"True subtype for the slide:"
   t4=f"{class_names[image_labels[idx]]}"
   t5=f"Predicted subtype for this patch:"
-  t6=f"{class_names[np.argmax(np.sum(grid_p_full_softmax_matrix, axis=0))]}"
+  t6=f"(by agg prob)  {class_names[np.argmax(np.sum(grid_p_full_softmax_matrix, axis=0))]}  (by best tile) {class_names[np.argmax(np.max(best_tile_probabilities_matrix, axis=0))]}"
   
   if total_tiles >=threshold_4:                    ## NOT OPTIMISED!  Need some more thresholds for values closer to theshold_3
     #          x     y
@@ -5285,38 +5279,57 @@ def plot_scatter( args, writer, i, background_image, tile_size, image_labels, cl
     ax.text(   0,  -1000, t3, size=10, ha="left",   color="black", style="normal" )
     ax.text( 4400, -1000, t4, size=10, ha="left",   color="black", style="italic" )
     ax.text(   0,  -700,  t5, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 4400, -700,  t6, size=10, ha="left",   color="black", style="italic" ) 
+    ax.text( 4400, -700,  t6, size=10, ha="left",   color="black", style="italic" )
+    loc='lower left'
+    bbox_to_anchor=(0.8, 0.77)  
   elif threshold_4>total_tiles>=threshold_3:       ## OPTIMISED
     ax.text(   0,  -180,  t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
     ax.text(   0,  -140,  t3, size=10, ha="left",   color="black", style="normal" )
     ax.text( 525,  -140,  t4, size=10, ha="left",   color="black", style="italic" )
     ax.text(   0,  -100,  t5, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 525,  -100,  t6, size=10, ha="left",   color="black", style="italic" )        
+    ax.text( 525,  -100,  t6, size=10, ha="left",   color="black", style="italic" ) 
+    loc='lower left'
+    bbox_to_anchor=(0.8, 0.77)        
   elif threshold_3>total_tiles>=threshold_2:       ## OPTIMISED
     ax.text(   0,  -180,  t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
     ax.text(   0,  -140,  t3, size=10, ha="left",   color="black", style="normal" )
     ax.text( 525,  -140,  t4, size=10, ha="left",   color="black", style="italic" )
     ax.text(   0,  -100,  t5, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 525,  -100,  t6, size=10, ha="left",   color="black", style="italic" )    
+    ax.text( 525,  -100,  t6, size=10, ha="left",   color="black", style="italic" )
+    loc='lower left'
+    bbox_to_anchor=(0.8, 0.77)     
   elif threshold_2>total_tiles>=threshold_1:       ## OPTIMISED
-    ax.text(   0,  -700,  t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
-    ax.text(   0,  -330,  t3, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 525,  -330,  t4, size=10, ha="left",   color="black", style="italic" )
-    ax.text(   0,  -300,  t5, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 525,  -300,  t6, size=10, ha="left",   color="black", style="italic" )    
+    ax.text(   0,  -58,  t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
+    ax.text(   0,  -47,  t3, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 170,  -47,  t4, size=10, ha="left",   color="black", style="italic" )
+    ax.text(   0,  -36,  t5, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 170,  -36,  t6, size=10, ha="left",   color="black", style="italic" )
+    loc='lower left'
+    bbox_to_anchor=(0.8, 0.77)          
   elif threshold_1>total_tiles>=threshold_0:      ## OPTIMISED
     ax.text(   0,  -62,   t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
     ax.text(   0,  -51,   t3, size=10, ha="left",   color="black", style="normal" )
     ax.text( 175,  -51,   t4, size=10, ha="left",   color="black", style="italic" )
     ax.text(   0,  -40,   t5, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 175,  -40,   t6, size=10, ha="left",   color="black", style="italic" )                   
-  else: # (< threshold0)                          ## OPTIMISED
+    ax.text( 175,  -40,   t6, size=10, ha="left",   color="black", style="italic" )
+    loc='lower left'
+    bbox_to_anchor=(0.8, 0.77)                 
+  else: # (< threshold_0)                          ## OPTIMISED
     ax.text(   0,  -32,   t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
     ax.text(   0,  -25,   t3, size=10, ha="left",   color="black", style="normal" )
     ax.text(  90,  -25,   t4, size=10, ha="left",   color="black", style="italic" )
     ax.text(   0,  -18,   t5, size=10, ha="left",   color="black", style="normal" )
-    ax.text(  90,  -18,   t6, size=10, ha="left",   color="black", style="italic" )    
+    ax.text(  90,  -18,   t6, size=10, ha="left",   color="black", style="italic" )
+    loc='lower left'
+    bbox_to_anchor=(0.8, 0.77)   
 
+
+  # (5) add the legend
+
+  l=[]
+  for n in range (0, len(class_colours)):
+    l.append(mpatches.Patch(color=class_colours[n], linewidth=0))
+    fig.legend(l, class_names, loc=loc, bbox_to_anchor=bbox_to_anchor,  fontsize=10, facecolor='white') 
 
 
   # (6) plot the points, organised to be at the centre of where the tiles would be on the background image, if it were tiled (the grid lines are on the tile borders)
