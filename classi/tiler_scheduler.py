@@ -217,7 +217,7 @@ def tiler_scheduler( args, r_norm, flag, slide_count, n_samples, n_tiles, top_up
                   
                   
                 if DEBUG>0:
-                  r = f'{RED}FAIL{RESET}' if result==0 else f'{GREEN}SUCCESS{RESET}' if result==1 else f'{ORANGE}INSUF_TILES{RESET}' if result==2 else f'{ORANGE}INSUF_QUALIFYING{RESET}' if result==3 else f'{RED}MISSING_IMAGE_FILE{RESET}' if result==4 else f'{GREEN}EXCLUDED_CLASS{RESET}' if result==5 else f'{RED}ERROR{RESET}'
+                  r = f'{RED}FAIL{RESET}' if result==0 else f'{GREEN}SUCCESS{RESET}' if result==1 else f'{ORANGE}INSUF_TILES{RESET}' if result==2 else f'{ORANGE}INSUF_QUALIFYING{RESET}' if result==3 else f'{RED}MISSING_IMAGE_FILE{RESET}' if result==4 else f'{BOLD_GREENBLUE}EXCLUDED_CLASS{RESET}' if result==5 else f'{RED}ERROR{RESET}'
                   print ( f"\033[{start_row+my_thread};{start_column+210}f{RESET}{CLEAR_LINE}{r} \033[{start_row+my_thread};{start_column+227}f{CLEAR_LINE}{RESET}total={MIKADO}{cumulative_tiles_processed:,}{RESET}", flush=True  )                
   
       if slides_processed>=my_expanded_slide_quota:
