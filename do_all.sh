@@ -32,6 +32,19 @@
 #    (b)  there can only be one specification of HIDDEN_LAYER_ENCODER_TOPOLOGY per job
 #
 #############################################################################################################################################################
+#
+# NOTE REGARDING STRONG SUPERVISION
+#
+# For strong supervision, each image will have its own truth label, so tiling is not required
+#
+# Use the convenience variable: STRONG_SUPERVISION='True'
+#
+# This will change --all_tiles_from_origin to 'True', '--ignore_tile_quality_hyperparameters' to 'True' and 'n_tiles' to 1 in classify.py.  
+#
+# Could achieve same effect the these flags separately, but it's easy to forget which ones to use
+#
+#############################################################################################################################################################
+
 
 export MKL_DEBUG_CPU_TYPE=5
 export KMP_WARNINGS=FALSE
@@ -44,13 +57,13 @@ JUST_PROFILE="False"                                                            
 DDP="False"                                                                                                # PRE_COMPRESS mode only: if "True", use PyTorch 'Distributed Data Parallel' to make use of multiple GPUs. (Works on single GPU machines, but is of no benefit and has additional overhead, so should be disabled)
 
 
-#~ MINIMUM_PERMITTED_GREYSCALE_RANGE=210                                                                      # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
-#~ MINIMUM_PERMITTED_UNIQUE_VALUES=210                                                                        # tile must have at least this many unique values or it will be assumed to be degenerate
-#~ MINIMUM_TILE_SD=2.1                                                                                        # Used to cull slides with a very reduced greyscale palette such as background tiles
+MINIMUM_PERMITTED_GREYSCALE_RANGE=210                                                                      # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
+MINIMUM_PERMITTED_UNIQUE_VALUES=210                                                                        # tile must have at least this many unique values or it will be assumed to be degenerate
+MINIMUM_TILE_SD=2.1                                                                                        # Used to cull slides with a very reduced greyscale palette such as background tiles
                                                                                                               #~ # Used to cull slides with a very reduced greyscale palette such as background tiles
-MINIMUM_PERMITTED_GREYSCALE_RANGE=180                                                                      # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
-MINIMUM_PERMITTED_UNIQUE_VALUES=180                                                                        # tile must have at least this many unique values or it will be assumed to be degenerate
-MINIMUM_TILE_SD=1.9                                                                                        # Used to cull slides with a very reduced greyscale palette such as background tiles
+#~ MINIMUM_PERMITTED_GREYSCALE_RANGE=180                                                                      # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
+#~ MINIMUM_PERMITTED_UNIQUE_VALUES=180                                                                        # tile must have at least this many unique values or it will be assumed to be degenerate
+#~ MINIMUM_TILE_SD=1.9                                                                                        # Used to cull slides with a very reduced greyscale palette such as background tiles
 
 #~ MINIMUM_PERMITTED_GREYSCALE_RANGE=1                                                                      # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
 #~ MINIMUM_PERMITTED_UNIQUE_VALUES=1                                                                        # tile must have at least this many unique values or it will be assumed to be degenerate
@@ -136,7 +149,7 @@ SKIP_IMAGE_PREPROCESSING="False"
 SKIP_RNA_PREPROCESSING="False"
 SKIP_TILING="False"                                                                                        # supported: any of the sklearn metrics
 SKIP_TRAINING="False"
-STRONG_SUPERVISION='False'                                                                                 # Convenience variable. all it does is change --all_tiles_from_origin to 'True', '--ignore_tile_quality_hyperparameters' to 'True' and 'n_tiles' to 1 in classify.py.  Could achieve same effect the these flags separately, but may also want to othe things with those flags.
+STRONG_SUPERVISION='True'                                                                                 # Convenience variable. all it does is change --all_tiles_from_origin to 'True', '--ignore_tile_quality_hyperparameters' to 'True' and 'n_tiles' to 1 in classify.py.  Could achieve same effect the these flags separately, but may also want to othe things with those flags.
 SUPERGRID_SIZE="2"
 TILES_PER_IMAGE="10"
 TILE_SIZE="64"

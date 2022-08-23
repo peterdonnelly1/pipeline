@@ -151,7 +151,7 @@ def tiler_scheduler( args, r_norm, flag, slide_count, n_samples, n_tiles, top_up
 
             else:                                                                                          # look for and use normal versions of the slides
                                                                                                            
-              if ( f.endswith( "svs" ) ) | ( f.endswith( "SVS" ) ) | ( f.endswith( "tif" ) ) | ( f.endswith( "tif" ) )  | ( f.endswith( "TIF" ) ) | ( f.endswith( "TIFF" ) ):
+              if ( ( f.endswith( 'svs' )) | ( f.endswith( 'SVS' )) | ( f.endswith( 'tif' )) | ( f.endswith( 'tiff' )) | ( f.endswith( 'TIF' )) | ( f.endswith( 'TIFF' )) | ( f.endswith( "jpg" ) ) | ( f.endswith( "jpeg" ) ) | ( f.endswith( "JPG" ) ) | ( f.endswith( "JPEG" ) ) ):
 
                 pqn = f"{d}/{f}"
 

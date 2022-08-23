@@ -539,7 +539,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
             IsDegenerate  = False
 
                 
-            if( args.just_test!='True' )  & ( args.ignore_tile_quality_hyperparameters!='True' ):          # If 'just_test' = True, all tiles must be accepted, otehrwise would wll be gaps in the patch
+            if( args.just_test!='True' )  & ( args.ignore_tile_quality_hyperparameters!='True' ):          # If 'just_test' = True, all tiles must be accepted, otherwise there would wll be gaps in the patch
 
 
               # decide by means of a heuristic whether the tile contains is background or else contains too much background

@@ -19,7 +19,7 @@ from PIL                import Image
 import matplotlib.pyplot as plt
 import matplotlib.image  as mpimg
 
-from tiler import *
+from tiler import tiler
 
 np.set_printoptions(edgeitems=500)
 np.set_printoptions(linewidth=200)

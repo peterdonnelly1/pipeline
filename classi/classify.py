@@ -217,22 +217,22 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   
   if ( args.input_mode=='image' ) & ( args.strong_supervision=='True' ):                                   # rna_seq is always strongly supervised, but for image mode, it doesn't have to be and for my experiments, usually isn't                                                                
 
-    all_tiles_from_origin='False'
-    ignore_tile_quality_hyperparameters='True'
-    args.n_tiles = [ 1 for el in args.n_tiles ]
-    args.make_balanced='False'
+    args.make_balanced                       ='False'
+    all_tiles_from_origin                    ='False'
+    args.ignore_tile_quality_hyperparameters ='True'
+    args.n_tiles                             = [ 1 for el in args.n_tiles ]
 
-    print( f"{BOLD_ORANGE}CLASSI:         INFO: config setting '{BOLD_CYAN}STRONG_SUPERVISION{RESET}{BOLD_ORANGE}'={BOLD_MIKADO}'True'{RESET}{BOLD_ORANGE} (corresponding to python argument '{BOLD_CYAN}--strong_supervision{RESET}{BOLD_ORANGE}'). \
+    print( f"{BOLD_GREENBLUE}CLASSI:         INFO: config setting '{BOLD_CYAN}STRONG_SUPERVISION{RESET}{BOLD_GREENBLUE}'={BOLD_MIKADO}'True'{RESET}{BOLD_GREENBLUE} (corresponding to python argument '{BOLD_CYAN}--strong_supervision{RESET}{BOLD_GREENBLUE}'). \
   Ensure this is intentional!{RESET}", flush=True)
-    print( f"{ORANGE}CLASSI:         INFO:   CONSEQUENTIALLY: config setting '{CYAN}TILES_PER_IMAGE{RESET}{ORANGE}'                     (corresponding to python argument '{CYAN}--n_tiles{RESET}{ORANGE}')                              \
-has been set to {RESET}{BOLD_MIKADO}1{RESET}{ORANGE}", flush=True)
-    print( f"{ORANGE}CLASSI:         INFO:   CONSEQUENTIALLY: config setting '{CYAN}ALL_TILES_FROM_ORIGIN{RESET}{ORANGE}'               (corresponding to python argument '{CYAN}--all_tiles_from_origin{RESET}{ORANGE}')                \
-has been set to {RESET}{BOLD_MIKADO}'True'{RESET}{ORANGE}", flush=True)
-    print( f"{ORANGE}CLASSI:         INFO:   CONSEQUENTIALLY: config setting '{CYAN}IGNORE_TILE_QUALITY_HYPERPARAMETERS{RESET}{ORANGE}' (corresponding to python argument '{CYAN}--ignore_tile_quality_hyperparameters{RESET}{ORANGE}')  \
-has been set to {RESET}{BOLD_MIKADO}'True'{RESET}{ORANGE}", flush=True)
-    print( f"{ORANGE}CLASSI:         INFO:   CONSEQUENTIALLY: config setting '{CYAN}MAKE_BALANCED{RESET}{ORANGE}'                       (corresponding to python argument '{CYAN}--make_balanced{RESET}{ORANGE}')                        \
-has been set to {RESET}{BOLD_MIKADO}'False'{RESET}{ORANGE} (the dataset balancing technique - drawing differing numbers of tiles from each subtype according to their relative proportions - is only valid for weak supervision){RESET}{ORANGE}", flush=True)
-    print( f"{ORANGE}CLASSI:         INFO: continuing...{RESET}", flush=True)
+    print( f"{GREENBLUE}CLASSI:         INFO:   CONSEQUENTIALLY: config setting '{CYAN}TILES_PER_IMAGE{RESET}{GREENBLUE}'                     (corresponding to python argument '{CYAN}--n_tiles{RESET}{GREENBLUE}')                              \
+has been set to {RESET}{BOLD_MIKADO}1{RESET}{GREENBLUE}", flush=True)
+    print( f"{GREENBLUE}CLASSI:         INFO:   CONSEQUENTIALLY: config setting '{CYAN}ALL_TILES_FROM_ORIGIN{RESET}{GREENBLUE}'               (corresponding to python argument '{CYAN}--all_tiles_from_origin{RESET}{GREENBLUE}')                \
+has been set to {RESET}{BOLD_MIKADO}'True'{RESET}{GREENBLUE}", flush=True)
+    print( f"{GREENBLUE}CLASSI:         INFO:   CONSEQUENTIALLY: config setting '{CYAN}IGNORE_TILE_QUALITY_HYPERPARAMETERS{RESET}{GREENBLUE}' (corresponding to python argument '{CYAN}--ignore_tile_quality_hyperparameters{RESET}{GREENBLUE}')  \
+has been set to {RESET}{BOLD_MIKADO}'True'{RESET}{GREENBLUE}", flush=True)
+    print( f"{GREENBLUE}CLASSI:         INFO:   CONSEQUENTIALLY: config setting '{CYAN}MAKE_BALANCED{RESET}{GREENBLUE}'                       (corresponding to python argument '{CYAN}--make_balanced{RESET}{GREENBLUE}')                        \
+has been set to {RESET}{BOLD_MIKADO}'False'{RESET}{GREENBLUE} (the dataset balancing technique - drawing differing numbers of tiles from each subtype according to their relative proportions - is only valid for weak supervision){RESET}{GREENBLUE}", flush=True)
+    print( f"{GREENBLUE}CLASSI:         INFO: continuing...{RESET}", flush=True)
     time.sleep(1)
 
   elif ( args.input_mode=='image' ):
@@ -581,10 +581,10 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
   
     if stain_norm[0]!='spcn':
       
-      # make sure there are enough samples available to cover the user's requested 'n_samples' - svs case
+      # make sure there are enough source images available to cover the user's requested 'n_samples'
     
       source_image_file_count = 0
-      has_image_flag_count   = 0
+      has_image_flag_count    = 0
     
       for dir_path, dirs, files in os.walk( args.data_dir ):                                               
     
@@ -592,7 +592,7 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
           
           for f in files:
            
-            if (   ( f.endswith( 'svs' ))  |  ( f.endswith( 'SVS' ))  | ( f.endswith( 'tif' ))  |  ( f.endswith( 'tiff' ))   ):
+            if is_supported_image_format( f ):
               source_image_file_count +=1
 
 
@@ -4325,6 +4325,12 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
 # ------------------------------------------------------------------------------
 # HELPER FUNCTIONS
 # ------------------------------------------------------------------------------
+def is_supported_image_format (f ):
+  
+  if ( ( f.endswith( 'svs' )) | ( f.endswith( 'SVS' )) | ( f.endswith( 'tif' )) | ( f.endswith( 'tiff' )) | ( f.endswith( 'TIF' )) | ( f.endswith( 'TIFF' )) | ( f.endswith( "jpg" ) ) | ( f.endswith( "jpeg" ) ) | ( f.endswith( "JPG" ) ) | ( f.endswith( "JPEG" ) ) ):
+    return True
+  else:
+    return False
 
 def determine_top_up_factors ( args, n_classes, class_names, n_tiles, case_designation_flag ):
 
@@ -4598,7 +4604,7 @@ def segment_cases( args, n_classes, class_names, n_tiles, pct_test ):
               g.write( f"this directory contains rna data" )
             g.close  
             rna_file  = f
-          if ( ( f.endswith( 'svs' ))  |  ( f.endswith( 'tif' ) )  |  ( f.endswith( 'tiff' ) )   ):
+          if is_supported_image_format(f):
             dir_also_has_image=True
             fqn = f"{dir_path}/HAS_IMAGE"
             has_image_count += 1
@@ -4790,7 +4796,7 @@ def segment_cases( args, n_classes, class_names, n_tiles, pct_test ):
     
     n=0 
     
-    while np.any( class_counts < 2 ):
+    while np.any( class_counts < 1 ):
 
       a = random.choice( range(  0,  1   ) )
       b = random.choice( range(  100,250 ) )
