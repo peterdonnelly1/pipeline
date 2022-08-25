@@ -1643,13 +1643,14 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
       if DEBUG>2:
         print( f"GENERATE:       INFO:   tiles processed in directory: \r\033[55C'{MAGENTA}{dir_path}{RESET}'  \r\033[130C= {MIKADO}{tiles_processed:<8d}{RESET}",        flush=True       )   
         
-      if args.just_test=='False':
+      if args.just_test!='True':
         if tiles_processed!=n_tiles:
           print( f"{CLEAR_LINE}{BOLD}{ORANGE}GENERATE:       INFO:   for directory: \r\033[55C'{MAGENTA}{dir_path}{RESET}{BOLD}{ORANGE}' \r\033[134Ctiles processed = {MIKADO}{tiles_processed:<8d}{BOLD}{ORANGE} instead of expected {MIKADO}{n_tiles}{RESET}{BOLD}{ORANGE}                   <<<<<<<<<<<< anomoly {RESET}", flush=True  )       
 
       directories_processed+=1
-      if DEBUG>8:
-        print( f"{CAMEL}GENERATE:       INFO:   directories_processed = {CAMEL}{directories_processed:<4d}{RESET}",  flush=True        )   
+      if DEBUG>2:
+        print( f"{CAMEL}GENERATE:       INFO:   {CYAN}cases_required{RESET}{CAMEL}        = {MIKADO}{cases_required:<4d}{RESET})",          flush=True        )  
+        print( f"{CAMEL}GENERATE:       INFO:   {CYAN}directories_processed{RESET}{CAMEL} = {MIKADO}{directories_processed:<4d}{RESET}",    flush=True        )   
       if directories_processed>=cases_required:
         sufficient_cases_found=True
         if DEBUG>0:

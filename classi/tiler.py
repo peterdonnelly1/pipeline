@@ -1,6 +1,6 @@
 """
 
-This routine performs tiling for exactly one SVS image
+This routine performs tiling for exactly one source image
 
 """
 
@@ -41,14 +41,13 @@ FG3="\033[38;5;100m"
 
 from constants  import *
 
-SUCCESS=1
-FAIL=0
-
-INSUFFICIENT_TILES=2
-INSUFFICIENT_QUALIFYING_TILES=3
-MISSING_IMAGE_FILE=4
-EXCLUDED_CLASS=5
-
+FAIL                          = 0
+SUCCESS                       = 1
+INSUFFICIENT_TILES            = 2
+INSUFFICIENT_QUALIFYING_TILES = 3
+MISSING_IMAGE_FILE            = 4
+EXCLUDED_CLASS                = 5
+CLASS_QUOTA_FILLED            = 6
 
 DEBUG=1
 
@@ -61,15 +60,16 @@ thread_to_monitor = 7
 
 
 
-def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob, d, f, my_thread, r ):
+def tiler( args, r_norm, n_tiles, stop_tiling, top_up_factors, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob, d, f, my_thread, r ):
+
+
+  start = time.time()
+
+  num_cpus = multiprocessing.cpu_count()
 
   if DEBUG>0:
     if n_tiles==0:
       print(f'{SAVE_CURSOR}{RESET}\033[87;0H{BOLD_RED}n_tiles==0.  This should not be possible{RESET}{RESTORE_CURSOR}', flush=True)
-                    
-  start = time.time()
-
-  num_cpus = multiprocessing.cpu_count()
   
   
   pid = os.getpid()
@@ -79,8 +79,8 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
   if DEBUG>1:
     print( f'{SAVE_CURSOR}{CLEAR_LINE}{RESET}\033[{my_thread};1H   my_thread {MIKADO}{my_thread:2d}{RESET}   status {MIKADO}{process.status()}{RESET}  affinity {MIKADO}{affinity}{RESET}  pid {MIKADO}{pid:>6d}{RESET}   memory use: {MIKADO}{100*memoryUse:3.1f}{RESET}%   {CLEAR_LINE}{RESTORE_CURSOR}')
   
-  # added this in Jun 2022 because my AMD computer started using only one of the 32 available CPUs
-  # apparently others have had this issue:see e.g. https://stackoverflow.com/questions/15639779/why-does-multiprocessing-use-only-a-single-core-after-i-import-numpy
+  # added this in Jun 2022 because my AMD computer started using only one of the 32 available CPUs & not sure why.
+  # apparently others have had this issue: see e.g. https://stackoverflow.com/questions/15639779/why-does-multiprocessing-use-only-a-single-core-after-i-import-numpy
   x = {i for i in range(num_cpus)}
   os.sched_setaffinity( pid, x)
   
@@ -115,7 +115,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
   ignore_tile_quality_hyperparameters = args.ignore_tile_quality_hyperparameters
 
   
-  zoom_out_prob[0]=1.-sum(zoom_out_prob[1:])                                                               # just in case. If they don't add up to 1.0, the program willcrash
+  zoom_out_prob[0]=1.-sum(zoom_out_prob[1:])                                                               # just in case. If the probabilities don't add up to 1.0, the program will crash
 
   
   # ~ if ( ( just_test=='True')  & ( multimode!='image_rna' ) ):  
@@ -151,6 +151,8 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
     
   # (1A) determine this slide's subtype (class)
   
+  subtype = -1
+    
   try:                                                                                                     # every tile has an associated label - the same label for every tile image in the directory
     label_file = f"{data_dir}/{d}/{args.class_numpy_file_name}"
     if DEBUG>0:
@@ -173,11 +175,16 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
         print ( f"{SAVE_CURSOR}{BOLD_RED}\033[76;71Hfqn= {fqn};  subtype={subtype}{CLEAR_LINE}{RESTORE_CURSOR}", flush=True )
 
   if subtype>args.highest_class_number:                                                                    # class number is too high - skip
-    return tiles_processed, EXCLUDED_CLASS
+    return -1, 0, EXCLUDED_CLASS
+
+  if stop_tiling[subtype]==0:                                                                              # have sufficient of this subtype
+    return -1, 0, CLASS_QUOTA_FILLED
+
+
 
   # (1B) increase n_tiles accordingly
 
-  if ( (make_balanced=='level_up') | (make_balanced=='level_down')  ):
+  if make_balanced=='level_up':
 
     if DEBUG>0:
       print ( f"\033[{start_row-9};0f{CLEAR_LINE}{BOLD}{ASPARAGUS}TILER:                          INFO:   base value of n_tiles         = {CYAN}{n_tiles}{RESET}                                                                      ",  end="" )
@@ -210,7 +217,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
   except Exception as e:
     if DEBUG>0:
       print(f"{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus-1};0H{BOLD_ORANGE}TILER_{FG3}{my_thread}:           WARNING: there was no slide file for this case !!! {BOLD_CYAN}{fqn}{RESET}{BOLD_ORANGE}  <---Skipping and moving to next case{RESET}{RESTORE_CURSOR}", flush=True)
-    return tiles_processed, MISSING_IMAGE_FILE
+    return subtype, tiles_processed, MISSING_IMAGE_FILE
 
   level            = 0
   tile_size_40X    = 2100;        
@@ -230,7 +237,7 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
 
   if potential_tiles<n_tiles:
     print( f"{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus};0H{BOLD_ORANGE}TILER_{FG3}: WARNING: requested tiles (n_tiles) = {CYAN}{n_tiles:,}{RESET}{ORANGE} but only {RESET}{CYAN}{potential_tiles:,}{RESET}{ORANGE} possible. Slide will be skipped. ({CYAN}{fqn}{RESET}{ORANGE}){RESET}{RESTORE_CURSOR}", flush=True)
-    return tiles_processed, INSUFFICIENT_TILES
+    return subtype, tiles_processed, INSUFFICIENT_TILES
 
 
   if openslide.PROPERTY_NAME_VENDOR in oslide.properties:
@@ -408,11 +415,11 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
                 if already_displayed==False:
                   print(f'{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus+3};0H{BOLD_ORANGE}TILER_{FG3}: WARNING: have covered the entire slide and there are not enough tiles that meet the quality criteria. (At coords {CYAN}{x},{y}{RESET}) with {CYAN}{tiles_processed}{RESET}) -- skipping {CYAN}{fqn}{RESET}{RESTORE_CURSOR}', flush=True)
                   already_displayed=True
-                  return tiles_processed, INSUFFICIENT_QUALIFYING_TILES
+                  return subtype, tiles_processed, INSUFFICIENT_QUALIFYING_TILES
               else:
                 if ( ( just_test!='True' ) | ( multimode=='image_rna') ):
                   print(f'{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus+3};0H{BOLD_ORANGE}TILER_{FG3}: WARNING: have covered the entire slide and there are not enough tiles that meet the quality criteria. (At coords {CYAN}{x},{y}{RESET}) with {CYAN}{tiles_processed}{RESET}) -- skipping {CYAN}{fqn}{RESET}{RESTORE_CURSOR}', flush=True)
-                  return tiles_processed, INSUFFICIENT_QUALIFYING_TILES
+                  return subtype, tiles_processed, INSUFFICIENT_QUALIFYING_TILES
               
             if x + tile_width > width:
                 pass
@@ -675,8 +682,8 @@ def tiler( args, r_norm, n_tiles, top_up_factors, tile_size, batch_size, stain_n
     # ~ print ( "TILER: INFO: about to display the \033[33;1m{:,}\033[m tiles".format    ( tiles_processed   ) )
     # ~ result = display_processed_tiles( data_dir, DEBUG )
 
-    
-  return tiles_processed, SUCCESS
+
+  return subtype, tiles_processed, SUCCESS
 
 # ------------------------------------------------------------------------------
 # HELPER FUNCTIONS

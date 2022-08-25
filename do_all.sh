@@ -117,8 +117,8 @@ JUST_CLUSTER="False"
 JUST_TEST="False"
 LABEL_SWAP_PCT=0                                                                                           # (no getopts option) Swap this percentage of truth labels to random. Used for testing.
 LEARNING_RATE=".0001"
-#~ MAKE_BALANCED="level_down"
-MAKE_BALANCED="NONE"
+MAKE_BALANCED="level_down"
+#~ MAKE_BALANCED="NONE"
 MAKE_BALANCED_MARGIN=20                                                                                    # (Percentage). If MAKE_BALANCED="level_down", allw the subtype with the most slides to have this many % more tiles than the subtype with the least number of tiles
 MAKE_GREY_PCT="0.0"                                                                                        # (no getopts option) Proportion of tiles to convert to greyscale. Use to check effect of color on learning. 
 METRIC="manhattan"                                                                                         

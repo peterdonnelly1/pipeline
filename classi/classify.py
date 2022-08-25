@@ -217,7 +217,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   
   if ( args.input_mode=='image' ) & ( args.strong_supervision=='True' ):                                   # rna_seq is always strongly supervised, but for image mode, it doesn't have to be and for my experiments, usually isn't                                                                
 
-    args.make_balanced                       ='False'
+    # ~ args.make_balanced                       ='level_down'
     all_tiles_from_origin                    ='False'
     args.ignore_tile_quality_hyperparameters ='True'
     args.n_tiles                             = [ 1 for el in args.n_tiles ]
@@ -1421,35 +1421,35 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
               if (  args.cases == 'UNIMODE_CASE' ):
                 
                 flag  = 'UNIMODE_CASE____IMAGE_TEST'
-                total_slides_counted_test, total_tiles_required_test, top_up_factors_test  = determine_top_up_factors ( args, n_classes, class_names, n_tiles, flag )
+                total_slides_counted_test, tiles_needed_per_subtype_test, total_tiles_required_test, top_up_factors_test  = determine_top_up_factors ( args, n_classes, class_names, n_tiles, flag )
 
                 if DEBUG>3:
                   print( f"{SAVE_CURSOR}\r\033[{num_cpus}B{WHITE}CLASSI:         INFO: about to call tiler_threader with flag = {BLEU}{flag}{RESET}; total_slides_counted_test = {MIKADO}{total_slides_counted_test:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles = {MIKADO}{n_tiles}{RESET}{RESTORE_CURSOR}", flush=True )
 
-                slides_tiled_count = tiler_threader( args, flag, total_slides_counted_test, n_samples, n_tiles, top_up_factors_test, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob  )
+                slides_tiled_count = tiler_threader( args, flag, total_slides_counted_test, tiles_needed_per_subtype_test, n_classes, n_samples, n_tiles, top_up_factors_test, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob  )
 
               if (  args.cases == 'MULTIMODE____TEST' ):
                 
                 flag  = 'MULTIMODE____TEST'
-                total_slides_counted_test, total_tiles_required_test, top_up_factors_test  = determine_top_up_factors ( args, n_classes, class_names, n_tiles, flag )
+                total_slides_counted_test, tiles_needed_per_subtype_test, total_tiles_required_test, top_up_factors_test  = determine_top_up_factors ( args, n_classes, class_names, n_tiles, flag )
                 count = cases_reserved_for_image_rna
 
                 if DEBUG>3:
                   print( f"{SAVE_CURSOR}\r\033[{num_cpus}B{WHITE}CLASSI:         INFO: about to call tiler_threader with flag = {BLEU}{flag}{RESET}; count = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles = {MIKADO}{n_tiles}{RESET}{RESTORE_CURSOR}", flush=True )
 
-                slides_tiled_count = tiler_threader( args, flag, total_slides_counted_test, n_samples, n_tiles, top_up_factors_test, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob  )
+                slides_tiled_count = tiler_threader( args, flag, total_slides_counted_test, tiles_needed_per_subtype_test, n_classes, n_samples, n_tiles, top_up_factors_test, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob  )
 
               if (  args.cases == 'ALL_ELIGIBLE_CASES' ):
                 
                 slides_to_be_tiled = n_samples
   
                 flag  = 'HAS_IMAGE'
-                total_slides_counted_test, total_tiles_required_test, top_up_factors_test  = determine_top_up_factors ( args, n_classes, class_names, n_tiles, flag )
+                total_slides_counted_test, tiles_needed_per_subtype_test, total_tiles_required_test, top_up_factors_test  = determine_top_up_factors ( args, n_classes, class_names, n_tiles, flag )
               
                 if DEBUG>3:
                   print( f"{SAVE_CURSOR}\r\033[{num_cpus+1}B{WHITE}CLASSI:         INFO: about to call tiler_threader with flag = {BLEU}{flag}{RESET}; slides_to_be_tiled = {MIKADO}{slides_to_be_tiled:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
 
-                slides_tiled_count = tiler_threader( args, flag, slides_to_be_tiled, n_samples, n_tiles_max, top_up_factors_test, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob  )               # we tile the largest number of samples & tiles that is required for any run within the job
+                slides_tiled_count = tiler_threader( args, flag, slides_to_be_tiled, tiles_needed_per_subtype_test, n_classes, n_samples, n_tiles_max, top_up_factors_test, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob  )               # we tile the largest number of samples & tiles that is required for any run within the job
 
 
           else:
@@ -1465,11 +1465,11 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
                 pass
 
               flag  = 'HAS_IMAGE'
-              total_slides_counted_train, total_tiles_required_train, top_up_factors_train  = determine_top_up_factors ( args, n_classes, class_names, n_tiles, flag )
+              total_slides_counted_train, tiles_needed_per_subtype_train, total_tiles_required_train, top_up_factors_train  = determine_top_up_factors ( args, n_classes, class_names, n_tiles, flag )
                      
               if DEBUG>3:
                 print( f"{SAVE_CURSOR}\r\033[{num_cpus+1}B{WHITE}CLASSI:         INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; slides_to_be_tiled = {MIKADO}{slides_to_be_tiled:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
-              slides_tiled_count = tiler_threader( args, flag, slides_to_be_tiled, n_samples, n_tiles_max, top_up_factors_train, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob  )               # we tile the largest number of samples & tiles that is required for any run within the job
+              slides_tiled_count = tiler_threader( args, flag, slides_to_be_tiled, tiles_needed_per_subtype_train, n_classes, n_samples, n_tiles_max, top_up_factors_train, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob  )               # we tile the largest number of samples & tiles that is required for any run within the job
 
               
             if (  args.cases == 'UNIMODE_CASE' ):
@@ -1481,7 +1481,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
                 pass
 
               flag  = 'UNIMODE_CASE____IMAGE'
-              total_slides_counted_train, total_tiles_required_train, top_up_factors_train  = determine_top_up_factors ( args, n_classes, class_names, n_tiles, flag )
+              total_slides_counted_train, tiles_needed_per_subtype_train, total_tiles_required_train, top_up_factors_train  = determine_top_up_factors ( args, n_classes, class_names, n_tiles, flag )
               
               # ~ if DEBUG>0:
                 # ~ if n_tiles==0:
@@ -1493,15 +1493,15 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
                 np.set_printoptions(formatter={'float': lambda x: "{:>.2f}".format(x)})
                 print( f"\r{WHITE}CLASSI:         INFO: about to call {MAGENTA}tiler_threader{RESET}: flag={CYAN}{flag}{RESET}; train_count={MIKADO}{total_slides_counted_train:3d}{RESET}; top_up_factors_train  = {MIKADO}{top_up_factors_train}{RESET}; %_test={MIKADO}{pct_test:2.2f}{RESET}; n_samples={MIKADO}{n_samples_max:3d}{RESET}; n_tiles={MIKADO}{n_tiles_max}{RESET}", flush=True )
 
-              slides_tiled_count = tiler_threader( args, flag, total_slides_counted_train, n_samples, n_tiles_max, top_up_factors_train, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob  )               # we tile the largest number of samples & tiles that is required for any run within the job
+              slides_tiled_count = tiler_threader( args, flag, total_slides_counted_train, tiles_needed_per_subtype_train, n_classes, n_samples, n_tiles_max, top_up_factors_train, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob  )               # we tile the largest number of samples & tiles that is required for any run within the job
 
               flag  = 'UNIMODE_CASE____IMAGE_TEST'
-              total_slides_counted_test, total_tiles_required_test, top_up_factors_test  = determine_top_up_factors ( args, n_classes, class_names, n_tiles, flag )
+              total_slides_counted_test, tiles_needed_per_subtype_test, total_tiles_required_test, top_up_factors_test  = determine_top_up_factors ( args, n_classes, class_names, n_tiles, flag )
 
               if DEBUG>0:
                 np.set_printoptions(formatter={'float': lambda x: "{:>.2f}".format(x)})
                 print( f"\r{WHITE}CLASSI:         INFO: about to call {MAGENTA}tiler_threader{RESET}: flag={BLEU}{flag}{RESET}; test_count={PINK}{total_slides_counted_test:3d}{RESET}; top_up_factors_test  = {PINK}{top_up_factors_test}{RESET}; %_test={PINK}{pct_test:2.2f}{RESET}; n_samples={PINK}{n_samples_max:3d}{RESET}; n_tiles={PINK}{n_tiles_max}{RESET}", flush=True )
-              slides_tiled_count = tiler_threader( args, flag, total_slides_counted_test, n_samples, n_tiles_max, top_up_factors_train, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob  )               # we tile the largest number of samples & tiles that is required for any run within the job
+              slides_tiled_count = tiler_threader( args, flag, total_slides_counted_test, tiles_needed_per_subtype_test, n_classes, n_samples, n_tiles_max, top_up_factors_train, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob  )               # we tile the largest number of samples & tiles that is required for any run within the job
               
 
           if just_profile=='True':                                                                         # then we are all done
@@ -4327,10 +4327,13 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
 # ------------------------------------------------------------------------------
 def is_supported_image_format (f ):
   
-  if ( ( f.endswith( 'svs' )) | ( f.endswith( 'SVS' )) | ( f.endswith( 'tif' )) | ( f.endswith( 'tiff' )) | ( f.endswith( 'TIF' )) | ( f.endswith( 'TIFF' )) | ( f.endswith( "jpg" ) ) | ( f.endswith( "jpeg" ) ) | ( f.endswith( "JPG" ) ) | ( f.endswith( "JPEG" ) ) ):
+  if ( ( f.endswith( 'svs' )) | ( f.endswith( 'SVS' )) | ( f.endswith( "jpg" ) ) | ( f.endswith( "jpeg" ) ) | ( f.endswith( "JPG" ) ) | ( f.endswith( "JPEG" ) ) ):
     return True
   else:
     return False
+    
+# ---------------------------------------------------------------------------------------------------------
+    
 
 def determine_top_up_factors ( args, n_classes, class_names, n_tiles, case_designation_flag ):
 
@@ -4345,11 +4348,12 @@ def determine_top_up_factors ( args, n_classes, class_names, n_tiles, case_desig
     leader = "CLASSI: (level down info)      "
         
   class_counts = determine_class_counts ( args, n_classes, class_names, n_tiles, case_designation_flag )
+  num_classes = len(class_counts)
   
   if (args.make_balanced!='level_up') & (args.make_balanced!='level_down'):                                                                       # cater for the default case
 
     total_slides_counted     = np.sum(class_counts)  
-    top_up_factors           = np.ones(len(class_names) )                                                  # top_up_factors are all 1 if we aren't going to balance the dataset
+    top_up_factors           = np.ones(num_classes)                                                        # top_up_factors are all 1 if we aren't going to balance the dataset
     tiles_needed_per_example = n_tiles
     total_tiles_required     = total_slides_counted * n_tiles
                                
@@ -4429,9 +4433,14 @@ def determine_top_up_factors ( args, n_classes, class_names, n_tiles, case_desig
     tiles_needed_per_example = np.array( [ el if el!=0 else 1 for el in tiles_needed_per_example ] )
     # ~ tiles_needed_per_example = tiles_needed_per_example + 1                                        # add one extra tile to be safe 
 
-      
-    tiles_needed_per_subtype = tiles_needed_per_example * class_counts
-    total_tiles_required     = np.sum(tiles_needed_per_subtype)
+
+
+    if args.make_balanced=='level_up':
+      tiles_needed_per_subtype = tiles_needed_per_example * class_counts
+      total_tiles_required     = np.sum(tiles_needed_per_subtype)
+    if args.make_balanced=='level_down':
+      tiles_needed_per_subtype = tiles_needed_per_example * np.min(class_counts)
+      total_tiles_required     = num_classes              * np.min(class_counts)
   
   
     if DEBUG>0:
@@ -4439,10 +4448,10 @@ def determine_top_up_factors ( args, n_classes, class_names, n_tiles, case_desig
       print( f"\033[{row+5};{col}f{CLEAR_LINE}{leader}top up factors               = {colour}{top_up_factors}{RESET}",                                 flush=True  )
       np.set_printoptions(formatter={'int':   lambda x: "{:>6d}".format(x)})
       print( f"\033[{row+6};{col}f{CLEAR_LINE}{leader}tiles_needed_per_{BOLD}example{RESET}     = {colour}{tiles_needed_per_example}{RESET}", flush=True  )
-      print( f"\033[{row+7};{col}f{CLEAR_LINE}{leader}tiles_needed_per_{BOLD}subtype{colour}     = {colour}{tiles_needed_per_subtype}{RESET}",        flush=True  )
-      print( f"\033[{row+8};{col}f{CLEAR_LINE}{leader}total_tiles_required         = {colour}{total_tiles_required:,}{RESET}",                        flush=True  )
+      print( f"\033[{row+7};{col}f{CLEAR_LINE}{leader}tiles_needed_per_{BOLD}subtype{RESET}     = {colour}{tiles_needed_per_subtype}{RESET}",        flush=True  )
+      print( f"\033[{row+8};{col}f{CLEAR_LINE}{leader}total_tiles_required{RESET}         =    {colour}{total_tiles_required:,}{RESET}",                        flush=True  )
 
-  return total_slides_counted, total_tiles_required, top_up_factors
+  return total_slides_counted, tiles_needed_per_subtype, total_tiles_required, top_up_factors
 
 
 # ---------------------------------------------------------------------------------------------------------
