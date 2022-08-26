@@ -177,8 +177,9 @@ def tiler( args, r_norm, n_tiles, stop_tiling, top_up_factors, tile_size, batch_
   if subtype>args.highest_class_number:                                                                    # class number is too high - skip
     return -1, 0, EXCLUDED_CLASS
 
-  if stop_tiling[subtype]==0:                                                                              # have sufficient of this subtype
-    return -1, 0, CLASS_QUOTA_FILLED
+  if args.make_balanced=='level_down':
+    if stop_tiling[subtype]==0:                                                                              # have sufficient of this subtype
+      return -1, 0, CLASS_QUOTA_FILLED
 
 
 
