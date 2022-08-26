@@ -111,7 +111,7 @@ def tiler( args, r_norm, n_tiles, stop_tiling, top_up_factors, tile_size, batch_
   points_to_sample       = args.points_to_sample                                                           # In support of culling slides using 'min_tile_sd', how many points to sample on a tile when making determination
   supergrid_size         = args.supergrid_size
   scattergram            = args.scattergram
-  all_tiles_from_origin  = args.all_tiles_from_origin
+  extract_from_centre    = args.extract_from_centre
   ignore_tile_quality_hyperparameters = args.ignore_tile_quality_hyperparameters
 
   
@@ -490,9 +490,10 @@ def tiler( args, r_norm, n_tiles, stop_tiling, top_up_factors, tile_size, batch_
             
             new_width = int(multiplier * optical_mag_adjustment_factor * tile_width_x)     
 
-            if ( all_tiles_from_origin=='True'  ):
-              extraction_x_coord=0
-              extraction_y_coord=0            
+            if ( extract_from_centre=='True'  ):
+              centre = int(new_width/2)
+              extraction_x_coord=centre
+              extraction_y_coord=centre            
                                          
             tile = oslide.read_region( (extraction_x_coord,  extraction_y_coord),  level, (new_width, new_width))       # extract an area from the slide of size determined by the result returned by choose_mag_level
  

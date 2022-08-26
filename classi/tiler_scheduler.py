@@ -47,7 +47,6 @@ def tiler_scheduler( args, r_norm, case_subset_flag_file, slide_count, tiles_nee
   rna_file_suffix         = args.rna_file_suffix  
   just_test               = args.just_test
   multimode               = args.multimode
-  all_tiles_from_origin   = args.all_tiles_from_origin
   
   
   walker = os.walk( data_dir, topdown=True )

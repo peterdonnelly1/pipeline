@@ -39,7 +39,7 @@
 #
 # Use the convenience variable: STRONG_SUPERVISION='True'
 #
-# This will change --all_tiles_from_origin to 'True', '--ignore_tile_quality_hyperparameters' to 'True' and 'n_tiles' to 1 in classify.py.  
+# This will change --extract_from_centre to 'True', '--ignore_tile_quality_hyperparameters' to 'True' and 'n_tiles' to 1 in classify.py.  
 #
 # Could achieve same effect the these flags separately, but it's easy to forget which ones to use
 #
@@ -78,7 +78,7 @@ BAR_CHART_SHOW_ALL="False"
 RENDER_CLUSTERING="True"
 BOX_PLOT="True"                                                                                            # If true, do a Seaborn box plot for the job (one box plot is generated per 'job', not per 'run')
 BOX_PLOT_SHOW="False"                                                                                      # If true, present the graphic using pyplot
-MAX_CONSECUTIVE_LOSSES=3                                                                                   # training will stop after this many consecutive losses, regardless of nthe value of N_EPOCHS
+MAX_CONSECUTIVE_LOSSES=10                                                                                   # training will stop after this many consecutive losses, regardless of nthe value of N_EPOCHS
 
 #~ ZOOM_OUT_MAGS="0.125 0.25  0.5  0.75  1.0   2.0   4.0  8.0"                                             # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_PROB
 #~ ZOOM_OUT_PROB="0.1   0.1   0.1  0.15  0.2   0.15  0.1  0.1"    
@@ -98,7 +98,7 @@ CLASS_COLOURS="darkorange       lime      olive      firebrick     dodgerblue   
 
 
 AE_ADD_NOISE="False"
-ALL_TILES_FROM_ORIGIN="False"                                                                              # used when you don't want to tile (e.g. strongly supervised dataset where you want to use the whole image).
+EXTRACT_FROM_CENTRE="False"                                                                              # used when you don't want to tile (e.g. strongly supervised dataset where you want to use the whole image).
 BATCH_SIZE="42"
 BATCH_SIZE_TEST="36"
 CASES="ALL_ELIGIBLE_CASES"                                                                                 # DON'T CHANGE THIS DEFAULT. OTHER VALUES GENERATE AND LEAVE FLAGS IN PLACE WHICH CAN CAUSE CONFUSION IF FORGOTTEN ABOUT!
@@ -149,7 +149,7 @@ SKIP_IMAGE_PREPROCESSING="False"
 SKIP_RNA_PREPROCESSING="False"
 SKIP_TILING="False"                                                                                        # supported: any of the sklearn metrics
 SKIP_TRAINING="False"
-STRONG_SUPERVISION='True'                                                                                 # Convenience variable. all it does is change --all_tiles_from_origin to 'True', '--ignore_tile_quality_hyperparameters' to 'True' and 'n_tiles' to 1 in classify.py.  Could achieve same effect the these flags separately, but may also want to othe things with those flags.
+STRONG_SUPERVISION='True'                                                                                 # Convenience variable. all it does is change --extract_from_centre to 'True', '--ignore_tile_quality_hyperparameters' to 'True' and 'n_tiles' to 1 in classify.py.  Could achieve same effect the these flags separately, but may also want to othe things with those flags.
 SUPERGRID_SIZE="2"
 TILES_PER_IMAGE="10"
 TILE_SIZE="64"
@@ -470,7 +470,7 @@ CUDA_LAUNCH_BLOCKING=1 python ${MAIN_APPLICATION_NAME} \
 --encoder_activation ${ENCODER_ACTIVATION} --optimizer ${NN_OPTIMIZER} --n_samples ${N_SAMPLES} --pct_test ${PCT_TEST} --n_tests ${N_TESTS} --final_test_batch_size ${FINAL_TEST_BATCH_SIZE} \
 --gene_data_norm ${GENE_DATA_NORM} --gene_data_transform ${GENE_DATA_TRANSFORM} --embedding_dimensions ${EMBEDDING_DIMENSIONS} --hidden_layer_neurons ${HIDDEN_LAYER_NEURONS} --hidden_layer_encoder_topology ${HIDDEN_LAYER_ENCODER_TOPOLOGY} \
 --cancer_type ${CANCER_TYPE} --cancer_type_long ${CANCER_TYPE_LONG} --class_names ${CLASS_NAMES} --long_class_names ${LONG_CLASS_NAMES} --class_colours ${CLASS_COLOURS} --colour_map ${COLOUR_MAP} \
---n_tiles ${TILES_PER_IMAGE} --make_balanced ${MAKE_BALANCED} --make_balanced_margin ${MAKE_BALANCED_MARGIN} --rand_tiles ${RANDOM_TILES} --tile_size ${TILE_SIZE} --all_tiles_from_origin ${ALL_TILES_FROM_ORIGIN} --zoom_out_mags ${ZOOM_OUT_MAGS} --zoom_out_prob ${ZOOM_OUT_PROB} \
+--n_tiles ${TILES_PER_IMAGE} --make_balanced ${MAKE_BALANCED} --make_balanced_margin ${MAKE_BALANCED_MARGIN} --rand_tiles ${RANDOM_TILES} --tile_size ${TILE_SIZE} --extract_from_centre ${EXTRACT_FROM_CENTRE} --zoom_out_mags ${ZOOM_OUT_MAGS} --zoom_out_prob ${ZOOM_OUT_PROB} \
 --n_epochs ${N_EPOCHS} --n_iterations ${N_ITERATIONS} --batch_size ${BATCH_SIZE} --learning_rate ${LEARNING_RATE} \
 --latent_dim ${LATENT_DIM} --max_consecutive_losses ${MAX_CONSECUTIVE_LOSSES} --min_uniques ${MINIMUM_PERMITTED_UNIQUE_VALUES} --ignore_tile_quality_hyperparameters ${IGNORE_TILE_QUALITY_HYPERPARAMETERS} \
 --greyness ${MINIMUM_PERMITTED_GREYSCALE_RANGE} --make_grey_perunit ${MAKE_GREY_PCT}  --peer_noise_perunit ${PEER_NOISE_PCT} --label_swap_pct ${LABEL_SWAP_PCT} \

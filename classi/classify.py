@@ -218,7 +218,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   if ( args.input_mode=='image' ) & ( args.strong_supervision=='True' ):                                   # rna_seq is always strongly supervised, but for image mode, it doesn't have to be and for my experiments, usually isn't                                                                
 
     # ~ args.make_balanced                       ='level_down'
-    all_tiles_from_origin                    ='False'
+    extract_from_centre                      ='True'
+    args.extract_from_centre                 ='True'
+    ignore_tile_quality_hyperparameters      ='True'
     args.ignore_tile_quality_hyperparameters ='True'
     args.n_tiles                             = [ 1 for el in args.n_tiles ]
 
@@ -226,7 +228,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   Ensure this is intentional!{RESET}", flush=True)
     print( f"{GREENBLUE}CLASSI:         INFO:   CONSEQUENTIALLY: config setting '{CYAN}TILES_PER_IMAGE{RESET}{GREENBLUE}'                     (corresponding to python argument '{CYAN}--n_tiles{RESET}{GREENBLUE}')                              \
 has been set to {RESET}{BOLD_MIKADO}1{RESET}{GREENBLUE}", flush=True)
-    print( f"{GREENBLUE}CLASSI:         INFO:   CONSEQUENTIALLY: config setting '{CYAN}ALL_TILES_FROM_ORIGIN{RESET}{GREENBLUE}'               (corresponding to python argument '{CYAN}--all_tiles_from_origin{RESET}{GREENBLUE}')                \
+    print( f"{GREENBLUE}CLASSI:         INFO:   CONSEQUENTIALLY: config setting '{CYAN}EXTRACT_FROM_CENTRE{RESET}{GREENBLUE}'                 (corresponding to python argument '{CYAN}--extract_from_centre{RESET}{GREENBLUE}')                  \
 has been set to {RESET}{BOLD_MIKADO}'True'{RESET}{GREENBLUE}", flush=True)
     print( f"{GREENBLUE}CLASSI:         INFO:   CONSEQUENTIALLY: config setting '{CYAN}IGNORE_TILE_QUALITY_HYPERPARAMETERS{RESET}{GREENBLUE}' (corresponding to python argument '{CYAN}--ignore_tile_quality_hyperparameters{RESET}{GREENBLUE}')  \
 has been set to {RESET}{BOLD_MIKADO}'True'{RESET}{GREENBLUE}", flush=True)
@@ -236,8 +238,8 @@ has been set to {RESET}{BOLD_MIKADO}'False'{RESET}{GREENBLUE} (the dataset balan
     time.sleep(1)
 
   elif ( args.input_mode=='image' ):
-    if args.all_tiles_from_origin=='True':
-      print( f"{BOLD_ORANGE}CLASSI:         INFO: config setting '{BOLD_CYAN}ALL_TILES_FROM_ORIGIN{RESET}={BOLD_MIKADO}'True'{RESET}{BOLD_ORANGE}'               (corresponding to python argument '{BOLD_CYAN}--all_tiles_from_origin{RESET}{BOLD_ORANGE}')               \
+    if args.extract_from_centre=='True':
+      print( f"{BOLD_ORANGE}CLASSI:         INFO: config setting '{BOLD_CYAN}EXTRACT_FROM_CENTRE{RESET}={BOLD_MIKADO}'True'{RESET}{BOLD_ORANGE}'                 (corresponding to python argument '{BOLD_CYAN}--extract_from_centre{RESET}{BOLD_ORANGE}')               \
   Ensure this is intentional.{RESET}", flush=True)
     if args.ignore_tile_quality_hyperparameters=='True':
       print( f"{BOLD_ORANGE}CLASSI:         INFO: config setting '{BOLD_CYAN}IGNORE_TILE_QUALITY_HYPERPARAMETERS{RESET}={BOLD_MIKADO}'True'{RESET}{BOLD_ORANGE}' (corresponding to python argument '{BOLD_CYAN}--ignore_tile_quality_hyperparameters{RESET}{BOLD_ORANGE}') \
@@ -282,7 +284,7 @@ has been set to {RESET}{BOLD_MIKADO}'False'{RESET}{GREENBLUE} (the dataset balan
   nn_optimizer                  = args.optimizer
   n_samples                     = args.n_samples
   n_tiles                       = args.n_tiles
-  all_tiles_from_origin         = args.all_tiles_from_origin
+  extract_from_centre         = args.extract_from_centre
   make_balanced                 = args.make_balanced
   make_balanced_margin          = args.make_balanced_margin
   n_iterations                  = args.n_iterations
@@ -616,7 +618,7 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
       if just_test != True:
         if source_image_file_count<np.max(args.n_samples):
           print( f"{BOLD_ORANGE}CLASSI:         WARNG: there aren't enough samples. A file count reveals a total of {MIKADO}{source_image_file_count}{RESET}{BOLD_ORANGE} source image files (SVS or TIF or JPEG) files in {MAGENTA}{args.data_dir}{RESET}{BOLD_ORANGE}, whereas the largest value in user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{BOLD_ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
-          print( f"{ORANGE}CLASSI:         WARNG:   changing values of '{BOLD_CYAN  }N_SAMPLES[]{RESET}{ORANGE} that are greater than {RESET}{BOLD_MIKADO}{source_image_file_count}{RESET}{ORANGE} to exactly {BOLD_MIKADO}{source_image_file_count}{RESET}{ORANGE} and continuing{RESET}" )
+          print( f"{ORANGE}CLASSI:         WARNG:   changing values of '{BOLD_CYAN  }N_SAMPLES[]{RESET}{ORANGE} that are greater than {RESET}{BOLD_MIKADO}{source_image_file_count:,}{RESET}{ORANGE} to exactly {BOLD_MIKADO}{source_image_file_count:, }{RESET}{ORANGE} and continuing{RESET}" )
           args.n_samples = [  el if el<=source_image_file_count else source_image_file_count for el in args.n_samples   ]
           n_samples = args.n_samples
         else:
@@ -4356,7 +4358,7 @@ def determine_top_up_factors ( args, n_classes, class_names, n_tiles, case_desig
     top_up_factors           = np.ones(num_classes)                                                        # top_up_factors are all 1 if we aren't going to balance the dataset
     tiles_needed_per_example = n_tiles
     total_tiles_required     = total_slides_counted * n_tiles
-                               
+    tiles_needed_per_subtype = _____________________________________________________
 
     if case_designation_flag!='UNIMODE_CASE____IMAGE_TEST':
       row    = 0
@@ -4375,7 +4377,7 @@ def determine_top_up_factors ( args, n_classes, class_names, n_tiles, case_desig
     if DEBUG>0:
       np.set_printoptions(formatter={'int':   lambda x: "{:>6d}".format(x)})
       print( f"\033[{row+1};{col}f{CLEAR_LINE}INFO:         {colour}{case_designation_flag}{RESET}",                                                                                   flush=True  )
-      print( f"\033[{row+2};{col}f{CLEAR_LINE}INFO:           total slides counted         = {BOLD}{colour}    {total_slides_counted}{RESET}",                                         flush=True  )      
+      print( f"\033[{row+2};{col}f{CLEAR_LINE}INFO:           total slides counted         = {BOLD}{colour}    {total_slides_counted:,}{RESET}",                                       flush=True  )      
       print( f"\033[{row+3};{col}f{CLEAR_LINE}INFO:           final class_counts           = {colour}{class_counts}{RESET}",                                                           flush=True  )
       np.set_printoptions(formatter={'float': lambda x: "{:6.2f}".format(x)})
       print( f"\033[{row+4};{col}f{CLEAR_LINE}{BOLD}   INFO:           top up factors               = {colour}{top_up_factors}{RESET}  ",                                              flush=True  )
@@ -6671,7 +6673,7 @@ if __name__ == '__main__':
   p.add_argument('--multimode',                                                     type=str,    default='NONE'                                 )
   p.add_argument('--n_samples',                                         nargs="+",  type=int,    default="101"                                  )                                    
   p.add_argument('--n_tiles',                                           nargs="+",  type=int,    default="50"                                   )       
-  p.add_argument('--all_tiles_from_origin',                                         type=str,    default='False'                                )
+  p.add_argument('--extract_from_centre',                                           type=str,    default='False'                                )
   p.add_argument('--make_balanced',                                                 type=str,    default='level_up'                             )
   p.add_argument('--make_balanced_margin',                                          type=int,    default=15                                     )
   p.add_argument('--highest_class_number',                                          type=int,    default="777"                                  )                                                             
