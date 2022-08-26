@@ -4349,8 +4349,9 @@ def determine_top_up_factors ( args, n_classes, class_names, n_tiles, case_desig
   elif args.make_balanced=='level_down':
     leader = "CLASSI: (level down info)      "
         
-  class_counts = determine_class_counts ( args, n_classes, class_names, n_tiles, case_designation_flag )
-  num_classes = len(class_counts)
+  class_counts             = determine_class_counts ( args, n_classes, class_names, n_tiles, case_designation_flag )
+  num_classes              = len(class_counts)
+  tiles_needed_per_subtype = 0
   
   if (args.make_balanced!='level_up') & (args.make_balanced!='level_down'):                                                                       # cater for the default case
 
@@ -4358,7 +4359,6 @@ def determine_top_up_factors ( args, n_classes, class_names, n_tiles, case_desig
     top_up_factors           = np.ones(num_classes)                                                        # top_up_factors are all 1 if we aren't going to balance the dataset
     tiles_needed_per_example = n_tiles
     total_tiles_required     = total_slides_counted * n_tiles
-    tiles_needed_per_subtype = _____________________________________________________
 
     if case_designation_flag!='UNIMODE_CASE____IMAGE_TEST':
       row    = 0
