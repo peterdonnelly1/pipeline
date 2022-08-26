@@ -617,8 +617,8 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
 
       if just_test != True:
         if source_image_file_count<np.max(args.n_samples):
-          print( f"{BOLD_ORANGE}CLASSI:         WARNG: there aren't enough samples. A file count reveals a total of {MIKADO}{source_image_file_count}{RESET}{BOLD_ORANGE} source image files (SVS or TIF or JPEG) files in {MAGENTA}{args.data_dir}{RESET}{BOLD_ORANGE}, whereas the largest value in user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{BOLD_ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
-          print( f"{ORANGE}CLASSI:         WARNG:   changing values of '{BOLD_CYAN  }N_SAMPLES[]{RESET}{ORANGE} that are greater than {RESET}{BOLD_MIKADO}{source_image_file_count:,}{RESET}{ORANGE} to exactly {BOLD_MIKADO}{source_image_file_count:, }{RESET}{ORANGE} and continuing{RESET}" )
+          print( f"{BOLD_ORANGE}CLASSI:         WARNG: there aren't enough samples. A file count reveals a total of {MIKADO}{source_image_file_count:,}{RESET}{BOLD_ORANGE} source image files (SVS or TIF or JPEG) files in {MAGENTA}{args.data_dir}{RESET}{BOLD_ORANGE}, whereas the largest value in user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{BOLD_ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
+          print( f"{ORANGE}CLASSI:         WARNG:   changing values of '{BOLD_CYAN  }N_SAMPLES[]{RESET}{ORANGE} that are greater than {RESET}{BOLD_MIKADO}{source_image_file_count:,}{RESET}{ORANGE} to exactly {BOLD_MIKADO}{source_image_file_count:,}{RESET}{ORANGE} and continuing{RESET}" )
           args.n_samples = [  el if el<=source_image_file_count else source_image_file_count for el in args.n_samples   ]
           n_samples = args.n_samples
         else:
