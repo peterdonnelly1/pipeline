@@ -69,10 +69,12 @@ def tiler_threader( args, flag, count, tiles_needed_per_subtype, n_classes, n_sa
     results = tiler_scheduler( args, r_norm, flag, count, tiles_needed_per_subtype, n_classes, n_samples, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob, 0, 1 )
   
   else:
+    
+    tiling_workers = ProcessPoolExecutor( max_workers=num_cpus )
 
     if ( ( just_test=='True')  & ( multimode!='image_rna' ) ):
       print( f"{ORANGE}TILER_THREADER: INFO: CAUTION! 'just_test' flag is set (and multimode flag not set). Only one process will be used (to ensure the same tiles aren't selected more than one time){RESET}" )     
-      tiling_task=ProcessPoolExecutor( max_workers=num_cpus ).submit( tiler_scheduler, args, r_norm, flag, count, tiles_needed_per_subtype, n_classes, n_samples, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob, 0, 1 )
+      tiling_task=tiling_workers.submit( tiler_scheduler, args, r_norm, flag, count, tiles_needed_per_subtype, n_classes, n_samples, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob, 0, 1 )
       tiling_tasks.append(tiling_task)
   
     else:                                                                                                    # train
@@ -88,7 +90,7 @@ def tiler_threader( args, flag, count, tiles_needed_per_subtype, n_classes, n_sa
         print ( f"{SAVE_CURSOR}\r\033[{row};0H{CLEAR_LINE}{RESTORE_CURSOR}", end="", flush=True )
   
       for n in range(0, num_cpus):
-        tiling_task = ProcessPoolExecutor( max_workers=num_cpus ).submit( tiler_scheduler, args, r_norm, flag, count, tiles_needed_per_subtype, n_classes, n_samples, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob, n, num_cpus )
+        tiling_task = tiling_workers.submit( tiler_scheduler, args, r_norm, flag, count, tiles_needed_per_subtype, n_classes, n_samples, n_tiles, top_up_factors, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob, n, num_cpus )
         tiling_tasks.append(tiling_task)
   
     wait( tiling_tasks, return_when=ALL_COMPLETED )

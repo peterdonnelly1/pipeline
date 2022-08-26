@@ -77,7 +77,7 @@ def tiler_scheduler( args, r_norm, case_subset_flag_file, slide_count, tiles_nee
 
   cumulative_tiles_processed  =  0
   tiles_processed_by_subtype  =  np.zeros( (len(top_up_factors) ), dtype=int )                       
-  stop_tiling_by_subtype                 =  np.ones_like( tiles_needed_per_subtype )
+  stop_tiling_by_subtype      =  np.ones_like( tiles_needed_per_subtype )
   
   for root, dirs, files in walker:                                                                         # go through all the directories, but process only every my_thread'th  directory
     
