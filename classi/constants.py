@@ -69,3 +69,4 @@ RESTORE_CURSOR='\033[u'
 
 FAIL    = 0
 SUCCESS = 1
+

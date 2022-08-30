@@ -113,7 +113,6 @@ start_row    = 60-num_cpus
 np.set_printoptions(linewidth=1000)
 
 global global_batch_count
-global DEBUG
 
 run_level_total_correct             = []
 
@@ -127,7 +126,8 @@ final_test_batch_size = 0
 #@profile
 def main(args):
   
-  DEBUG=args.debug_level_classify
+  DEBUG     = args.debug_level_classify
+  LOG_LEVEL = args.log_level
   
   if DEBUG>0:
     print  ( f"pid = {os.getpid()}" )
@@ -617,12 +617,12 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
 
       if just_test != True:
         if source_image_file_count<np.max(args.n_samples):
-          print( f"{BOLD_ORANGE}CLASSI:         WARNG: there aren't enough samples. A file count reveals a total of {MIKADO}{source_image_file_count:,}{RESET}{BOLD_ORANGE} source image files (SVS or TIF or JPEG) files in {MAGENTA}{args.data_dir}{RESET}{BOLD_ORANGE}, whereas the largest value in user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{BOLD_ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
+          print( f"{BOLD_ORANGE}CLASSI:         WARNG: there aren't enough samples. A file count reveals a total of {MIKADO}{source_image_file_count:,}{RESET}{BOLD_ORANGE} source image files (SVS or TIF or JPEG) files in {MAGENTA}{args.data_dir}{RESET}{BOLD_ORANGE}, whereas the largest value in user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{BOLD_ORANGE}' = {MIKADO}{np.max(args.n_samples):,}{RESET})" ) 
           print( f"{ORANGE}CLASSI:         WARNG:   changing values of '{BOLD_CYAN  }N_SAMPLES[]{RESET}{ORANGE} that are greater than {RESET}{BOLD_MIKADO}{source_image_file_count:,}{RESET}{ORANGE} to exactly {BOLD_MIKADO}{source_image_file_count:,}{RESET}{ORANGE} and continuing{RESET}" )
           args.n_samples = [  el if el<=source_image_file_count else source_image_file_count for el in args.n_samples   ]
           n_samples = args.n_samples
         else:
-          print( f"CLASSI:         INFO:  {WHITE}a file count shows there is a total of {MIKADO}{source_image_file_count}{RESET} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}, which may be sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' depending on the case subset used.{RESET})" )
+          print( f"CLASSI:         INFO:  {WHITE}a file count shows there is a total of {MIKADO}{source_image_file_count:,}{RESET} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}, which may be sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' depending on the case subset used.{RESET})" )
       else:
         min_required = int(np.max(args.n_samples) * pct_test  )
         if source_image_file_count< min_required:
@@ -1093,6 +1093,16 @@ f"\
 
   # (B) RUN JOB LOOP
 
+
+  balanced     ="BALANCED"
+  not_balanced ="NOTBLNCD"
+  job_descriptor = f"BATCH__{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.lower():_<9s}_{balanced if make_balanced=='level_up' else not_balanced}_{args.cases[0:20]:_<20s}"
+
+  now  = datetime.datetime.now()
+  pplog.set_logfiles( log_dir, job_descriptor, now )
+  pplog.log_section(f"BATCH_JOB COMMENCED AT {now:%y-%m-%d %H:%M}")
+  pplog.log("\n\n")
+
   run=0
   
   for repeater, stain_norm, tile_size, lr, pct_test, n_samples, batch_size, n_tiles, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, low_expression_threshold, cutoff_percentile, embedding_dimensions, dropout_1, dropout_2, nn_optimizer, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values): 
@@ -1180,8 +1190,9 @@ f"\
     balanced     ="BALANCED"
     not_balanced ="NOTBLNCD"
     if input_mode=='image':
-      descriptor = f"_{run+1:02d}_OF_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.lower():_<9s}_{balanced if make_balanced=='level_up' else not_balanced}_{args.cases[0:20]:_<20s}_{nn_type_img:_<15s}_{stain_norm:_<4s}_{nn_optimizer:_<8s}_e_{args.n_epochs:03d}_N_{n_samples:04d}\
-_hi_{n_classes:02d}_bat_{batch_size:03d}_test_{int(100*pct_test):03d}_lr_{lr:09.6f}_tiles_{n_tiles:04d}_tlsz_{tile_size:04d}__mag_{mags}__prob_{prob:_<20s}"
+      descriptor = f"_{run+1:02d}_OF_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.lower():_<9s}_{balanced if make_balanced=='level_up' else not_balanced}_{args.cases[0:20]:_<20s}_{nn_type_img:_<15s}_\
+{stain_norm:_<4s}_{nn_optimizer:_<8s}_e_{args.n_epochs:03d}_N_{n_samples:05d}_hi_{n_classes:02d}_bat_{batch_size:03d}_test_{int(100*pct_test):03d}_lr_{lr:09.6f}_tiles_{n_tiles:04d}_tlsz_{tile_size:04d}\
+__mag_{mags}__prob_{prob:_<20s}"
       descriptor = descriptor[0:200]
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}  Tiles/Slide={n_tiles:d}   Tile size={tile_size}x{tile_size}\n\
@@ -1219,7 +1230,9 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
     now  = datetime.datetime.now()
     pplog.set_logfiles( log_dir, descriptor, now )
-    pplog.log_section(f"run = {now:%y-%m-%d %H:%M}   parameters = {descriptor}")
+    pplog.log(f"RUN {run+1:02d} OF {total_runs_in_job:03d}")
+    pplog.log(f"start time    = {now:%y-%m-%d %H:%M}")
+    pplog.log(f"parameters    = {descriptor}")
     
     zoom_out_mags_string = " ".join([str(i) for i in np.around( np.array(zoom_out_mags), 3)])
 
@@ -1230,11 +1243,11 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     print ( f"\033[79;0H{bash_command}" )
     time.sleep(1)
 
-    pplog.log_section(f"{bash_command}" )
-    pplog.log_section(f"      zoom_out_mags = {np.around(np.array(zoom_out_mags),3)}")
-    pplog.log_section(f"      zoom_out_prob = {np.around(np.array(zoom_out_prob),3)}")
-
-    pplog.log_section(f"      run args      = {sys.argv}")
+    pplog.log(f"zoom_out_mags = {np.around(np.array(zoom_out_mags),3)}          zoom_out_prob = {np.around(np.array(zoom_out_prob),3)}")
+    pplog.log(f"run args      = {sys.argv}")
+    pplog.log(f"{bash_command}" )
+    
+    pplog.log(f"\nabout to commence training epochs")
     
 
     run+=1
@@ -1666,10 +1679,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     cfg = loader.get_config( mode, lr, batch_size )                                                        #################################################################### change to just using args at some point
     classifyConfig.MAKE_GREY          = make_grey_pct                                                      # modify config class variable to take into account user preference
     classifyConfig.JITTER             = jitter                                                             # modify config class variable to take into account user preference
-#          if args.input_mode=='rna':  pplog.log_config(cfg) 
 
-    # ~ pplog.log_section('Loading script arguments.')
-    # ~ pplog.log_args(args)
 
     if DEBUG>3:      
       print( f"CLASSI:         INFO:   {ITALICS}experiment config has been loaded{RESET}" )
@@ -1746,8 +1756,6 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     if DEBUG>3:
       print( f"CLASSI:         INFO:     {ITALICS}model sent to device{RESET}" ) 
   
-    #pplog.log_section('Model specs.')
-    #pplog.log_model(model)
      
     
     if DEBUG>9:
@@ -2029,11 +2037,12 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         # DO TESTING
         else:  
     
-          show_all_test_examples=False
+          show_all_test_examples = False 
+          is_final_test          = False
           
           embeddings_accum, labels_accum, test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min, embedding     =\
                         test ( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loader,  model,  tile_size, loss_function, loss_type, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
-                                                                                      test_loss_min, show_all_test_examples, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours)
+                                                                                      test_loss_min, show_all_test_examples, is_final_test, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours)
   
           global_correct_prediction_count += correct_predictions
           global_number_tested            += number_tested
@@ -2076,10 +2085,12 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
             if consecutive_test_loss_increases == 1:
               print ( "\033[5A", end='' )
               print ( f"\r\033[280C{PALE_RED} < test loss increased{RESET}", end='' )
+              pplog.log(f'< test loss increased' )
               print ( "\033[5B", end=''  )
             else:
               print ( "\033[5A", end='' )
               print ( f"\r\033[280C{RED} < {consecutive_test_loss_increases} consec increases !{RESET}", end='' )
+              pplog.log(f'< {consecutive_test_loss_increases} consec increases !' )
               print ( "\033[5B", end=''  )
               
             if consecutive_test_loss_increases>args.max_consecutive_losses:                                # Stop one before, so that the most recent model for which the loss improved will be saved
@@ -2090,7 +2101,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
             print ( "\033[5A", end='' )
             print ( f"\r\033[280C{PALE_GREEN} < test loss decreased{RESET}", end='' )
             print ( "\033[5B", end=''  )
-          
+            pplog.log(f'< test loss decreased' )          
         
   
           test_total_loss_sum_ave_last = test_total_loss_sum_ave
@@ -2104,7 +2115,8 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
               print ( "\033[5B", end='' )
             
             if just_test=='False':
-              save_model(args.log_dir, model) 
+              save_model(args.log_dir, model)
+              pplog.log('< new global low/saving model')
 
           if args.input_mode=='rna':
             print ( "\033[8A", end='' )
@@ -2113,6 +2125,8 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
 
     #  ^^^^^^^^  THE MAIN LOOP FINISHES HERE ^^^^^^^^
+
+
 
 
 
@@ -2161,15 +2175,14 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       hours   = round( (time.time() - start_time) / 3600,  1   )
       minutes = round( (time.time() - start_time) /   60,  1   )
       seconds = round( (time.time() - start_time)       ,  0   )
-      #pplog.log_section('Job complete in {:} mins'.format( minutes ) )
+      
+      pplog.log_section(f'This is all we have to do in the case of Autoencoding, so we close up and end.  Run complete in {minutes} mins' )
       
       print( f'\n\n\n\nCLASSI:          INFO: Job complete {BOLD}{CHARTREUSE}(Autoencoder ending).{RESET} The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
       now = time.localtime(time.time())
       print(time.strftime( f"CLASSI:          INFO:  end time = %Y-%m-%d %H:%M:%S %Z", now ))
       start_time = time.time() 
                 
-      #pplog.log_section('Model saved.')
-      
       sys.exit()
 
   
@@ -2182,9 +2195,9 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       
         if DEBUG>0:
           print ( "\033[8B" )        
-          print ( f"CLASSI:         INFO:      test: {BOLD}about to classify {MIKADO}{final_test_batch_size}{RESET}{BOLD} test samples through the best model this run produced"        )
+          print ( f"test batch: {BOLD}about to classify {MIKADO}{final_test_batch_size}{RESET}{BOLD} test samples using the best model produced during training"        )
         
-        pplog.log ( f"\nCLASSI:         INFO:  test: about to classify {final_test_batch_size} test samples through the best model this run produced"                                 )
+        pplog.log ( f"\ntest(): about to classify {final_test_batch_size} test samples through the best model this run produced"                                        )
 
 
         if args.input_mode == 'image':
@@ -2213,9 +2226,11 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
           print ( f"CLASSI:         INFO:      test: final_test_batch_size = {MIKADO}{final_test_batch_size}{RESET}" )
           
         # note that we pass 'final_test_loader' to test
+        
+        is_final_test=True
         embeddings_accum, labels_accum, test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min, embedding     =\
                           test ( cfg, args, parameters, embeddings_accum, labels_accum, epoch, final_test_loader,  model,  tile_size, loss_function, loss_type, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
-                                                                                                           test_loss_min, show_all_test_examples, final_test_batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours )    
+                                                                                                           test_loss_min, show_all_test_examples, is_final_test, final_test_batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours )    
     
       job_level_classifications_matrix               += run_level_classifications_matrix                     # accumulate for the job level stats. Has to be just after call to 'test'    
 
@@ -3325,14 +3340,9 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       hours   = round( (time.time() - start_time) / 3600,  1   )
       minutes = round( (time.time() - start_time) /   60,  1   )
       seconds = round( (time.time() - start_time),     0       )
-      #pplog.log_section('run complete in {:} mins'.format( minutes ) )
-  
-      print( f'CLASSI:         INFO:  elapsed time since job started: {MIKADO}{minutes}{RESET} mins ({MIKADO}{seconds:.1f}{RESET} secs)')
-  
-      print ( "\033[6A" )
-            
-    #  ^^^  JOB FINISHES HERE ^^^
-  
+      
+
+
   
   
   
@@ -3454,7 +3464,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         # ~ display( df)
       
         now = datetime.datetime.now()
-        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_conf_matrices_per_subtype"
+        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_conf_mat_by_subtype"
         fqn = f"{fqn[0:255]}.tsv"
 
         df.to_csv ( fqn, sep='\t' )
@@ -3474,6 +3484,23 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         box_plot_by_subtype( args, class_names, n_genes, start_time, parameters, zoom_out_mags, zoom_out_prob, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc )
 
 
+    print( f'CLASSI:         INFO:  elapsed time since job started: {MIKADO}{minutes}{RESET} mins ({MIKADO}{seconds:.1f}{RESET} secs)')
+
+    print ( "\033[6A" )
+
+    pplog.log(f'\n' )
+    pplog.log_section(f'RUN {run} FINISHED.  elapsed time: {minutes} mins ({seconds:.1f} secs)' )
+    pplog.log(f'\n\n' )
+
+    print( f'CLASSI:         INFO:  elapsed time since job started: {MIKADO}{minutes}{RESET} mins ({MIKADO}{seconds:.1f}{RESET} secs)')
+
+    print ( "\033[6A" )
+            
+    #  ^^^  RUN FINISHES HERE ^^^
+
+
+
+
   # (H)  CLOSE UP AND END
   
   writer.close()        
@@ -3481,8 +3508,10 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   hours   = round( (time.time() - start_time) / 3600,  1   )
   minutes = round( (time.time() - start_time) /   60,  1   )
   seconds = round( (time.time() - start_time)       ,  0   )
-  #pplog.log_section('Job complete in {:} mins'.format( minutes ) )
 
+  pplog.log(f'\n\n\n' )
+  pplog.log_section(f'BATCH JOB FINISHED.  elapsed time since job started: {minutes} mins ({seconds:.1f} secs)' )
+    
   print( f'\033[18B')
   if ( args.just_test=='True') & ( args.input_mode=='rna' ):
     print( f'\033[12B')  
@@ -3491,9 +3520,12 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   now = time.localtime(time.time())
   print(time.strftime( f"CLASSI:          INFO:  end time = %Y-%m-%d %H:%M:%S %Z", now ))
   start_time = time.time() 
-
-  #pplog.log_section('Model saved.')
   
+
+  if LOG_LEVEL>2:
+    pplog.log_section('Model specs.')
+    pplog.log_model(model)
+
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -3502,6 +3534,9 @@ def train( args, epoch, train_loader, model, optimizer, loss_function, loss_type
     """
     Train Model for one epoch (= every training example in however many batches are necessary to process every example)
     """
+
+    DEBUG     = args.debug_level_classify
+    LOG_LEVEL = args.log_level
     
     model.train()                                                                                          # set model to training mode
 
@@ -3704,7 +3739,10 @@ def train( args, epoch, train_loader, model, optimizer, loss_function, loss_type
 
 # ------------------------------------------------------------------------------
 def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loader,  model,  tile_size, loss_function, loss_type, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
-                                                                                                        test_loss_min, show_all_test_examples, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours ): 
+                                                                                                        test_loss_min, show_all_test_examples, is_final_test, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours ):
+                                                                                                          
+    DEBUG     = args.debug_level_classify
+    LOG_LEVEL = args.log_level
 
     """
     Test model by pushing one or more held-out batches through the network
@@ -4196,14 +4234,16 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
           print ( " {:}".format( y1_hat_values_max_indices    [:number_to_display]        ) )
           print ( " {:}".format( image_labels_values          [:number_to_display]        ) )
   
-  
-        pplog.log(f"epoch = {epoch}" )
-        pplog.log(f"test: truth/prediction for first {number_to_display} examples from the most recent test batch ( number correct this batch: {correct}/{batch_size} = {pct:>3.0f}%  )  ( number correct overall: {global_correct_prediction_count+correct}/{global_number_tested+batch_size} = {global_pct:>3.0f}% (number tested this run = epochs x test batches x batch size)" )
-        pplog.log(f"{CLEAR_LINE}        truth = {labs}"  )
-        pplog.log(f"{CLEAR_LINE}        preds = {preds}" )
-        pplog.log(f"{CLEAR_LINE}        delta = {delta}" ) 
+
+        if is_final_test == False:
+          pplog.log(f"\nepoch {epoch}" )
+        pplog.log(f"test(): truth/prediction for first {number_to_display} examples from the most recent test batch ( number correct this batch: {correct}/{batch_size} = {pct:>3.0f}%  )  ( number correct overall: {global_correct_prediction_count+correct}/{global_number_tested+batch_size} = {global_pct:>3.0f}% (number tested this run = epochs x test batches x batch size)" )
+        if LOG_LEVEL>1:
+          pplog.log(f"{CLEAR_LINE}        truth = {labs}"  )
+          pplog.log(f"{CLEAR_LINE}        preds = {preds}" )
+          pplog.log(f"{CLEAR_LINE}        delta = {delta}" ) 
         if degenerate_result:
-         pplog.log(f"{CLEAR_LINE}        warning !!! degenerate result")  
+         pplog.log(f"< warning !!! degenerate result")  
  
 
     if args.input_mode=='image':   
@@ -6005,6 +6045,7 @@ def save_samples(log_dir, model, test_loader, cfg, epoch):
 # ------------------------------------------------------------------------------
 
 def save_model( log_dir, model ):
+  
     """Save PyTorch model state dictionary
     """
 
@@ -6033,6 +6074,8 @@ def save_model( log_dir, model ):
       
     model_state = model.state_dict()
     torch.save( model_state, fqn) 
+
+    return
 
 # ------------------------------------------------------------------------------
     
@@ -6771,6 +6814,7 @@ if __name__ == '__main__':
   p.add_argument('--debug_level_dataset',                                           type=int,   default=1                                       ) 
   p.add_argument('--debug_level_loader',                                            type=int,   default=1                                       ) 
   p.add_argument('--debug_level_algorithm',                                         type=int,   default=1                                       ) 
+  p.add_argument('--log_level',                                                     type=int,   default=11                                       ) 
 
 
   args, _ = p.parse_known_args()
@@ -6781,9 +6825,6 @@ if __name__ == '__main__':
   args.pin_memory = torch.cuda.is_available()
 
   if DEBUG>12:
-    print ( f"{GOLD}args.debug_level_classify{RESET} =           ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------>    {YELLOW}{args.debug_level_classify}{RESET}", flush=True)
-    print ( f"{GOLD}args.debug_level_classify{RESET} =           ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------>    {YELLOW}{args.debug_level_classify}{RESET}", flush=True)
-    print ( f"{GOLD}args.debug_level_classify{RESET} =           ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------>    {YELLOW}{args.debug_level_classify}{RESET}", flush=True)
     print ( f"{GOLD}args.debug_level_classify{RESET} =           ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------>    {YELLOW}{args.debug_level_classify}{RESET}", flush=True)
   
   main(args)

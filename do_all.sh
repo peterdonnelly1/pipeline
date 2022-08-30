@@ -175,6 +175,8 @@ HIGH_CORRELATION_THRESHOLD=2                                                    
 SHOW_ROWS=1000                                                                                             # used by "analyse_data". 
 SHOW_COLS=100                                                                                              # used by "analyse_data". 
 
+LOG_LEVEL=1
+
 DEBUG_LEVEL_CLASSIFY=2
 DEBUG_LEVEL_TILER=0
 DEBUG_LEVEL_GENERATE=0
@@ -452,7 +454,7 @@ echo "=====> STEP 3 OF 3: RUNNING THE NETWORK (PYTORCH DATASET WILL BE GENERATED
 sleep ${SLEEP_TIME}
 cd ${APPLICATION_DIR}
 CUDA_LAUNCH_BLOCKING=1 python ${MAIN_APPLICATION_NAME} \
---debug_level_classify ${DEBUG_LEVEL_CLASSIFY} --debug_level_tiler ${DEBUG_LEVEL_TILER} --debug_level_generate ${DEBUG_LEVEL_GENERATE} --debug_level_dataset ${DEBUG_LEVEL_DATASET} \
+--debug_level_classify ${DEBUG_LEVEL_CLASSIFY} --debug_level_tiler ${DEBUG_LEVEL_TILER} --debug_level_generate ${DEBUG_LEVEL_GENERATE} --debug_level_dataset ${DEBUG_LEVEL_DATASET} --log_level ${LOG_LEVEL} \
 --debug_level_loader ${DEBUG_LEVEL_LOADER} --debug_level_algorithm ${DEBUG_LEVEL_ALGORITHM} \
 --input_mode ${INPUT_MODE}   --strong_supervision ${STRONG_SUPERVISION} --multimode ${MULTIMODE} --just_profile ${JUST_PROFILE} --just_test ${JUST_TEST} --skip_tiling ${SKIP_TILING} --skip_generation ${SKIP_GENERATION} \
 --dataset ${DATASET} --cases ${CASES} --application_dir ${APPLICATION_DIR}  --data_dir ${DATA_DIR} --data_source ${DATA_SOURCE} --divide_cases ${DIVIDE_CASES} --cases_reserved_for_image_rna ${CASES_RESERVED_FOR_IMAGE_RNA} \

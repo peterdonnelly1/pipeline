@@ -1,5 +1,5 @@
 """=============================================================================
-Utility functions for easy and pretty file logging.
+Utility functions for pretty logging.
 ============================================================================="""
 
 import logging
