@@ -956,6 +956,17 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
 
   total_runs_in_job = len(list(product(*param_values)))
 
+  b  = "BALANCED"
+  nb = "NOTBLNCD"
+  job_descriptor = f"BATCH__{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.lower():_<9s}_{b if args.make_balanced=='level_up' else nb}_{args.cases[0:20]:_<20s}"
+
+  if not os.path.exists( args.log_dir ):
+    os.mkdir( args.log_dir )
+      
+  now  = datetime.datetime.now()
+  pplog.set_logfiles( log_dir, job_descriptor, now )
+  pplog.log_section(f"BATCH_JOB COMMENCED AT {now:%y-%m-%d %H:%M}")
+  pplog.log("\n\n")
   
   if skip_tiling=='True':
 
@@ -1014,16 +1025,20 @@ f"\
 \r\033[{start_column+13*offset+3}Ctransform\
 \r\033[{start_column+14*offset+3}Clabel_swap\
 "
-
+ 
   
   if DEBUG>0:
     if input_mode=='image':
       print(f"\n{UNDER}JOB LIST:{RESET}")
       if per_run_zoom_out_parameters==False:
         print(f"\r\033[155C ------------ tile extraction parameters (all tiles will be saved at base tile size ({MIKADO}{tile_size[0]}x{tile_size[0]}{RESET}) -------------- {RESET}")      
-      print(f"\r\033[2C{image_headings}{RESET}")      
+      print(f"\r\033[2C{image_headings}{RESET}")
+      pplog_image_headings = f"lr        pct_test  examples   batch_size  tiles/image  num_classes  tile_size  rand_tiles  net_img  optimizer  stain_norm  label_swap  greyscale extraction dimensions (multiples of base tile size)  probability for each of the extraction dimensions  jitter vector"
+      pplog.log(f"{pplog_image_headings}")
+
       for repeater, stain_norm, tile_size, lr, pct_test, n_samples, batch_size, n_tiles, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, low_expression_threshold, cutoff_percentile, embedding_dimensions, dropout_1, dropout_2, nn_optimizer, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values):    
 
+        pplog.log( f"{lr:<9.6f} {pct_test:<9.6f} {n_samples:<5d}      {batch_size:<5d}      {n_tiles:<5d}      {n_classes:<2d}      {tile_size:<3d}     {rand_tiles:<5s}      {nn_type_img:<10s}      {nn_optimizer:<8s}      {stain_norm:<10s}      {label_swap_pct:<6.1f}      {make_grey_pct:<5.1f}      {zoom_out_mags:}      {jitter:}" )
       
         print( f"{CARRIBEAN_GREEN}\
 \r\033[2C\
@@ -1049,8 +1064,12 @@ f"\
     elif input_mode=='rna':
       print(f"\n{UNDER}JOB LIST:{RESET}")
       print(f"\033[2C\{rna_headings}{RESET}")
+      pplog_rna_headings = f"lr  pct_test  samples  batch_size  network  hidden  FPKM percentile/threshold  embedded  dropout_1  dropout_2  optimizer  normalisation  transform  label_swap"
+      pplog.log(f"{pplog_rna_headings}")
 
       for repeater, stain_norm, tile_size, lr, pct_test, n_samples, batch_size, n_tiles, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, low_expression_threshold, cutoff_percentile, embedding_dimensions, dropout_1, dropout_2, nn_optimizer, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values):    
+  
+        pplog.log( f"{lr:<9.6f}  {100*pct_test:<9.0f}  {n_samples:<5d}  {batch_size:<5d}  {nn_type_rna:<10s}  {hidden_layer_neurons:<5d}  {cutoff_percentile:<4.0f}  {low_expression_threshold:<9.6f}  {embedding_dimensions:<5d}  {dropout_1:<5.2f}  {dropout_2:<5.2f}  {nn_optimizer:<8s}  {gene_data_norm:<10s}  {gene_data_transform:<10s}  {label_swap_pct:<6.1f}" )
   
         print( f"{CARRIBEAN_GREEN}\
 \r\033[{start_column+0*offset}C{lr:<9.6f}\
@@ -1091,19 +1110,6 @@ f"\
 
   # (B) RUN JOB LOOP
 
-
-  balanced     ="BALANCED"
-  not_balanced ="NOTBLNCD"
-  job_descriptor = f"BATCH__{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.lower():_<9s}_{balanced if make_balanced=='level_up' else not_balanced}_{args.cases[0:20]:_<20s}"
-
-
-  if not os.path.exists( args.log_dir ):
-    os.mkdir( args.log_dir )
-      
-  now  = datetime.datetime.now()
-  pplog.set_logfiles( log_dir, job_descriptor, now )
-  pplog.log_section(f"BATCH_JOB COMMENCED AT {now:%y-%m-%d %H:%M}")
-  pplog.log("\n\n")
 
   run=0
   
@@ -1193,10 +1199,10 @@ f"\
       print( f"{RED}CLASSI:         FATAL:    ... cannot continue, halting now{RESET}" )
       sys.exit(0)
 
-    balanced     ="BALANCED"
-    not_balanced ="NOTBLNCD"
+    b  ="BALANCED"
+    nb ="NOTBLNCD"
     if input_mode=='image':
-      descriptor = f"_{run+1:02d}_OF_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.lower():_<9s}_{balanced if make_balanced=='level_up' else not_balanced}_{args.cases[0:20]:_<20s}_{nn_type_img:_<15s}_\
+      descriptor = f"_{run+1:02d}_OF_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.lower():_<9s}_{b if make_balanced=='level_up' else nb}_{args.cases[0:20]:_<20s}_{nn_type_img:_<15s}_\
 {stain_norm:_<4s}_{nn_optimizer:_<8s}_e_{args.n_epochs:03d}_N_{n_samples:05d}_hi_{n_classes:02d}_bat_{batch_size:03d}_test_{int(100*pct_test):03d}_lr_{lr:09.6f}_tiles_{n_tiles:04d}_tlsz_{tile_size:04d}\
 __mag_{mags}__prob_{prob:_<20s}"
       descriptor = descriptor[0:200]
@@ -1243,7 +1249,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     
     now  = datetime.datetime.now()
     pplog.set_logfiles( log_dir, descriptor, now )                                                         # establish run log file
-    pplog.log(f"RUN {run+1:02d} OF {total_runs_in_job:03d}")
+    pplog.log(f"\n\nRUN {run+1:02d} OF {total_runs_in_job:03d}")
     pplog.log(f"{bash_command}\n" )
     pplog.log(f"start time    = {now:%y-%m-%d %H:%M}")
     pplog.log(f"descriptor    = {descriptor}")
@@ -2198,7 +2204,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       
         if DEBUG>0:
           print ( "\033[8B" )        
-          print ( f"CLASSI:          INFO: {BOLD_BLEU}about to classify {MIKADO}{final_test_batch_size}{RESET}{BOLD_BLEU} test samples using the best model produced during training"        )
+          print ( f"CLASSI:          INFO: {BOLD_BLEU}about to classify {MIKADO}{final_test_batch_size}{RESET}{BOLD_BLEU} test samples using the best model produced during training{RESET}"        )
         
         pplog.log ( f"\nabout to commence testing phase\n" )
 
