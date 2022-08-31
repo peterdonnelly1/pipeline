@@ -134,8 +134,8 @@ def main(args):
   os.system("taskset -p 0xfffff %d" % os.getpid())
   
   now = time.localtime(time.time())
-  print(time.strftime( f"CLASSI:         INFO:  start time = %Y-%m-%d %H:%M:%S %Z", now ))
-  start_time = time.time() 
+  print(time.strftime( f"CLASSI:         INFO:  job start time = %Y-%m-%d %H:%M:%S %Z", now ))
+  job_start_time = time.time() 
 
   if DEBUG>0:
     print ( f"\nCLASSI:         INFO:     torch         version =  {MIKADO}{torch.__version__}{RESET}",      flush=True    )
@@ -1046,14 +1046,12 @@ f"\
 {RESET}" )
 
 
-
-
     elif input_mode=='rna':
       print(f"\n{UNDER}JOB LIST:{RESET}")
       print(f"\033[2C\{rna_headings}{RESET}")
-      
-      for repeater, stain_norm, tile_size, lr, pct_test, n_samples, batch_size, n_tiles, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, low_expression_threshold, cutoff_percentile, embedding_dimensions, dropout_1, dropout_2, nn_optimizer, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values):    
 
+      for repeater, stain_norm, tile_size, lr, pct_test, n_samples, batch_size, n_tiles, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, low_expression_threshold, cutoff_percentile, embedding_dimensions, dropout_1, dropout_2, nn_optimizer, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values):    
+  
         print( f"{CARRIBEAN_GREEN}\
 \r\033[{start_column+0*offset}C{lr:<9.6f}\
 \r\033[{start_column+1*offset}C{100*pct_test:<9.0f}\
@@ -1098,6 +1096,10 @@ f"\
   not_balanced ="NOTBLNCD"
   job_descriptor = f"BATCH__{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.lower():_<9s}_{balanced if make_balanced=='level_up' else not_balanced}_{args.cases[0:20]:_<20s}"
 
+
+  if not os.path.exists( args.log_dir ):
+    os.mkdir( args.log_dir )
+      
   now  = datetime.datetime.now()
   pplog.set_logfiles( log_dir, job_descriptor, now )
   pplog.log_section(f"BATCH_JOB COMMENCED AT {now:%y-%m-%d %H:%M}")
@@ -1107,12 +1109,16 @@ f"\
   
   for repeater, stain_norm, tile_size, lr, pct_test, n_samples, batch_size, n_tiles, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, low_expression_threshold, cutoff_percentile, embedding_dimensions, dropout_1, dropout_2, nn_optimizer, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values): 
 
+    now = time.localtime(time.time())
+    print(time.strftime( f"CLASSI:         INFO:  run start time = %Y-%m-%d %H:%M:%S %Z", now ))
+    run_start_time = time.time()  
+
     if input_mode=='image':  
       if ( (len(args.zoom_out_mags)>=5)  & (len(args.zoom_out_prob)>=5) ):
         if  (  (args.zoom_out_mags[4]<0) &     (args.zoom_out_prob[4]<0) ):
           zoom_out_mags  = expand_args( args.zoom_out_mags, "ZOOM_OUT_MAGS",   BITTER_SWEET  )
           zoom_out_prob  = expand_args( args.zoom_out_prob, "ZOOM_OUT_PROB",   MAGENTA       )
-          zoom_out_prob = np.around( np.array(zoom_out_prob), 3)                                                 # for readability on console, I rounded down to 3, but then have to make sure they still add up to exactly 1.0 
+          zoom_out_prob = np.around( np.array(zoom_out_prob), 3)                                           # for readability on console, I rounded down to 3, but then have to make sure they still add up to exactly 1.0 
           zoom_out_prob[0] = np.around(1.-np.sum(zoom_out_prob[1:]), 3)
           zoom_out_prob = zoom_out_prob.tolist()
           print( f"CLASSI:         INFO:  for this run (only) random selection for {RESET}{CYAN}zoom_out_mags{RESET} = {MIKADO}{np.around(np.array(zoom_out_mags), 3)}{RESET}{CLEAR_LINE}", flush=True) 
@@ -1123,7 +1129,7 @@ f"\
       
       if just_test=='False':                                                                      
         multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count =  \
-                    segment_cases( args, n_classes, class_names, n_tiles, pct_test )  # boils down to setting flags in the directories of certain cases, esp. 'MULTIMODE_CASE_FLAG'
+                    segment_cases( args, n_classes, class_names, n_tiles, pct_test )                       # boils down to setting flags in the directories of certain cases, esp. 'MULTIMODE_CASE_FLAG'
 
       else:
         print( f"{RED}CLASSI:         FATAL: user option  {CYAN}-v ('args.cases'){RESET}{RED} is not allowed in test mode ({CYAN}JUST_TEST=True{RESET}, {CYAN}--just_test 'True'{RESET}){RED}{RESET}" )
@@ -1227,27 +1233,25 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         # ~ print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set, so n_samples (currently {MIKADO}{n_samples}{RESET}{ORANGE}) has been set to {MIKADO}1{RESET}{ORANGE} for this run{RESET}" ) 
         # ~ n_samples = int(pct_test * n_samples )
 
-
-    now  = datetime.datetime.now()
-    pplog.set_logfiles( log_dir, descriptor, now )
-    pplog.log(f"RUN {run+1:02d} OF {total_runs_in_job:03d}")
-    pplog.log(f"start time    = {now:%y-%m-%d %H:%M}")
-    pplog.log(f"parameters    = {descriptor}")
-    
     zoom_out_mags_string = " ".join([str(i) for i in np.around( np.array(zoom_out_mags), 3)])
-
     zoom_out_prob_string = np.around(np.array(zoom_out_prob), 3)
     zoom_out_prob_string = " ".join([str(i) for i in zoom_out_prob])
-
+    
     bash_command = f"cls; ./do_all.sh -d {args.dataset}  -i {input_mode}   -S {n_samples}  -A {highest_class_number}  -f {n_tiles}   -T {tile_size}  -b {batch_size}  -o {n_epochs}  -1 {pct_test}  -a {nn_type_img}  -c {args.cases}   -0 {stain_norm}  -U '{zoom_out_mags_string}' -Q '{zoom_out_prob_string}'  "
     print ( f"\033[79;0H{bash_command}" )
     time.sleep(1)
-
-    pplog.log(f"zoom_out_mags = {np.around(np.array(zoom_out_mags),3)}          zoom_out_prob = {np.around(np.array(zoom_out_prob),3)}")
-    pplog.log(f"run args      = {sys.argv}")
-    pplog.log(f"{bash_command}" )
     
-    pplog.log(f"\nabout to commence training epochs")
+    now  = datetime.datetime.now()
+    pplog.set_logfiles( log_dir, descriptor, now )                                                         # establish run log file
+    pplog.log(f"RUN {run+1:02d} OF {total_runs_in_job:03d}")
+    pplog.log(f"{bash_command}\n" )
+    pplog.log(f"start time    = {now:%y-%m-%d %H:%M}")
+    pplog.log(f"descriptor    = {descriptor}")
+    # ~ pplog.log(f"zoom_out_mags = {np.around(np.array(zoom_out_mags),3)}          zoom_out_prob = {np.around(np.array(zoom_out_prob),3)}")
+    pplog.log(f"run args      = {sys.argv}")
+
+    
+    pplog.log(f"\nabout to commence training phase")
     
 
     run+=1
@@ -1341,9 +1345,9 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     if args.final_test_batch_size > final_test_batch_size:
       args.final_test_batch_size = final_test_batch_size
       if (input_mode=='image'):
-        print ( f"{ORANGE}CLASSI:         WARNG: there aren't enough test tiles to support a {CYAN}FINAL_TEST_BATCH_SIZE{RESET}{ORANGE} of {MIKADO}{args.final_test_batch_size}{RESET}{ORANGE} for this run{RESET}", flush=True )                
-        print ( f"{ORANGE}CLASSI:         WARNG: the number of test tiles available is {CYAN}N_SAMPLES{RESET} x {CYAN}N_TILES{RESET} x {CYAN}PCT_TEST{RESET}  = {MIKADO}{n_samples}{RESET} x {MIKADO}{n_tiles}{RESET} x {MIKADO}{pct_test}{RESET} = {MIKADO}{int(final_test_batch_size)}{RESET}{ORANGE}{RESET}", flush=True )                
-        print ( f"{ORANGE}CLASSI:         WARNG: {CYAN}FINAL_TEST_BATCH_SIZE{RESET}{ORANGE} has accordingly been set to {MIKADO}{int(final_test_batch_size)}{RESET} {ORANGE}for this run {RESET}", flush=True )
+        print ( f"{ORANGE}CLASSI:         WARNG: there aren't enough test tiles to support a {CYAN}FINAL_TEST_BATCH_SIZE{RESET}{ORANGE} of {MIKADO}{args.final_test_batch_size:,}{RESET}{ORANGE} for this run{RESET}", flush=True )                
+        print ( f"{ORANGE}CLASSI:         WARNG: the number of test tiles available is {CYAN}N_SAMPLES{RESET} x {CYAN}N_TILES{RESET} x {CYAN}PCT_TEST{RESET}  = {MIKADO}{n_samples:,}{RESET} x {MIKADO}{n_tiles:,}{RESET} x {MIKADO}{pct_test:,}{RESET} = {MIKADO}{int(final_test_batch_size):,}{RESET}{ORANGE}{RESET}", flush=True )                
+        print ( f"{ORANGE}CLASSI:         WARNG: {CYAN}FINAL_TEST_BATCH_SIZE{RESET}{ORANGE} has accordingly been set to {MIKADO}{int(final_test_batch_size):,}{RESET} {ORANGE}for this run {RESET}", flush=True )
       else:
         print ( f"{ORANGE}CLASSI:         WARNG: there aren't enough examples to support a {CYAN}FINAL_TEST_BATCH_SIZE{RESET}{ORANGE} of {MIKADO}{args.final_test_batch_size}{RESET}{ORANGE} for this run{RESET}", flush=True )                
         print ( f"{ORANGE}CLASSI:         WARNG: {CYAN}FINAL_TEST_BATCH_SIZE{RESET}{ORANGE} has accordingly been set to {MIKADO}{int(final_test_batch_size)}{RESET} {ORANGE}for this run {RESET}", flush=True )
@@ -1604,63 +1608,63 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     if clustering=='o_tsne':
       o_tsne   ( args, class_names, pct_test)
       writer.close()        
-      hours   = round( (time.time() - start_time) / 3600,  1   )
-      minutes = round( (time.time() - start_time) /   60,  1   )
-      seconds = round( (time.time() - start_time)       ,  0   )
+      hours   = round( (time.time() - job_start_time) / 3600,  1   )
+      minutes = round( (time.time() - job_start_time) /   60,  1   )
+      seconds = round( (time.time() - job_start_time)       ,  0   )
       print( f'CLASSI:          INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
       sys.exit(0)
 
     elif clustering=='cuda_tsne':
       cuda_tsne(  args, class_names, pct_test, descriptor_2, descriptor_clustering)
       writer.close()        
-      hours   = round( (time.time() - start_time) / 3600,  1   )
-      minutes = round( (time.time() - start_time) /   60,  1   )
-      seconds = round( (time.time() - start_time)       ,  0   )
+      hours   = round( (time.time() - job_start_time) / 3600,  1   )
+      minutes = round( (time.time() - job_start_time) /   60,  1   )
+      seconds = round( (time.time() - job_start_time)       ,  0   )
       print( f'CLASSI:          INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
       sys.exit(0)
       
     elif clustering=='sk_tsne':
       sk_tsne(  args, class_names, pct_test)
       writer.close()        
-      hours   = round( (time.time() - start_time) / 3600,  1   )
-      minutes = round( (time.time() - start_time) /   60,  1   )
-      seconds = round( (time.time() - start_time)       ,  0   )
+      hours   = round( (time.time() - job_start_time) / 3600,  1   )
+      minutes = round( (time.time() - job_start_time) /   60,  1   )
+      seconds = round( (time.time() - job_start_time)       ,  0   )
       print( f'CLASSI:          INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
       sys.exit(0)
 
     elif clustering=='sk_agglom':
       sk_agglom(  args, class_names, pct_test)
       writer.close()        
-      hours   = round( (time.time() - start_time) / 3600,  1   )
-      minutes = round( (time.time() - start_time) /   60,  1   )
-      seconds = round( (time.time() - start_time)       ,  0   )
+      hours   = round( (time.time() - job_start_time) / 3600,  1   )
+      minutes = round( (time.time() - job_start_time) /   60,  1   )
+      seconds = round( (time.time() - job_start_time)       ,  0   )
       print( f'CLASSI:          INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
       sys.exit(0)
       
     elif clustering=='sk_spectral':
       sk_spectral(  args, class_names, pct_test)
       writer.close()        
-      hours   = round( (time.time() - start_time) / 3600,  1   )
-      minutes = round( (time.time() - start_time) /   60,  1   )
-      seconds = round( (time.time() - start_time)       ,  0   )
+      hours   = round( (time.time() - job_start_time) / 3600,  1   )
+      minutes = round( (time.time() - job_start_time) /   60,  1   )
+      seconds = round( (time.time() - job_start_time)       ,  0   )
       print( f'CLASSI:          INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
       sys.exit(0)
       
     elif clustering=='dbscan':
       _dbscan ( args, class_names, pct_test, epsilon )
       writer.close()        
-      hours   = round( (time.time() - start_time) / 3600,  1   )
-      minutes = round( (time.time() - start_time) /   60,  1   )
-      seconds = round( (time.time() - start_time)       ,  0   )
+      hours   = round( (time.time() - job_start_time) / 3600,  1   )
+      minutes = round( (time.time() - job_start_time) /   60,  1   )
+      seconds = round( (time.time() - job_start_time)       ,  0   )
       print( f'CLASSI:          INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
       sys.exit(0)
       
     elif clustering=='h_dbscan':
       h_dbscan ( args, class_names, pct_test, min_cluster_size )
       writer.close()        
-      hours   = round( (time.time() - start_time) / 3600,  1   )
-      minutes = round( (time.time() - start_time) /   60,  1   )
-      seconds = round( (time.time() - start_time)       ,  0   )
+      hours   = round( (time.time() - job_start_time) / 3600,  1   )
+      minutes = round( (time.time() - job_start_time) /   60,  1   )
+      seconds = round( (time.time() - job_start_time)       ,  0   )
       print( f'CLASSI:           INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
       sys.exit(0)
 
@@ -2172,16 +2176,15 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   
       writer.close()        
     
-      hours   = round( (time.time() - start_time) / 3600,  1   )
-      minutes = round( (time.time() - start_time) /   60,  1   )
-      seconds = round( (time.time() - start_time)       ,  0   )
+      hours   = round( (time.time() - job_start_time) / 3600,  1   )
+      minutes = round( (time.time() - job_start_time) /   60,  1   )
+      seconds = round( (time.time() - job_start_time)       ,  0   )
       
       pplog.log_section(f'This is all we have to do in the case of Autoencoding, so we close up and end.  Run complete in {minutes} mins' )
       
       print( f'\n\n\n\nCLASSI:          INFO: Job complete {BOLD}{CHARTREUSE}(Autoencoder ending).{RESET} The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
       now = time.localtime(time.time())
       print(time.strftime( f"CLASSI:          INFO:  end time = %Y-%m-%d %H:%M:%S %Z", now ))
-      start_time = time.time() 
                 
       sys.exit()
 
@@ -2195,10 +2198,9 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       
         if DEBUG>0:
           print ( "\033[8B" )        
-          print ( f"test batch: {BOLD}about to classify {MIKADO}{final_test_batch_size}{RESET}{BOLD} test samples using the best model produced during training"        )
+          print ( f"CLASSI:          INFO: {BOLD_BLEU}about to classify {MIKADO}{final_test_batch_size}{RESET}{BOLD_BLEU} test samples using the best model produced during training"        )
         
-        pplog.log ( f"\ntest(): about to classify {final_test_batch_size} test samples through the best model this run produced"                                        )
-
+        pplog.log ( f"\nabout to commence testing phase\n" )
 
         if args.input_mode == 'image':
           fqn = '%s/model_image.pt'     % log_dir
@@ -3337,12 +3339,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         run_level_classifications_matrix[i] = 0  
     
   
-      hours   = round( (time.time() - start_time) / 3600,  1   )
-      minutes = round( (time.time() - start_time) /   60,  1   )
-      seconds = round( (time.time() - start_time),     0       )
       
-
-
   
   
   
@@ -3481,8 +3478,15 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
     if ( args.box_plot=='True' ) & (run==total_runs_in_job):      
 
-        box_plot_by_subtype( args, class_names, n_genes, start_time, parameters, zoom_out_mags, zoom_out_prob, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc )
+        box_plot_by_subtype( args, class_names, n_genes, run_start_time, parameters, zoom_out_mags, zoom_out_prob, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc )
 
+
+
+    # finish run
+    
+    hours   = round( (time.time() - run_start_time) / 3600,  1   )
+    minutes = round( (time.time() - run_start_time) /   60,  1   )
+    seconds = round( (time.time() - run_start_time),     0       )
 
     print( f'CLASSI:         INFO:  elapsed time since job started: {MIKADO}{minutes}{RESET} mins ({MIKADO}{seconds:.1f}{RESET} secs)')
 
@@ -3492,7 +3496,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     pplog.log_section(f'RUN {run} FINISHED.  elapsed time: {minutes} mins ({seconds:.1f} secs)' )
     pplog.log(f'\n\n' )
 
-    print( f'CLASSI:         INFO:  elapsed time since job started: {MIKADO}{minutes}{RESET} mins ({MIKADO}{seconds:.1f}{RESET} secs)')
+    print( f'CLASSI:         INFO:  elapsed time since run started: {MIKADO}{minutes}{RESET} mins ({MIKADO}{seconds:.1f}{RESET} secs)')
 
     print ( "\033[6A" )
             
@@ -3505,12 +3509,12 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   
   writer.close()        
 
-  hours   = round( (time.time() - start_time) / 3600,  1   )
-  minutes = round( (time.time() - start_time) /   60,  1   )
-  seconds = round( (time.time() - start_time)       ,  0   )
+  hours   = round( (time.time() - job_start_time) / 3600,  1   )
+  minutes = round( (time.time() - job_start_time) /   60,  1   )
+  seconds = round( (time.time() - job_start_time)       ,  0   )
 
   pplog.log(f'\n\n\n' )
-  pplog.log_section(f'BATCH JOB FINISHED.  elapsed time since job started: {minutes} mins ({seconds:.1f} secs)' )
+  pplog.log_section(f'BATCH JOB FINISHED AT {now:%y-%m-%d %H:%M}.  Elapsed time since job started: {minutes} mins ({seconds:.1f} secs)' )
     
   print( f'\033[18B')
   if ( args.just_test=='True') & ( args.input_mode=='rna' ):
@@ -3519,7 +3523,6 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   print( f'CLASSI:          INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
   now = time.localtime(time.time())
   print(time.strftime( f"CLASSI:          INFO:  end time = %Y-%m-%d %H:%M:%S %Z", now ))
-  start_time = time.time() 
   
 
   if LOG_LEVEL>2:
@@ -4237,7 +4240,9 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
 
         if is_final_test == False:
           pplog.log(f"\nepoch {epoch}" )
-        pplog.log(f"test(): truth/prediction for first {number_to_display} examples from the most recent test batch ( number correct this batch: {correct}/{batch_size} = {pct:>3.0f}%  )  ( number correct overall: {global_correct_prediction_count+correct}/{global_number_tested+batch_size} = {global_pct:>3.0f}% (number tested this run = epochs x test batches x batch size)" )
+          pplog.log(f"test(): truth/prediction for first {number_to_display} examples from the most recent test batch ( number correct this batch: {correct}/{batch_size} = {pct:>3.0f}%  )  ( number correct overall: {global_correct_prediction_count+correct}/{global_number_tested+batch_size} = {global_pct:>3.0f}% (number tested this run = epochs x test batches x batch size)" )
+        else:
+          pplog.log(f"test(): classified {number_to_display} of the held out test examples using the best model this run produced.  Number correct = {correct}/{batch_size} = {pct:>3.0f}%" )
         if LOG_LEVEL>1:
           pplog.log(f"{CLEAR_LINE}        truth = {labs}"  )
           pplog.log(f"{CLEAR_LINE}        preds = {preds}" )
@@ -6122,7 +6127,7 @@ def excludes( number_to_plot, plot_box_side_length ):
   return concat_excludes
 
 # ------------------------------------------------------------------------------
-def box_plot_by_subtype( args, class_names, n_genes, start_time, parameters, mags, probs, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc ):
+def box_plot_by_subtype( args, class_names, n_genes, run_start_time, parameters, mags, probs, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc ):
   
   np.set_printoptions(edgeitems=1000)
   np.set_printoptions(linewidth=1000)
@@ -6238,7 +6243,7 @@ def box_plot_by_subtype( args, class_names, n_genes, start_time, parameters, mag
   # From https://en.wikipedia.org/wiki/Box_plot for reference."
   
   now     =  time.time()
-  seconds = now - start_time 
+  seconds = now - run_start_time 
   
   if DEBUG>99:
     print ( f"now     =  {now}"      )
