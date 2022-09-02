@@ -964,9 +964,9 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
     os.mkdir( args.log_dir )
       
   now  = datetime.datetime.now()
-  pplog.set_logfiles( log_dir, job_descriptor, now )
-  pplog.log_section(f"BATCH_JOB COMMENCED AT {now:%y-%m-%d %H:%M}")
-  pplog.log("\n\n")
+  pplog.set_logfiles( "job", log_dir, job_descriptor )                                                     # establish 'job level' logger
+  pplog.log_section(  "job", f"BATCH_JOB COMMENCED AT {now:%y-%m-%d %H:%M:%S}")
+  pplog.log( "\n\n" )
   
   if skip_tiling=='True':
 
@@ -1248,16 +1248,17 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     time.sleep(1)
     
     now  = datetime.datetime.now()
-    pplog.set_logfiles( log_dir, descriptor, now )                                                         # establish run log file
-    pplog.log(f"\n\nRUN {run+1:02d} OF {total_runs_in_job:03d}")
+    pplog.set_logfiles(  "run", log_dir, descriptor )                                                      # establish 'run level' logger 
+    pplog.log_section (  "run", f"RUN {run+1:03d} OF {total_runs_in_job:03d}" ) 
+    pplog.log(f"\n" )
     pplog.log(f"{bash_command}\n" )
-    pplog.log(f"start time    = {now:%y-%m-%d %H:%M}")
+    pplog.log(f"start time    = {now:%y-%m-%d %H:%M:%S}")
     pplog.log(f"descriptor    = {descriptor}")
     # ~ pplog.log(f"zoom_out_mags = {np.around(np.array(zoom_out_mags),3)}          zoom_out_prob = {np.around(np.array(zoom_out_prob),3)}")
     pplog.log(f"run args      = {sys.argv}")
 
     
-    pplog.log(f"\nabout to commence training phase")
+    pplog.log(f"\nABOUT TO COMMENCE TRAINING PHASE:")
     
 
     run+=1
@@ -2186,7 +2187,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       minutes = round( (time.time() - job_start_time) /   60,  1   )
       seconds = round( (time.time() - job_start_time)       ,  0   )
       
-      pplog.log_section(f'This is all we have to do in the case of Autoencoding, so we close up and end.  Run complete in {minutes} mins' )
+      pplog.log_section( "job", f'This is all we have to do in the case of Autoencoding, so we close up and end.  Run complete in {minutes} mins' )
       
       print( f'\n\n\n\nCLASSI:          INFO: Job complete {BOLD}{CHARTREUSE}(Autoencoder ending).{RESET} The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
       now = time.localtime(time.time())
@@ -2204,9 +2205,9 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       
         if DEBUG>0:
           print ( "\033[8B" )        
-          print ( f"CLASSI:          INFO: {BOLD_BLEU}about to classify {MIKADO}{final_test_batch_size}{RESET}{BOLD_BLEU} test samples using the best model produced during training{RESET}"        )
+          print ( f"CLASSI:          INFO: {BOLD_BLEU}about to classify {MIKADO}{final_test_batch_size:,}{RESET}{BOLD_BLEU} test samples using the best model produced during training{RESET}"        )
         
-        pplog.log ( f"\nabout to commence testing phase\n" )
+        pplog.log ( f"\nABOUT TO COMMENCE TEST PHASE:\n" )
 
         if args.input_mode == 'image':
           fqn = '%s/model_image.pt'     % log_dir
@@ -2231,7 +2232,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         show_all_test_examples=True
         
         if DEBUG>0:
-          print ( f"CLASSI:         INFO:      test: final_test_batch_size = {MIKADO}{final_test_batch_size}{RESET}" )
+          print ( f"CLASSI:         INFO:      test: final_test_batch_size = {MIKADO}{final_test_batch_size:,}{RESET}" )
           
         # note that we pass 'final_test_loader' to test
         
@@ -3497,10 +3498,13 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     print( f'CLASSI:         INFO:  elapsed time since job started: {MIKADO}{minutes}{RESET} mins ({MIKADO}{seconds:.1f}{RESET} secs)')
 
     print ( "\033[6A" )
-
-    pplog.log(f'\n' )
-    pplog.log_section(f'RUN {run} FINISHED.  elapsed time: {minutes} mins ({seconds:.1f} secs)' )
-    pplog.log(f'\n\n' )
+    
+    
+    pplog.log(  "run",  f"end time    = {now:%y-%m-%d %H:%M:%S}")
+    pplog.log( f'\n' )
+    pplog.log_section( "run", f'RUN {run:03d} FINISHED.  elapsed time: {minutes} mins ({seconds:.1f} secs)' )
+    pplog.log( f'\n\n' )
+    pplog.del_logger( "run" )
 
     print( f'CLASSI:         INFO:  elapsed time since run started: {MIKADO}{minutes}{RESET} mins ({MIKADO}{seconds:.1f}{RESET} secs)')
 
@@ -3520,7 +3524,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   seconds = round( (time.time() - job_start_time)       ,  0   )
 
   pplog.log(f'\n\n\n' )
-  pplog.log_section(f'BATCH JOB FINISHED AT {now:%y-%m-%d %H:%M}.  Elapsed time since job started: {minutes} mins ({seconds:.1f} secs)' )
+  pplog.log_section( "job", f'BATCH JOB FINISHED AT {now:{now:%y-%m-%d %H:%M:%S}}.  Elapsed time since job started: {minutes} mins ({seconds:.1f} secs)' )
     
   print( f'\033[18B')
   if ( args.just_test=='True') & ( args.input_mode=='rna' ):
@@ -3532,7 +3536,8 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   
 
   if LOG_LEVEL>2:
-    pplog.log_section('Model specs.')
+    pplog.log_section( "run", 'Model specs.')
+    pplog.log_section( "job", 'Model specs.')
     pplog.log_model(model)
 
 
@@ -4147,14 +4152,14 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
         pct=100*correct/batch_size if batch_size>0 else 0
         global_pct = 100*(global_correct_prediction_count+correct) / (global_number_tested+batch_size) 
         if show_all_test_examples==False:
-          print ( f"{CLEAR_LINE}                           test: truth/prediction for first {MIKADO}{number_to_display}{RESET} examples from the most recent test batch \
+          print ( f"{CLEAR_LINE}                           test: truth/prediction for first {MIKADO}{number_to_display:,}{RESET} examples from the most recent test batch \
     ( number correct this batch: {correct}/{batch_size} \
     = {MAGENTA if pct>=90 else BRIGHT_GREEN if pct>=80 else PALE_GREEN if pct>=70 else ORANGE if pct>=60 else WHITE if pct>=50 else DULL_WHITE}{pct:>3.0f}%{RESET} )  \
     ( number correct overall: {global_correct_prediction_count+correct}/{global_number_tested+batch_size} \
     = {MAGENTA if global_pct>=90 else BRIGHT_GREEN if global_pct>=80 else PALE_GREEN if global_pct>=70 else ORANGE if global_pct>=60 else WHITE if global_pct>=50 else DULL_WHITE}{global_pct:>3.0f}%{RESET} {DIM_WHITE}(number tested this run = epochs x test batches x batch size){RESET}" )
         else:
           run_level_total_correct.append( correct )
-          print ( f"{CLEAR_LINE}                           test: truth/prediction for {MIKADO}{number_to_display}{RESET} test examples \
+          print ( f"{CLEAR_LINE}                           test: truth/prediction for {MIKADO}{number_to_display:,}{RESET} test examples \
     ( number correct  - all test examples - this run: {correct}/{batch_size} \
     = {MAGENTA if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>3.0f}%{RESET} )  \
     ( number correct  - all test examples - cumulative over all runs: {global_correct_prediction_count+correct}/{global_number_tested}  \
@@ -4246,7 +4251,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
 
         if is_final_test == False:
           pplog.log(f"\nepoch {epoch}" )
-          pplog.log(f"test(): truth/prediction for first {number_to_display} examples from the most recent test batch ( number correct this batch: {correct}/{batch_size} = {pct:>3.0f}%  )  ( number correct overall: {global_correct_prediction_count+correct}/{global_number_tested+batch_size} = {global_pct:>3.0f}% (number tested this run = epochs x test batches x batch size)" )
+          pplog.log(f"test(): truth/prediction for first {number_to_display:,} examples from the most recent test batch ( number correct this batch: {correct}/{batch_size} = {pct:>3.0f}%  )  ( number correct overall: {global_correct_prediction_count+correct}/{global_number_tested+batch_size} = {global_pct:>3.0f}% (number tested this run = epochs x test batches x batch size)" )
         else:
           pplog.log(f"test(): classified {number_to_display} of the held out test examples using the best model this run produced.  Number correct = {correct}/{batch_size} = {pct:>3.0f}%" )
         if LOG_LEVEL>1:

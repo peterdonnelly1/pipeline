@@ -48,7 +48,7 @@ def tiler_threader( args, flag, count, tiles_needed_per_subtype, n_classes, n_sa
   random_array = [ random.random() for i in range(1, len(zoom_out_prob)+1 ) ]
   r_norm       = [ i/(sum(random_array)) for i in random_array ]                                           # make the vector add up to 1
 
-  pplog.log_section(f"      system generated zoom out probabilities vector for selection of tiles (corresponds to zoom out mags) = {r_norm}")
+  pplog.log_section( "run", f"      system generated zoom out probabilities vector for selection of tiles (corresponds to zoom out mags) = {r_norm}")
 
   # DON'T USE args.n_tiles since it is the job level array of numbers of tiles. Rather, used the passed in parameter 'n_tiles' which is the value for this run
   just_test    = args.just_test
