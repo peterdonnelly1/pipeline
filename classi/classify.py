@@ -1035,7 +1035,7 @@ f"\
       if per_run_zoom_out_parameters==False:
         print(f"\r\033[155C ------------ tile extraction parameters (all tiles will be saved at base tile size ({MIKADO}{tile_size[0]}x{tile_size[0]}{RESET}) -------------- {RESET}")      
       print(f"\r\033[2C{image_headings}{RESET}")
-      pplog_image_headings = f"run    lr         pct_test  examples   batch_size  tiles/image  num_classes  tile_size  rand_tiles  net_img  optimizer  stain_norm  label_swap  greyscale extraction dimensions  extraction probabilities            jitter vector"
+      pplog_image_headings = f"run     lr        pct_test  examples  batch_size tiles/image  num_classes  tile_size  rand_tiles  net_img  optimizer  stain_norm  label_swap  greyscale extraction dimensions  extraction probabilities            jitter vector"
       pplog.log( "job", f"\n{pplog_image_headings}")
       pplog.log( "cum", f"\n{pplog_image_headings}")
 
@@ -1043,8 +1043,8 @@ f"\
       for repeater, stain_norm, tile_size, lr, pct_test, n_samples, batch_size, n_tiles, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, low_expression_threshold, cutoff_percentile, embedding_dimensions, dropout_1, dropout_2, nn_optimizer, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values):    
       
         n+=1
-        pplog.log( "job", f"{n:<4d}    {lr:<9.6f} {pct_test:<9.6f} {n_samples:<5d}      {batch_size:<5d}      {n_tiles:<5d}      {n_classes:<2d}      {tile_size:<3d}     {rand_tiles:<5s}      {nn_type_img:<10s}      {nn_optimizer:<8s}      {stain_norm:<10s}      {label_swap_pct:<6.1f}      {make_grey_pct:<5.1f}           {zoom_out_mags:}                {np.round(np.array(zoom_out_prob),3):}              {jitter:}" )
-        pplog.log( "cum", f"{n:<4d}    {lr:<9.6f} {pct_test:<9.6f} {n_samples:<5d}      {batch_size:<5d}      {n_tiles:<5d}      {n_classes:<2d}      {tile_size:<3d}     {rand_tiles:<5s}      {nn_type_img:<10s}      {nn_optimizer:<8s}      {stain_norm:<10s}      {label_swap_pct:<6.1f}      {make_grey_pct:<5.1f}           {zoom_out_mags:}                {np.round(np.array(zoom_out_prob),3):}              {jitter:}" )
+        pplog.log( "job", f"{n:<4d}    {lr:<9.6f} {pct_test:<9.6f} {n_samples:<5d}        {batch_size:<5d}        {n_tiles:<5d}       {n_classes:<2d}          {tile_size:<3d}       {rand_tiles:<5s}    {nn_type_img:<10s}  {nn_optimizer:<8s}      {stain_norm:<10s}      {label_swap_pct:<6.1f}      {make_grey_pct:<5.1f}           {zoom_out_mags:}                {np.round(np.array(zoom_out_prob),3):}              {jitter:}" )
+        pplog.log( "cum", f"{n:<4d}    {lr:<9.6f} {pct_test:<9.6f} {n_samples:<5d}        {batch_size:<5d}        {n_tiles:<5d}       {n_classes:<2d}          {tile_size:<3d}       {rand_tiles:<5s}    {nn_type_img:<10s}  {nn_optimizer:<8s}      {stain_norm:<10s}      {label_swap_pct:<6.1f}      {make_grey_pct:<5.1f}           {zoom_out_mags:}                {np.round(np.array(zoom_out_prob),3):}              {jitter:}" )
       
         print( f"{CARRIBEAN_GREEN}\
 \r\033[2C\
