@@ -964,9 +964,11 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
     os.mkdir( args.log_dir )
       
   now  = datetime.datetime.now()
-  pplog.set_logfiles( "job", log_dir, job_descriptor )                                                     # establish 'job level' logger
-  pplog.log_section(  "job", f"BATCH_JOB COMMENCED AT {now:%y-%m-%d %H:%M:%S}")
-  pplog.log( "\n\n" )
+  pplog.add_logger  ( "job", log_dir, job_descriptor )                                                     # establish 'job level' logger
+  pplog.add_logger  ( "cum", log_dir, "cumulative"   )                                                     # establish 'cumlative' logger
+  pplog.log_section ( "job", f"BATCH_JOB COMMENCED AT {now:%y-%m-%d %H:%M:%S}")
+  pplog.log         ( "cum", f"\n")
+  pplog.log_section ( "cum", f"BATCH_JOB COMMENCED AT {now:%y-%m-%d %H:%M:%S}")
   
   if skip_tiling=='True':
 
@@ -979,7 +981,7 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
       time.sleep(1)
 
     
-  # establish and initialise some variables
+  # establish and initialise some variables                                                                                                  # current run in the job
   n_classes = len(class_names)
   run_level_classifications_matrix     =  np.zeros( (n_classes, n_classes), dtype=int )
   job_level_classifications_matrix     =  np.zeros( (n_classes, n_classes), dtype=int )
@@ -1033,12 +1035,16 @@ f"\
       if per_run_zoom_out_parameters==False:
         print(f"\r\033[155C ------------ tile extraction parameters (all tiles will be saved at base tile size ({MIKADO}{tile_size[0]}x{tile_size[0]}{RESET}) -------------- {RESET}")      
       print(f"\r\033[2C{image_headings}{RESET}")
-      pplog_image_headings = f"lr        pct_test  examples   batch_size  tiles/image  num_classes  tile_size  rand_tiles  net_img  optimizer  stain_norm  label_swap  greyscale extraction dimensions (multiples of base tile size)  probability for each of the extraction dimensions  jitter vector"
-      pplog.log(f"{pplog_image_headings}")
+      pplog_image_headings = f"run    lr         pct_test  examples   batch_size  tiles/image  num_classes  tile_size  rand_tiles  net_img  optimizer  stain_norm  label_swap  greyscale extraction dimensions  extraction probabilities            jitter vector"
+      pplog.log( "job", f"\n{pplog_image_headings}")
+      pplog.log( "cum", f"\n{pplog_image_headings}")
 
+      n=0
       for repeater, stain_norm, tile_size, lr, pct_test, n_samples, batch_size, n_tiles, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, low_expression_threshold, cutoff_percentile, embedding_dimensions, dropout_1, dropout_2, nn_optimizer, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values):    
-
-        pplog.log( f"{lr:<9.6f} {pct_test:<9.6f} {n_samples:<5d}      {batch_size:<5d}      {n_tiles:<5d}      {n_classes:<2d}      {tile_size:<3d}     {rand_tiles:<5s}      {nn_type_img:<10s}      {nn_optimizer:<8s}      {stain_norm:<10s}      {label_swap_pct:<6.1f}      {make_grey_pct:<5.1f}      {zoom_out_mags:}      {jitter:}" )
+      
+        n+=1
+        pplog.log( "job", f"{n:<4d}    {lr:<9.6f} {pct_test:<9.6f} {n_samples:<5d}      {batch_size:<5d}      {n_tiles:<5d}      {n_classes:<2d}      {tile_size:<3d}     {rand_tiles:<5s}      {nn_type_img:<10s}      {nn_optimizer:<8s}      {stain_norm:<10s}      {label_swap_pct:<6.1f}      {make_grey_pct:<5.1f}           {zoom_out_mags:}                {np.round(np.array(zoom_out_prob),3):}              {jitter:}" )
+        pplog.log( "cum", f"{n:<4d}    {lr:<9.6f} {pct_test:<9.6f} {n_samples:<5d}      {batch_size:<5d}      {n_tiles:<5d}      {n_classes:<2d}      {tile_size:<3d}     {rand_tiles:<5s}      {nn_type_img:<10s}      {nn_optimizer:<8s}      {stain_norm:<10s}      {label_swap_pct:<6.1f}      {make_grey_pct:<5.1f}           {zoom_out_mags:}                {np.round(np.array(zoom_out_prob),3):}              {jitter:}" )
       
         print( f"{CARRIBEAN_GREEN}\
 \r\033[2C\
@@ -1064,12 +1070,16 @@ f"\
     elif input_mode=='rna':
       print(f"\n{UNDER}JOB LIST:{RESET}")
       print(f"\033[2C\{rna_headings}{RESET}")
-      pplog_rna_headings = f"lr  pct_test  samples  batch_size  network  hidden  FPKM percentile/threshold  embedded  dropout_1  dropout_2  optimizer  normalisation  transform  label_swap"
-      pplog.log(f"{pplog_rna_headings}")
+      pplog_rna_headings = f"run    lr         examples  batch_size  network  hidden  FPKM percentile/threshold  embedded  dropout_1  dropout_2  optimizer  normalisation  transform  label_swap"
+      pplog.log( "job", f"{pplog_rna_headings}")
+      pplog.log( "cum", f"{pplog_rna_headings}")
 
+      n=0
       for repeater, stain_norm, tile_size, lr, pct_test, n_samples, batch_size, n_tiles, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, low_expression_threshold, cutoff_percentile, embedding_dimensions, dropout_1, dropout_2, nn_optimizer, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values):    
   
-        pplog.log( f"{lr:<9.6f}  {100*pct_test:<9.0f}  {n_samples:<5d}  {batch_size:<5d}  {nn_type_rna:<10s}  {hidden_layer_neurons:<5d}  {cutoff_percentile:<4.0f}  {low_expression_threshold:<9.6f}  {embedding_dimensions:<5d}  {dropout_1:<5.2f}  {dropout_2:<5.2f}  {nn_optimizer:<8s}  {gene_data_norm:<10s}  {gene_data_transform:<10s}  {label_swap_pct:<6.1f}" )
+        n+=1
+        pplog.log(  "job",  f"{n:<4d}    f{lr:<9.6f}  {100*pct_test:<9.0f}  {n_samples:<5d}  {batch_size:<5d}  {nn_type_rna:<10s}  {hidden_layer_neurons:<5d}  {cutoff_percentile:<4.0f}  {low_expression_threshold:<9.6f}  {embedding_dimensions:<5d}  {dropout_1:<5.2f}  {dropout_2:<5.2f}  {nn_optimizer:<8s}  {gene_data_norm:<10s}  {gene_data_transform:<10s}  {label_swap_pct:<6.1f}" )
+        pplog.log(  "cum",  f"{n:<4d}    f{lr:<9.6f}  {100*pct_test:<9.0f}  {n_samples:<5d}  {batch_size:<5d}  {nn_type_rna:<10s}  {hidden_layer_neurons:<5d}  {cutoff_percentile:<4.0f}  {low_expression_threshold:<9.6f}  {embedding_dimensions:<5d}  {dropout_1:<5.2f}  {dropout_2:<5.2f}  {nn_optimizer:<8s}  {gene_data_norm:<10s}  {gene_data_transform:<10s}  {label_swap_pct:<6.1f}" )
   
         print( f"{CARRIBEAN_GREEN}\
 \r\033[{start_column+0*offset}C{lr:<9.6f}\
@@ -1109,7 +1119,6 @@ f"\
 
 
   # (B) RUN JOB LOOP
-
 
   run=0
   
@@ -1243,19 +1252,30 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     zoom_out_prob_string = np.around(np.array(zoom_out_prob), 3)
     zoom_out_prob_string = " ".join([str(i) for i in zoom_out_prob])
     
-    bash_command = f"cls; ./do_all.sh -d {args.dataset}  -i {input_mode}   -S {n_samples}  -A {highest_class_number}  -f {n_tiles}   -T {tile_size}  -b {batch_size}  -o {n_epochs}  -1 {pct_test}  -a {nn_type_img}  -c {args.cases}   -0 {stain_norm}  -U '{zoom_out_mags_string}' -Q '{zoom_out_prob_string}'  "
+    if input_mode=='image':
+      bash_command = f"cls; ./do_all.sh -d {args.dataset}  -i {input_mode}   -S {n_samples}  -A {highest_class_number}  -L {lr} -f {n_tiles}   -T {tile_size}  -b {batch_size}  -o {n_epochs}  -1 {pct_test}  -a {nn_type_img}  -c {args.cases}   -0 {stain_norm}  -U '{zoom_out_mags_string}' -Q '{zoom_out_prob_string}'  "
+    else:
+      bash_command = f"cls; ./do_all.sh -d {args.dataset}  -i {input_mode}   -S {n_samples}  -A {highest_class_number}  -b {batch_size}  -o {n_epochs}  -1 {pct_test}  -a {nn_type_rna}  -c {args.cases}  "      
+      
+      
     print ( f"\033[79;0H{bash_command}" )
     time.sleep(1)
     
     now  = datetime.datetime.now()
-    pplog.set_logfiles(  "run", log_dir, descriptor )                                                      # establish 'run level' logger 
+    pplog.add_logger  (  "run", log_dir, descriptor )                                                      # establish 'run level' logger 
     pplog.log_section (  "run", f"RUN {run+1:03d} OF {total_runs_in_job:03d}" ) 
-    pplog.log(f"\n" )
-    pplog.log(f"{bash_command}\n" )
-    pplog.log(f"start time    = {now:%y-%m-%d %H:%M:%S}")
-    pplog.log(f"descriptor    = {descriptor}")
-    # ~ pplog.log(f"zoom_out_mags = {np.around(np.array(zoom_out_mags),3)}          zoom_out_prob = {np.around(np.array(zoom_out_prob),3)}")
-    pplog.log(f"run args      = {sys.argv}")
+    pplog.log( "job", f"\nRUN {run+1:03d}   {now:%y-%m-%d %H:%M:%S}")    
+    pplog.log( "cum", f"\nRUN {run+1:03d}   {now:%y-%m-%d %H:%M:%S}")    
+    pplog.log( "run", f"\nstart time     = {now:%y-%m-%d %H:%M:%S}\n")    
+    pplog.log( "run", f"{bash_command}\n\n" )
+    pplog.log( "job", f"{bash_command}" )
+    pplog.log( "cum", f"{bash_command}" )
+    pplog.log( "run", f"descriptor    = {descriptor}" )
+    pplog.log( "job", f"descriptor    = {descriptor}" )
+    pplog.log( "cum", f"descriptor    = {descriptor}" )
+    pplog.log( "run", f"run args      = {sys.argv}"   )
+    pplog.log( "job", f"run args      = {sys.argv}"   )
+    pplog.log( "cum", f"run args      = {sys.argv}"   )
 
     
     pplog.log(f"\nABOUT TO COMMENCE TRAINING PHASE:")
@@ -3499,11 +3519,13 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
     print ( "\033[6A" )
     
-    
-    pplog.log(  "run",  f"end time    = {now:%y-%m-%d %H:%M:%S}")
-    pplog.log( f'\n' )
+
+    now = datetime.datetime.now()
+    pplog.log( '\n' )    
+    pplog.log(  "run",  f"end   time     = {now:%y-%m-%d %H:%M:%S}")
+    pplog.log( '\n' )
     pplog.log_section( "run", f'RUN {run:03d} FINISHED.  elapsed time: {minutes} mins ({seconds:.1f} secs)' )
-    pplog.log( f'\n\n' )
+    pplog.log( '\n\n' )
     pplog.del_logger( "run" )
 
     print( f'CLASSI:         INFO:  elapsed time since run started: {MIKADO}{minutes}{RESET} mins ({MIKADO}{seconds:.1f}{RESET} secs)')
@@ -3523,8 +3545,11 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   minutes = round( (time.time() - job_start_time) /   60,  1   )
   seconds = round( (time.time() - job_start_time)       ,  0   )
 
-  pplog.log(f'\n\n\n' )
-  pplog.log_section( "job", f'BATCH JOB FINISHED AT {now:{now:%y-%m-%d %H:%M:%S}}.  Elapsed time since job started: {minutes} mins ({seconds:.1f} secs)' )
+  pplog.log( "run", f'\n\n\n' )
+  pplog.log( "job", f'\n' )
+  pplog.log( "cum", f'' )
+  pplog.log_section( "job", f"BATCH JOB FINISHED AT {now:{now:%y-%m-%d %H:%M:%S}}.  Elapsed time since job started: {minutes} mins ({seconds:.1f} secs)" )
+  pplog.log_section( "cum", f"BATCH JOB FINISHED AT {now:{now:%y-%m-%d %H:%M:%S}}.  Elapsed time since job started: {minutes} mins ({seconds:.1f} secs)" )
     
   print( f'\033[18B')
   if ( args.just_test=='True') & ( args.input_mode=='rna' ):
@@ -4253,7 +4278,9 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
           pplog.log(f"\nepoch {epoch}" )
           pplog.log(f"test(): truth/prediction for first {number_to_display:,} examples from the most recent test batch ( number correct this batch: {correct}/{batch_size} = {pct:>3.0f}%  )  ( number correct overall: {global_correct_prediction_count+correct}/{global_number_tested+batch_size} = {global_pct:>3.0f}% (number tested this run = epochs x test batches x batch size)" )
         else:
-          pplog.log(f"test(): classified {number_to_display} of the held out test examples using the best model this run produced.  Number correct = {correct}/{batch_size} = {pct:>3.0f}%" )
+          pplog.log( "run", f"test(): classified {number_to_display} of the held out test examples using the best model this run produced.  Number correct = {correct}/{batch_size} = {pct:>3.0f}%" )
+          pplog.log( "job", f"test(): classified {number_to_display} of the held out test examples using the best model this run produced.  Number correct = {correct}/{batch_size} = {pct:>3.0f}%" )
+          pplog.log( "cum", f"test(): classified {number_to_display} of the held out test examples using the best model this run produced.  Number correct = {correct}/{batch_size} = {pct:>3.0f}%" )
         if LOG_LEVEL>1:
           pplog.log(f"{CLEAR_LINE}        truth = {labs}"  )
           pplog.log(f"{CLEAR_LINE}        preds = {preds}" )

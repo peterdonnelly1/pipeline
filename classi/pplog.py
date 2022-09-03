@@ -13,7 +13,7 @@ from constants  import *
 # ------------------------------------------------------------------------------
 
 
-def set_logfiles( logger_name, log_dir, descriptor, level=logging.INFO):
+def add_logger( logger_name, log_dir, descriptor, level=logging.INFO  ):
   
     """Establish a logger called 'logger_name' that will log to a file name made up a composite of log_dir, and descriptor something like this for job level logs:
           220902_1527_BATCH__003_SKIN_image_____NOTBLNCD_UNIMODE_CASE_________log.txt
@@ -23,7 +23,10 @@ def set_logfiles( logger_name, log_dir, descriptor, level=logging.INFO):
     """
     
     now  = datetime.datetime.now()
-    log_file_name = f'{log_dir}/{now:%y%m%d_%H%M}_{descriptor}_log.txt' 
+    if descriptor=="cumulative":
+      log_file_name = f'{log_dir}/{descriptor}_log.txt' 
+    else:
+      log_file_name = f'{log_dir}/{now:%y%m%d_%H%M}_{descriptor}_log.txt' 
     handler = logging.FileHandler( log_file_name)
     logger  = logging.getLogger  ( logger_name )
     logger.setLevel   (level)
