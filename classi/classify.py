@@ -1035,7 +1035,7 @@ f"\
       if per_run_zoom_out_parameters==False:
         print(f"\r\033[155C ------------ tile extraction parameters (all tiles will be saved at base tile size ({MIKADO}{tile_size[0]}x{tile_size[0]}{RESET}) -------------- {RESET}")      
       print(f"\r\033[2C{image_headings}{RESET}")
-      pplog_image_headings = f"run     lr        pct_test  examples  batch_size tiles/image  num_classes  tile_size  rand_tiles  net_img  optimizer  stain_norm  label_swap  greyscale extraction dimensions  extraction probabilities            jitter vector"
+      pplog_image_headings = f"run   lr        pct_test  examples  batch_size tiles/image  num_classes  tile_size  rand_tiles  net_img  optimizer  stain_norm   label_swap  greyscale extraction dimensions  extraction probabilities      jitter vector"
       pplog.log( "job", f"\n{pplog_image_headings}")
       pplog.log( "cum", f"\n{pplog_image_headings}")
 
@@ -1043,8 +1043,8 @@ f"\
       for repeater, stain_norm, tile_size, lr, pct_test, n_samples, batch_size, n_tiles, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, low_expression_threshold, cutoff_percentile, embedding_dimensions, dropout_1, dropout_2, nn_optimizer, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values):    
       
         n+=1
-        pplog.log( "job", f"{n:<4d}    {lr:<9.6f} {pct_test:<9.6f} {n_samples:<5d}        {batch_size:<5d}        {n_tiles:<5d}       {n_classes:<2d}          {tile_size:<3d}       {rand_tiles:<5s}    {nn_type_img:<10s}  {nn_optimizer:<8s}      {stain_norm:<10s}      {label_swap_pct:<6.1f}      {make_grey_pct:<5.1f}           {zoom_out_mags:}                {np.round(np.array(zoom_out_prob),3):}              {jitter:}" )
-        pplog.log( "cum", f"{n:<4d}    {lr:<9.6f} {pct_test:<9.6f} {n_samples:<5d}        {batch_size:<5d}        {n_tiles:<5d}       {n_classes:<2d}          {tile_size:<3d}       {rand_tiles:<5s}    {nn_type_img:<10s}  {nn_optimizer:<8s}      {stain_norm:<10s}      {label_swap_pct:<6.1f}      {make_grey_pct:<5.1f}           {zoom_out_mags:}                {np.round(np.array(zoom_out_prob),3):}              {jitter:}" )
+        pplog.log( "job", f"{n:<4d}  {lr:<9.6f} {pct_test:<9.6f} {n_samples:<5d}        {batch_size:<5d}        {n_tiles:<5d}       {n_classes:<2d}          {tile_size:<3d}       {rand_tiles:<5s}    {nn_type_img:<10s}  {nn_optimizer:<8s}    {stain_norm:<10s}   {label_swap_pct:<6.1f}      {make_grey_pct:<5.1f}           {zoom_out_mags:}                {np.round(np.array(zoom_out_prob),3):}              {jitter:}" )
+        pplog.log( "cum", f"{n:<4d}  {lr:<9.6f} {pct_test:<9.6f} {n_samples:<5d}        {batch_size:<5d}        {n_tiles:<5d}       {n_classes:<2d}          {tile_size:<3d}       {rand_tiles:<5s}    {nn_type_img:<10s}  {nn_optimizer:<8s}    {stain_norm:<10s}   {label_swap_pct:<6.1f}      {make_grey_pct:<5.1f}           {zoom_out_mags:}                {np.round(np.array(zoom_out_prob),3):}              {jitter:}" )
       
         print( f"{CARRIBEAN_GREEN}\
 \r\033[2C\
@@ -1070,7 +1070,7 @@ f"\
     elif input_mode=='rna':
       print(f"\n{UNDER}JOB LIST:{RESET}")
       print(f"\033[2C\{rna_headings}{RESET}")
-      pplog_rna_headings = f"run    lr         examples  batch_size  network  hidden  FPKM percentile/threshold  embedded  dropout_1  dropout_2  optimizer  normalisation  transform  label_swap"
+      pplog_rna_headings = f"run  lr         examples  batch_size  network  hidden  FPKM percentile/threshold  embedded  dropout_1  dropout_2  optimizer  normalisation  transform  label_swap"
       pplog.log( "job", f"{pplog_rna_headings}")
       pplog.log( "cum", f"{pplog_rna_headings}")
 
@@ -1078,8 +1078,8 @@ f"\
       for repeater, stain_norm, tile_size, lr, pct_test, n_samples, batch_size, n_tiles, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, low_expression_threshold, cutoff_percentile, embedding_dimensions, dropout_1, dropout_2, nn_optimizer, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values):    
   
         n+=1
-        pplog.log(  "job",  f"{n:<4d}    f{lr:<9.6f}  {100*pct_test:<9.0f}  {n_samples:<5d}  {batch_size:<5d}  {nn_type_rna:<10s}  {hidden_layer_neurons:<5d}  {cutoff_percentile:<4.0f}  {low_expression_threshold:<9.6f}  {embedding_dimensions:<5d}  {dropout_1:<5.2f}  {dropout_2:<5.2f}  {nn_optimizer:<8s}  {gene_data_norm:<10s}  {gene_data_transform:<10s}  {label_swap_pct:<6.1f}" )
-        pplog.log(  "cum",  f"{n:<4d}    f{lr:<9.6f}  {100*pct_test:<9.0f}  {n_samples:<5d}  {batch_size:<5d}  {nn_type_rna:<10s}  {hidden_layer_neurons:<5d}  {cutoff_percentile:<4.0f}  {low_expression_threshold:<9.6f}  {embedding_dimensions:<5d}  {dropout_1:<5.2f}  {dropout_2:<5.2f}  {nn_optimizer:<8s}  {gene_data_norm:<10s}  {gene_data_transform:<10s}  {label_swap_pct:<6.1f}" )
+        pplog.log(  "job",  f"{n:<4d}  f{lr:<9.6f}  {100*pct_test:<9.0f}  {n_samples:<5d}  {batch_size:<5d}  {nn_type_rna:<10s}  {hidden_layer_neurons:<5d}  {cutoff_percentile:<4.0f}  {low_expression_threshold:<9.6f}  {embedding_dimensions:<5d}  {dropout_1:<5.2f}  {dropout_2:<5.2f}  {nn_optimizer:<8s}  {gene_data_norm:<10s}  {gene_data_transform:<10s}  {label_swap_pct:<6.1f}" )
+        pplog.log(  "cum",  f"{n:<4d}  f{lr:<9.6f}  {100*pct_test:<9.0f}  {n_samples:<5d}  {batch_size:<5d}  {nn_type_rna:<10s}  {hidden_layer_neurons:<5d}  {cutoff_percentile:<4.0f}  {low_expression_threshold:<9.6f}  {embedding_dimensions:<5d}  {dropout_1:<5.2f}  {dropout_2:<5.2f}  {nn_optimizer:<8s}  {gene_data_norm:<10s}  {gene_data_transform:<10s}  {label_swap_pct:<6.1f}" )
   
         print( f"{CARRIBEAN_GREEN}\
 \r\033[{start_column+0*offset}C{lr:<9.6f}\
@@ -1122,6 +1122,8 @@ f"\
 
   run=0
   
+  best = { 'run':0, 'number_correct':0, 'pct_correct':0, 'batch_size':0 }
+
   for repeater, stain_norm, tile_size, lr, pct_test, n_samples, batch_size, n_tiles, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, low_expression_threshold, cutoff_percentile, embedding_dimensions, dropout_1, dropout_2, nn_optimizer, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values): 
 
     now = time.localtime(time.time())
@@ -2072,7 +2074,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
           is_final_test          = False
           
           embeddings_accum, labels_accum, test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min, embedding     =\
-                        test ( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loader,  model,  tile_size, loss_function, loss_type, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
+                        test ( run, cfg, args, parameters, best, embeddings_accum, labels_accum, epoch, test_loader,  model,  tile_size, loss_function, loss_type, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
                                                                                       test_loss_min, show_all_test_examples, is_final_test, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours)
   
           global_correct_prediction_count += correct_predictions
@@ -2258,7 +2260,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         
         is_final_test=True
         embeddings_accum, labels_accum, test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min, embedding     =\
-                          test ( cfg, args, parameters, embeddings_accum, labels_accum, epoch, final_test_loader,  model,  tile_size, loss_function, loss_type, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
+                          test ( run, cfg, args, parameters, best, embeddings_accum, labels_accum, epoch, final_test_loader,  model,  tile_size, loss_function, loss_type, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
                                                                                                            test_loss_min, show_all_test_examples, is_final_test, final_test_batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours )    
     
       job_level_classifications_matrix               += run_level_classifications_matrix                     # accumulate for the job level stats. Has to be just after call to 'test'    
@@ -3533,9 +3535,10 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     print ( "\033[6A" )
             
     #  ^^^  RUN FINISHES HERE ^^^
+  
 
 
-
+  #  ^^^  JOB FINISHES HERE ^^^
 
   # (H)  CLOSE UP AND END
   
@@ -3545,11 +3548,16 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   minutes = round( (time.time() - job_start_time) /   60,  1   )
   seconds = round( (time.time() - job_start_time)       ,  0   )
 
+  pplog.log( "job", f"\nBest result occurred at >>>> RUN {best['run']:03d} <<<< where {best['batch_size']} examples were classified and the number correct = {best['number_correct']}/{best['batch_size']} = {best['pct_correct']:>3.0f}%" )
+  pplog.log( "cum", f"\nBest result occurred at >>>> RUN {best['run']:03d} <<<< where {best['batch_size']} examples were classified and the number correct = {best['number_correct']}/{best['batch_size']} = {best['pct_correct']:>3.0f}%" )
+
   pplog.log( "run", f'\n\n\n' )
   pplog.log( "job", f'\n' )
   pplog.log( "cum", f'' )
   pplog.log_section( "job", f"BATCH JOB FINISHED AT {now:{now:%y-%m-%d %H:%M:%S}}.  Elapsed time since job started: {minutes} mins ({seconds:.1f} secs)" )
   pplog.log_section( "cum", f"BATCH JOB FINISHED AT {now:{now:%y-%m-%d %H:%M:%S}}.  Elapsed time since job started: {minutes} mins ({seconds:.1f} secs)" )
+
+
     
   print( f'\033[18B')
   if ( args.just_test=='True') & ( args.input_mode=='rna' ):
@@ -3777,7 +3785,7 @@ def train( args, epoch, train_loader, model, optimizer, loss_function, loss_type
 
 
 # ------------------------------------------------------------------------------
-def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loader,  model,  tile_size, loss_function, loss_type, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
+def test( run, cfg, args, parameters, best, embeddings_accum, labels_accum, epoch, test_loader,  model,  tile_size, loss_function, loss_type, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
                                                                                                         test_loss_min, show_all_test_examples, is_final_test, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours ):
                                                                                                           
     DEBUG     = args.debug_level_classify
@@ -4264,7 +4272,7 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
   
         if DEBUG>2:
           number_to_display=16  
-          print ( "CLASSI:         INFO:      test:       FIRST  GROUP BELOW: y1_hat"                                                                      ) 
+          print ( "CLASSI:         INFO:      test:       FIRST  GROUP BEtestLOW: y1_hat"                                                                      ) 
           print ( "CLASSI:         INFO:      test:       SECOND GROUP BELOW: y1_hat_values_max_indices (prediction)"                                      )
           print ( "CLASSI:         INFO:      test:       THIRD  GROUP BELOW: image_labels_values (truth)"                                                 )
           np.set_printoptions(formatter={'float': '{: >6.2f}'.format}        )
@@ -4276,11 +4284,18 @@ def test( cfg, args, parameters, embeddings_accum, labels_accum, epoch, test_loa
 
         if is_final_test == False:
           pplog.log(f"\nepoch {epoch}" )
-          pplog.log(f"test(): truth/prediction for first {number_to_display:,} examples from the most recent test batch ( number correct this batch: {correct}/{batch_size} = {pct:>3.0f}%  )  ( number correct overall: {global_correct_prediction_count+correct}/{global_number_tested+batch_size} = {global_pct:>3.0f}% (number tested this run = epochs x test batches x batch size)" )
+          pplog.log(f"test(): truth/prediction for first {batch_size} examples from the most recent test batch ( number correct this batch: {correct}/{batch_size} = {pct:>3.0f}%  )  ( number correct overall: {global_correct_prediction_count+correct}/{global_number_tested+batch_size} = {global_pct:>3.0f}% (number tested this run = epochs x test batches x batch size)" )
         else:
-          pplog.log( "run", f"test(): classified {number_to_display} of the held out test examples using the best model this run produced.  Number correct = {correct}/{batch_size} = {pct:>3.0f}%" )
-          pplog.log( "job", f"test(): classified {number_to_display} of the held out test examples using the best model this run produced.  Number correct = {correct}/{batch_size} = {pct:>3.0f}%" )
-          pplog.log( "cum", f"test(): classified {number_to_display} of the held out test examples using the best model this run produced.  Number correct = {correct}/{batch_size} = {pct:>3.0f}%" )
+          pplog.log( "run", f"test(): classified {batch_size} of the held out test examples using the best model this run produced.  Number correct = {correct}/{batch_size} = {pct:>3.0f}%" )
+          pplog.log( "job", f"RUN {run+1:03d}   test(): classified {batch_size} of the held out test examples using the best model this run produced.  Number correct = {correct}/{batch_size} = {pct:>3.0f}%" )
+          pplog.log( "cum", f"RUN {run+1:03d}   test(): classified {batch_size} of the held out test examples using the best model this run produced.  Number correct = {correct}/{batch_size} = {pct:>3.0f}%" )
+          
+          if pct > best["pct_correct"]:
+            best["run"]            = run  
+            best["number_correct"] = correct
+            best["pct_correct"]    = pct
+            best["batch_size"]     = batch_size
+          
         if LOG_LEVEL>1:
           pplog.log(f"{CLEAR_LINE}        truth = {labs}"  )
           pplog.log(f"{CLEAR_LINE}        preds = {preds}" )
