@@ -21,7 +21,7 @@ from modes import pre_compressConfig
 
 from constants  import *
 
-DEBUG=1
+DEBUG=0
 
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -54,6 +54,8 @@ def get_config( dataset, lr, batch_size ):
 
 def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, num_workers, pin_memory, pct_test, writer, directory=None) :
 
+    DEBUG     = args.debug_level_classify
+    LOG_LEVEL = args.log_level
       
     """
     Create and return dataset(s) and data loaders for train and test datasets as appropriate
@@ -386,10 +388,10 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
     
     if just_test!='True':
       
-      if DEBUG>0:
-        train_cases = len(train_inds)
-        test_cases  = len(test_inds)
-        
+      train_cases = len(train_inds)
+      test_cases  = len(test_inds)
+
+      if DEBUG>0:        
         print( f"{CLEAR_LINE}LOADER:         INFO:                                                                                     train   test"               )
         print( f"{CLEAR_LINE}LOADER:         INFO:                                                          for {MIKADO}{pct_test*100:>3.0f}%{RESET} split,  samples: {MIKADO}{train_cases:>6d}, {test_cases:>5d}  {DULL_WHITE} <<< note: samples used won't always equal {CYAN}N_SAMPLES{RESET}{DULL_WHITE} because of quantisation introduced by mini-batches, which must always be full (residual discarded){RESET}" )
         print( f"{CLEAR_LINE}LOADER:         INFO:                                                                   mini-batch size: {MIKADO}{batch_size:>6d}, {batch_size:>5d}{RESET}"               )

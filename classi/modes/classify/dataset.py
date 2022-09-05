@@ -13,7 +13,7 @@ from   torchvision import transforms
 
 from constants  import *
 
-DEBUG   = 1
+DEBUG   = 0
 
 np.set_printoptions( threshold=100000)
 np.set_printoptions( edgeitems=5000  )
@@ -25,6 +25,8 @@ class classifyDataset( Dataset ):
 
     def __init__(self, cfg, which_dataset, args):
 
+        DEBUG = args.debug_level_dataset
+        
         self.cfg = cfg
         
         input_mode = args.input_mode

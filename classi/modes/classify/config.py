@@ -21,7 +21,7 @@ from   models.incept4   import inceptionv4
 
 from constants  import *
 
-DEBUG=1
+DEBUG=0
 
 # ------------------------------------------------------------------------------
 
@@ -48,6 +48,8 @@ class classifyConfig(Config):
 
     def get_image_net( self, args, input_mode, nn_type_img, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, nn_dense_dropout_1, nn_dense_dropout_2, tile_size ):
 
+      DEBUG = args.debug_level_config
+      
       if DEBUG>0:
         print( f"CONFIG:         INFO:     at {CYAN}get_image_net(){RESET}:   nn_type_img  = {CYAN}{nn_type_img}{RESET}" )
 

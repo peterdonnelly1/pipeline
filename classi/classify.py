@@ -987,7 +987,7 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
   job_level_classifications_matrix     =  np.zeros( (n_classes, n_classes), dtype=int )
   run_level_classifications_matrix_acc =  np.zeros( ( total_runs_in_job, n_classes, n_classes ), dtype=int )     
   
-  if DEBUG>0:
+  if DEBUG>=0:
     print ( f"CLASSI:         INFO:  total_runs_in_job    =  {CARRIBEAN_GREEN}{total_runs_in_job}{RESET}"  )
 
   image_headings =\
@@ -1029,7 +1029,7 @@ f"\
 "
  
   
-  if DEBUG>0:
+  if DEBUG>=0:
     if input_mode=='image':
       print(f"\n{UNDER}JOB LIST:{RESET}")
       if per_run_zoom_out_parameters==False:
@@ -1122,12 +1122,14 @@ f"\
 
   run=0
   
-  best = { 'run':0, 'number_correct':0, 'pct_correct':0, 'batch_size':0 }
+  best        = { 'run':0, 'number_correct':0, 'pct_correct':0, 'batch_size':0 }
+  second_best = { 'run':0, 'number_correct':0, 'pct_correct':0, 'batch_size':0 }
 
   for repeater, stain_norm, tile_size, lr, pct_test, n_samples, batch_size, n_tiles, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, low_expression_threshold, cutoff_percentile, embedding_dimensions, dropout_1, dropout_2, nn_optimizer, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values): 
 
     now = time.localtime(time.time())
-    print(time.strftime( f"CLASSI:         INFO:  run start time = %Y-%m-%d %H:%M:%S %Z", now ))
+    if DEBUG>0:
+      print(time.strftime( f"CLASSI:         INFO:  run start time = %Y-%m-%d %H:%M:%S %Z", now ))
     run_start_time = time.time()  
 
     if input_mode=='image':  
@@ -1258,10 +1260,10 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       bash_command = f"cls; ./do_all.sh -d {args.dataset}  -i {input_mode}   -S {n_samples}  -A {highest_class_number}  -L {lr} -f {n_tiles}   -T {tile_size}  -b {batch_size}  -o {n_epochs}  -1 {pct_test}  -a {nn_type_img}  -c {args.cases}   -0 {stain_norm}  -U '{zoom_out_mags_string}' -Q '{zoom_out_prob_string}'  "
     else:
       bash_command = f"cls; ./do_all.sh -d {args.dataset}  -i {input_mode}   -S {n_samples}  -A {highest_class_number}  -b {batch_size}  -o {n_epochs}  -1 {pct_test}  -a {nn_type_rna}  -c {args.cases}  "      
-      
-      
-    print ( f"\033[79;0H{bash_command}" )
-    time.sleep(1)
+
+    if DEBUG>0:
+      print ( f"\033[79;0H{bash_command}" )
+      time.sleep(1)
     
     now  = datetime.datetime.now()
     pplog.add_logger  (  "run", log_dir, descriptor )                                                      # establish 'run level' logger 
@@ -2074,7 +2076,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
           is_final_test          = False
           
           embeddings_accum, labels_accum, test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min, embedding     =\
-                        test ( run, cfg, args, parameters, best, embeddings_accum, labels_accum, epoch, test_loader,  model,  tile_size, loss_function, loss_type, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
+                        test ( run, cfg, args, parameters, best, second_best, embeddings_accum, labels_accum, epoch, test_loader,  model,  tile_size, loss_function, loss_type, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
                                                                                       test_loss_min, show_all_test_examples, is_final_test, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours)
   
           global_correct_prediction_count += correct_predictions
@@ -2260,7 +2262,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         
         is_final_test=True
         embeddings_accum, labels_accum, test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min, embedding     =\
-                          test ( run, cfg, args, parameters, best, embeddings_accum, labels_accum, epoch, final_test_loader,  model,  tile_size, loss_function, loss_type, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
+                          test ( run, cfg, args, parameters, best, second_best, embeddings_accum, labels_accum, epoch, final_test_loader,  model,  tile_size, loss_function, loss_type, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
                                                                                                            test_loss_min, show_all_test_examples, is_final_test, final_test_batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours )    
     
       job_level_classifications_matrix               += run_level_classifications_matrix                     # accumulate for the job level stats. Has to be just after call to 'test'    
@@ -3352,7 +3354,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       if DEBUG>9:
         print ( f"\n{run_level_classifications_matrix_acc[run-1,:,:]}" )    
   
-      if DEBUG>4:    
+      if DEBUG>0:    
         print(  '\033[13B' )
         print( f"CLASSI:           INFO:    {BITTER_SWEET}Test predictions produced during training for this run{RESET}"         )
         print( f"CLASSI:           INFO:    {BITTER_SWEET}======================================================{RESET}"  )
@@ -3376,12 +3378,13 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     # (F)  PROCESS AND GENERATE AND SAVE (AND MAYBE DISPLAY) JOB LEVEL CONFUSION MATRIX
 
     if (args.just_test!='True') & (run==total_runs_in_job):
-    
-      print(  '\033[6B' )      
-      print( f'CLASSI:         INFO:'                                                                                    )
-      print( f"CLASSI:         INFO:    {CARRIBEAN_GREEN}Test predictions produced during training for this job{RESET}"     )
-      print( f"CLASSI:         INFO:    {CARRIBEAN_GREEN}======================================================{RESET}"  )  
-      print( f'CLASSI:         INFO:'                                                                                    )      
+
+      if DEBUG>0:    
+        print(  '\033[6B' )      
+        print( f'CLASSI:         INFO:'                                                                                    )
+        print( f"CLASSI:         INFO:    {CARRIBEAN_GREEN}Test predictions produced during training for this job{RESET}"     )
+        print( f"CLASSI:         INFO:    {CARRIBEAN_GREEN}======================================================{RESET}"  )  
+        print( f'CLASSI:         INFO:'                                                                                    )      
     
     
       # (i) generate and save job level classification matrix
@@ -3392,14 +3395,15 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       np.set_printoptions(linewidth=1000)
       
       np.seterr( invalid='ignore', divide='ignore' )
-      print( f"\n" )
-      print( f'CLASSI:         INFO:    number of runs in this job                   = {CHARTREUSE}{total_runs_in_job}{RESET}')
-      print( f"CLASSI:         INFO:    total for ALL {BOLD}test{RESET} examples over ALL runs    = {CHARTREUSE}{np.sum(total_correct, axis=0)} / {np.sum(job_level_classifications_matrix, axis=None)}  ({CHARTREUSE}{100 * np.sum(total_correct, axis=0) / np.sum(job_level_classifications_matrix):3.1f}%){RESET}")
-      np.set_printoptions(formatter={'int': lambda x: f"{CHARTREUSE}{x:>6d}"})
-      print( f'CLASSI:         INFO:    total correct per subtype over all runs      = { total_correct }{RESET}')
-      np.set_printoptions(formatter={'float': lambda x: f"{CHARTREUSE}{x:>6.1f}"})
-      print( f'CLASSI:         INFO:     %    correct per subtype over all runs      = { 100 * np.divide( total_correct, total_examples) }{RESET}')
-      np.seterr(divide='warn', invalid='warn')  
+      if DEBUG>0:
+        print( f"\n" )
+        print( f'CLASSI:         INFO:    number of runs in this job                   = {CHARTREUSE}{total_runs_in_job}{RESET}')
+        print( f"CLASSI:         INFO:    total for ALL {BOLD}test{RESET} examples over ALL runs    = {CHARTREUSE}{np.sum(total_correct, axis=0)} / {np.sum(job_level_classifications_matrix, axis=None)}  ({CHARTREUSE}{100 * np.sum(total_correct, axis=0) / np.sum(job_level_classifications_matrix):3.1f}%){RESET}")
+        np.set_printoptions(formatter={'int': lambda x: f"{CHARTREUSE}{x:>6d}"})
+        print( f'CLASSI:         INFO:    total correct per subtype over all runs      = { total_correct }{RESET}')
+        np.set_printoptions(formatter={'float': lambda x: f"{CHARTREUSE}{x:>6.1f}"})
+        print( f'CLASSI:         INFO:     %    correct per subtype over all runs      = { 100 * np.divide( total_correct, total_examples) }{RESET}')
+        np.seterr(divide='warn', invalid='warn')  
       
       if DEBUG>9:
         np.set_printoptions(formatter={'int': lambda x: f"{CHARTREUSE}{x:>6d}    "})    
@@ -3414,7 +3418,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         print ( f"CLASSI:           INFO:  job_level_classifications_matrix.shape       = {CHARTREUSE}{job_level_classifications_matrix.shape}{RESET}",  flush=True      )
         print ( f"CLASSI:           INFO:  job_level_classifications_matrix             = \n{CHARTREUSE}{job_level_classifications_matrix}{RESET}",  flush=True      )
       
-        df = pd.DataFrame( columns=[ 'Per Subtype Confusion Matrices', '',  '', '',  '',  '', '' ]  )
+      df = pd.DataFrame( columns=[ 'Per Subtype Confusion Matrices', '',  '', '',  '',  '', '' ]  )
               
       total_predictions = np.sum( job_level_classifications_matrix )
       for i in range ( 0, job_level_classifications_matrix.shape[1] ):                                                                                 # for each row (subtype)
@@ -3472,7 +3476,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
         # ~ df.at['Actual Positives', 'Predicted Positives'] = true_positives
         # ~ df.at['Actual Positives', 'Predicted Negatives'] = false_negatives
-        # ~ df.at['Actual Negatives', 'Predicted Positives'] = false_positives
+        # ~ df.at['Actual Negativ es', 'Predicted Positives'] = false_positives
         # ~ df.at['Actual Negatives', 'Predicted Negatives'] = true_negatives
 
         df.loc[len(df.index)] = [  row_1_string,     '',                         'True Positive Count',     'True Negative Count',    '                    ',              'True Negative Percent',     'True Negative Percent' ]        
@@ -3517,10 +3521,6 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     minutes = round( (time.time() - run_start_time) /   60,  1   )
     seconds = round( (time.time() - run_start_time),     0       )
 
-    print( f'CLASSI:         INFO:  elapsed time since job started: {MIKADO}{minutes}{RESET} mins ({MIKADO}{seconds:.1f}{RESET} secs)')
-
-    print ( "\033[6A" )
-    
 
     now = datetime.datetime.now()
     pplog.log( '\n' )    
@@ -3530,7 +3530,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     pplog.log( '\n\n' )
     pplog.del_logger( "run" )
 
-    print( f'CLASSI:         INFO:  elapsed time since run started: {MIKADO}{minutes}{RESET} mins ({MIKADO}{seconds:.1f}{RESET} secs)')
+    print( f'CLASSI:         INFO:  Run complete. Elapsed time since run started: {MIKADO}{minutes}{RESET} mins ({MIKADO}{seconds:.1f}{RESET} secs)')
 
     print ( "\033[6A" )
             
@@ -3548,8 +3548,12 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   minutes = round( (time.time() - job_start_time) /   60,  1   )
   seconds = round( (time.time() - job_start_time)       ,  0   )
 
-  pplog.log( "job", f"\nBest result occurred at >>>> RUN {best['run']:03d} <<<< where {best['batch_size']} examples were classified and the number correct = {best['number_correct']}/{best['batch_size']} = {best['pct_correct']:>3.0f}%" )
-  pplog.log( "cum", f"\nBest result occurred at >>>> RUN {best['run']:03d} <<<< where {best['batch_size']} examples were classified and the number correct = {best['number_correct']}/{best['batch_size']} = {best['pct_correct']:>3.0f}%" )
+  pplog.log  ( "job", f"\nBest        result occurred at    >>>> RUN {       best['run']+1:03d}    <<<< where {       best['batch_size']:>4d} examples were classified and the number correct = {       best['number_correct']:>4d} / {       best['batch_size']:>4d} = {       best['pct_correct']:>3.0f}%" )
+  if second_best['batch_size'] != 0:
+    pplog.log( "job",   f"Second best result occurred at    >>>> RUN {second_best['run']+1:03d}    <<<< where {second_best['batch_size']:>4d} examples were classified and the number correct = {second_best['number_correct']:>4d} / {second_best['batch_size']:>4d} = {second_best['pct_correct']:>3.0f}%" )
+  pplog.log  ( "cum", f"\nBest        result occurred at    >>>> RUN {       best['run']+1:03d}    <<<< where {       best['batch_size']:>4d} examples were classified and the number correct = {       best['number_correct']:>4d} / {       best['batch_size']:>4d} = {       best['pct_correct']:>3.0f}%" )
+  if second_best['batch_size'] != 0:
+    pplog.log( "cum",   f"Second best result occurred at    >>>> RUN {second_best['run']+1:03d}    <<<< where {second_best['batch_size']:>4d} examples were classified and the number correct = {second_best['number_correct']:>4d} / {second_best['batch_size']:>4d} = {second_best['pct_correct']:>3.0f}%" )
 
   pplog.log( "run", f'\n\n\n' )
   pplog.log( "job", f'\n' )
@@ -3563,9 +3567,8 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   if ( args.just_test=='True') & ( args.input_mode=='rna' ):
     print( f'\033[12B')  
   
-  print( f'CLASSI:          INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
-  now = time.localtime(time.time())
-  print(time.strftime( f"CLASSI:          INFO:  end time = %Y-%m-%d %H:%M:%S %Z", now ))
+  now        = datetime.datetime.now()
+  print( f'CLASSI:          INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete. End time = {now:%d-%m-%y %H:%M}')
   
 
   if LOG_LEVEL>2:
@@ -3785,7 +3788,7 @@ def train( args, epoch, train_loader, model, optimizer, loss_function, loss_type
 
 
 # ------------------------------------------------------------------------------
-def test( run, cfg, args, parameters, best, embeddings_accum, labels_accum, epoch, test_loader,  model,  tile_size, loss_function, loss_type, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
+def test( run, cfg, args, parameters, best, second_best, embeddings_accum, labels_accum, epoch, test_loader,  model,  tile_size, loss_function, loss_type, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
                                                                                                         test_loss_min, show_all_test_examples, is_final_test, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours ):
                                                                                                           
     DEBUG     = args.debug_level_classify
@@ -4287,16 +4290,22 @@ def test( run, cfg, args, parameters, best, embeddings_accum, labels_accum, epoc
           pplog.log(f"test(): truth/prediction for first {batch_size} examples from the most recent test batch ( number correct this batch: {correct}/{batch_size} = {pct:>3.0f}%  )  ( number correct overall: {global_correct_prediction_count+correct}/{global_number_tested+batch_size} = {global_pct:>3.0f}% (number tested this run = epochs x test batches x batch size)" )
         else:
           pplog.log( "run", f"test(): classified {batch_size} of the held out test examples using the best model this run produced.  Number correct = {correct}/{batch_size} = {pct:>3.0f}%" )
-          pplog.log( "job", f"RUN {run+1:03d}   test(): classified {batch_size} of the held out test examples using the best model this run produced.  Number correct = {correct}/{batch_size} = {pct:>3.0f}%" )
-          pplog.log( "cum", f"RUN {run+1:03d}   test(): classified {batch_size} of the held out test examples using the best model this run produced.  Number correct = {correct}/{batch_size} = {pct:>3.0f}%" )
+          pplog.log( "job", f"RUN {run+1:03d}   RESULT: test(): classified {batch_size} of the held out test examples using the best model this run produced.  Number correct = {correct}/{batch_size} = {pct:>3.0f}%" )
+          pplog.log( "cum", f"RUN {run+1:03d}   RESULT: test(): classified {batch_size} of the held out test examples using the best model this run produced.  Number correct = {correct}/{batch_size} = {pct:>3.0f}%" )
           
           if pct > best["pct_correct"]:
-            best["run"]            = run  
-            best["number_correct"] = correct
-            best["pct_correct"]    = pct
-            best["batch_size"]     = batch_size
+            
+            second_best["run"]            = best["run"]  
+            second_best["number_correct"] = best["number_correct"]
+            second_best["pct_correct"]    = best["pct_correct"]
+            second_best["batch_size"]     = best["batch_size"]
+            
+            best["run"]                   = run  
+            best["number_correct"]        = correct
+            best["pct_correct"]           = pct
+            best["batch_size"]            = batch_size
           
-        if LOG_LEVEL>1:
+        if LOG_LEVEL>0:
           pplog.log(f"{CLEAR_LINE}        truth = {labs}"  )
           pplog.log(f"{CLEAR_LINE}        preds = {preds}" )
           pplog.log(f"{CLEAR_LINE}        delta = {delta}" ) 
@@ -5242,7 +5251,8 @@ def newline(ax, p1, p2):
 # ------------------------------------------------------------------------------
 def analyse_probs( y1_hat, image_labels_values ):
 
-    DEBUG=args.debug_level_classify
+    DEBUG     = args.debug_level_classify
+    LOG_LEVEL = args.log_level
 
     # convert output probabilities to predicted class
     _, preds_tensor = torch.max( y1_hat, axis=1 )
@@ -5660,7 +5670,10 @@ def plot_classes_preds(args, model, tile_size, batch_images, image_labels, batch
     information based on whether the prediction was correct or not. Uses the "images_to_probs" function. 
     
     '''
-    
+
+    DEBUG     = args.debug_level_classify
+    LOG_LEVEL = args.log_level
+      
     ##################################################################################################################################
     #
     #  (1) Training mode: the simple case because we are just displaying a set of random tiles which have passed through the network during training
@@ -6107,6 +6120,9 @@ def save_model( log_dir, model ):
     """Save PyTorch model state dictionary
     """
 
+    DEBUG     = args.debug_level_classify
+    LOG_LEVEL = args.log_level
+  
     if args.input_mode == 'image':
       # ~ if args.pretrain=='True':
         # ~ try:
@@ -6139,6 +6155,9 @@ def save_model( log_dir, model ):
     
 def delete_selected( root, extension ):
 
+  DEBUG     = args.debug_level_classify
+  LOG_LEVEL = args.log_level
+  
   walker = os.walk( root, topdown=True )
 
   for root, dirs, files in walker:
@@ -6184,6 +6203,9 @@ def box_plot_by_subtype( args, class_names, n_genes, run_start_time, parameters,
   
   np.set_printoptions(edgeitems=1000)
   np.set_printoptions(linewidth=1000)
+
+  DEBUG     = args.debug_level_classify
+  LOG_LEVEL = args.log_level
   
   # recall that the we are going to plot statistics FOR EACH run in the the box plots, so we have to use the run_level_classifications_matrix accumulator rather than the already summarised job_level_classifications_matrix
   
@@ -6594,13 +6616,14 @@ dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topolo
     
   plt.close()
 
-
-
     
   return
 
 # --------------------------------------------------------------------------------------------  
 def show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, pandas_matrix, class_names,  level ):
+
+  DEBUG     = args.debug_level_classify
+  LOG_LEVEL = args.log_level
 
   global final_test_batch_size
 
@@ -6678,7 +6701,7 @@ def triang( df ):
   print( f"{BRIGHT_GREEN}CLASSI:         INFO: at top of triang(){RESET} ")  
   temp=df.copy()
   ut=np.triu(np.ones(df.shape),1).astype(np.bool)
-  lt=np.tril(np.ones(df.shape),-1).astype(np.bool)
+  lt=np.tril(np.ones(df.shape),-1).astype(np.bool)  
 
   temp=temp.where(ut==False, 'up')
   temp=temp.where(lt==False, 'lt')
@@ -6867,12 +6890,13 @@ if __name__ == '__main__':
   p.add_argument('--class_column',                                                  type=str, default="type_n"                                  )
 
   p.add_argument('--debug_level_classify',                                          type=int,   default=1                                       ) 
-  p.add_argument('--debug_level_tiler',                                             type=int,   default=1                                       ) 
-  p.add_argument('--debug_level_generate',                                          type=int,   default=1                                       ) 
-  p.add_argument('--debug_level_dataset',                                           type=int,   default=1                                       ) 
-  p.add_argument('--debug_level_loader',                                            type=int,   default=1                                       ) 
-  p.add_argument('--debug_level_algorithm',                                         type=int,   default=1                                       ) 
-  p.add_argument('--log_level',                                                     type=int,   default=11                                       ) 
+  p.add_argument('--debug_level_config',                                            type=int,   default=0                                       ) 
+  p.add_argument('--debug_level_tiler',                                             type=int,   default=0                                       ) 
+  p.add_argument('--debug_level_generate',                                          type=int,   default=0                                       ) 
+  p.add_argument('--debug_level_dataset',                                           type=int,   default=0                                       ) 
+  p.add_argument('--debug_level_loader',                                            type=int,   default=0                                       ) 
+  p.add_argument('--debug_level_algorithm',                                         type=int,   default=0                                       ) 
+  p.add_argument('--log_level',                                                     type=int,   default=11                                      ) 
 
 
   args, _ = p.parse_known_args()
