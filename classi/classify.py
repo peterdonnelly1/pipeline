@@ -2047,8 +2047,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   \r\033[120CBATCH AVE LOSS OVER EPOCH (LOSS PER 1000 EXAMPLES) = {PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{train_total_loss_sum_ave*1000/batch_size:6.1f}{DULL_WHITE}\
   \r\033[250C{BLACK if epoch<2 else WHITE}min loss: {train_lowest_total_loss_observed_so_far*100/batch_size:>6.2f} at epoch {train_lowest_total_loss_observed_so_far_epoch+1:<2d}"
   , end=''  )
-  
-  
+
             if last_epoch_loss_increased == True:
               consecutive_training_loss_increases +=1
               if consecutive_training_loss_increases == 1:
@@ -2059,6 +2058,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     
             if (last_epoch_loss_increased == False):
               print ('')
+
     
           train_total_loss_sum_ave_last = train_total_loss_sum_ave
   
@@ -4290,8 +4290,8 @@ def test( run, cfg, args, parameters, best, second_best, embeddings_accum, label
           pplog.log(f"test(): truth/prediction for first {batch_size} examples from the most recent test batch ( number correct this batch: {correct}/{batch_size} = {pct:>3.0f}%  )  ( number correct overall: {global_correct_prediction_count+correct}/{global_number_tested+batch_size} = {global_pct:>3.0f}% (number tested this run = epochs x test batches x batch size)" )
         else:
           pplog.log( "run", f"test(): classified {batch_size} of the held out test examples using the best model this run produced.  Number correct = {correct}/{batch_size} = {pct:>3.0f}%" )
-          pplog.log( "job", f"RUN {run+1:03d}   RESULT: test(): classified {batch_size} of the held out test examples using the best model this run produced.  Number correct = {correct}/{batch_size} = {pct:>3.0f}%" )
-          pplog.log( "cum", f"RUN {run+1:03d}   RESULT: test(): classified {batch_size} of the held out test examples using the best model this run produced.  Number correct = {correct}/{batch_size} = {pct:>3.0f}%" )
+          pplog.log( "job", f"RUN {run:03d}   RESULT: test(): classified {batch_size} of the held out test examples using the best model this run produced.  Number correct = {correct}/{batch_size} = {pct:>3.0f}%" )
+          pplog.log( "cum", f"RUN {run:03d}   RESULT: test(): classified {batch_size} of the held out test examples using the best model this run produced.  Number correct = {correct}/{batch_size} = {pct:>3.0f}%" )
           
           if pct > best["pct_correct"]:
             
@@ -4306,9 +4306,9 @@ def test( run, cfg, args, parameters, best, second_best, embeddings_accum, label
             best["batch_size"]            = batch_size
           
         if LOG_LEVEL>0:
-          pplog.log(f"{CLEAR_LINE}        truth = {labs}"  )
-          pplog.log(f"{CLEAR_LINE}        preds = {preds}" )
-          pplog.log(f"{CLEAR_LINE}        delta = {delta}" ) 
+          pplog.log(f"{CLEAR_LINE}        truth = {image_labels_values       [0:number_to_display]}"  )
+          pplog.log(f"{CLEAR_LINE}        preds = {y1_hat_values_max_indices [0:number_to_display]}" )
+          pplog.log(f"{CLEAR_LINE}        delta = {np.abs(preds - labs)}" ) 
         if degenerate_result:
          pplog.log(f"< warning !!! degenerate result")  
  
@@ -6890,11 +6890,11 @@ if __name__ == '__main__':
   p.add_argument('--class_column',                                                  type=str, default="type_n"                                  )
 
   p.add_argument('--debug_level_classify',                                          type=int,   default=1                                       ) 
+  p.add_argument('--debug_level_generate',                                          type=int,   default=1                                       ) 
+  p.add_argument('--debug_level_dataset',                                           type=int,   default=1                                       ) 
+  p.add_argument('--debug_level_loader',                                            type=int,   default=1                                       ) 
   p.add_argument('--debug_level_config',                                            type=int,   default=0                                       ) 
   p.add_argument('--debug_level_tiler',                                             type=int,   default=0                                       ) 
-  p.add_argument('--debug_level_generate',                                          type=int,   default=0                                       ) 
-  p.add_argument('--debug_level_dataset',                                           type=int,   default=0                                       ) 
-  p.add_argument('--debug_level_loader',                                            type=int,   default=0                                       ) 
   p.add_argument('--debug_level_algorithm',                                         type=int,   default=0                                       ) 
   p.add_argument('--log_level',                                                     type=int,   default=11                                      ) 
 

@@ -54,7 +54,7 @@ def get_config( dataset, lr, batch_size ):
 
 def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, num_workers, pin_memory, pct_test, writer, directory=None) :
 
-    DEBUG     = args.debug_level_classify
+    DEBUG     = args.debug_level_loader
     LOG_LEVEL = args.log_level
       
     """
