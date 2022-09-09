@@ -15,6 +15,7 @@ import random
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import torchvision.datasets as datasets
 
 from pathlib import Path
 
@@ -39,6 +40,8 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
   # Here we are using one value of each, passed in as per the above parameters
   just_test                    = args.just_test
   data_dir                     = args.data_dir
+  data_source                  = args.data_source
+  dataset                      = args.dataset
   input_mode                   = args.input_mode
   pretrain                     = args.pretrain
   cases                        = args.cases
@@ -172,8 +175,60 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
 
   # (2) process IMAGE data if applicable
   
+  if dataset =='cifr':
+  
+    if DEBUG>=0:
+      print( f"{ORANGE}GENERATE:       NOTE:    about to load cifar-10 dataset" )
+      
+    cifar           = datasets.CIFAR10( root=args.data_source, train=True,  download=True )                # CIFAR10 data is stored as a numpy array, so it has to be converted to a tensor. # MNIST data and labels are stored as a tensor. CIFAR10 data is stored as numpy array. Which was unexpected.
+    img_labels_new  = np.asarray(cifar.targets)
+    images_new      = cifar.data                                                                           # needs to be normalised!!!
+    fnames_new      = np.zeros_like(img_labels_new)
 
-  if ( input_mode=='image' ) & ( pretrain!='True' ):
+    if DEBUG>0:
+      print( f"{BOLD_CAMEL }LOADER:         INFO:         type (images_new        )   = {type (images_new)       }{RESET}"      )
+      print( f"{CAMEL      }LOADER:         INFO:         images_new.shape        )   = {images_new.shape        }{RESET}"      )
+      print( f"{BOLD_CAMEL }LOADER:         INFO:         type (img_labels_new    )   = {type (img_labels_new)   }{RESET}"      )
+      print( f"{CAMEL      }LOADER:         INFO:         img_labels_new.shape    )   = {img_labels_new.shape    }{RESET}"      )
+      print( f"{BOLD_CAMEL }LOADER:         INFO:         type (fnames_new        )   = {type (fnames_new)       }{RESET}"      )
+      print( f"{CAMEL      }LOADER:         INFO:         fnames_new.shape        )   = {fnames_new.shape        }{RESET}"      )
+    if DEBUG>10:
+      np.set_printoptions(formatter={'float': lambda x: "{:>0.3f}".format(x)})
+      print( f"{CAMEL      }LOADER:         INFO:         images_new[0,0,:,:]         = \n{images_new[0,0,:,:]   }{RESET}"      )
+      np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
+      print( f"{CAMEL      }LOADER:         INFO:         img_labels_new[0:50]        = {img_labels_new [0:50]   }{RESET}"      )
+      print( f"{CAMEL      }LOADER:         INFO:         fnames_new    [0:50]        = {fnames_new     [0:50]   }{RESET}"      )
+
+
+    images_new      = torch.Tensor( images_new )
+    fnames_new      = torch.Tensor( fnames_new ).long()
+    fnames_new.requires_grad_( False )
+    img_labels_new  = torch.Tensor( img_labels_new ).long()                                                # have to explicity cast as long as torch. Tensor does not automatically pick up type from the numpy array. 
+    img_labels_new.requires_grad_( False )
+  
+    if DEBUG>1:
+      print( "\nGENERATE:       INFO:   finished converting image data and labels from numpy array to Torch tensor")
+  
+  
+    for target in [ 'image_train', 'image_test' ]:
+          
+      # save torch tensors as '.pth' file for subsequent loading by dataset function
+      
+      fqn =  f"{args.base_dir}/{args.application_dir}/modes/{args.mode}/dataset_{target}.pth"
+      
+      if DEBUG>0:  
+        print( f"GENERATE:       INFO:    {PINK}now saving as Torch dictionary (this can take some time in the case of images){RESET}{CLEAR_LINE}")
+      
+      torch.save({
+          'images':     images_new,
+          'fnames':     fnames_new,
+          'img_labels': img_labels_new,
+      }, fqn )
+  
+    return ( SUCCESS, SUCCESS, SUCCESS )  
+    
+  
+  elif ( input_mode=='image' ) & ( pretrain!='True' ):
 
     # (2A)  preliminary bits and pieces
 
@@ -1557,7 +1612,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
           print( f"GENERATE:       INFO:     label_file    = {CYAN}{label_file}{RESET}",   flush=True   )
     
         
-        if ( f.endswith('.' + tile_extension ) & (not ( 'mask' in f ) ) & (not ( 'ized' in f ) )   ):          # because there may be other png files in each image folder besides the tile image files
+        if ( f.endswith('.' + tile_extension ) & (not ( 'mask' in f ) ) & (not ( 'ized' in f ) )   ):      # because there may be other png files in each image folder besides the tile image files
     
           try:
             img = cv2.imread( image_file )
@@ -1571,7 +1626,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
     
     
           try:
-            images_new [global_tiles_processed,:] =  np.moveaxis(img, -1,0)                                    # add it to the images array
+            images_new [global_tiles_processed,:] =  np.moveaxis(img, -1,0)                                # add it to the images array
           except Exception as e:
             print ( f"{RED}GENERATE:             FATAL:  [1320] reported error was: '{e}'{RESET}", flush=True )
             print ( f"{RED}GENERATE:                      Explanation: The dimensions of the array reserved for tiles is  {MIKADO}{images_new [global_tiles_processed].shape}{RESET}{RED}; whereas the tile dimensions are: {MIKADO}{np.moveaxis(img, -1,0).shape}{RESET}", flush=True )                 
@@ -1594,7 +1649,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
             print ( f"{RED}GENERATE:                    halting now{RESET}", flush=True)
             sys.exit(0)
                                     
-          img_labels_new[global_tiles_processed] =  label[0]                                               # add it to the labels array
+          img_labels_new[global_tiles_processed] = label[0]                                                # add it to the labels array
           retrospective_class_counts[label[0]]+=1                                                          # keep track of the number of examples of each class 
           
           #img_labels_new[global_tiles_processed] =  random.randint(0,5)                                   # swap truth labels to random numbers for testing purposes
@@ -1609,13 +1664,13 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
               print( f"GENERATE:       INFO: symlink for tile (fnames_new [{BLEU}{global_tiles_processed:3d}{RESET}]) = {BLEU}{fnames_new [global_tiles_processed]}{RESET}" )
           
     
-          if DEBUG>66:
+          if DEBUG>100:
             print ( "=" *180)
             print ( "GENERATE:       INFO:          tile {:} for this image:".format( global_tiles_processed+1))
             print ( "GENERATE:       INFO:            images_new[{:}].shape = {:}".format( global_tiles_processed,  images_new[global_tiles_processed].shape))
             print ( "GENERATE:       INFO:                size in bytes = {:,}".format(images_new[global_tiles_processed].size * images_new[global_tiles_processed].itemsize))  
-          if DEBUG>99:
-            print ( "GENERATE:       INFO:                value = \n{:}".format(images_new[global_tiles_processed]))
+          if DEBUG>100:
+            print ( f"GENERATE:       INFO:                value = \n{images_new[global_tiles_processed,0,0,:]}")
     
           the_class=img_labels_new[global_tiles_processed]
           if the_class>3000:

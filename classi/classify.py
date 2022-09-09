@@ -488,6 +488,12 @@ has been set to {RESET}{BOLD_MIKADO}'False'{RESET}{GREENBLUE} (the dataset balan
 
   multimode_case_count = unimode_case_matched_count = unimode_case_unmatched_count = unimode_case____image_count = unimode_case____image_test_count = unimode_case____rna_count = unimode_case____rna_test_count = 0
 
+  if dataset=='cifr':
+    skip_tiling        = 'True'
+    args.skip_tiling   = 'True'
+    tile_size[0]       = 32
+    args.tile_size[0]  = 32
+
   if (just_test!='True'):
     if any(i >= 1.  for i in pct_test):
       print ( f"{BOLD}{RED}CLASSI:       FATAL: in training mode, but {CYAN}pct_test>={MIKADO}{pct_test}{RESET}{BOLD}{RED}, which would result in there being no examples for training.{RESET}",        flush=True  )                                        
@@ -517,64 +523,68 @@ has been set to {RESET}{BOLD_MIKADO}'False'{RESET}{GREENBLUE} (the dataset balan
 
   # extract subtype names from the applicable master clinical data spreadsheet
   
-  subtype_specific_global_data_location   = f"{global_data}"
-  master_spreadsheet_found=False
-  for f in os.listdir( subtype_specific_global_data_location ):
-    if f.endswith(f"MASTER.csv"):
-      master_spreadsheet_found = True
-      master_spreadsheet_name  = f
-      break
-    
-  if master_spreadsheet_found==False:
-    print ( f"{RED}CLASSI:        FATAL:  could not find the '{CYAN}{dataset}{RESET}{RED}' master clinical data spreadsheet in {MAGENTA}{subtype_specific_global_data_location}{RESET}" )
-    print ( f"{RED}CLASSI:        FATAL:  remedy: ensure there's a valid master clinical data spreadsheet (named {MAGENTA}{dataset}_mapping_file_MASTER.csv{RESET}{RED}) in {MAGENTA}{subtype_specific_global_data_location}{RESET}" )
-    print ( f"{RED}CLASSI:        FATAL:          the master clinical data spreadsheet is created with a command line similar to this: {CYAN}python create_master_mapping_file.py  --dataset <DATASET>{RESET}{RED}{RESET}" )                                        
-    print ( f"{RED}CLASSI:        FATAL:          or with the convenience shell script: {CYAN}./create_master.sh <DATASET>{RESET}{RED}{RESET}" )                                        
-    print ( f"{RED}CLASSI:        FATAL:          detailed instructions on how to construct a master spreadsheet can be found in the comments section at the start of {CYAN}create_master_mapping_file.py{RESET}{RED}){RESET}" )                                        
-    print ( f"{RED}CLASSI:        FATAL:  cannot continue - halting now{RESET}" )                 
-    sys.exit(0)       
+  if dataset == 'cifr':
+    class_names  =  [  'plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck'  ]
 
-
-  fqn = f"{subtype_specific_global_data_location}/{master_spreadsheet_name}"
-
-  if DEBUG>0:
-    print ( f"CLASSI:         INFO:  extracting {CYAN}{dataset}{RESET} subtype names from {MAGENTA}{fqn}{RESET}'" )
-
-
-  subtype_names           = pd.read_csv( fqn, usecols=[names_column], sep=',').dropna()                    # use pandas to extract data, dropping all empty cells
-  subtype_names_as_list   = list( subtype_names[names_column][2:] )                                        # convert everything from row 2 onward into a python list. row 2 is where the subtype names are supposed to start
-
-
-  if DEBUG>99:
-    print ( f"CLASSI:         INFO:  highest_class_number                          = {MIKADO}{highest_class_number}{RESET}" )
-    print ( f"CLASSI:         INFO:  len(subtype_names_as_list)                    = {MIKADO}{len(subtype_names_as_list)}{RESET}" )
-    print ( f"CLASSI:         INFO:  subtype_names_as_list                         = {CYAN}{subtype_names_as_list}{RESET}" )
-    print ( f"CLASSI:         INFO:  subtype_names_as_list[0:highest_class_number] = {CYAN}{subtype_names_as_list[0:highest_class_number+1]}{RESET}" )
-
-  if highest_class_number > len(subtype_names_as_list)-1:
-    print( f"{BOLD_ORANGE}CLASSI:         WARNG: config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{BOLD_ORANGE}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{BOLD_ORANGE}') = \
-{MIKADO}{highest_class_number}{RESET}{BOLD_ORANGE}, which is greater than the highest class (subtype) in the dataset ({MIKADO}{len(subtype_names_as_list)-1}{RESET}{BOLD_ORANGE}) (note that class numbers start at {MIKADO}0{RESET}{BOLD_ORANGE}){RESET}", flush=True)
-    print( f"{ORANGE}CLASSI:         WARNG:   therefore this config setting will be ignored. Continuing ...{RESET}", flush=True)
+  else:
+    subtype_specific_global_data_location   = f"{global_data}"
+    master_spreadsheet_found=False
+    for f in os.listdir( subtype_specific_global_data_location ):
+      if f.endswith(f"MASTER.csv"):
+        master_spreadsheet_found = True
+        master_spreadsheet_name  = f
+        break
+      
+    if master_spreadsheet_found==False:
+      print ( f"{RED}CLASSI:        FATAL:  could not find the '{CYAN}{dataset}{RESET}{RED}' master clinical data spreadsheet in {MAGENTA}{subtype_specific_global_data_location}{RESET}" )
+      print ( f"{RED}CLASSI:        FATAL:  remedy: ensure there's a valid master clinical data spreadsheet (named {MAGENTA}{dataset}_mapping_file_MASTER.csv{RESET}{RED}) in {MAGENTA}{subtype_specific_global_data_location}{RESET}" )
+      print ( f"{RED}CLASSI:        FATAL:          the master clinical data spreadsheet is created with a command line similar to this: {CYAN}python create_master_mapping_file.py  --dataset <DATASET>{RESET}{RED}{RESET}" )                                        
+      print ( f"{RED}CLASSI:        FATAL:          or with the convenience shell script: {CYAN}./create_master.sh <DATASET>{RESET}{RED}{RESET}" )                                        
+      print ( f"{RED}CLASSI:        FATAL:          detailed instructions on how to construct a master spreadsheet can be found in the comments section at the start of {CYAN}create_master_mapping_file.py{RESET}{RED}){RESET}" )                                        
+      print ( f"{RED}CLASSI:        FATAL:  cannot continue - halting now{RESET}" )                 
+      sys.exit(0)       
   
-  if highest_class_number < 1:
-    print( f"{BOLD}{RED}CLASSI:         FATAL: config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{BOLD}{RED}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{BOLD}{RED}') = \
-{MIKADO}{highest_class_number}{RESET}{BOLD}{RED}, but there must be at least two classes (cancer subtypes) for classification to be meaningful", flush=True)
-    print( f"{BOLD}{RED}CLASSI:         FATAL: cannot continue ... halting{RESET}", flush=True)
-    time.sleep(10)
-    sys.exit(0)
-
-  class_specific_global_data_location   = f"{base_dir}/{dataset}_global"
-
-  if len(subtype_names_as_list) <2:
-    print( f"{BOLD}{RED}CLASSI:         FATAL:  only '{CYAN}{len(subtype_names_as_list)}{RESET}{BOLD}{RED}' classes (subtypes) were detected but there must be at least two class names (cancer subtype names) \
-for classification to be meaningful",                                                           flush=True   )
-    print( f"{BOLD}{RED}CLASSI:         FATAL:  further information: review the applicable MASTER mapping file ({MAGENTA}{class_specific_global_data_location}/{args.mapping_file_name}{RESET}{BOLD}{RED}). \
-Ensure that at leat two subtypes are listed in the leftmost column, and that the first of these is in row 4",                                                                                flush=True   ) 
-    print( f"{BOLD}{RED}CLASSI:         FATAL:  cannot continue ... halting{RESET}",                                                                                                         flush=True   ) 
-    time.sleep(10)
-    sys.exit(0)
-
-  class_names  =  subtype_names_as_list if highest_class_number>=len(subtype_names_as_list) else subtype_names_as_list[0:highest_class_number+1]
+  
+    fqn = f"{subtype_specific_global_data_location}/{master_spreadsheet_name}"
+  
+    if DEBUG>0:
+      print ( f"CLASSI:         INFO:  extracting {CYAN}{dataset}{RESET} subtype names from {MAGENTA}{fqn}{RESET}'" )
+  
+  
+    subtype_names           = pd.read_csv( fqn, usecols=[names_column], sep=',').dropna()                    # use pandas to extract data, dropping all empty cells
+    subtype_names_as_list   = list( subtype_names[names_column][2:] )                                        # convert everything from row 2 onward into a python list. row 2 is where the subtype names are supposed to start
+  
+  
+    if DEBUG>99:
+      print ( f"CLASSI:         INFO:  highest_class_number                          = {MIKADO}{highest_class_number}{RESET}" )
+      print ( f"CLASSI:         INFO:  len(subtype_names_as_list)                    = {MIKADO}{len(subtype_names_as_list)}{RESET}" )
+      print ( f"CLASSI:         INFO:  subtype_names_as_list                         = {CYAN}{subtype_names_as_list}{RESET}" )
+      print ( f"CLASSI:         INFO:  subtype_names_as_list[0:highest_class_number] = {CYAN}{subtype_names_as_list[0:highest_class_number+1]}{RESET}" )
+  
+    if highest_class_number > len(subtype_names_as_list)-1:
+      print( f"{BOLD_ORANGE}CLASSI:         WARNG: config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{BOLD_ORANGE}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{BOLD_ORANGE}') = \
+  {MIKADO}{highest_class_number}{RESET}{BOLD_ORANGE}, which is greater than the highest class (subtype) in the dataset ({MIKADO}{len(subtype_names_as_list)-1}{RESET}{BOLD_ORANGE}) (note that class numbers start at {MIKADO}0{RESET}{BOLD_ORANGE}){RESET}", flush=True)
+      print( f"{ORANGE}CLASSI:         WARNG:   therefore this config setting will be ignored. Continuing ...{RESET}", flush=True)
+    
+    if highest_class_number < 1:
+      print( f"{BOLD}{RED}CLASSI:         FATAL: config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{BOLD}{RED}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{BOLD}{RED}') = \
+  {MIKADO}{highest_class_number}{RESET}{BOLD}{RED}, but there must be at least two classes (cancer subtypes) for classification to be meaningful", flush=True)
+      print( f"{BOLD}{RED}CLASSI:         FATAL: cannot continue ... halting{RESET}", flush=True)
+      time.sleep(10)
+      sys.exit(0)
+  
+    class_specific_global_data_location   = f"{base_dir}/{dataset}_global"
+  
+    if len(subtype_names_as_list) <2:
+      print( f"{BOLD}{RED}CLASSI:         FATAL:  only '{CYAN}{len(subtype_names_as_list)}{RESET}{BOLD}{RED}' classes (subtypes) were detected but there must be at least two class names (cancer subtype names) \
+  for classification to be meaningful",                                                           flush=True   )
+      print( f"{BOLD}{RED}CLASSI:         FATAL:  further information: review the applicable MASTER mapping file ({MAGENTA}{class_specific_global_data_location}/{args.mapping_file_name}{RESET}{BOLD}{RED}). \
+  Ensure that at leat two subtypes are listed in the leftmost column, and that the first of these is in row 4",                                                                                flush=True   ) 
+      print( f"{BOLD}{RED}CLASSI:         FATAL:  cannot continue ... halting{RESET}",                                                                                                         flush=True   ) 
+      time.sleep(10)
+      sys.exit(0)
+  
+    class_names  =  subtype_names_as_list if highest_class_number>=len(subtype_names_as_list) else subtype_names_as_list[0:highest_class_number+1]
 
   if DEBUG>0:
     print ( f"CLASSI:         INFO:  subtype names  = {CYAN}{class_names}{RESET}" )
@@ -660,7 +670,7 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
 
     # if tiling is to be skipped, make sure there tiling has been previously conducted (i.e. tile files exist)
   
-    if skip_tiling=='True':
+    if ( skip_tiling=='True' ) & ( dataset !='cifr') :
   
       tile_file_count   = 0
     
@@ -672,7 +682,8 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
            
             if  f.endswith( 'png' ):
               tile_file_count +=1
-            
+          
+      
       if tile_file_count<20:
         print( f"{BOLD}{RED}CLASSI:         FATAL:  a count just now reveals a total of {MIKADO}{tile_file_count}{RESET}{BOLD}{RED} tiles (png files) in {MAGENTA}{args.data_dir}{RESET}{BOLD}{RED} !!!{RESET}" ) 
         print( f"{BOLD}{RED}CLASSI:         FATAL:  possible remedy: do not use either the '{CYAN}SKIP_TILING{RESET}{BOLD}{RED}' flag ({CYAN}-s {RESET}{BOLD}{RED}) or the '{CYAN}SKIP_GENERATION{RESET}{BOLD}{RED}' flag ({CYAN}-g {RESET}{BOLD}{RED}), so that tiling and dataset generation can occur. After you've tiled and generated once, it's OK to used these flags, which save a lot of time{RESET}"      ) 
@@ -1793,7 +1804,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   
      
     
-    if DEBUG>9:
+    if DEBUG>99:
       print( f"CLASSI:         INFO:   pytorch Model = {MIKADO}{model}{RESET}" )
 
 
@@ -3648,7 +3659,7 @@ def train( args, epoch, train_loader, model, optimizer, loss_function, loss_type
 
         if (args.input_mode=='image'):
 
-          if DEBUG>2:
+          if DEBUG>2222:
             np.set_printoptions(formatter={'float': lambda x:   "{:>6.2f}".format(x)})
             image_labels_values = (image_labels .cpu() .data) .numpy()
             batch_fnames_npy   = (batch_fnames .cpu() .data) .numpy()

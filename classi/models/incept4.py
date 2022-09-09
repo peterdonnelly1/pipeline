@@ -19,7 +19,7 @@ import sys
 
 from constants import *
 
-DEBUG=1
+DEBUG=0
 
 __all__ = ['InceptionV4', 'inceptionv4']
 

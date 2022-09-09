@@ -25,7 +25,9 @@ class classifyDataset( Dataset ):
 
     def __init__(self, cfg, which_dataset, args):
 
-        DEBUG = args.debug_level_dataset
+
+        DEBUG     = args.debug_level_dataset
+        LOG_LEVEL = args.log_level
         
         self.cfg = cfg
         

@@ -80,11 +80,13 @@ class VGGNN( nn.Module ):
     def forward(self, x, batch_fnames):                                                                    # y1, embedding = model.image_net.forward( x, batch_fnames ) = model.VGGNN.forward( x, batch_fnames )
 
         global counter
-        
-        if DEBUG>99:
-          print ( f"VGGNN:          INFO:     forward(): type(x)                                     = {MIKADO}{type(x)}{RESET}",    flush=True  )
-          print ( f"VGGNN:          INFO:     forward(): type(self)                                  = {MIKADO}{type(self)}{RESET}", flush=True   )
 
+        if DEBUG>0:
+          print ( f"VGGNN:          INFO:     forward(): x.size                                      = {MIKADO}{x.size() }{RESET}",    flush=True   )
+          print ( f"VGGNN:          INFO:     forward(): x                                           = {BOLD_MIKADO}{x[0,0,0,:]    }{RESET}",    flush=True   )
+          
+        if DEBUG>99:
+          print ( f"VGGNN:          INFO:     forward(): type(x)                                     = {MIKADO}{type(x)}{RESET}",    flush=True   )
 
         if DEBUG>10:
           print ( f"VGGNN:          INFO:     forward(): contents of batch_fnames = {MAGENTA}{batch_fnames}{RESET}" )

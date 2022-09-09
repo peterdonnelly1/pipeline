@@ -3,7 +3,7 @@ from   torch import nn
 
 from constants  import *
 
-DEBUG   = 2
+DEBUG   = 0
 
 # ------------------------------------------------------------------------------
 
@@ -33,9 +33,6 @@ class COMMON( nn.Module ):
 
     self.latent_dim = latent_dim                                                       #                                                                                                  model.latent_dim               = latent_dim        (as passed in)
 
-    if DEBUG>99:
-      print ( "COMMON:    INFO        \033[38;1mabout to call LENET5()\033[m" )
-    
     
     # This initialization is pulled from the DCGAN implementation:
     #

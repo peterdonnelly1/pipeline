@@ -159,7 +159,11 @@ class Bottleneck(nn.Module):
         if DEBUG>100:
           print ( f" {BRIGHT_GREEN}at Bottlenet / forward{RESET}" )
           
-          
+        if DEBUG>0:
+          print ( f"RESNET:         INFO:           input to forward()                    x.size      = {MIKADO}{x.size()}{RESET}{CLEAR_LINE}"           )
+        if DEBUG>0:
+          print ( f"RESNET:         INFO:           input to forward()                    x           = \n{MIKADO}{x[0,0,:,:]     }{RESET}{CLEAR_LINE}"  )
+
         identity = x
 
         out = self.conv1(x)
@@ -350,6 +354,8 @@ class ResNet(nn.Module):
 
         if DEBUG>100:
           print ( f"RESNET:         INFO:     on return from forward()                    x.size      = {MIKADO}{x.size()}{RESET}{CLEAR_LINE}" )
+        if DEBUG>100:
+          print ( f"RESNET:         INFO:     on return from forward()                    x           = {MIKADO}{x[:,0]  }{RESET}{CLEAR_LINE}" )
 
         return x, embedding_placeholder
 

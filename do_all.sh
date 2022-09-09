@@ -179,11 +179,11 @@ LOG_LEVEL=1
 
 DEBUG_LEVEL_CLASSIFY=1
 DEBUG_LEVEL_LOADER=1
+DEBUG_LEVEL_DATASET=1
 DEBUG_LEVEL_GENERATE=1
 DEBUG_LEVEL_TILER=1
-DEBUG_LEVEL_DATASET=1
 DEBUG_LEVEL_CONFIG=0
-DEBUG_LEVEL_ALGORITHM=0
+DEBUG_LEVEL_ALGORITHM=1
 
 HIGHEST_CLASS_NUMBER=99                                                                                     # Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Can only omit cases from the top (e.g. 'normal' has the highest class number for 'stad' - see conf/variables). Currently only implemented for unimode/image (not implemented for rna_seq)
 
@@ -260,21 +260,25 @@ source conf/variables.sh
 
 TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/${TARGET_GENES_REFERENCE_FILE_NAME}
 
-if [[ ! -f ${GLOBAL_DATA}/${MAPPING_FILE_NAME} ]]; then
-  echo -e "${RED}DO_ALL.SH: FATAL: ${MAGENTA}${GLOBAL_DATA}${RESET}${RED} does not contain a master mapping file: '${MAGENTA}${MAPPING_FILE_NAME}${RED}'  If it existed, it would be called: ${MAGENTA}'${MAPPING_FILE_NAME}'${RESET}${RED}. Perhaps you did not run ${MAGENTA}create_master?${RESET}${RED}'  Halting. ${RESET}"
-  exit
-fi
 
-if [[ ! -f ${GLOBAL_DATA}/${ENSG_REFERENCE_FILE_NAME} ]]; then
-  echo -e "${RED}DO_ALL.SH: FATAL: ${MAGENTA}${GLOBAL_DATA}${RESET}${RED} does not contain a copy of the reference file: '${MAGENTA}${ENSG_REFERENCE_FILE_NAME}${RESET}${RED}'  Halting. ${RESET}"
-  exit
-fi
+if [[ ${DATASET} != 'cifr' ]];  then                                                                       # cifr has its own loader, so skip anything tiling related
 
-if [[ ! -f ${GLOBAL_DATA}/${ENS_ID_TO_GENE_NAME_TABLE} ]]; then
-  echo -e "${RED}DO_ALL.SH: FATAL: ${MAGENTA}${GLOBAL_DATA}${RESET}${RED} does not contain a copy of the reference file: '${MAGENTA}${ENS_ID_TO_GENE_NAME_TABLE}${RED}'  Halting. ${RESET}"
-  exit
-fi
+  if [[ ! -f ${GLOBAL_DATA}/${MAPPING_FILE_NAME} ]]; then
+    echo -e "${RED}DO_ALL.SH: FATAL: ${MAGENTA}${GLOBAL_DATA}${RESET}${RED} does not contain a master mapping file: '${MAGENTA}${MAPPING_FILE_NAME}${RED}'  If it existed, it would be called: ${MAGENTA}'${MAPPING_FILE_NAME}'${RESET}${RED}. Perhaps you did not run ${MAGENTA}create_master?${RESET}${RED}'  Halting. ${RESET}"
+    exit
+  fi
+  
+  if [[ ! -f ${GLOBAL_DATA}/${ENSG_REFERENCE_FILE_NAME} ]]; then
+    echo -e "${RED}DO_ALL.SH: FATAL: ${MAGENTA}${GLOBAL_DATA}${RESET}${RED} does not contain a copy of the reference file: '${MAGENTA}${ENSG_REFERENCE_FILE_NAME}${RESET}${RED}'  Halting. ${RESET}"
+    exit
+  fi
+  
+  if [[ ! -f ${GLOBAL_DATA}/${ENS_ID_TO_GENE_NAME_TABLE} ]]; then
+    echo -e "${RED}DO_ALL.SH: FATAL: ${MAGENTA}${GLOBAL_DATA}${RESET}${RED} does not contain a copy of the reference file: '${MAGENTA}${ENS_ID_TO_GENE_NAME_TABLE}${RED}'  Halting. ${RESET}"
+    exit
+  fi
 
+fi
 
 
 
@@ -327,6 +331,9 @@ if [[ ${DIVIDE_CASES} == 'True' ]]; then
 fi
 
 
+if [[ ${DATASET} == 'cifr' ]];  then                                                                       # cifr has its own loader, so skip anything tiling related
+  SKIP_TILING='True'
+fi
 
 if [[ ${SKIP_TILING}  != 'True' ]];  then
     #~ echo "=====> DELETING All PRE-PROCEESSING FILES AND LEAVING JUST SVS AND UQ FILES"

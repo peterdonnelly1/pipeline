@@ -106,7 +106,14 @@ CLASS_COLUMN="type_n"
 
 # dataset specific parameters
 
-if [[ ${DATASET} == "stad" ]]; then
+if [[ ${DATASET} == "cifr" ]]; then
+
+  CANCER_TYPE="CIFR"
+  CANCER_TYPE_LONG="CIFAR_10_images"      
+  STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL STAD SET & THE TARGET_TILE_COORDS COORDINATES BELOW ARE FOR IT
+  TARGET_TILE_COORDS="0 0"
+
+elif [[ ${DATASET} == "stad" ]]; then
 
   # caution: Not all stad cases have both image and rna-seq samples. Further, for rna-seq, there are only five subtypes with meaningful numbers of rna-seq cases (hence HIGHEST_CLASS_NUMBER=4)
 
