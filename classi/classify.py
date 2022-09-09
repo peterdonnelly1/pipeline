@@ -493,6 +493,7 @@ has been set to {RESET}{BOLD_MIKADO}'False'{RESET}{GREENBLUE} (the dataset balan
     args.skip_tiling   = 'True'
     tile_size[0]       = 32
     args.tile_size[0]  = 32
+    batch_size         = args.batch_size[0]
 
   if (just_test!='True'):
     if any(i >= 1.  for i in pct_test):
@@ -608,7 +609,7 @@ has been set to {RESET}{BOLD_MIKADO}'False'{RESET}{GREENBLUE} (the dataset balan
               source_image_file_count +=1
 
 
-      if source_image_file_count==0:
+      if ( source_image_file_count==0 ) & ( dataset !='cifr') :
         print ( f"{BOLD}{RED}\n\nCLASSI:         FATAL:  there are no image files at all in the working data directory{RESET}" )
         print ( f"{BOLD}{RED}CLASSI:         FATAL:  possible cause: perhaps you changed to a different cancer type or input type but did not regenerate the dataset?{RESET}" )
         print ( f"{BOLD}{RED}CLASSI:         FATAL:                  if so, use the {CYAN}-r {RESET}{BOLD}{RED}option ('{BOLD}{CYAN}REGEN{RESET}{BOLD}{RED}') to force the dataset to be regenerated into the working directory{RESET}" )
@@ -617,7 +618,7 @@ has been set to {RESET}{BOLD_MIKADO}'False'{RESET}{GREENBLUE} (the dataset balan
         time.sleep(10)                                    
         sys.exit(0)
         
-      if source_image_file_count<10:
+      if ( source_image_file_count<10 ) & ( dataset !='cifr'):
         print ( f"{BOLD_ORANGE}\n\nCLASSI:         WARNG:  there are fewer than 10 image files in the working data directory, which seems odd{RESET}" )
         print ( f"{BOLD_ORANGE}CLASSI:         WARNG:          consider using the the {CYAN}-r {RESET}{BOLD_ORANGE}option ('{CYAN}REGEN{RESET}{BOLD_ORANGE}') to force the dataset to be regenerated{RESET}" )
         print ( f"{BOLD_ORANGE}CLASSI:         WARNG:          e.g. '{CYAN}./do_all.sh -d <cancer type code> -i image ... {CHARTREUSE}-r True{RESET}{BOLD_ORANGE}'{RESET}" )
@@ -1181,7 +1182,7 @@ f"\
             if (   ( f.endswith( 'HAS_IMAGE' ))   ):
               has_image_flag_count +=1
     
-      if has_image_flag_count==0:
+      if ( has_image_flag_count==0  ) & ( dataset !='cifr'):
         print ( f"{BOLD}{RED}\n\nCLASSI:         FATAL:  although there are {MIKADO}{source_image_file_count}{RESET}{BOLD}{RED} cases with images in the working dataset, none is currently flagged as having an image{RESET}" )
         print ( f"{BOLD}{RED}CLASSI:         FATAL:  this suggests that the case division process, which is mandatory for image inputs ({CYAN}-i image{RESET}{BOLD}{RED}), has not been carried out{RESET}" )
         print ( f"{BOLD}{RED}CLASSI:         FATAL:          remedy: re-run the experiment with option {CYAN}-v {RESET}{BOLD}{RED} set to {CYAN}True{RESET}{BOLD}{RED} to have cases divided and flagged{RESET}" )
