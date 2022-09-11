@@ -493,7 +493,7 @@ has been set to {RESET}{BOLD_MIKADO}'False'{RESET}{GREENBLUE} (the dataset balan
     args.skip_tiling   = 'True'
     tile_size[0]       = 32
     args.tile_size[0]  = 32
-    batch_size         = args.batch_size[0]
+
 
   if (just_test!='True'):
     if any(i >= 1.  for i in pct_test):
@@ -626,23 +626,24 @@ has been set to {RESET}{BOLD_MIKADO}'False'{RESET}{GREENBLUE} (the dataset balan
         time.sleep(5)                           
 
 
-      if just_test != True:
-        if source_image_file_count<np.max(args.n_samples):
-          print( f"{BOLD_ORANGE}CLASSI:         WARNG: there aren't enough samples. A file count reveals a total of {MIKADO}{source_image_file_count:,}{RESET}{BOLD_ORANGE} source image files (SVS or TIF or JPEG) files in {MAGENTA}{args.data_dir}{RESET}{BOLD_ORANGE}, whereas the largest value in user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{BOLD_ORANGE}' = {MIKADO}{np.max(args.n_samples):,}{RESET})" ) 
-          print( f"{ORANGE}CLASSI:         WARNG:   changing values of '{BOLD_CYAN  }N_SAMPLES[]{RESET}{ORANGE} that are greater than {RESET}{BOLD_MIKADO}{source_image_file_count:,}{RESET}{ORANGE} to exactly {BOLD_MIKADO}{source_image_file_count:,}{RESET}{ORANGE} and continuing{RESET}" )
-          args.n_samples = [  el if el<=source_image_file_count else source_image_file_count for el in args.n_samples   ]
-          n_samples = args.n_samples
+      if dataset !='cifr':
+        if ( just_test != True ):
+          if source_image_file_count<np.max(args.n_samples):
+            print( f"{BOLD_ORANGE}CLASSI:         WARNG: there aren't enough samples. A file count reveals a total of {MIKADO}{source_image_file_count:,}{RESET}{BOLD_ORANGE} source image files (SVS or TIF or JPEG) files in {MAGENTA}{args.data_dir}{RESET}{BOLD_ORANGE}, whereas the largest value in user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{BOLD_ORANGE}' = {MIKADO}{np.max(args.n_samples):,}{RESET})" ) 
+            print( f"{ORANGE}CLASSI:         WARNG:   changing values of '{BOLD_CYAN  }N_SAMPLES[]{RESET}{ORANGE} that are greater than {RESET}{BOLD_MIKADO}{source_image_file_count:,}{RESET}{ORANGE} to exactly {BOLD_MIKADO}{source_image_file_count:,}{RESET}{ORANGE} and continuing{RESET}" )
+            args.n_samples = [  el if el<=source_image_file_count else source_image_file_count for el in args.n_samples   ]
+            n_samples = args.n_samples
+          else:
+            print( f"CLASSI:         INFO:  {WHITE}a file count shows there is a total of {MIKADO}{source_image_file_count:,}{RESET} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}, which may be sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' depending on the case subset used.{RESET})" )
         else:
-          print( f"CLASSI:         INFO:  {WHITE}a file count shows there is a total of {MIKADO}{source_image_file_count:,}{RESET} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}, which may be sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' depending on the case subset used.{RESET})" )
-      else:
-        min_required = int(np.max(args.n_samples) * pct_test  )
-        if source_image_file_count< min_required:
-          print( f"{BOLD_ORANGE}CLASSI:         WARNG: there aren't enough samples. A file count reveals a total of {MIKADO}{source_image_file_count}{RESET}{BOLD_ORANGE} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}{BOLD_ORANGE}, whereas the absolute minimum number required for this test run is {MIKADO}{min_required}{RESET}" ) 
-          print( f"{ORANGE}CLASSI:         WARNG: changing values of '{CYAN}N_SAMPLES{RESET}{ORANGE} that are greater than {RESET}{MIKADO}{source_image_file_count}{RESET}{ORANGE} to exactly {MIKADO}{source_image_file_count}{RESET}{ORANGE} and continuing{RESET}" )
-          args.n_samples = [  el if el<=source_image_file_count else source_image_file_count for el in args.n_samples   ]
-          n_samples = args.n_samples
-        else:
-          print( f"CLASSI:         INFO:  {WHITE}a file count shows there is a total of {MIKADO}{source_image_file_count}{RESET} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}, which may be sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}{BOLD_ORANGE}' depending on the case subset used = {MIKADO}{np.max(args.n_samples)}{RESET})" )
+          min_required = int(np.max(args.n_samples) * pct_test  )
+          if source_image_file_count< min_required:
+            print( f"{BOLD_ORANGE}CLASSI:         WARNG: there aren't enough samples. A file count reveals a total of {MIKADO}{source_image_file_count}{RESET}{BOLD_ORANGE} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}{BOLD_ORANGE}, whereas the absolute minimum number required for this test run is {MIKADO}{min_required}{RESET}" ) 
+            print( f"{ORANGE}CLASSI:         WARNG: changing values of '{CYAN}N_SAMPLES{RESET}{ORANGE} that are greater than {RESET}{MIKADO}{source_image_file_count}{RESET}{ORANGE} to exactly {MIKADO}{source_image_file_count}{RESET}{ORANGE} and continuing{RESET}" )
+            args.n_samples = [  el if el<=source_image_file_count else source_image_file_count for el in args.n_samples   ]
+            n_samples = args.n_samples
+          else:
+            print( f"CLASSI:         INFO:  {WHITE}a file count shows there is a total of {MIKADO}{source_image_file_count}{RESET} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}, which may be sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}{BOLD_ORANGE}' depending on the case subset used = {MIKADO}{np.max(args.n_samples)}{RESET})" )
 
 
     if stain_norm[0]=='spcn':
@@ -1816,7 +1817,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     world_size = 0
     rank       = 0
     
-
+    
     if DEBUG>3: 
       print( f"CLASSI:         INFO: {BOLD}7 about to call dataset loader" )
     train_loader, test_loader, final_test_batch_size, final_test_loader = loader.get_data_loaders( args,
@@ -3636,11 +3637,11 @@ def train( args, epoch, train_loader, model, optimizer, loss_function, loss_type
         rna_labels   = rna_labels.to   ( device )                                                          # send to GPU
 
         if DEBUG>99:
-          print ( f"CLASSI:         INFO:     train: batch_images[0]                    = {MIKADO}\n{batch_images[0] }{RESET}", flush=True   )
+          print ( f"{BOLD_OLIVEGREEN}CLASSI:         INFO:     train: batch_images[0]      = \n{batch_images[0] }{RESET}", flush=True   )
 
-        if DEBUG>99:
-          print ( f"CLASSI:         INFO:     train: type(batch_images)                 = {MIKADO}{type(batch_images)}{RESET}",  flush=True  )
-          print ( f"CLASSI:         INFO:     train: batch_images.size()                = {MIKADO}{batch_images.size()}{RESET}", flush=True  )
+        if DEBUG>88:
+          print ( f"{BOLD_OLIVEGREEN}CLASSI:         INFO:     train: type(batch_images)   = {type(batch_images)}{RESET}",  flush=True  )
+          print ( f"{BOLD_OLIVEGREEN}CLASSI:         INFO:     train: batch_images.size()  = {batch_images.size()}{RESET}", flush=True  )
 
 
         if DEBUG>2:
@@ -6919,6 +6920,6 @@ if __name__ == '__main__':
   args.pin_memory = torch.cuda.is_available()
 
   if DEBUG>12:
-    print ( f"{GOLD}args.debug_level_classify{RESET} =           ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------>    {YELLOW}{args.debug_level_classify}{RESET}", flush=True)
+    print ( f"{GOLD}args.final_test_batch_size{RESET} =           ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------>    {YELLOW}{args.final_test_batch_size}{RESET}", flush=True)
   
   main(args)

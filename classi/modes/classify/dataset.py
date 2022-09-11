@@ -74,10 +74,10 @@ class classifyDataset( Dataset ):
             
                                                                     
         if input_mode=='image':
-          if DEBUG>2:
-            print ( f"DATASET:        INFO:     images     size            = {MIKADO}{(self.images).size()}{RESET}"                  )
-            print ( f"DATASET:        INFO:     fnames     size            = {MIKADO}{(self.fnames).size()}{RESET}"                  )
-            print ( f"DATASET:        INFO:     img_labels size            = {MIKADO}{(self.img_labels).size()}{RESET}"              )
+          if DEBUG>9:
+            print ( f"{BOLD_PINK}DATASET:        INFO:     images     size            = {(self.images).size()}{RESET}"                  )
+            print ( f"{BOLD_PINK}DATASET:        INFO:     fnames     size            = {(self.fnames).size()}{RESET}"                  )
+            print ( f"{BOLD_PINK}DATASET:        INFO:     img_labels size            = {(self.img_labels).size()}{RESET}"              )
           if DEBUG>9:
             print ( f"DATASET:        INFO:     self.images                = \n{self.images[0]}"                                     )
                     
@@ -129,8 +129,6 @@ class classifyDataset( Dataset ):
             #transforms.RandomHorizontalFlip(),
             transforms.ToTensor()
         ])
-
-
 
 
         make_grey_pct = args.make_grey_pct
@@ -191,9 +189,11 @@ class classifyDataset( Dataset ):
         if not ( self.images.dim()==1) :                                                                   # if dim!=1, then image tensor does not exist in the dataset, so skip
           images          = self.images[i]
           images          = self.subsample_image( images ).numpy()
-          images          = torch.Tensor( images )                                                         # convert to Torch tensor
+          images          = torch.Tensor( images )                                                         # convert back to Torch tensor
           fnames          = self.fnames[i]                                                                
           img_labels      = self.img_labels[i]
+          if DEBUG>88:
+            print( f"{BOLD_BLEU}GENERATE:       INFO:         images.size()               = {MIKADO}{images.size()}{RESET}",    flush=True       ) 
           if DEBUG>88:
             print ( f"DATASET:        INFO:        __getitem__() ----------------------------------------------------------------- type(self.img_labels[{MIKADO}{i:3d}{RESET}]) = {MIKADO}{type(self.img_labels[i])}{RESET}" )
             print ( f"DATASET:        INFO:        __getitem__() ----------------------------------------------------------------- self.img_labels[{MIKADO}{i:3d}{RESET}] = {MIKADO}{self.img_labels[i]}{RESET}" )
@@ -209,7 +209,7 @@ class classifyDataset( Dataset ):
           genes           = self.genes[i]
           fnames          = self.fnames[i]                                                                
           #gnames          = self.gnames[i]
-          genes           = torch.Tensor( genes )                                                          # convert to Torch tensor
+          genes           = torch.Tensor( genes )                                                          # convert back to Torch tensor
           rna_labels      = self.rna_labels[i]       
 
           if DEBUG>88:

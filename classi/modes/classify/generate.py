@@ -178,26 +178,27 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
   if dataset =='cifr':
   
     if DEBUG>=0:
-      print( f"{ORANGE}GENERATE:       NOTE:    about to load cifar-10 dataset" )
+      print( f"{ORANGE}GENERATE:       NOTE:    about  to load cifar-10 dataset" )
       
     cifar           = datasets.CIFAR10( root=args.data_source, train=True,  download=True )                # CIFAR10 data is stored as a numpy array, so it has to be converted to a tensor. # MNIST data and labels are stored as a tensor. CIFAR10 data is stored as numpy array. Which was unexpected.
     img_labels_new  = np.asarray(cifar.targets)
-    images_new      = cifar.data                                                                           # needs to be normalised!!!
+    images_new      = (cifar.data).swapaxes(1,3)                                                           # it's stored as 50000,32,32,3 whereas we need 50,000,3,32,32 so we swap second and last axes around
     fnames_new      = np.zeros_like(img_labels_new)
 
-    if DEBUG>0:
-      print( f"{BOLD_CAMEL }LOADER:         INFO:         type (images_new        )   = {type (images_new)       }{RESET}"      )
-      print( f"{CAMEL      }LOADER:         INFO:         images_new.shape        )   = {images_new.shape        }{RESET}"      )
-      print( f"{BOLD_CAMEL }LOADER:         INFO:         type (img_labels_new    )   = {type (img_labels_new)   }{RESET}"      )
-      print( f"{CAMEL      }LOADER:         INFO:         img_labels_new.shape    )   = {img_labels_new.shape    }{RESET}"      )
-      print( f"{BOLD_CAMEL }LOADER:         INFO:         type (fnames_new        )   = {type (fnames_new)       }{RESET}"      )
-      print( f"{CAMEL      }LOADER:         INFO:         fnames_new.shape        )   = {fnames_new.shape        }{RESET}"      )
+    if DEBUG>10:
+      print( f"{BOLD_CAMEL }GENERATE:       INFO:         type (images_new        )   = {type (images_new)       }{RESET}"      )
+      print( f"{BOLD_CAMEL }GENERATE:       INFO:         type (images_new        )   = {type (images_new)       }{RESET}"      )
+      print( f"{CAMEL      }GENERATE:       INFO:         images_new.shape        )   = {images_new.shape        }{RESET}"      )
+      print( f"{BOLD_CAMEL }GENERATE:       INFO:         type (img_labels_new    )   = {type (img_labels_new)   }{RESET}"      )
+      print( f"{CAMEL      }GENERATE:       INFO:         img_labels_new.shape    )   = {img_labels_new.shape    }{RESET}"      )
+      print( f"{BOLD_CAMEL }GENERATE:       INFO:         type (fnames_new        )   = {type (fnames_new)       }{RESET}"      )
+      print( f"{CAMEL      }GENERATE:       INFO:         fnames_new.shape        )   = {fnames_new.shape        }{RESET}"      )
     if DEBUG>10:
       np.set_printoptions(formatter={'float': lambda x: "{:>0.3f}".format(x)})
-      print( f"{CAMEL      }LOADER:         INFO:         images_new[0,0,:,:]         = \n{images_new[0,0,:,:]   }{RESET}"      )
+      print( f"{CAMEL      }GENERATE:       INFO:         images_new[0,0,:,:]         = \n{images_new[0,0,:,:]   }{RESET}"      )
       np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-      print( f"{CAMEL      }LOADER:         INFO:         img_labels_new[0:50]        = {img_labels_new [0:50]   }{RESET}"      )
-      print( f"{CAMEL      }LOADER:         INFO:         fnames_new    [0:50]        = {fnames_new     [0:50]   }{RESET}"      )
+      print( f"{CAMEL      }GENERATE:       INFO:         img_labels_new[0:50]        = {img_labels_new [0:50]   }{RESET}"      )
+      print( f"{CAMEL      }GENERATE:       INFO:         fnames_new    [0:50]        = {fnames_new     [0:50]   }{RESET}"      )
 
 
     images_new      = torch.Tensor( images_new )
@@ -205,7 +206,11 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
     fnames_new.requires_grad_( False )
     img_labels_new  = torch.Tensor( img_labels_new ).long()                                                # have to explicity cast as long as torch. Tensor does not automatically pick up type from the numpy array. 
     img_labels_new.requires_grad_( False )
-  
+ 
+    if DEBUG>10:
+      print( f"{BOLD_AMETHYST}GENERATE:       INFO:     tensor type (images_new     )   = {type (images_new)       }{RESET}"      )
+      print( f"{BOLD_AMETHYST}GENERATE:       INFO:          tensor images_new.size()   = {images_new.size()       }{RESET}"      )
+        
     if DEBUG>1:
       print( "\nGENERATE:       INFO:   finished converting image data and labels from numpy array to Torch tensor")
   
@@ -1729,8 +1734,8 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
   if DEBUG>0:
     print( f"{CLEAR_LINE}{ASPARAGUS}GENERATE:       INFO:   directories_processed = {MIKADO}{directories_processed:<4d}{RESET}",  flush=True        )   
 
-  if DEBUG>2:
-    print( f"\n{RESET}GENERATE:       INFO:     images_new.shape               = {MIKADO}{images_new.shape}{RESET}",    flush=True       ) 
+  if DEBUG>0:
+    print( f"{BOLD_PEWTER}GENERATE:       INFO:     images_new.shape               = {MIKADO}{images_new.shape}{RESET}",    flush=True       ) 
     print( f"GENERATE:       INFO:     fnames_new.shape               = {MIKADO}{fnames_new.shape}{RESET}",             flush=True       )
     print( f"GENERATE:       INFO:     img_labels_new.shape           = {MIKADO}{img_labels_new.shape}{RESET}",         flush=True       )
   if DEBUG>2:
@@ -1778,6 +1783,8 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
   if DEBUG>1:
     print( "\nGENERATE:       INFO:   finished converting image data and labels from numpy array to Torch tensor")
 
+  if DEBUG>0:
+    print( f"{BOLD_ASPARAGUS}GENERATE:       INFO:     images_new.size()               = {MIKADO}{images_new.size()}{RESET}",    flush=True       ) 
 
   if DEBUG>2:
     print ( f"GENERATE:       INFO:     img_labels_new                =                               \n{MIKADO}{img_labels_new}{RESET}{CLEAR_LINE}"    )  

@@ -74,7 +74,8 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
     if ( (input_mode=='image') &  ('AE' in nn_type_img[0]) )  |  ( (input_mode=='rna') & ('AE' in nn_type_rna[0]) ):
       we_are_autoencoding=True
       
-    
+
+
     # 1 Preparation
 
     if just_test=='True':
@@ -484,8 +485,8 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
   
       if args.ddp=='False':   # Single GPU <-- Main case
 
-        if DEBUG>2:
-          print( "LOADER:         INFO:   about to create and return train loader - single GPU case" )
+        if DEBUG>1:
+          print( "LOADER:         INFO:   489 about to create and return train loader - single GPU case" )
                 
         train_loader   = DataLoader(
           dataset,
@@ -518,13 +519,13 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
   
       # 5B test_loader for the *training* phase: i.e. ./do_all -d stad -i image. We already have a loader for the training indices; here we define a loader for the test indices: that is, testing during the training phase
 
-      if DEBUG>2:
-        print( "LOADER:         INFO:   408: about to create and return test  loader (the one that's used in the training phase after each epoch for validation testing)" )
+      if DEBUG>1:
+        print( "LOADER:         INFO:   522: about to create and return test  loader (the one that's used in the training phase after each epoch for validation testing)" )
 
       if args.ddp=='False':   # Single GPU <-- Main case
 
-        if DEBUG>2:
-          print( "LOADER:         INFO:   413:   single GPU case" ) 
+        if DEBUG>1:
+          print( "LOADER:         INFO:   528:   single GPU case" ) 
     
         test_loader = DataLoader(
           dataset if args.cases=='ALL_ELIGIBLE_CASES' else dataset_rna_test if input_mode=='rna' else dataset_image_rna_test if input_mode=='image_rna' else dataset_image_test,
@@ -609,7 +610,6 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
         drop_last   = DROP_LAST,
         pin_memory  = pin_memory
         )
-        
 
 
     if args.input_mode   == 'image':
@@ -619,6 +619,8 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
     elif args.input_mode == 'image_rna':
       final_batch_size  =  len(test_inds)
 
+    if args.dataset=='cifr':
+      final_batch_size = args.batch_size[0]
 
     final_test_loader = DataLoader(
       dataset if args.cases=='ALL_ELIGIBLE_CASES' else dataset_rna_test if input_mode=='rna' else dataset_image_rna_test if input_mode=='image_rna'  else dataset_image_test,

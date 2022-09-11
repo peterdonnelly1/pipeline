@@ -49,6 +49,11 @@
 export MKL_DEBUG_CPU_TYPE=5
 export KMP_WARNINGS=FALSE
 
+if [[ ${INPUT_MODE} == "image" ]]; then
+  FINAL_TEST_BATCH_SIZE=5                                                                                  # number of BATCHES of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated). Don't make it too large because it's passed through as a single super-batch.
+else
+  FINAL_TEST_BATCH_SIZE=141                                                                                # (rna mode doesn't need this because the entire batch can easily be accommodated)
+fi
 
 MINIMUM_JOB_SIZE=2                                                                                         # Only do a box plot if the job has at least this many runs
 CASES_RESERVED_FOR_IMAGE_RNA=0                                                                             # number of cases to be reserved for image+rna testing. <<< HAS TO BE ABOVE ABOUT 5 FOR SOME REASON -- NO IDEA WHY ATM
@@ -78,7 +83,7 @@ BAR_CHART_SHOW_ALL="False"
 RENDER_CLUSTERING="True"
 BOX_PLOT="True"                                                                                            # If true, do a Seaborn box plot for the job (one box plot is generated per 'job', not per 'run')
 BOX_PLOT_SHOW="False"                                                                                      # If true, present the graphic using pyplot
-MAX_CONSECUTIVE_LOSSES=10                                                                                   # training will stop after this many consecutive losses, regardless of nthe value of N_EPOCHS
+MAX_CONSECUTIVE_LOSSES=7                                                                                   # training will stop after this many consecutive losses, regardless of nthe value of N_EPOCHS
 
 #~ ZOOM_OUT_MAGS="0.125 0.25  0.5  0.75  1.0   2.0   4.0  8.0"                                             # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_PROB
 #~ ZOOM_OUT_PROB="0.1   0.1   0.1  0.15  0.2   0.15  0.1  0.1"    
@@ -152,7 +157,7 @@ SKIP_TRAINING="False"
 STRONG_SUPERVISION='True'                                                                                 # Convenience variable. all it does is change --extract_from_centre to 'True', '--ignore_tile_quality_hyperparameters' to 'True' and 'n_tiles' to 1 in classify.py.  Could achieve same effect the these flags separately, but may also want to othe things with those flags.
 SUPERGRID_SIZE="2"
 TILES_PER_IMAGE="10"
-TILE_SIZE="64"
+TILE_SIZE="32"
 USE_AUTOENCODER_OUTPUT="False"
 
 HIDDEN_LAYER_ENCODER_TOPOLOGY="40 20"
@@ -183,7 +188,7 @@ DEBUG_LEVEL_DATASET=1
 DEBUG_LEVEL_GENERATE=1
 DEBUG_LEVEL_TILER=1
 DEBUG_LEVEL_CONFIG=0
-DEBUG_LEVEL_ALGORITHM=1
+DEBUG_LEVEL_ALGORITHM=0
 
 HIGHEST_CLASS_NUMBER=99                                                                                     # Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Can only omit cases from the top (e.g. 'normal' has the highest class number for 'stad' - see conf/variables). Currently only implemented for unimode/image (not implemented for rna_seq)
 

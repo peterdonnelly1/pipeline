@@ -17,7 +17,7 @@ import torch.nn.functional as F
 from constants  import *
 
 
-DEBUG=1
+DEBUG=0
 
 
 configs = {
@@ -37,10 +37,10 @@ class VGGNN( nn.Module ):
 
         self.features = features                                                                           # features = make_layers( configs['X'] = torch.nn.Sequential(*layers)
 
-        if DEBUG>0:
+        if DEBUG>88:
           print ( f"VGGNN:          INFO:   {CYAN}__init__(){RESET}: number of classes = {MIKADO}{n_classes}{RESET}" )        
 
-        if DEBUG>2:
+        if DEBUG>88:
           print ( f"VGGNN:          INFO:   {CYAN}__init__(){RESET}:          features = \n{MIKADO}{self.features}{RESET}" )
  
         first_fc_width=int(tile_size**2/2)                                                                 # PGD 200428 - first_fc_width was previously a hard wired value which meant it could not use for diffferent tile sizes
@@ -81,7 +81,7 @@ class VGGNN( nn.Module ):
 
         global counter
 
-        if DEBUG>0:
+        if DEBUG>88:
           print ( f"VGGNN:          INFO:     forward(): x.size                                      = {MIKADO}{x.size() }{RESET}",    flush=True   )
           print ( f"VGGNN:          INFO:     forward(): x                                           = {BOLD_MIKADO}{x[0,0,0,:]    }{RESET}",    flush=True   )
           

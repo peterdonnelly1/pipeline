@@ -1,18 +1,15 @@
 import os
-import numpy as np
 import torch
 import torchvision
-
+import numpy    as np
 import torch.nn as nn
 
-from   torch import Tensor
-from typing import Type, Any, Callable, Union, List, Optional
-
+from  torch  import Tensor
+from  typing import Type, Any, Callable, Union, List, Optional
 
 from constants  import *
 
-DEBUG=1
-
+DEBUG=0
 
 # ~ from .._internally_replaced_utils import load_state_dict_from_url                                      # PGD 220614 - see https://github.com/zhoudaxia233/EfficientUnet-PyTorch/issues/5
 from torch.utils.model_zoo import load_url as load_state_dict_from_url                                     # PGD 220614 - see https://github.com/zhoudaxia233/EfficientUnet-PyTorch/issues/5
@@ -145,24 +142,28 @@ class Bottleneck(nn.Module):
         width = int(planes * (base_width / 64.0)) * groups
         # Both self.conv2 and self.downsample layers downsample the input when stride != 1
         self.conv1 = conv1x1(inplanes, width)
-        self.bn1 = norm_layer(width)
+        self.bn1   = norm_layer(width)
         self.conv2 = conv3x3(width, width, stride, groups, dilation)
-        self.bn2 = norm_layer(width)
+        self.bn2   = norm_layer(width)
         self.conv3 = conv1x1(width, planes * self.expansion)
-        self.bn3 = norm_layer(planes * self.expansion)
-        self.relu = nn.ReLU(inplace=True)
+        self.bn3        = norm_layer(planes * self.expansion)
+        self.relu       = nn.ReLU(inplace=True)
         self.downsample = downsample
-        self.stride = stride
+        self.stride     = stride
 
     def forward(self, x: Tensor ) -> Tensor:
       
         if DEBUG>100:
           print ( f" {BRIGHT_GREEN}at Bottlenet / forward{RESET}" )
           
-        if DEBUG>0:
-          print ( f"RESNET:         INFO:           input to forward()                    x.size      = {MIKADO}{x.size()}{RESET}{CLEAR_LINE}"           )
-        if DEBUG>0:
-          print ( f"RESNET:         INFO:           input to forward()                    x           = \n{MIKADO}{x[0,0,:,:]     }{RESET}{CLEAR_LINE}"  )
+        if DEBUG>90:
+          print ( f"RESNET:         INFO:           input to forward()                            x.size = {BOLD_MIKADO}{x.size()}{RESET}{CLEAR_LINE}"           )
+        if DEBUG>90:
+          np.set_printoptions(edgeitems=300)
+          np.set_printoptions(linewidth=300)
+          as_numpy = (x[0,0:3,:,:].detach(). numpy()).squeeze()
+          np.set_printoptions(formatter={'float': lambda x: "{:>5.3f}".format(x)})
+          print ( f"RESNET:         INFO:           input to forward()            x[0,0:3,:,:] as numpy  = \n{MIKADO}{as_numpy}{RESET}{CLEAR_LINE}"  )
 
         identity = x
 
@@ -201,7 +202,7 @@ class ResNet(nn.Module):
         norm_layer: Optional[Callable[..., nn.Module]] = None,
     ) -> None:
       
-        if DEBUG>100:
+        if DEBUG>1:
           print ( f"{BRIGHT_GREEN}RESNET:         INFO:     at ResNet / __init__{RESET}" )
           print ( f"{BRIGHT_GREEN}RESNET:         INFO:     n_classes  = {MIKADO}{n_classes}{RESET}{CLEAR_LINE}" )
 
@@ -369,7 +370,10 @@ def _resnet( cfg, args, n_classes, tile_size,
     **kwargs: Any,
 ) -> ResNet:
   
-    if DEBUG>100:
+    DEBUG     = args.debug_level_algorithm
+    LOG_LEVEL = args.log_level
+  
+    if DEBUG>9:
       print ( f" {BRIGHT_GREEN}at ResNet / _resnet{RESET}" )
           
     model = ResNet ( n_classes, block, layers, **kwargs)
@@ -425,7 +429,10 @@ def resnet101(cfg, args, n_classes, tile_size, pretrained: bool = False, progres
 
 def resnet152 (cfg, args, n_classes, tile_size, pretrained: bool = False, progress: bool = True, **kwargs: Any) -> ResNet:
 
-    if DEBUG>100:
+    DEBUG     = args.debug_level_algorithm
+    LOG_LEVEL = args.log_level
+    
+    if DEBUG>9:
       print ( f" {BRIGHT_GREEN}at resnet152{RESET}" )
       
     r"""ResNet-152 model from
@@ -433,7 +440,7 @@ def resnet152 (cfg, args, n_classes, tile_size, pretrained: bool = False, progre
 
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
-        progress (bool): If True, displays a progress bar of the download to stderr
+        progress   (bool): If True, displays a progress bar of the download to stderr
     """
     return _resnet(cfg, args, n_classes, tile_size, "resnet152", Bottleneck, [3, 8, 36, 3], pretrained, progress, **kwargs)
 
