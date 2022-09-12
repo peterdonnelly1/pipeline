@@ -127,7 +127,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
           random.shuffle(train_inds)                                                                       # in training mode, it's critical that both the training and test sets are shuffled
             
 
-      else:     # catering for ALL_ELIGIBLE_CASES.  Different _indices_ (but all drawn from dataset_image_train) are used for training and testing. Not very useful for image training, since training and test tiles could derive from the same slides.
+      else:     # catering for ALL_ELIGIBLE_CASES.  Different _indices_ (but all drawn from dataset_image_train) are used for training and testing. Not very useful for (weakly supervised) image training, since training and test tiles could derive from the same slides.
 
         which_dataset = 'dataset_image_train'      
         # ~ dataset       = cfg.get_dataset( args, which_dataset, writer, gpu )                            # 21-09-23  removed introduced error caused by the presence of 'writer' parameter
@@ -138,8 +138,10 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
 
         indices = list(range( len( dataset )  )   )
 
-        if DEBUG>44:
-          print( f"LOADER:         INFO:    indices                         = \n{MIKADO}{indices}{RESET}"      )
+        if DEBUG>0:
+          print( f"LOADER:         INFO:    length of       indices         = {MIKADO}{len(indices)}{RESET}"      )
+        if DEBUG>1000:
+          print( f"LOADER:         INFO:    indices                         = \n{MIKADO}{indices}{RESET}"         )
 
         if just_test!='True':                                                                              # in training mode, it's critical that both the training and test sets are shuffled ...
 
@@ -148,11 +150,16 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
           split      = math.floor(len(indices) * (1 - pct_test))                                   
           train_inds = indices[:split]
           test_inds  = indices[split:]
-          
-          if DEBUG>44:
-            print( f"LOADER:         INFO:    train_inds  ( after shuffle ) = \n{MIKADO}{train_inds}{RESET}" )
-            print( f"LOADER:         INFO:    test_inds   ( after shuffle ) = \n{MIKADO}{test_inds}{RESET}"  )
 
+
+        if DEBUG>0:
+          print( f"LOADER:         INFO:    length of train indices         = {MIKADO}{len(train_inds)}{RESET}"   )
+          print( f"LOADER:         INFO:    length of test  indices         = {MIKADO}{len(test_inds)}{RESET}"    )
+        if DEBUG>1000:
+          print( f"LOADER:         INFO:    train indices ( after shuffle ) = \n{MIKADO}{train_inds}{RESET}"      )
+          print( f"LOADER:         INFO:    test  indices ( after shuffle ) = \n{MIKADO}{test_inds}{RESET}"       )
+
+          
         else:                                                                                              # test mode / ALL_ELIGIBLE_CASES
 
           if use_autoencoder_output!='True':                                                               # Not using the autoencoder is the default case (unimode 'just_test' to create patches)

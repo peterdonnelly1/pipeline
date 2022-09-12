@@ -215,7 +215,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   , flush=True )
 
   
-  if ( args.input_mode=='image' ) & ( args.strong_supervision=='True' ):                                   # rna_seq is always strongly supervised, but for image mode, it doesn't have to be and for my experiments, usually isn't                                                                
+  if ( args.input_mode=='image' ) & ( args.strong_supervision=='True' ) &  ( args.dataset!='cifr' ):            # rna_seq is always strongly supervised, but for image mode, it doesn't have to be and for my experiments, usually isn't                                                                
 
     # ~ args.make_balanced                       ='level_down'
     extract_from_centre                      ='True'
@@ -489,11 +489,23 @@ has been set to {RESET}{BOLD_MIKADO}'False'{RESET}{GREENBLUE} (the dataset balan
   multimode_case_count = unimode_case_matched_count = unimode_case_unmatched_count = unimode_case____image_count = unimode_case____image_test_count = unimode_case____rna_count = unimode_case____rna_test_count = 0
 
   if dataset=='cifr':
-    skip_tiling        = 'True'
-    args.skip_tiling   = 'True'
-    tile_size[0]       = 32
-    args.tile_size[0]  = 32
+    skip_tiling   = args.skip_tiling   = 'True'
+    tile_size[0]  = args.tile_size[0]  = 32
+    cases         = args.cases         = 'ALL_ELIGIBLE_CASES'
 
+    print( f"{BOLD_CORAL}CLASSI:         INFO: dataset = '{BOLD_CYAN}cifr{RESET}{BOLD_CORAL}'. \
+  Ensure this is intentional!{RESET}", flush=True)
+    print( f"{BOLD_CORAL}CLASSI:         INFO:   CONSEQUENTIALLY: config setting '{CYAN}SKIP_TILING{RESET}{BOLD_CORAL}'                     (corresponding to python argument '{CYAN}--skip_tiling{RESET}{BOLD_CORAL}')  \
+has been set to {RESET}{BOLD_MIKADO}'True'{RESET}{BOLD_CORAL}", flush=True)
+    print( f"{BOLD_CORAL}CLASSI:         INFO:   CONSEQUENTIALLY: config setting '{CYAN}TILE_SIZE{RESET}{BOLD_CORAL}'                       (corresponding to python argument '{CYAN}--tile_size{RESET}{BOLD_CORAL}')    \
+has been set to {RESET}{BOLD_MIKADO}32{RESET}{BOLD_CORAL}", flush=True)
+    print( f"{BOLD_CORAL}CLASSI:         INFO:   CONSEQUENTIALLY: config setting '{CYAN}CASES{RESET}{BOLD_CORAL}'                           (corresponding to python argument '{CYAN}--cases{RESET}{BOLD_CORAL}')        \
+has been set to {RESET}{BOLD_MIKADO}'ALL_ELIGIBLE_CASES'{RESET}{BOLD_CORAL}", flush=True)
+    print( f"{BOLD_CORAL}CLASSI:         INFO:   CONSEQUENTIALLY: config setting '{CYAN}CLASS_NAMES{RESET}{BOLD_CORAL}'                     (corresponding to python argument '{CYAN}--class_names{RESET}{BOLD_CORAL}')  \
+has been set to {RESET}{BOLD_MIKADO} [ 'plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck'  ]{RESET}{BOLD_CORAL}", flush=True)
+
+    print( f"{BOLD_CORAL}CLASSI:         INFO: continuing...{RESET}", flush=True)
+    time.sleep(1)
 
   if (just_test!='True'):
     if any(i >= 1.  for i in pct_test):
@@ -610,11 +622,11 @@ has been set to {RESET}{BOLD_MIKADO}'False'{RESET}{GREENBLUE} (the dataset balan
 
 
       if ( source_image_file_count==0 ) & ( dataset !='cifr') :
-        print ( f"{BOLD}{RED}\n\nCLASSI:         FATAL:  there are no image files at all in the working data directory{RESET}" )
-        print ( f"{BOLD}{RED}CLASSI:         FATAL:  possible cause: perhaps you changed to a different cancer type or input type but did not regenerate the dataset?{RESET}" )
-        print ( f"{BOLD}{RED}CLASSI:         FATAL:                  if so, use the {CYAN}-r {RESET}{BOLD}{RED}option ('{BOLD}{CYAN}REGEN{RESET}{BOLD}{RED}') to force the dataset to be regenerated into the working directory{RESET}" )
-        print ( f"{BOLD}{RED}CLASSI:         FATAL:                  e.g. '{CYAN}./do_all.sh -d <cancer type code> -i image ... {CHARTREUSE}-r True{RESET}{BOLD}{RED}'{RESET}" )
-        print(  f"{BOLD}{RED}CLASSI:         FATAL: ... halting now{RESET}\n\n" )
+        print ( f"{BOLD_RED}\n\nCLASSI:         FATAL:  there are no image files at all in the working data directory{RESET}" )
+        print ( f"{BOLD_RED}CLASSI:         FATAL:  possible cause: perhaps you changed to a different cancer type or input type but did not regenerate the dataset?{RESET}" )
+        print ( f"{BOLD_RED}CLASSI:         FATAL:                  if so, use the {CYAN}-r {RESET}{BOLD_RED}option ('{BOLD}{CYAN}REGEN{RESET}{BOLD_RED}') to force the dataset to be regenerated into the working directory{RESET}" )
+        print ( f"{BOLD_RED}CLASSI:         FATAL:                  e.g. '{CYAN}./do_all.sh -d <cancer type code> -i image ... {CHARTREUSE}-r True{RESET}{BOLD_RED}'{RESET}" )
+        print(  f"{BOLD_RED}CLASSI:         FATAL: ... halting now{RESET}\n\n" )
         time.sleep(10)                                    
         sys.exit(0)
         

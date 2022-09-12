@@ -175,7 +175,7 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
 
   # (2) process IMAGE data if applicable
   
-  if dataset =='cifr':
+  if dataset =='cifr':                                                                                     # CIFAR10 is a special case. Pytorch has methods to retrieve cifar and some other benchmakring databases, and stores them in a format that is ready for immediate loading, hence earlier steps like tiling, and also the generation steps that have to be applied to GDC datasets can be skipped
   
     if DEBUG>=0:
       print( f"{ORANGE}GENERATE:       NOTE:    about  to load cifar-10 dataset" )
@@ -203,8 +203,8 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
 
     images_new      = torch.Tensor( images_new )
     fnames_new      = torch.Tensor( fnames_new ).long()
-    fnames_new.requires_grad_( False )
-    img_labels_new  = torch.Tensor( img_labels_new ).long()                                                # have to explicity cast as long as torch. Tensor does not automatically pick up type from the numpy array. 
+    fnames_new.requires_grad_    ( False )
+    img_labels_new  = torch.Tensor( img_labels_new ).long()                                                # have to explicity cast as long as torch. Apparently tensor does not automatically pick up type from the numpy array in this case.
     img_labels_new.requires_grad_( False )
  
     if DEBUG>10:
@@ -215,7 +215,7 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
       print( "\nGENERATE:       INFO:   finished converting image data and labels from numpy array to Torch tensor")
   
   
-    for target in [ 'image_train', 'image_test' ]:
+    for target in [ 'image_train' ]:
           
       # save torch tensors as '.pth' file for subsequent loading by dataset function
       
@@ -232,6 +232,8 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
   
     return ( SUCCESS, SUCCESS, SUCCESS )  
     
+  
+  
   
   elif ( input_mode=='image' ) & ( pretrain!='True' ):
 
@@ -726,7 +728,6 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
    
    
     # (4C) set case selection logic variables
-        
 
     if args.just_test=='True':
 
@@ -870,7 +871,7 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
 
   ########################################################################################################################################################################################################
   #
-  #  These are all the valid cases:
+  #  These are all the valid cases for rna:
   #       
   #  user flag:
   # -c ALL_ELIGIBLE_CASES                      <<< Largest possible set. For use in unimode experiments only (doesn't set aside any test cases for multimode):
