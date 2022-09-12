@@ -98,7 +98,7 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
       batch_size = int(0.2*n_samples)
 
 
-    return ( n_genes, n_samples, batch_size )
+    return ( n_genes, n_samples, batch_size, 0  )
   
 
   if  (input_mode=='rna') & ( args.skip_generation=='True' ) & ( args.cases != 'ALL_ELIGIBLE_CASES') : 
@@ -216,8 +216,8 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
   
       print( "" )
       images_new = images_new_upsized
-      tile_size = 299
-
+      tile_size         = 299
+      args.tile_size[0] = 299
 
 
     images_new  = images_new.swapaxes(1,3)                                                           # it's stored as 50000,32,32,3 whereas we need 50,000,3,32,32 so we swap second and last axes around
@@ -268,7 +268,7 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
           'img_labels': img_labels_new,
       }, fqn )
   
-    return ( SUCCESS, SUCCESS, SUCCESS )  
+    return ( SUCCESS, SUCCESS, SUCCESS, tile_size )  
     
   
   
@@ -404,7 +404,7 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
         if DEBUG>0:
           print ( f"{DULL_WHITE}GENERATE:       INFO:    global_tiles_processed  (this run)................................................. = {MIKADO}{global_tiles_processed}{RESET}{CLEAR_LINE}", flush=True )
 
-    return ( SUCCESS, SUCCESS, SUCCESS )
+    return ( SUCCESS, SUCCESS, SUCCESS, 0)
     
 
 
@@ -691,7 +691,7 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
   
 
  
-    return ( n_genes, n_samples, batch_size )
+    return ( n_genes, n_samples, batch_size, 0 )
 
 
 
@@ -902,7 +902,7 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
   
     # (4D) RETURN
   
-    return ( n_genes, n_samples, batch_size )
+    return ( n_genes, n_samples, batch_size, 0 )
 
 
 
@@ -1847,11 +1847,11 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
 
   images_new  = images_new.swapaxes(1,3)                                                                   # it's stored as XXX,HH,WW,3 whereas we need XXX,3,HH,WW so we swap second and last axes around
   
-  images_new      = torch.Tensor( images_new )
-  fnames_new      = torch.Tensor( fnames_new ).long()
-  fnames_new.requires_grad_( False )
-  img_labels_new  = torch.Tensor( img_labels_new ).long()                                                # have to explicity cast as long as torch. Tensor does not automatically pick up type from the numpy array. 
-  img_labels_new.requires_grad_( False )
+  images_new      = torch.Tensor ( images_new )
+  fnames_new      = torch.Tensor ( fnames_new ).long()
+  fnames_new.requires_grad_      ( False )
+  img_labels_new  = torch.Tensor ( img_labels_new ).long()                                                 # have to explicity cast as long as torch. Tensor does not automatically pick up type from the numpy array. 
+  img_labels_new.requires_grad_  ( False )
 
   if DEBUG>1:
     print( "\nGENERATE:       INFO:   finished converting image data and labels from numpy array to Torch tensor")

@@ -1637,7 +1637,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         highest_class_number = n_classes-1
 
           
-        _,    _,    _                  = generate( args, class_names, n_samples, total_slides_counted_train, total_slides_counted_test, total_tiles_required_train, total_tiles_required_test, batch_size, highest_class_number, 
+        _,    _,    _, tile_size                 = generate( args, class_names, n_samples, total_slides_counted_train, total_slides_counted_test, total_tiles_required_train, total_tiles_required_test, batch_size, highest_class_number, 
                                                    multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, 
                                                    unimode_case____rna_test_count, pct_test, n_tiles, top_up_factors_train, top_up_factors_test, tile_size, low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform  
                                                  ) 
@@ -1654,7 +1654,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         
         highest_class_number = n_classes-1
         
-        n_genes, n_samples, batch_size = generate( args, class_names, n_samples, total_slides_counted_train, total_slides_counted_test, total_tiles_required_train, total_tiles_required_test, batch_size, highest_class_number, 
+        n_genes, n_samples, batch_size, _ = generate( args, class_names, n_samples, total_slides_counted_train, total_slides_counted_test, total_tiles_required_train, total_tiles_required_test, batch_size, highest_class_number, 
                                                    multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, 
                                                    unimode_case____rna_test_count, pct_test, n_tiles, top_up_factors_train, top_up_factors_test, tile_size, low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform  
                                                  )
