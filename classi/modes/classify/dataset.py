@@ -23,7 +23,7 @@ np.set_printoptions( linewidth=5000 )
 
 class classifyDataset( Dataset ):
 
-    def __init__(self, cfg, which_dataset, args):
+    def __init__(self, cfg, which_dataset, args ):
 
 
         DEBUG     = args.debug_level_dataset

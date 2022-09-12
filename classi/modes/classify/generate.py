@@ -17,7 +17,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import torchvision.datasets as datasets
 
-from pathlib import Path
+from pathlib               import Path
+from torchvision           import transforms
 
 from modes.classify.config import classifyConfig
 
@@ -52,6 +53,7 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
   class_numpy_file_name        = args.class_numpy_file_name
   use_autoencoder_output       = args.use_autoencoder_output
   use_unfiltered_data          = args.use_unfiltered_data
+  nn_type_img                  = args.nn_type_img
 
 
 
@@ -181,9 +183,45 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
       print( f"{ORANGE}GENERATE:       NOTE:    about  to load cifar-10 dataset" )
       
     cifar           = datasets.CIFAR10( root=args.data_source, train=True,  download=True )                # CIFAR10 data is stored as a numpy array, so it has to be converted to a tensor. # MNIST data and labels are stored as a tensor. CIFAR10 data is stored as numpy array. Which was unexpected.
-    img_labels_new  = np.asarray(cifar.targets)
-    images_new      = (cifar.data).swapaxes(1,3)                                                           # it's stored as 50000,32,32,3 whereas we need 50,000,3,32,32 so we swap second and last axes around
+    img_labels_new  = np.asarray(cifar.targets)[0:n_samples]
     fnames_new      = np.zeros_like(img_labels_new)
+
+    images_new      = cifar.data[0:n_samples]
+
+    if ( tile_size<299) & ( (any( 'INCEPT'in item for item in args.nn_type_img ) ) ):
+
+      print( f"{BOLD_ORANGE}GENERATE:       WARN: tile_size = {MIKADO}{tile_size}{BOLD_ORANGE}. However, for '{CYAN}NN_TYPE_IMG{BOLD_ORANGE}={MIKADO}INCEPT4{BOLD_ORANGE}', the tile size must be at least {MIKADO}299x299{RESET}" )
+      print( f"{BOLD_ORANGE}GENERATE:       WARN: upsizing the {CYAN}tile_size{BOLD_ORANGE} of all images to {MIKADO}299x299{RESET}{RESET}" )
+      
+      items = images_new.shape[0]
+      images_new_upsized = np.zeros( ( items, 299, 299, 3 ), dtype=np.uint8  )
+      
+      for i in range ( 0, images_new.shape[0] ):      
+
+        if i%100:
+          print ( f"\rGENERATE:       INFO: {i+1} of {items} images have been upsized", end='', flush=True)
+        
+        item = images_new[i]
+        
+        xform = transforms.Compose([
+            transforms.ToPILImage(),
+            transforms.Resize((299,299))
+            #transforms.RandomRotation((0, 360)),
+            #transforms.RandomCrop(cfg.IMG_SIZE),
+            #transforms.RandomHorizontalFlip(),
+            # ~ transforms.ToTensor()
+        ])
+        
+        images_new_upsized[i]  = xform(item) 
+  
+      print( "" )
+      images_new = images_new_upsized
+      tile_size = 299
+
+
+
+    images_new  = images_new.swapaxes(1,3)                                                           # it's stored as 50000,32,32,3 whereas we need 50,000,3,32,32 so we swap second and last axes around
+
 
     if DEBUG>10:
       print( f"{BOLD_CAMEL }GENERATE:       INFO:         type (images_new        )   = {type (images_new)       }{RESET}"      )
@@ -205,9 +243,9 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
     fnames_new      = torch.Tensor( fnames_new ).long()
     fnames_new.requires_grad_    ( False )
     img_labels_new  = torch.Tensor( img_labels_new ).long()                                                # have to explicity cast as long as torch. Apparently tensor does not automatically pick up type from the numpy array in this case.
-    img_labels_new.requires_grad_( False )
+    img_labels_new.requires_grad_( False )  
  
-    if DEBUG>10:
+    if DEBUG>0:
       print( f"{BOLD_AMETHYST}GENERATE:       INFO:     tensor type (images_new     )   = {type (images_new)       }{RESET}"      )
       print( f"{BOLD_AMETHYST}GENERATE:       INFO:          tensor images_new.size()   = {images_new.size()       }{RESET}"      )
         
@@ -1774,6 +1812,40 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
   images_new      = images_new     [0:global_tiles_processed]                                            # trim off all the unused positions in image_new
   img_labels_new  = img_labels_new [0:global_tiles_processed]                                            # ditto
   fnames_new      = fnames_new     [0:global_tiles_processed]                                            # ditto
+  
+  if args.dataset =='skin':                                                                                     # CIFAR10 is a special case. Pytorch has methods to retrieve cifar and some other benchmakring databases, and stores them in a format that is ready for immediate loading, hence earlier steps like tiling, and also the generation steps that have to be applied to GDC datasets can be skipped
+  
+    if ( tile_size<299) & ( (any( 'INCEPT'in item for item in args.nn_type_img ) ) ):
+
+      print( f"{BOLD_ORANGE}GENERATE:       WARN: tile_size = {MIKADO}{tile_size}{BOLD_ORANGE}. However, for '{CYAN}NN_TYPE_IMG{BOLD_ORANGE}={MIKADO}INCEPT4{BOLD_ORANGE}', the tile size must be at least {MIKADO}299x299{RESET}" )
+      print( f"{BOLD_ORANGE}GENERATE:       WARN: upsizing the {CYAN}tile_size{BOLD_ORANGE} of all images to {MIKADO}299x299{RESET}{RESET}" )
+      
+      items = images_new.shape[0]
+      images_new_upsized = np.zeros( ( items, 299, 299, 3 ), dtype=np.uint8  )
+      
+      for i in range ( 0, images_new.shape[0] ):      
+
+        if i%100:
+          print ( f"\rGENERATE:       INFO: {i+1} of {items} images have been upsized", end='', flush=True)
+        
+        item = images_new[i]
+        
+        xform = transforms.Compose([
+            transforms.ToPILImage(),
+            transforms.Resize((299,299))
+            #transforms.RandomRotation((0, 360)),
+            #transforms.RandomCrop(cfg.IMG_SIZE),
+            #transforms.RandomHorizontalFlip(),
+            # ~ transforms.ToTensor()
+        ])
+        
+        images_new_upsized[i]  = xform(item) 
+  
+      print( "" )
+      images_new = images_new_upsized
+      tile_size = args.tile_size = 299
+
+  images_new  = images_new.swapaxes(1,3)                                                                   # it's stored as XXX,HH,WW,3 whereas we need XXX,3,HH,WW so we swap second and last axes around
   
   images_new      = torch.Tensor( images_new )
   fnames_new      = torch.Tensor( fnames_new ).long()

@@ -214,6 +214,13 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                   {RESET}"
   , flush=True )
 
+  if ( any(args.n_tiles)>1 ):
+    
+    strong_supervision = args.strong_supervision = 'False'
+    
+    print( f"{BOLD_RED}CLASSI:       FATAL: '{CYAN}STRONG_SUPERVISION{RESET}{BOLD_RED}={MIKADO}'True'{RESET}{BOLD_RED}' (python {CYAN}--strong_supervision{RESET}{BOLD_RED} {MIKADO}'True'{RESET}{BOLD_RED} ) cannot be used unless all values of {CYAN}N_TILES{RESET}{BOLD_RED} (python '{CYAN}--n_tiles{RESET}{BOLD_RED}') are either {MIKADO}0{RESET}{BOLD_RED} or {MIKADO}1{RESET}", flush=True)
+    print( f"{BOLD_RED}CLASSI:       FATAL: cannot continue - halting now{RESET}" ) 
+    sys.exit()
   
   if ( args.input_mode=='image' ) & ( args.strong_supervision=='True' ) &  ( args.dataset!='cifr' ):            # rna_seq is always strongly supervised, but for image mode, it doesn't have to be and for my experiments, usually isn't                                                                
 
@@ -1220,22 +1227,28 @@ f"\
     prob = ("_".join(str(z) for z in zoom_out_prob))
 
 
-    if (input_mode=='image') & (nn_type_img=='INCEPT3') &  ( ( tile_size!=299 ) ):
-      print( f"{RED}CLASSI:         FATAL:  for Inception 3 ('{CYAN}NN_TYPE_IMG={MIKADO}{nn_type_img}{RESET}{RED}' corresponding to python argument '{CYAN}--nn_type_img{RESET}{RED}') the only permitted tile size is {MIKADO}299{RESET}{RED}, however the tile size parameter ('{CYAN}TILE_SIZE{RESET}'{RED}) is currently {MIKADO}{tile_size}{RESET}{RED}", flush=True)
-      print( f"{RED}CLASSI:         FATAL: ... halting now{RESET}" )
-      sys.exit(0)
-
-
-    if (input_mode=='image') & (nn_type_img[0:3]=='VGG') &  ( float(int( (tile_size/32) ) ) !=  (tile_size/32)  ):
-      print( f"{RED}CLASSI:         FATAL:  for network type '{CYAN}VGGNN{RESET}'{RED}, tile size (currently '{MIKADO}{tile_size}{RESET}{RED}') must be a multiple of 32{RESET}", flush=True )
-      print( f"{RED}CLASSI:         FATAL:  examples of acceptable tile sizes include: {MIKADO}32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448, 480, 512, 544, 576, 608, 640, 672, 704, 736, 768, 800, 832, 864, 896, 928, 960, 992, 1024, 1056, 1088, 1120, 1152, 1184, 1216, 1248, 1280, 1312, 1344, 1376, 1408, 1440, 1472, 1504, 1536, 1568, 1600{RESET}{RED}",  flush=True )
-      print( f"{RED}CLASSI:         FATAL:    ... cannot continue, halting now{RESET}" )
-      sys.exit(0)
-
-    if (input_mode=='image') & (nn_type_img[0:5]=='INCEPT') & (tile_size<75):
-      print( f"{RED}CLASSI:         FATAL:  for network type '{CYAN}INCEPT3{RESET}'{RED} and '{CYAN}INCEPT4{RESET}'{RED}, tile size (currently '{MIKADO}{tile_size}{RESET}{RED}') must be greater than or equal to 75  (i.e. 75x75){RESET}", flush=True )
-      print( f"{RED}CLASSI:         FATAL:    ... cannot continue, halting now{RESET}" )
-      sys.exit(0)
+    if ( dataset != 'cifr' ) & ( dataset != 'skin'):
+      
+      if (input_mode=='image') & (nn_type_img=='INCEPT3') &  ( ( tile_size!=299 ) ):
+        print( f"{RED}CLASSI:         FATAL:  for Inception V3 ('{CYAN}NN_TYPE_IMG={MIKADO}{nn_type_img}{RESET}{RED}' corresponding to python argument '{CYAN}--nn_type_img{RESET}{RED}') the only permitted tile size is {MIKADO}299{RESET}{RED}, however the tile size parameter ('{CYAN}TILE_SIZE{RESET}'{RED}) is currently {MIKADO}{tile_size}{RESET}{RED}", flush=True)
+        print( f"{RED}CLASSI:         FATAL: ... halting now{RESET}" )
+        sys.exit(0)
+  
+      if (input_mode=='image') & (nn_type_img=='INCEPT4') &  ( ( tile_size!=299 ) ):
+        print( f"{RED}CLASSI:         FATAL:  for Inception V4 ('{CYAN}NN_TYPE_IMG={MIKADO}{nn_type_img}{RESET}{RED}' corresponding to python argument '{CYAN}--nn_type_img{RESET}{RED}') the only permitted tile size is {MIKADO}299{RESET}{RED}, however the tile size parameter ('{CYAN}TILE_SIZE{RESET}'{RED}) is currently {MIKADO}{tile_size}{RESET}{RED}", flush=True)
+        print( f"{RED}CLASSI:         FATAL: ... halting now{RESET}" )
+        sys.exit(0)
+  
+      if (input_mode=='image') & (nn_type_img[0:3]=='VGG') &  ( float(int( (tile_size/32) ) ) !=  (tile_size/32)  ):
+        print( f"{RED}CLASSI:         FATAL:  for network type '{CYAN}VGGNN{RESET}'{RED}, tile size (currently '{MIKADO}{tile_size}{RESET}{RED}') must be a multiple of 32{RESET}", flush=True )
+        print( f"{RED}CLASSI:         FATAL:  examples of acceptable tile sizes include: {MIKADO}32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448, 480, 512, 544, 576, 608, 640, 672, 704, 736, 768, 800, 832, 864, 896, 928, 960, 992, 1024, 1056, 1088, 1120, 1152, 1184, 1216, 1248, 1280, 1312, 1344, 1376, 1408, 1440, 1472, 1504, 1536, 1568, 1600{RESET}{RED}",  flush=True )
+        print( f"{RED}CLASSI:         FATAL:    ... cannot continue, halting now{RESET}" )
+        sys.exit(0)
+  
+      if (input_mode=='image') & (nn_type_img[0:5]=='INCEPT') & (tile_size<75):
+        print( f"{RED}CLASSI:         FATAL:  for network type '{CYAN}INCEPT3{RESET}'{RED} and '{CYAN}INCEPT4{RESET}'{RED}, tile size (currently '{MIKADO}{tile_size}{RESET}{RED}') must be greater than or equal to 75  (i.e. 75x75){RESET}", flush=True )
+        print( f"{RED}CLASSI:         FATAL:    ... cannot continue, halting now{RESET}" )
+        sys.exit(0)
 
     b  ="BALANCED"
     nb ="NOTBLNCD"
