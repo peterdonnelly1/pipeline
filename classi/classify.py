@@ -3472,10 +3472,10 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         specificity     = round ( ( true_negatives / ( true_negatives + false_positives )        if ( true_negatives + false_positives ) !=0    else 0 ), 3)
         total           = true_positives + true_negatives + false_positives + false_negatives
 
-        true_positives_pct  = round ( (100 * true_positives  / total                            if ( total                            ) !=0    else 0 ), 2)
-        false_positives_pct = round ( (100 * false_positives / total                            if ( total                            ) !=0    else 0 ), 2)
-        false_negatives_pct = round ( (100 * false_negatives / total                            if ( total                            ) !=0    else 0 ), 2)
-        true_negatives_pct  = round ( (100 * true_negatives  / total                            if ( total                            ) !=0    else 0 ), 2)
+        true_positives_pct  = round ( (100 * true_positives  / total                            if ( total                             ) !=0    else 0 ), 2)
+        false_positives_pct = round ( (100 * false_positives / total                            if ( total                             ) !=0    else 0 ), 2)
+        false_negatives_pct = round ( (100 * false_negatives / total                            if ( total                             ) !=0    else 0 ), 2)
+        true_negatives_pct  = round ( (100 * true_negatives  / total                            if ( total                             ) !=0    else 0 ), 2)
 
         if DEBUG>2:
           print ( f"\n",                                                                                                                                                                          flush=True  ) 
@@ -3485,7 +3485,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
           print ( f"CLASSI:           INFO:  true  negatives                [{CHARTREUSE}{i}{RESET}] = {CHARTREUSE}{  true_negatives  }{RESET}",                                                  flush=True  ) 
           print ( f"CLASSI:           INFO:  false positives                [{CHARTREUSE}{i}{RESET}] = {CHARTREUSE}{  false_positives }{RESET}",                                                  flush=True  ) 
           print ( f"CLASSI:           INFO:  false negatives                [{CHARTREUSE}{i}{RESET}] = {CHARTREUSE}{  false_negatives }{RESET}",                                                  flush=True  ) 
-          print ( f"CLASSI:           INFO:  checksum                       [{CHARTREUSE}{i}{RESET}] = {BLEU}{  total }{RESET}",                                                                  flush=True  ) 
+          print ( f"CLASSI:           INFO:  checksum                       [{CHARTREUSE}{i}{RESET}] = {BLEU}{total}{RESET}",                                                                     flush=True  ) 
           print ( f"CLASSI:           INFO:  {BOLD}precision{RESET}         [{CHARTREUSE}{i}{RESET}] = {COQUELICOT}{ precision    :.3f}{RESET}",                                                  flush=True  ) 
           print ( f"CLASSI:           INFO:  {BOLD}recall{RESET}            [{CHARTREUSE}{i}{RESET}] = {COQUELICOT}{ recall       :.3f}{RESET}",                                                  flush=True  ) 
           print ( f"CLASSI:           INFO:  {BOLD}accuracy{RESET}          [{CHARTREUSE}{i}{RESET}] = {COQUELICOT}{ accuracy     :.3f}{RESET}",                                                  flush=True  ) 
@@ -3493,7 +3493,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
           print ( f"CLASSI:           INFO:  {BOLD}F1{RESET}                [{CHARTREUSE}{i}{RESET}] = {COQUELICOT}{ F1           :.3f}{RESET}",                                                  flush=True  ) 
 
         
-        # use pandas to save as a csv file
+        # use pandas to save as a .csv file
         
         class_name = class_names[i][:25]
         row_1_string   = f"Subtype: {class_name: <30s}"
@@ -3505,8 +3505,8 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         row_7_string   = f".                 F1 Score            2*P*R / (P + R) :"
         row_8_string   = f".                 Accuracy    (TP+TN) / (TP+TN+FP+FN) :"
         row_9_string   = f".                 Specificity            TP / (TN+FP) :"
-      
-        
+
+
         # ~ df = pd.DataFrame( index=[ 'Actual Positives', 'Actual Negatives', 'blank row' ], columns=[ 'Subtype', 'Predicted Positives', 'Predicted Negatives'] )
 
         # ~ df.at['Actual Positives', 'Subtype'] = class_name
@@ -3514,7 +3514,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
         # ~ df.at['Actual Positives', 'Predicted Positives'] = true_positives
         # ~ df.at['Actual Positives', 'Predicted Negatives'] = false_negatives
-        # ~ df.at['Actual Negativ es', 'Predicted Positives'] = false_positives
+        # ~ df.at['Actual Negatives', 'Predicted Positives'] = false_positives
         # ~ df.at['Actual Negatives', 'Predicted Negatives'] = true_negatives
 
         df.loc[len(df.index)] = [  row_1_string,     '',                         'True Positive Count',     'True Negative Count',    '                    ',              'True Negative Percent',     'True Negative Percent' ]        
@@ -3586,12 +3586,12 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   minutes = round( (time.time() - job_start_time) /   60,  1   )
   seconds = round( (time.time() - job_start_time)       ,  0   )
 
-  pplog.log  ( "job", f"\nBest        result occurred at    >>>> RUN {       best['run']+1:03d}    <<<< where {       best['batch_size']:>4d} examples were classified and the number correct = {       best['number_correct']:>4d} / {       best['batch_size']:>4d} = {       best['pct_correct']:>3.0f}%" )
+  pplog.log  ( "job", f"\nBest        result occurred at    >>>> RUN {       best['run']+1:03d} <<<< where {       best['batch_size']:>4d} examples were classified and the number correct = {       best['number_correct']:>4d} / {       best['batch_size']:>4d} = {       best['pct_correct']:>3.0f}%" )
   if second_best['batch_size'] != 0:
-    pplog.log( "job",   f"Second best result occurred at    >>>> RUN {second_best['run']+1:03d}    <<<< where {second_best['batch_size']:>4d} examples were classified and the number correct = {second_best['number_correct']:>4d} / {second_best['batch_size']:>4d} = {second_best['pct_correct']:>3.0f}%" )
-  pplog.log  ( "cum", f"\nBest        result occurred at    >>>> RUN {       best['run']+1:03d}    <<<< where {       best['batch_size']:>4d} examples were classified and the number correct = {       best['number_correct']:>4d} / {       best['batch_size']:>4d} = {       best['pct_correct']:>3.0f}%" )
+    pplog.log( "job",   f"Second best result occurred at    >>>> RUN {second_best['run']+1:03d} <<<< where {second_best['batch_size']:>4d} examples were classified and the number correct = {second_best['number_correct']:>4d} / {second_best['batch_size']:>4d} = {second_best['pct_correct']:>3.0f}%" )
+  pplog.log  ( "cum", f"\nBest        result occurred at    >>>> RUN {       best['run']+1:03d} <<<< where {       best['batch_size']:>4d} examples were classified and the number correct = {       best['number_correct']:>4d} / {       best['batch_size']:>4d} = {       best['pct_correct']:>3.0f}%" )
   if second_best['batch_size'] != 0:
-    pplog.log( "cum",   f"Second best result occurred at    >>>> RUN {second_best['run']+1:03d}    <<<< where {second_best['batch_size']:>4d} examples were classified and the number correct = {second_best['number_correct']:>4d} / {second_best['batch_size']:>4d} = {second_best['pct_correct']:>3.0f}%" )
+    pplog.log( "cum",   f"Second best result occurred at    >>>> RUN {second_best['run']+1:03d} <<<< where {second_best['batch_size']:>4d} examples were classified and the number correct = {second_best['number_correct']:>4d} / {second_best['batch_size']:>4d} = {second_best['pct_correct']:>3.0f}%" )
 
   pplog.log( "run", f'\n\n\n' )
   pplog.log( "job", f'\n' )
@@ -4384,7 +4384,7 @@ def test( run, cfg, args, parameters, best, second_best, embeddings_accum, label
     test_loss_trunc_10            = total_loss_sum_ave   if (total_loss_sum_ave < 10 )    else 10          # get rid of the spike that usually occurs on the first epoch or two
     test_loss_trunc_1             = total_loss_sum_ave   if (total_loss_sum_ave < 1  )     else 1          # ditto; to make it easy to get a close up look of low values on the chart
     test_loss_trunc_01            = total_loss_sum_ave   if (total_loss_sum_ave < 0.1)     else 0.1        # ditto; to make it easy to get a close up look of low values on the chart
-    normalised_test_loss          = total_loss_sum_ave * 1000 / batch_size                                 # dividing by the batch_size makes it loss per tile.  Multiplying by 1000 makes it loss per 1000 tiles
+    normalised_test_loss          = total_loss_sum * 1000 / batch_size                                     # dividing cumulative epoch loss by the batch_size makes it loss per tile.  Multiplying by 1000 makes it loss per 1000 tiles
     normalised_test_loss_trunc_10 = normalised_test_loss if (normalised_test_loss<10)  else 10
     normalised_test_loss_peak_10  = normalised_test_loss if (normalised_test_loss<10)  else 0
     normalised_test_loss_trunc_1  = normalised_test_loss if (normalised_test_loss<1)   else 1
@@ -4400,16 +4400,16 @@ def test( run, cfg, args, parameters, best, second_best, embeddings_accum, label
       if pct_correct       >  max_percent_correct:
         max_percent_correct    =  pct_correct
             
-      writer.add_scalar( '1a_ave_batch_test_loss',                                 total_loss_sum_ave,               epoch )
-      writer.add_scalar( '1b_ave_batch_test_loss_trunc_10',                        test_loss_trunc_10,               epoch )
-      writer.add_scalar( '1c_ave_batch_test_loss_trunc_1',                         test_loss_trunc_1,                epoch )
-      writer.add_scalar( '1d_ave_batch_test_loss_trunc_01',                        test_loss_trunc_01,               epoch )
-      writer.add_scalar( '1e_ave_batch_test_loss_per_1000_tiles',                  normalised_test_loss,             epoch )
-      writer.add_scalar( '1f_ave_batch_test_loss_per_1000_tiles_trunc_10',         normalised_test_loss_trunc_10,    epoch )
-      writer.add_scalar( '1g_ave_batch_test_loss_per_1000_tiles_peak_10',          normalised_test_loss_peak_10,     epoch )
-      writer.add_scalar( '1h_ave_batch_test_loss_per_1000_tiles_trunc_1',          normalised_test_loss_trunc_1,     epoch )
-      writer.add_scalar( '1i_ave_batch_test_loss_per_1000_tiles_peak_1',           normalised_test_loss_peak_1,      epoch )
-      writer.add_scalar( '1j_ave_batch_test_loss____minimums',                     test_loss_min/(i+1),              epoch )    
+      writer.add_scalar( '1a_ave_epoch_test_loss_per_batch',                       total_loss_sum_ave,               epoch )
+      writer.add_scalar( '1b_ave_epoch_test_loss_per_batch_trunc_10',              test_loss_trunc_10,               epoch )
+      writer.add_scalar( '1c_ave_epoch_test_loss_per_batch_trunc_1',               test_loss_trunc_1,                epoch )
+      writer.add_scalar( '1d_ave_epoch_test_loss_per_batch_trunc_01',              test_loss_trunc_01,               epoch )
+      writer.add_scalar( '1e_epoch_cum_test_loss_per_1000_tiles',                  normalised_test_loss,             epoch )
+      writer.add_scalar( '1f_epoch_cum_test_loss_per_1000_tiles_trunc_10',         normalised_test_loss_trunc_10,    epoch )
+      writer.add_scalar( '1g_epoch_cum_test_loss_per_1000_tiles_peak_10',          normalised_test_loss_peak_10,     epoch )
+      writer.add_scalar( '1h_epoch_cum_test_loss_per_1000_tiles_trunc_1',          normalised_test_loss_trunc_1,     epoch )
+      writer.add_scalar( '1i_epoch_cum_test_loss_per_1000_tiles_peak_1',           normalised_test_loss_peak_1,      epoch )
+      writer.add_scalar( '1j_epoch_cum_test_loss____minimums',                     test_loss_min/(i+1),              epoch )    
       writer.add_scalar( '1k_num_correct',                                         correct_predictions,              epoch )
       writer.add_scalar( '1l_num_correct_max',                                     max_correct_predictions,          epoch )
       writer.add_scalar( '1m_pct_correct',                                         pct_correct,                      epoch ) 
@@ -4418,10 +4418,10 @@ def test( run, cfg, args, parameters, best, second_best, embeddings_accum, label
       writer.add_scalar( '1p_max_percent_correct',                                 max_percent_correct,              epoch ) 
     
     else:                                                                                                  # only these learning curves are relevant for autoencoders
-      writer.add_scalar( '1a_ave_batch_test_loss',                                 total_loss_sum_ave,               epoch )
-      writer.add_scalar( '1b_ave_batch_test_loss_trunc_10',                        test_loss_trunc_10,               epoch )
-      writer.add_scalar( '1c_ave_batch_test_loss_trunc_1',                         test_loss_trunc_1,                epoch )
-      writer.add_scalar( '1d_ave_batch_test_loss_trunc_01',                        test_loss_trunc_01,               epoch )
+      writer.add_scalar( '1a_ave_epoch_test_loss_per_batch',                       total_loss_sum_ave,               epoch )
+      writer.add_scalar( '1b_ave_batch_test_loss_trunc_10_per_batch',              test_loss_trunc_10,               epoch )
+      writer.add_scalar( '1c_ave_batch_test_loss_trunc_1_per_batch',               test_loss_trunc_1,                epoch )
+      writer.add_scalar( '1d_ave_batch_test_loss_trunc_0_1_per_batch',             test_loss_trunc_01,               epoch )
       writer.add_scalar( '1e_ave_batch_test_loss_per_1000_tiles',                  normalised_test_loss,             epoch )
       writer.add_scalar( '1f_ave_batch_test_loss_per_1000_tiles_trunc_10',         normalised_test_loss_trunc_10,    epoch )
       writer.add_scalar( '1g_ave_batch_test_loss_per_1000_tiles_peak_10',          normalised_test_loss_peak_10,     epoch )
