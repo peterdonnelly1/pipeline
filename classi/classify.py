@@ -3826,8 +3826,8 @@ def train( args, epoch, train_loader, model, optimizer, loss_function, loss_type
 
 
 # ------------------------------------------------------------------------------
-def test( run, cfg, args, parameters, best, second_best, embeddings_accum, labels_accum, epoch, test_loader,  model,  tile_size, loss_function, loss_type, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
-                                                                                                        test_loss_min, show_all_test_examples, is_final_test, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours ):
+def test( run, cfg, args, parameters, best, second_best, embeddings_accum, labels_accum, epoch, test_loader,  model,  tile_size, loss_function, loss_type, writer, max_correct_predictions, global_correct_prediction_count, 
+          global_number_tested, max_percent_correct, test_loss_min, show_all_test_examples, is_final_test, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours ):
                                                                                                           
     DEBUG     = args.debug_level_classify
     LOG_LEVEL = args.log_level
@@ -4384,7 +4384,7 @@ def test( run, cfg, args, parameters, best, second_best, embeddings_accum, label
     test_loss_trunc_10            = total_loss_sum_ave   if (total_loss_sum_ave < 10 )    else 10          # get rid of the spike that usually occurs on the first epoch or two
     test_loss_trunc_1             = total_loss_sum_ave   if (total_loss_sum_ave < 1  )     else 1          # ditto; to make it easy to get a close up look of low values on the chart
     test_loss_trunc_01            = total_loss_sum_ave   if (total_loss_sum_ave < 0.1)     else 0.1        # ditto; to make it easy to get a close up look of low values on the chart
-    normalised_test_loss          = total_loss_sum * 1000 / n_tiles                                        # dividing cumulative epoch loss by the batch_size makes it loss per tile.  Multiplying by 1000 makes it loss per 1000 tiles
+    normalised_test_loss          = total_loss_sum * 1000 / parameters['n_tiles'][0]                       # dividing cumulative epoch loss by n_tiles makes it loss per tile.  Multiplying by 1000 makes it loss per 1000 tiles
     normalised_test_loss_trunc_10 = normalised_test_loss if (normalised_test_loss<10)  else 10
     normalised_test_loss_peak_10  = normalised_test_loss if (normalised_test_loss<10)  else 0
     normalised_test_loss_trunc_1  = normalised_test_loss if (normalised_test_loss<1)   else 1
