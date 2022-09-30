@@ -3706,7 +3706,7 @@ def train( args, epoch, train_loader, model, optimizer, loss_function, loss_type
               print ( f"CLASSI:         INFO:      test:        fq_link            [{random_pick:3d}]                                   = {MIKADO}{args.data_dir}/{batch_fnames_npy[random_pick]}.fqln{RESET}"     )            
             
           loss_images       = loss_function( y1_hat, image_labels )
-          loss_images_value = loss_images.item()                                                           # use .item() to extract value from tensor: don't create multiple new tensors each of which will have gradient histories    
+          loss_images_value = loss_images.item()                                                           # use .item() to extract value from tensor: don't create new tensors each of which will have gradient histories    
   
   
           # ~ if loss_type!='mean_squared_error':                                                              # autoencoders don't produce predictions, so don't process
@@ -4384,7 +4384,7 @@ def test( run, cfg, args, parameters, best, second_best, embeddings_accum, label
     test_loss_trunc_10            = total_loss_sum_ave   if (total_loss_sum_ave < 10 )    else 10          # get rid of the spike that usually occurs on the first epoch or two
     test_loss_trunc_1             = total_loss_sum_ave   if (total_loss_sum_ave < 1  )     else 1          # ditto; to make it easy to get a close up look of low values on the chart
     test_loss_trunc_01            = total_loss_sum_ave   if (total_loss_sum_ave < 0.1)     else 0.1        # ditto; to make it easy to get a close up look of low values on the chart
-    normalised_test_loss          = total_loss_sum * 1000 / batch_size                                     # dividing cumulative epoch loss by the batch_size makes it loss per tile.  Multiplying by 1000 makes it loss per 1000 tiles
+    normalised_test_loss          = total_loss_sum * 1000 / n_tiles                                        # dividing cumulative epoch loss by the batch_size makes it loss per tile.  Multiplying by 1000 makes it loss per 1000 tiles
     normalised_test_loss_trunc_10 = normalised_test_loss if (normalised_test_loss<10)  else 10
     normalised_test_loss_peak_10  = normalised_test_loss if (normalised_test_loss<10)  else 0
     normalised_test_loss_trunc_1  = normalised_test_loss if (normalised_test_loss<1)   else 1
