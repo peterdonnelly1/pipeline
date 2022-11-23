@@ -40,12 +40,18 @@ class classifyDataset( Dataset ):
         try:
           data             = torch.load(fqn)
         except Exception as e:
-          print ( f"{RED}DATASET:        FATAL:    could not open file  {MAGENTA}{fqn}{RESET}{RED} - it probably doesn't exist. Cannot continue without a valid Pytorch dataset file to use for training"  )
-          print ( f"{RED}DATASET:        FATAL:    explanation: did you use a shell script option or python user argument which suppresses tiling or dataset generation? {RESET}" )                
-          print ( f"{RED}DATASET:        FATAL:        e.g. the option '{CYAN}-s True{RESET}{RED}' (python '{CYAN}--skip_tiling     = 'True'{RESET}{RED})'    suppresses tile generation{RESET}" )                 
-          print ( f"{RED}DATASET:        FATAL:        e.g. the option '{CYAN}-g True{RESET}{RED}' (python '{CYAN}--skip_tiling     = 'True'{RESET}{RED})'    ssuppresses dataset generation even if tiles exit{RESET}" )                 
-          print ( f"{RED}DATASET:        FATAL:    halting now...{RESET}" )
-          sys.exit(0)
+          if input_mode=='image':
+            print ( f"{RED}DATASET:        FATAL:    could not open file  {MAGENTA}{fqn}{RESET}{RED} - it probably doesn't exist. Cannot continue without a valid Pytorch dataset file to use for training"  )
+            print ( f"{RED}DATASET:        FATAL:    explanation: did you use a shell script option or python user argument which suppresses tiling or dataset generation? {RESET}" )                
+            print ( f"{RED}DATASET:        FATAL:        e.g. the option '{CYAN}-s True{RESET}{RED}' (python '{CYAN}--skip_tiling     = 'True'{RESET}{RED})'    suppresses tile generation{RESET}" )                 
+            print ( f"{RED}DATASET:        FATAL:        e.g. the option '{CYAN}-g True{RESET}{RED}' (python '{CYAN}--skip_tiling     = 'True'{RESET}{RED})'    ssuppresses dataset generation even if tiles exit{RESET}" )                 
+            print ( f"{RED}DATASET:        FATAL:    halting now...{RESET}" )
+            sys.exit(0)
+          else:
+            print ( f"{RED}DATASET:        FATAL:    could not open file  {MAGENTA}{fqn}{RESET}{RED} - it probably doesn't exist. Cannot continue without a valid Pytorch dataset file to use for training"  )
+            print ( f"{RED}DATASET:        FATAL:    explanation: did you use a shell script option or python user argument which suppresses dataset generation? {RESET}" )                
+            print ( f"{RED}DATASET:        FATAL:    halting now...{RESET}" )
+            sys.exit(0)
 
         #torch.set_num_threads(threads)
         #if DEBUG>0:
@@ -58,59 +64,44 @@ class classifyDataset( Dataset ):
           self.fnames      = data['fnames']                                                                # fnames  contains the corresponding (fully qualified) file name of the SVS file from which the tile was extracted               
           self.img_labels  = (data['img_labels']).long()                                                   # PGD 200129 - We also use self.labels in DPPCA, where it needs to be a float value. Here it is a truth label and must be of type long
           self.rna_labels  = (data['img_labels']).long()                                                   # so that __len__ will produce the correct dataset length regardless of whether we're in 'image' or 'rna' mode
-        elif  ( input_mode=='rna' ) | ( input_mode=='image_rna' ) :
+        else:
           self.images      = torch.zeros(1)                                                                # so that we can test in __get_item__ to see if the image tensor exists
           self.genes       = data['genes']                                                                 
           self.fnames      = data['fnames']                                                                # fnames  contains the corresponding (fully qualified) file name of the SVS file from which the tile was extracted               
-          self.gnames      = data['gnames']                                                                # TODO 200523 temp. Need to populate gene names in generate()           
+          self.gnames      = data['gnames']                                                                #          
           self.img_labels  = (data['rna_labels']).long()                                                   # so that __len__ will produce the dataset length regardless of whether we're in 'image' or 'rna' mode
           self.rna_labels  = (data['rna_labels']).long()                                                   # PGD 200129 - We also use self.labels in DPPCA, where it needs to be a float value. Here it is a truth label and must be of type long
-        else:
-          print ( f"{RED}DATASET:        FATAL:    unknown data mode \033[1m'{CYAN}{input_mode}{RESET}{RED} ... quitting{RESET}" )
-          sys.exit(0)
 
         if DEBUG>2:
           print( f"DATASET:        INFO:       {WHITE}dataset loaded{RESET}" )
             
                                                                     
         if input_mode=='image':
-          if DEBUG>9:
-            print ( f"{BOLD_PINK}DATASET:        INFO:     images     size            = {(self.images).size()}{RESET}"                  )
-            print ( f"{BOLD_PINK}DATASET:        INFO:     fnames     size            = {(self.fnames).size()}{RESET}"                  )
-            print ( f"{BOLD_PINK}DATASET:        INFO:     img_labels size            = {(self.img_labels).size()}{RESET}"              )
-          if DEBUG>9:
-            print ( f"DATASET:        INFO:     self.images                = \n{self.images[0]}"                                     )
-                    
-        if ( input_mode=='rna' ) |  ( input_mode=='image_rna' ):
           if DEBUG>2:
-            print ( f"DATASET:        INFO:     genes      size            = {MIKADO}{(self.genes).size()}{RESET}"                   )
-            print ( f"DATASET:        INFO:     fnames     size            = {MIKADO}{(self.fnames).size()}{RESET}"                  )
-            print ( f"DATASET:        INFO:     gnames     size            = {MIKADO}{(self.gnames).size()}{RESET}"                  )
-            print ( f"DATASET:        INFO:     rna_labels size            = {MIKADO}{(self.rna_labels).size()}{RESET}"              )
+            print ( f"DATASET:        INFO:     images     size             = {(self.images).size()}{RESET}"               )
+            print ( f"DATASET:        INFO:     len(self.fnames)            = {len(self.fnames)}{RESET}"                   )
+            print ( f"DATASET:        INFO:     img_labels size             = {(self.img_labels).size()}{RESET}"           )
           if DEBUG>6:
-            print ( f"DATASET:        INFO:     rna_labels                 = \n{MIKADO}{(self.rna_labels).numpy()}{RESET}"            )
-            print ( f"DATASET:        INFO:     rna_labels.shape           = \n{MIKADO}{(self.rna_labels).numpy().shape}{RESET}"            )
-            #print ( f"DATASET:        INFO:     rna_labels                 = \n{MIKADO}{(data['rna_labels']).long()}{RESET}"         )            
-          if DEBUG>999:
-              np.set_printoptions(formatter={'float': lambda x: "{:>10.2f}".format(x)})
-              print ( f"DATASET:        INFO:     data['genes'][0]          = \n{CYAN}{data['genes'][0:5].cpu().numpy()}{RESET}"     )
+            print ( f"DATASET:        INFO:     image_labels.shape          = {MIKADO}{(self.image_labels).numpy().shape}{RESET}"     )
+            print ( f"DATASET:        INFO:     image_labels                = \n{MIKADO}{(self.image_labels).numpy()}{RESET}"         )
+          if DEBUG>9:
+            print ( f"DATASET:        INFO:     self.images                 = \n{self.images[0]}"                                     )
+        else:
+          if DEBUG>2:
+            print ( f"DATASET:        INFO:     genes      size             = {MIKADO}{(self.genes).size()}{RESET}"                   )
+            print ( f"DATASET:        INFO:     len(data['fnames'])         = {MIKADO}{len(self.fnames)}{RESET}"                      )
+            print ( f"DATASET:        INFO:     gnames     size             = {MIKADO}{(self.gnames).size()}{RESET}"                  )
+            print ( f"DATASET:        INFO:     rna_labels size             = {MIKADO}{(self.rna_labels).size()}{RESET}"              )
+          if DEBUG>6:
+            print ( f"DATASET:        INFO:     rna_labels.shape            = {MIKADO}{(self.rna_labels).numpy().shape}{RESET}"       )
+            print ( f"DATASET:        INFO:     rna_labels                  = \n{MIKADO}{(self.rna_labels).numpy()}{RESET}"           )
           if DEBUG>88:
-              np.set_printoptions(formatter={'float': lambda x: "{:>10.2f}".format(x)})
-              print ( f"DATASET:        INFO:     data['fnames'][0]          = \n{CYAN}{data['fnames']}{RESET}"     )
+            np.set_printoptions(formatter={'float': lambda x: "{:>10.2f}".format(x)})
+            print ( f"DATASET:        INFO:     data['fnames'][0]           = \n{CYAN}{data['fnames']}{RESET}"                        )
+          if DEBUG>999:
+            np.set_printoptions(formatter={'float': lambda x: "{:>10.2f}".format(x)})
+            print ( f"DATASET:        INFO:     data['genes'][0]            = \n{CYAN}{data['genes'][0:5].cpu().numpy()}{RESET}"       )
               
-
-
-        if DEBUG>9:
-          np.set_printoptions(formatter={'int': lambda x: "{:>2d}".format(x)})
-          if ( input_mode=='image' ):
-              print ( f"DATASET:        INFO:     self.img_labels               = "     )
-              print ( f"{MIKADO}{self.img_labels.numpy()}{RESET},", end=""          )
-              print ( f"\n",                                        end=""          )
-          if ( input_mode=='rna' ) | ( input_mode=='image_rna' ):
-              print ( f"DATASET:        INFO:     self.rna_labels               = "     )
-              print ( f"{MIKADO}{self.rna_labels.numpy()}{RESET},", end=""          )
-              print ( f"\n",                                        end=""          )
-
 
         '''self.labelEncoder = preprocessing.LabelEncoder()
         self.labelEncoder.fit(self.labels)
@@ -118,7 +109,7 @@ class classifyDataset( Dataset ):
         # `classes` are the unique class names, i.e. labels.
         self.classes = list(set(self.labels))
         '''
-        # I don't need the above because my classes are already in the correct format for Torch (0-n with no gaps)
+        # I don't need the above because my classes are already in the correct format for Torch (number from 0 - n with no gaps)
 
 
 

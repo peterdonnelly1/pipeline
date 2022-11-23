@@ -37,6 +37,9 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
               unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, top_up_factors_train, top_up_factors_test, tile_size, 
               low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform ):
 
+  DEBUG     = args.debug_level_generate
+  LOG_LEVEL = args.log_level
+
   # DON'T USE args.n_samples or args.batch_size or args.n_tiles or args.gene_data_norm or args.tile_size or args.highest_class_number or args.low_expression_threshold or args.cutoff_percentile since these are job-level lists. 
   # Here we are using one value of each, passed in as per the above parameters
   just_test                    = args.just_test
@@ -878,6 +881,10 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
           print ( f"{DULL_WHITE}GENERATE:       INFO:    case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}{CLEAR_LINE}",  flush=True )
           print ( f"{DULL_WHITE}GENERATE:       INFO:    cases_required (this run).......................................................... = {MIKADO}{n_samples}{RESET}{CLEAR_LINE}",              flush=True )
           print ( f"{DULL_WHITE}GENERATE:       INFO:    pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}{CLEAR_LINE}",               flush=True )
+
+
+        class_counts = np.zeros( highest_class_number+1, dtype=np.int )        
+        global_rna_files_processed, n_genes = generate_rna_dataset ( args, class_names, target, cases_required, highest_class_number, case_designation_flag, n_genes, low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform, use_autoencoder_output )
 
 
         if DEBUG>0:

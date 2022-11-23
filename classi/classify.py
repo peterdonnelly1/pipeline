@@ -1300,7 +1300,8 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       bash_command = f"cls; ./do_all.sh -d {args.dataset}  -i {input_mode}   -S {n_samples}  -A {highest_class_number}  -b {batch_size}  -o {n_epochs}  -1 {pct_test}  -a {nn_type_rna}  -c {args.cases}  "      
 
     if DEBUG>0:
-      print ( f"\033[79;0H{bash_command}" )
+      print ( f"\n"*5          ) 
+      print ( f"{bash_command}" )
       time.sleep(1)
     
     now  = datetime.datetime.now()
@@ -1439,11 +1440,10 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
     # (2) Maybe schedule and run tiler threads
 
+    total_slides_counted_train = total_tiles_required_train =  total_slides_counted_test = total_tiles_required_test = 0
 
     # ~ if (input_mode=='image') & (multimode!='image_rna'):
     if (input_mode=='image'):
-      
-      total_slides_counted_train = total_tiles_required_train =  total_slides_counted_test = total_tiles_required_test = 0
 
       must_tile     = False
       must_generate = False
@@ -1648,21 +1648,21 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         tile_size_last = tile_size                                                                         # for the next run
   
         
-      if ( input_mode=='rna' ) | ( input_mode=='image_rna' ) :
-        
-        top_up_factors = 0
-        
-        highest_class_number = n_classes-1
-        
-        n_genes, n_samples, batch_size, _ = generate( args, class_names, n_samples, total_slides_counted_train, total_slides_counted_test, total_tiles_required_train, total_tiles_required_test, batch_size, highest_class_number, 
-                                                   multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, 
-                                                   unimode_case____rna_test_count, pct_test, n_tiles, top_up_factors_train, top_up_factors_test, tile_size, low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform  
-                                                 )
-  
-        if DEBUG>0:
-          print( f"CLASSI:         INFO:    n_genes/embed length (calculated)  = {MIKADO}{n_genes:,}{RESET}",     flush=True     )
-          print( f"CLASSI:         INFO:    n_samples   (determined)           = {MIKADO}{n_samples:,}{RESET}",   flush=True     )
-          print( f"CLASSI:         INFO:    batch_size  (determined)           = {MIKADO}{batch_size:,}{RESET}",  flush=True     )
+    if ( input_mode=='rna' ) | ( input_mode=='image_rna' ) :
+      
+      top_up_factors = 0
+      
+      highest_class_number = n_classes-1
+      
+      n_genes, n_samples, batch_size, _ = generate( args, class_names, n_samples, total_slides_counted_train, total_slides_counted_test, total_tiles_required_train, total_tiles_required_test, batch_size, highest_class_number, 
+                                                 multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, 
+                                                 unimode_case____rna_test_count, pct_test, n_tiles, top_up_factors_train, top_up_factors_test, tile_size, low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform  
+                                               )
+
+      if DEBUG>0:
+        print( f"CLASSI:         INFO:    n_genes/embed length (calculated)  = {MIKADO}{n_genes:,}{RESET}",     flush=True     )
+        print( f"CLASSI:         INFO:    n_samples   (determined)           = {MIKADO}{n_samples:,}{RESET}",   flush=True     )
+        print( f"CLASSI:         INFO:    batch_size  (determined)           = {MIKADO}{batch_size:,}{RESET}",  flush=True     )
 
 
     if input_mode=='image_rna':
@@ -2048,7 +2048,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
           print( f'\nCLASSI:         INFO:  {CARRIBEAN_GREEN}(RUN {run} of {total_runs_in_job}){RESET} in epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  input:{MIKADO}{input_mode}{RESET} lr:{MIKADO}{lr:<9.6f}{RESET} samples:{MIKADO}{n_samples}{RESET} batch size:{MIKADO}{batch_size}{RESET} tile size:{MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide:{MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {BOLD_MAGENTA}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
 
     
-        if just_test=='True':                                                                              # skip training in 'test mode'
+        if 1==1:                                                                              # skip training in 'test mode'
           pass
         
         # DO TRAINING (AS MANY BATCHES AS ARE NECESSARY TO WORK THROUGH EVERY EXAMPLE)
@@ -2116,6 +2116,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
           embeddings_accum, labels_accum, test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min, embedding     =\
                         test ( run, cfg, args, parameters, best, second_best, embeddings_accum, labels_accum, epoch, test_loader,  model,  tile_size, loss_function, loss_type, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
                                                                                       test_loss_min, show_all_test_examples, is_final_test, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours)
+
   
           global_correct_prediction_count += correct_predictions
           global_number_tested            += number_tested
@@ -2143,7 +2144,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   ", end=''  )
           elif ( input_mode=='rna' ):
             print ( f"\
-  \033[5A\
+  \033[4A\
   \r\033[1C\033[2K{DULL_WHITE}\
   \r\033[27Ctest:\
   \r\033[73Craw loss_rna={BITTER_SWEET}{test_loss_genes_sum_ave:5.2f}{DULL_WHITE}\
@@ -2152,7 +2153,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   \033[5B\
   ", end=''  )
   
-
+          
           if last_epoch_loss_increased == True:
             consecutive_test_loss_increases +=1
             if consecutive_test_loss_increases == 1:
@@ -2176,7 +2177,9 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
             print ( "\033[5B", end=''  )
             pplog.log(f'< test loss decreased' )          
         
-  
+ 
+
+      
           test_total_loss_sum_ave_last = test_total_loss_sum_ave
           
           if test_total_loss_sum_ave < test_lowest_total_loss_observed_so_far:
@@ -2191,15 +2194,18 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
               save_model(args.log_dir, model)
               pplog.log('< new global low/saving model')
 
-          if args.input_mode=='rna':
+          if args.input_mode=='image':
             print ( "\033[8A", end='' )
           else:
-            print ( "\033[8A", end='' )       
+            if run>1:
+              print ( "\033[8A", end='' )
+            else:
+              print ( "\033[7A", end='' )
+              
 
 
+          
     #  ^^^^^^^^  THE MAIN LOOP FINISHES HERE ^^^^^^^^
-
-
 
 
 
@@ -3517,10 +3523,10 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         # ~ df.at['Actual Negatives', 'Predicted Positives'] = false_positives
         # ~ df.at['Actual Negatives', 'Predicted Negatives'] = true_negatives
 
-        df.loc[len(df.index)] = [  row_1_string,     '',                         'True Positive Count',     'True Negative Count',    '                    ',              'True Negative Percent',     'True Negative Percent' ]        
+        df.loc[len(df.index)] = [  row_1_string,     '',                         'True Positives',          'True Negatives',         '                    ',              'True Negative %',          'True Negative %'        ]        
         df.loc[len(df.index)] = [  row_2_string,     '',                          true_positives,            false_positives,         '                    ',               true_positives_pct,         false_positives_pct     ]
         df.loc[len(df.index)] = [  row_3_string,     '',                          false_negatives,           true_negatives,          '                    ',               false_negatives_pct,        true_negatives_pct      ]
-        df.loc[len(df.index)] = [  '.',               '--- Statistics ---',       '',                        '',                      '                    ',               '',                         ''                      ]
+        df.loc[len(df.index)] = [  '.',              'Statistics',                '',                        '',                      '                    ',               '',                         ''                      ]
         df.loc[len(df.index)] = [  row_4_string,     total,                       '',                        '',                      '                    ',               '',                         ''                      ]
         df.loc[len(df.index)] = [  row_5_string,     precision,                   '',                        '',                      '                    ',               '',                         ''                      ]
         df.loc[len(df.index)] = [  row_6_string,     recall,                      '',                        '',                      '                    ',               '',                         ''                      ]
@@ -3532,7 +3538,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         # ~ display( df)
       
         now = datetime.datetime.now()
-        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_conf_mat_by_subtype"
+        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__confusion_by_subtype"
         fqn = f"{fqn[0:255]}.tsv"
 
         df.to_csv ( fqn, sep='\t' )
@@ -3724,7 +3730,7 @@ def train( args, epoch, train_loader, model, optimizer, loss_function, loss_type
           if DEBUG>9:
             np.set_printoptions(formatter={'int': lambda x:   "{:>4d}".format(x)})
             rna_labels_numpy = (rna_labels.cpu().data).numpy()
-            print ( "CLASSI:         INFO:      test:       rna_labels_numpy                = \n{:}".format( image_labels_numpy  ) )
+            print ( "CLASSI:         INFO:      test:       rna_labels_numpy                = \n{:}".format( rna_labels_numpy  ) )
           if DEBUG>9:
             np.set_printoptions(formatter={'float': lambda x: "{:>10.2f}".format(x)})
             y2_hat_numpy = (y2_hat.cpu().data).numpy()
@@ -3758,6 +3764,7 @@ def train( args, epoch, train_loader, model, optimizer, loss_function, loss_type
 {offset+10*int((TL*5)//1) if TL<1 else offset+16*int((TL*1)//1) if TL<12 else 250}C{PALE_GREEN if TL<1 else PALE_ORANGE if 1<=TL<2 else PALE_RED}{TL*1000/batch_size:6.1f}{RESET}" )
             print ( "\033[2A" )
           elif (args.input_mode=='rna') | (args.input_mode=='image_rna'):
+            offset=0
             print ( f"\
 \033[2K\r\033[27C{DULL_WHITE}train:\
 \r\033[40Cn={i+1:>3d}{CLEAR_LINE}\
@@ -3909,7 +3916,7 @@ def test( run, cfg, args, parameters, best, second_best, embeddings_accum, label
                 print( f"CLASSI:         INFO:        sanity check: embeddings      .size     = {ASPARAGUS}{embeddings.size()}{RESET}",               flush=True )
                 print( f"CLASSI:         INFO:        sanity check: embeddings      .dtype    = {ASPARAGUS}{embeddings.dtype}{RESET}",                flush=True )
                 print( f"CLASSI:         INFO:        sanity check: image_labels    .size     = {ASPARAGUS}{image_labels.size()}{RESET}",             flush=True )
-                print( f"CLASSI:         INFO:        sanity check: rna_labels      .dtype    = {ASPARAGUS}{rna_labels.dtype}{RESET}",              flush=True )
+                print( f"CLASSI:         INFO:        sanity check: rna_labels      .dtype    = {ASPARAGUS}{rna_labels.dtype}{RESET}",                flush=True )
 
 
               if args.input_mode=="image":
@@ -4154,7 +4161,8 @@ def test( run, cfg, args, parameters, best, second_best, embeddings_accum, label
 \r\033[49Craw loss_images={loss_images_value:5.2f}\
 \r\033[120CBATCH LOSS                (LOSS PER 1000 TILES) = \r\033[{offset+10*int((total_loss*5)//1) if total_loss<1 else offset+16*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss*1000/batch_size:6.1f}{RESET}" )
             print ( "\033[2A" )
-          elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
+          else:
+            offset=162
             print ( f"\
 \033[2K\r\033[27Ctest:\
 \r\033[40C{DULL_WHITE}n={i+1:>3d}{CLEAR_LINE}\
@@ -4179,13 +4187,11 @@ def test( run, cfg, args, parameters, best, second_best, embeddings_accum, label
     #    ^^^^^^^^^  epoch complete  ^^^^^^^^^^^^^^^
 
 
-
     
     if loss_type=='mean_squared_error':
       print ( "" )
 
     if loss_type == 'mean_squared_error':
-                      
       print ( "\n\n\n" )
       
     else:                                                                                                  # the following only make sense if we are classifying, so skip for autoencoders                  
@@ -4207,10 +4213,14 @@ def test( run, cfg, args, parameters, best, second_best, embeddings_accum, label
         torch.cuda.empty_cache()
         
         if DEBUG>2:
-          print ( "CLASSI:         INFO:      test:        y1_hat.shape                      = {:}".format( y1_hat.shape                     ) )
-          print ( "CLASSI:         INFO:      test:        y1_hat_values_max_indices.shape   = {:}".format( y1_hat_values_max_indices.shape  ) )
-          print ( "CLASSI:         INFO:      test:        image_labels_values.shape         = {:}".format( image_labels_values.shape        ) )
-          print ( "CLASSI:         INFO:      test:        rna_labels_values.shape           = {:}".format(   rna_labels_values.shape        ) )
+          if args.input_mode == 'image':
+            print ( "CLASSI:         INFO:      test:        y1_hat.shape                      = {:}".format( y1_hat_values.shape              ) )
+            print ( "CLASSI:         INFO:      test:        y1_hat_values_max_indices.shape   = {:}".format( y1_hat_values_max_indices.shape  ) )
+            print ( "CLASSI:         INFO:      test:        image_labels_values.shape         = {:}".format( image_labels_values.shape        ) )
+          else:
+            print ( "CLASSI:         INFO:      test:        y2_hat.shape                      = {:}".format( y2_hat_values.shape              ) )
+            print ( "CLASSI:         INFO:      test:        y2_hat_values_max_indices.shape   = {:}".format( y2_hat_values_max_indices.shape  ) )
+            print ( "CLASSI:         INFO:      test:        rna_labels_values.shape           = {:}".format( rna_labels_values.shape        ) )
         
         number_to_display= 9 if args.dataset=='tcl' else batch_size
         np.set_printoptions(linewidth=10000)   
@@ -4265,15 +4275,16 @@ def test( run, cfg, args, parameters, best, second_best, embeddings_accum, label
           print (  f"{CLEAR_LINE}         ",  end='', flush=True  )        
           for i in range( 0, len(delta) ):                                                                 # should have been able to do this with a fancy list comprehension but I couldn't get it to work
             if delta[i]==0:                                                                                   
-              print (  f"{GREEN}\u2713{GAP}", end='', flush=True  )
+              print (  f"{GREEN}\u2713{GAP}", end='', flush=True  )                                        # unicode for a green tick
             else:
-              print (  f"{RED}\u2717{GAP}",   end='', flush=True  )          
+              print (  f"{RED}\u2717{GAP}",   end='', flush=True  )                                        # unicode for a red cross   
           print ( f"{RESET}" )
   
-        elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):   
+        else:   
           labs   = rna_labels_values         [0:number_to_display]
           preds  = y2_hat_values_max_indices [0:number_to_display]
           delta  = np.abs(preds - labs)
+          degenerate_result = np.all(preds==preds[0])
           if len(class_names)<10:
             np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>1d}{RESET}"})
             GAP=' '
@@ -4287,15 +4298,14 @@ def test( run, cfg, args, parameters, best, second_best, embeddings_accum, label
           else:
              np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else BLACK}{x:>2d}{RESET}"}) 
           
-          print (  f"{CLEAR_LINE}         ",  end='', flush=True  )        
+          print (  f"{CLEAR_LINE}         ",         end='', flush=True  )        
           for i in range( 0, len(delta) ):                                                                 # should have been able to do this with a fancy list comprehension but I couldn't get it to work
             if delta[i]==0:                                                                                   
-              print (  f"{BRIGHT_GREEN}\u2713{GAP}", end='', flush=True  )
+              print (  f"{BRIGHT_GREEN}\u2713{GAP}", end='', flush=True  )                                 # unicode for a green tick
             else:
-              print (  f"{RED}\u2717{GAP}",   end='', flush=True  )          
+              print (  f"{RED}\u2717{GAP}",          end='', flush=True  )                                 # unicode for a red cross
           print ( f"{RESET}" )
-  
-  
+    
         # ~ if ( args.just_test!='True') | ( (args.just_test=='true')  &  (args.input_mode=='image_rna') & (args.multimode=='image_rna') ):
          # grab test stats produced during training
         for i in range(0, len(preds) ):
@@ -4312,15 +4322,16 @@ def test( run, cfg, args, parameters, best, second_best, embeddings_accum, label
           np.set_printoptions(formatter={'float': lambda x: "{0:5.2f}".format(x)})
   
         if DEBUG>2:
-          number_to_display=16  
-          print ( "CLASSI:         INFO:      test:       FIRST  GROUP BEtestLOW: y1_hat"                                                                      ) 
-          print ( "CLASSI:         INFO:      test:       SECOND GROUP BELOW: y1_hat_values_max_indices (prediction)"                                      )
-          print ( "CLASSI:         INFO:      test:       THIRD  GROUP BELOW: image_labels_values (truth)"                                                 )
-          np.set_printoptions(formatter={'float': '{: >6.2f}'.format}        )
-          print ( f"{(np.transpose(y1_hat_values)) [:,:number_to_display] }" )
-          np.set_printoptions(formatter={'int': '{: >6d}'.format}            )
-          print ( " {:}".format( y1_hat_values_max_indices    [:number_to_display]        ) )
-          print ( " {:}".format( image_labels_values          [:number_to_display]        ) )
+          if args.input_mode == 'image':
+            number_to_display=16  
+            print ( "CLASSI:         INFO:      test:       FIRST  GROUP BEtestLOW: y1_hat"                                                                      ) 
+            print ( "CLASSI:         INFO:      test:       SECOND GROUP BELOW: y1_hat_values_max_indices (prediction)"                                      )
+            print ( "CLASSI:         INFO:      test:       THIRD  GROUP BELOW: image_labels_values (truth)"                                                 )
+            np.set_printoptions(formatter={'float': '{: >6.2f}'.format}        )
+            print ( f"{(np.transpose(y1_hat_values)) [:,:number_to_display] }" )
+            np.set_printoptions(formatter={'int': '{: >6d}'.format}            )
+            print ( " {:}".format( y1_hat_values_max_indices    [:number_to_display]        ) )
+            print ( " {:}".format( image_labels_values          [:number_to_display]        ) )
   
 
         if is_final_test == False:
@@ -4344,9 +4355,14 @@ def test( run, cfg, args, parameters, best, second_best, embeddings_accum, label
             best["batch_size"]            = batch_size
           
         if LOG_LEVEL>0:
-          pplog.log(f"{CLEAR_LINE}        truth = {image_labels_values       [0:number_to_display]}"  )
-          pplog.log(f"{CLEAR_LINE}        preds = {y1_hat_values_max_indices [0:number_to_display]}" )
-          pplog.log(f"{CLEAR_LINE}        delta = {np.abs(preds - labs)}" ) 
+          if args.input_mode == "image":
+            pplog.log(f"{CLEAR_LINE}        truth = {image_labels_values       [0:number_to_display]}"  )
+            pplog.log(f"{CLEAR_LINE}        preds = {y1_hat_values_max_indices [0:number_to_display]}" )
+            pplog.log(f"{CLEAR_LINE}        delta = {np.abs(preds - labs)}" ) 
+          else:
+            pplog.log(f"{CLEAR_LINE}        truth = {rna_labels_values         [0:number_to_display]}"  )
+            pplog.log(f"{CLEAR_LINE}        preds = {y2_hat_values_max_indices [0:number_to_display]}" )
+            pplog.log(f"{CLEAR_LINE}        delta = {np.abs(preds - labs)}" )           
         if degenerate_result:
          pplog.log(f"< warning !!! degenerate result")  
  
@@ -4364,12 +4380,12 @@ def test( run, cfg, args, parameters, best, second_best, embeddings_accum, label
     image_labels_values         = image_labels.cpu().detach().numpy()                                      # these are the true      classes corresponding to batch_images
 
 
-    if loss_type != 'mean_squared_error':                                                                                 # the following analysis only make sense if we are classifying, so skip for autoencoders 
+    if loss_type != 'mean_squared_error':                                                                  # the following analysis only make sense if we are classifying, so skip for autoencoders 
+      
       if args.input_mode=='image':
         correct_predictions              = np.sum( y1_hat_values_max_indices == image_labels_values )
       elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
         correct_predictions              = np.sum( y2_hat_values_max_indices == rna_labels_values )
-  
   
       pct_correct                 = correct_predictions / batch_size * 100
   
@@ -4463,9 +4479,12 @@ def test( run, cfg, args, parameters, best, second_best, embeddings_accum, label
       correct_predictions     = 0
       max_correct_predictions = 0
       max_percent_correct     = 0
-      
+
       
     return embeddings_accum, labels_accum, loss_images_sum_ave, loss_genes_sum_ave, l1_loss_sum_ave, total_loss_sum_ave, correct_predictions, batch_size, max_correct_predictions, max_percent_correct, test_loss_min, embedding
+
+
+
 
 
 
@@ -4798,228 +4817,238 @@ def segment_cases( args, n_classes, class_names, n_tiles, pct_test ):
 
     #        - yes it's confusing. sorry!
 
+    multimode_case_test_count      = 0
+    unimode_case_matched_count     = 0
+    unimode_case_unmatched_count   = 0
+    unimode_case_image_count       = 0
+    unimode_case_rna_count         = 0
+    unimode_case_image_test_count  = 0
+    unimode_case_rna_test_count    = 0
 
     # (1Ci) designate MULTIMODE____TEST cases.  Infinite loop with a break condition (necessary to give every case an equal chance of being randonly selected for inclusion in the MULTIMODE case set)
-    
-    directories_considered_count = 0
-    multimode_case_test_count    = 0
-    
-    if DEBUG>0:
-      if args.cases_reserved_for_image_rna>0:
-        print ( f"{BOLD}{CHARTREUSE}CLASSI:         INFO:    segment_cases():    about to randomly designate {CYAN}CASES_RESERVED_FOR_IMAGE_RNA{RESET}{BOLD}{CHARTREUSE}  {RESET}(={MIKADO}{args.cases_reserved_for_image_rna}{RESET}){BOLD}{CHARTREUSE} cases flagged as '{ARYLIDE}HAS_BOTH{RESET}{BOLD}{CHARTREUSE}' to be exclusively reserved as {ARYLIDE}MULTIMODE____TEST{RESET}{BOLD}{CHARTREUSE} cases",  flush=True )
-   
-    while True:
-      
-      for dir_path, dirs, files in os.walk( args.data_dir, topdown=True ):                                 # select the multimode cases ...
-    
-        if DEBUG>55:  
-          print( f"{DIM_WHITE}CLASSI:         INFO:     now considering case {ARYLIDE}{os.path.basename(dir_path)}{RESET}{DIM_WHITE} as a multimode case  " ) 
-    
-        
-        if not (dir_path==args.data_dir):                                                                  # the top level directory (dataset) has to be skipped because it only contains sub-directories, not data
-  
-          if DEBUG>55:
-            print ( f"{PALE_GREEN}CLASSI:         INFO:   case   \r\033[60C{RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[120C has both image and rna files\r\033[140C (count= {matched_image_rna_count}{RESET}{PALE_GREEN})",  flush=True )
-            
-          try:
-            fqn = f"{dir_path}/HAS_BOTH"        
-            f = open( fqn, 'r' )
-            if DEBUG>55:
-              print ( f"{PALE_GREEN}CLASSI:         INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files (listed above)  \r\033[160C (count= {matched_image_rna_count}{RESET}{PALE_GREEN})",  flush=True )
-              print ( f"{PALE_GREEN}CLASSI:         INFO:   multimode_case_test_count          = {AMETHYST}{multimode_case_test_count}{RESET}",          flush=True )
-              print ( f"{PALE_GREEN}CLASSI:         INFO:   matched_image_rna_count            = {AMETHYST}{matched_image_rna_count}{RESET}",  flush=True )
-              print ( f"{PALE_GREEN}CLASSI:         INFO:   cases_reserved_for_image_rna       = {AMETHYST}{args.cases_reserved_for_image_rna}{RESET}",        flush=True )
-            selector = random.randint(0,500)                                                               # the high number has to be larger than the total number of matched cases to give every case a chance of being included 
-            if ( selector==22 ) & ( multimode_case_test_count<args.cases_reserved_for_image_rna ):   # used 22 but it could be any number
 
-              fqn = f"{dir_path}/MULTIMODE____TEST"         
-              try:
-                with open(fqn, 'r') as f:                                                                  # have to check that the case (directory) was not already flagged as a multimode cases, else it will do it again and think it was an additional case, therebody creating one (or more) fewer cases
-                  pass
-              except Exception:
+    if ( cumulative_png_file_count > 0 ) &  ( cumulative_rna_file_count > 0):    
+      
+      directories_considered_count = 0
+  
+      if DEBUG>0:
+        if args.cases_reserved_for_image_rna>0:
+          print ( f"{BOLD}{CHARTREUSE}CLASSI:         INFO:    segment_cases():    about to randomly designate {CYAN}CASES_RESERVED_FOR_IMAGE_RNA{RESET}{BOLD}{CHARTREUSE}  {RESET}(={MIKADO}{args.cases_reserved_for_image_rna}{RESET}){BOLD}{CHARTREUSE} cases flagged as '{ARYLIDE}HAS_BOTH{RESET}{BOLD}{CHARTREUSE}' to be exclusively reserved as {ARYLIDE}MULTIMODE____TEST{RESET}{BOLD}{CHARTREUSE} cases",  flush=True )
+     
+      while True:
+        
+        for dir_path, dirs, files in os.walk( args.data_dir, topdown=True ):                                 # select the multimode cases ...
+      
+          if DEBUG>55:  
+            print( f"{DIM_WHITE}CLASSI:         INFO:     now considering case {ARYLIDE}{os.path.basename(dir_path)}{RESET}{DIM_WHITE} as a multimode case  " ) 
+      
+          
+          if not (dir_path==args.data_dir):                                                                  # the top level directory (dataset) has to be skipped because it only contains sub-directories, not data
+    
+            if DEBUG>55:
+              print ( f"{PALE_GREEN}CLASSI:         INFO:   case   \r\033[60C{RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[120C has both image and rna files\r\033[140C (count= {matched_image_rna_count}{RESET}{PALE_GREEN})",  flush=True )
+              
+            try:
+              fqn = f"{dir_path}/HAS_BOTH"        
+              f = open( fqn, 'r' )
+              if DEBUG>55:
+                print ( f"{PALE_GREEN}CLASSI:         INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files (listed above)  \r\033[160C (count= {matched_image_rna_count}{RESET}{PALE_GREEN})",  flush=True )
+                print ( f"{PALE_GREEN}CLASSI:         INFO:   multimode_case_test_count          = {AMETHYST}{multimode_case_test_count}{RESET}",          flush=True )
+                print ( f"{PALE_GREEN}CLASSI:         INFO:   matched_image_rna_count            = {AMETHYST}{matched_image_rna_count}{RESET}",  flush=True )
+                print ( f"{PALE_GREEN}CLASSI:         INFO:   cases_reserved_for_image_rna       = {AMETHYST}{args.cases_reserved_for_image_rna}{RESET}",        flush=True )
+              selector = random.randint(0,500)                                                               # the high number has to be larger than the total number of matched cases to give every case a chance of being included 
+              if ( selector==22 ) & ( multimode_case_test_count<args.cases_reserved_for_image_rna ):   # used 22 but it could be any number
+  
                 fqn = f"{dir_path}/MULTIMODE____TEST"         
                 try:
-                  with open(fqn, 'w') as f:
-                    f.write( f"this case is designated as a multimode case" )
-                    multimode_case_test_count+=1
-                    f.close
-                  if DEBUG>2:
-                    print ( f"{PALE_GREEN}CLASSI:         INFO:    segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[122C has been randomly flagged as '{ASPARAGUS}MULTIMODE____TEST{RESET}{PALE_GREEN}'  \r\033[204C (count= {MIKADO}{multimode_case_test_count}{RESET}{PALE_GREEN})",  flush=True )
+                  with open(fqn, 'r') as f:                                                                  # have to check that the case (directory) was not already flagged as a multimode cases, else it will do it again and think it was an additional case, therebody creating one (or more) fewer cases
+                    pass
                 except Exception:
-                  print( f"{RED}CLASSI:       FATAL:  could not create '{CYAN}MULTIMODE____TEST{RESET}' file" )
-                  time.sleep(10)
-                  sys.exit(0)
-  
-          except Exception:
-            if DEBUG>55:
-              print ( f"{RED}CLASSI:       not a matched case" )
+                  fqn = f"{dir_path}/MULTIMODE____TEST"         
+                  try:
+                    with open(fqn, 'w') as f:
+                      f.write( f"this case is designated as a multimode case" )
+                      multimode_case_test_count+=1
+                      f.close
+                    if DEBUG>2:
+                      print ( f"{PALE_GREEN}CLASSI:         INFO:    segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[122C has been randomly flagged as '{ASPARAGUS}MULTIMODE____TEST{RESET}{PALE_GREEN}'  \r\033[204C (count= {MIKADO}{multimode_case_test_count}{RESET}{PALE_GREEN})",  flush=True )
+                  except Exception:
+                    print( f"{RED}CLASSI:       FATAL:  could not create '{CYAN}MULTIMODE____TEST{RESET}' file" )
+                    time.sleep(10)
+                    sys.exit(0)
     
-      directories_considered_count+=1
-      if DEBUG>555:
-        print ( f"c={c}" )      
-
-      if multimode_case_test_count== args.cases_reserved_for_image_rna:
-        if DEBUG>55:
-          print ( f"{PALE_GREEN}CLASSI:         INFO:   multimode_case_test_count              = {AMETHYST}{multimode_case_test_count}{RESET}",          flush=True )
-          print ( f"{PALE_GREEN}CLASSI:         INFO:   cases_reserved_for_image_rna           = {AMETHYST}{args.cases_reserved_for_image_rna}{RESET}",             flush=True )
-        break
+            except Exception:
+              if DEBUG>55:
+                print ( f"{RED}CLASSI:       not a matched case" )
+      
+        directories_considered_count+=1
+        if DEBUG>555:
+          print ( f"c={c}" )      
+  
+        if multimode_case_test_count== args.cases_reserved_for_image_rna:
+          if DEBUG>55:
+            print ( f"{PALE_GREEN}CLASSI:         INFO:   multimode_case_test_count              = {AMETHYST}{multimode_case_test_count}{RESET}",          flush=True )
+            print ( f"{PALE_GREEN}CLASSI:         INFO:   cases_reserved_for_image_rna           = {AMETHYST}{args.cases_reserved_for_image_rna}{RESET}",             flush=True )
+          break
 
 
     # (1Cii) designate UNIMODE_CASE____MATCHED cases. Go through all MATCHED directories one time. Flag any MATCHED case other than those flagged as MULTIMODE____TEST case at 1Ca above with the UNIMODE_CASE____MATCHED
+
+    if ( cumulative_png_file_count > 0 ) &  ( cumulative_rna_file_count > 0):    
+
+      for dir_path, dirs, files in os.walk( args.data_dir, topdown=True ):                                   # ... designate every matched case (HAS_BOTH) other than those flagged as MULTIMODE____TEST above to be UNIMODE_CASE____MATCHED 
     
-    unimode_case_matched_count    = 0
-
-    for dir_path, dirs, files in os.walk( args.data_dir, topdown=True ):                                   # ... designate every matched case (HAS_BOTH) other than those flagged as MULTIMODE____TEST above to be a unimode case
+        if DEBUG>1:  
+          print( f"{DIM_WHITE}CLASSI:         INFO:   now considering case (directory) as a unimode case {ARYLIDE}{os.path.basename(dir_path)}{RESET}" )
+    
+        if not (dir_path==args.data_dir):                                                                    # the top level directory (dataset) is skipped because it only contains sub-directories, not data
   
-      if DEBUG>1:  
-        print( f"{DIM_WHITE}CLASSI:         INFO:   now considering case (directory) as a unimode case {ARYLIDE}{os.path.basename(dir_path)}{RESET}" )
-  
-      if not (dir_path==args.data_dir):                                                                    # the top level directory (dataset) is skipped because it only contains sub-directories, not data
-
-        if DEBUG>55:
-          print ( f"{PALE_GRshuffEEN}CLASSI:         INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files (listed above)  \r\033[160C (count= {matched_image_rna_count}{RESET}{PALE_GREEN})",  flush=True )
-  
-          
-        try:
-          fqn = f"{dir_path}/HAS_BOTH"
-          f = open( fqn, 'r' )
-
+          if DEBUG>55:
+            print ( f"{PALE_GRshuffEEN}CLASSI:         INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files (listed above)  \r\033[160C (count= {matched_image_rna_count}{RESET}{PALE_GREEN})",  flush=True )
+    
+            
           try:
-            fqn = f"{dir_path}/MULTIMODE____TEST"                                                          # then we designated it to be a MULTIMODE case above, so ignore 
+            fqn = f"{dir_path}/HAS_BOTH"
             f = open( fqn, 'r' )
-          except Exception:                                                                                # these are the ones we want
-            if DEBUG>555:
-              print ( f"{PALE_GREEN}CLASSI:         INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files and has not already been designated as a mutimode case  \r\033[200C (count= {matched_image_rna_count}{RESET}{PALE_GREEN})",  flush=True )
-              print ( f"{PALE_GREEN}CLASSI:         INFO:   unimode_case_matched_count            = {AMETHYST}{unimode_case_matched_count}{RESET}",            flush=True )
-            if ( ( unimode_case_matched_count + multimode_case_test_count ) <= matched_image_rna_count ):  # if we don't yet have enough designated multimode cases (and hence designations in total)
-              fqn = f"{dir_path}/UNIMODE_CASE____MATCHED"            
-              with open(fqn, 'w') as f:
-                f.write( f"this case is designated as a unimode case" )
-              f.close
-              unimode_case_matched_count+=1
-              if DEBUG>44:
-                print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{DULL_YELLOW} \r\033[122C has been randomly designated as a   unimode case  \r\033[204C (count= {MIKADO}{unimode_case_matched_count}{RESET}{DULL_WHITE})",  flush=True )
-
-
-        except Exception:
-          if DEBUG>555:
-            print ( "not a multimode case" )
-      
-      
-    # (1Ciii) designate the UNIMODE_CASE____MATCHED cases. Go through all directories one time. Flag other than MULTIMODE____TEST and  UNIMODE_CASE____MATCHED cases as UNIMODE_CASE
-        
-    unimode_case_unmatched_count=0
-    for dir_path, dirs, files in os.walk( args.data_dir ):                                                 # each iteration takes us to a new directory under the dataset directory
   
-      if DEBUG>55:  
-        print( f"{DIM_WHITE}CLASSI:           INFO:   now processing case (directory) {ARYLIDE}{os.path.basename(dir_path)}{RESET}" )
-  
-      if not (dir_path==args.data_dir):                                                                    # the top level directory (dataset) has to be skipped because it only contains sub-directories, not data  
-
-        for f in sorted( files ):          
-                    
-          try:
-            fqn = f"{dir_path}/MULTIMODE____TEST"        
-            f = open( fqn, 'r' )
-            if DEBUG>555:
-              print ( f"{RED}CLASSI:           INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{RED} \r\033[100C is a multimode case. Skipping",  flush=True )
-            break
-          except Exception:
             try:
-              fqn = f"{dir_path}/UNIMODE_CASE"        
+              fqn = f"{dir_path}/MULTIMODE____TEST"                                                          # then we designated it to be a MULTIMODE case above, so ignore 
+              f = open( fqn, 'r' )
+            except Exception:                                                                                # these are the ones we want
+              if DEBUG>555:
+                print ( f"{PALE_GREEN}CLASSI:         INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files and has not already been designated as a mutimode case  \r\033[200C (count= {matched_image_rna_count}{RESET}{PALE_GREEN})",  flush=True )
+                print ( f"{PALE_GREEN}CLASSI:         INFO:   unimode_case_matched_count            = {AMETHYST}{unimode_case_matched_count}{RESET}",            flush=True )
+              if ( ( unimode_case_matched_count + multimode_case_test_count ) <= matched_image_rna_count ):  # if we don't yet have enough designated multimode cases (and hence designations in total)
+                fqn = f"{dir_path}/UNIMODE_CASE____MATCHED"            
+                with open(fqn, 'w') as f:
+                  f.write( f"this case is designated as a unimode case" )
+                f.close
+                unimode_case_matched_count+=1
+                if DEBUG>44:
+                  print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{DULL_YELLOW} \r\033[122C has been randomly designated as a   unimode case  \r\033[204C (count= {MIKADO}{unimode_case_matched_count}{RESET}{DULL_WHITE})",  flush=True )
+  
+  
+          except Exception:
+            if DEBUG>555:
+              print ( "not a multimode case" )
+        
+      
+    # (1Ciii) designate the UNIMODE_CASE____UNMATCHED cases. Go through all directories one time. Flag other than MULTIMODE____TEST and  UNIMODE_CASE____MATCHED cases as UNIMODE_CASE____UNMATCHED
+
+    if ( cumulative_png_file_count > 0 ) | ( cumulative_rna_file_count > 0): 
+        
+      for dir_path, dirs, files in os.walk( args.data_dir ):                                                 # each iteration takes us to a new directory under the dataset directory
+    
+        if DEBUG>55:  
+          print( f"{DIM_WHITE}CLASSI:           INFO:   now processing case (directory) {ARYLIDE}{os.path.basename(dir_path)}{RESET}" )
+    
+        if not (dir_path==args.data_dir):                                                                    # the top level directory (dataset) has to be skipped because it only contains sub-directories, not data  
+  
+          for f in sorted( files ):          
+                      
+            try:
+              fqn = f"{dir_path}/MULTIMODE____TEST"        
               f = open( fqn, 'r' )
               if DEBUG>555:
-                print ( f"{RED}CLASSI:           INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{RED} \r\033[100C is in a directory containing the UNIMODE_CASE flag. Skipping",  flush=True )
+                print ( f"{RED}CLASSI:           INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{RED} \r\033[100C is a multimode case. Skipping",  flush=True )
               break
             except Exception:
-              if DEBUG>44:
-                print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[122C has been flagged with the  {ASPARAGUS}UNIMODE_CASE{RESET}  \r\033[204C (count= {MIKADO}{unimode_case_unmatched_count+1}{RESET})",  flush=True )
-              fqn = f"{dir_path}/UNIMODE_CASE"            
-              with open(fqn, 'w') as f:
-                f.write( f"this case is not a designated multimode case" )
-              f.close
-              unimode_case_unmatched_count+=1                                                              # only segment_cases knows the value of unimode_case_unmatched_count, and we need in generate(), so we return it
-                                                                  
+              try:
+                fqn = f"{dir_path}/UNIMODE_CASE"        
+                f = open( fqn, 'r' )
+                if DEBUG>555:
+                  print ( f"{RED}CLASSI:           INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{RED} \r\033[100C is in a directory containing the UNIMODE_CASE flag. Skipping",  flush=True )
+                break
+              except Exception:
+                if DEBUG>44:
+                  print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[122C has been flagged with the  {ASPARAGUS}UNIMODE_CASE{RESET}  \r\033[204C (count= {MIKADO}{unimode_case_unmatched_count+1}{RESET})",  flush=True )
+                fqn = f"{dir_path}/UNIMODE_CASE"            
+                with open(fqn, 'w') as f:
+                  f.write( f"this case is not a designated multimode case" )
+                f.close
+                unimode_case_unmatched_count+=1                                                              # only segment_cases knows the value of unimode_case_unmatched_count, and we need in generate(), so we return it
+                                                                    
 
     # (1Civ) Designate those IMAGE cases which are not also MULTIMODE cases. Go through directories one time. Flag UNIMODE_CASE which are ALSO image cases as UNIMODE_CASE____IMAGE
     
     if DEBUG>3:
       print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():  about to designate '{ARYLIDE}UNIMODE_CASE____IMAGE{RESET}{DULL_WHITE}' cases{RESET}",  flush=True )  
-    
-    directories_considered_count    = 0
-    unimode_case_image_count        = 0
-    class_counts                   = np.zeros( n_classes, dtype=int )
-    
-    n=0 
-    
-    while np.any( class_counts < 1 ):
 
-      a = random.choice( range(  0,  1   ) )
-      b = random.choice( range(  100,250 ) )
-      c = random.choice( range(  100,250 ) )
-      c = 120
-      BB=f"\033[38;2;{a};{b};{c}m"
-          
-      if n>0:
-        print ( f"\033[59;200H{CLEAR_LINE}",                                                                                                                             flush=True  )    
-        print ( f"\033[60;200H{BOLD}{BB}  CLASSI:         INFO: some subtypes are not represented in the applicable subset.  Shuffling and trying again.{RESET}",        flush=True  )    
+    if cumulative_png_file_count > 0:
+    
+      directories_considered_count    = 0
+      class_counts                   = np.zeros( n_classes, dtype=int )
       
-      for dir_path, dirs, files in os.walk( args.data_dir ):
-    
-        random.shuffle(dirs)
-          
-        if DEBUG>55:  
-          print( f"{DIM_WHITE}CLASSI:           INFO:   now processing case (directory) {ARYLIDE}{os.path.basename(dir_path)}{RESET}" )
-    
-        if not (dir_path==args.data_dir): 
-                      
-          try:
-            fqn = f"{dir_path}/HAS_IMAGE"        
-            f = open( fqn, 'r' )
-            if DEBUG>10:
-              print ( f"{DULL_WHITE}CLASSI:           INFO:   case                                       case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_GREEN}' \r\033[122C is an image case",  flush=True )
+      n=0 
+      
+      while np.any( class_counts < 1 ):
+  
+        a = random.choice( range(  0,  1   ) )
+        b = random.choice( range(  100,250 ) )
+        c = random.choice( range(  100,250 ) )
+        c = 120
+        BB=f"\033[38;2;{a};{b};{c}m"
+            
+        if n>0:
+          print ( f"\033[59;200H{CLEAR_LINE}",                                                                                                                             flush=True  )    
+          print ( f"\033[60;200H{BOLD}{BB}  CLASSI:         INFO: some subtypes are not represented in the applicable subset.  Shuffling and trying again.{RESET}",        flush=True  )    
+        
+        for dir_path, dirs, files in os.walk( args.data_dir ):
+      
+          random.shuffle(dirs)
+            
+          if DEBUG>55:  
+            print( f"{DIM_WHITE}CLASSI:           INFO:   now processing case (directory) {ARYLIDE}{os.path.basename(dir_path)}{RESET}" )
+      
+          if not (dir_path==args.data_dir): 
+                        
             try:
-              fqn = f"{dir_path}/UNIMODE_CASE"        
+              fqn = f"{dir_path}/HAS_IMAGE"        
               f = open( fqn, 'r' )
               if DEBUG>10:
-                print ( f"{GREEN}CLASSI:           INFO:   case                                       case \r\033[55C'{MAGENTA}{dir_path}{RESET}{GREEN} \r\033[122C is in a directory containing a UNIMODE IMAGE case",  flush=True )
-              fqn = f"{dir_path}/UNIMODE_CASE____IMAGE"            
-              with open(fqn, 'w') as f:
-                f.write( f"this case is a UNIMODE_CASE____IMAGE case" )
-              f.close
-              if DEBUG>22:
-                print ( f"{PALE_GREEN}CLASSI:           INFO:       segment_cases():  case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_GREEN}' \r\033[122C has been flagged with the UNIMODE_CASE____IMAGE  \r\033[204C (count= {MIKADO}{unimode_case_image_count+1}{RESET})",  flush=True )
-              unimode_case_image_count+=1                                                                  # only segment_cases knows the value of unimode_case_image_count, and we need in generate(), so we return it
-  
-              
-              try:                                                                                         # accumulate class counts. Every tile has an associated label - the same label for every tile image in the directory
-                label_file = f"{dir_path}/{args.class_numpy_file_name}"
-                if DEBUG>100:
-                  print ( f"CLASSI:         INFO:   label_file  {ASPARAGUS}{label_file}{RESET}")
-                label      = np.load( label_file )
-                if label[0]>args.highest_class_number:
-                  pass
-                else:
-                  class_counts[label[0]]+=1
-                  
-                if DEBUG>2:
-                  np.set_printoptions(formatter={'int': lambda x: "{:>6d}".format(x)}) 
-                  print( f"\033[61;200H{BOLD}{BB}  CLASSI:         INFO: class_counts                         = {CARRIBEAN_GREEN}{class_counts}{RESET}{CLEAR_LINE}", flush=True  )
-  
-              except Exception as e:
-                print ( f"{RED}CLASSI:               FATAL: when processing: '{label_file}'  (21945){RESET}", flush=True)        
-                print ( f"{RED}CLASSI:                      reported error was: '{e}'{RESET}", flush=True)
-                print ( f"{RED}CLASSI:                      halting now{RESET}", flush=True)
-                sys.exit(0)
-  
+                print ( f"{DULL_WHITE}CLASSI:           INFO:   case                                       case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_GREEN}' \r\033[122C is an image case",  flush=True )
+              try:
+                fqn = f"{dir_path}/UNIMODE_CASE"        
+                f = open( fqn, 'r' )
+                if DEBUG>10:
+                  print ( f"{GREEN}CLASSI:           INFO:   case                                       case \r\033[55C'{MAGENTA}{dir_path}{RESET}{GREEN} \r\033[122C is in a directory containing a UNIMODE IMAGE case",  flush=True )
+                fqn = f"{dir_path}/UNIMODE_CASE____IMAGE"            
+                with open(fqn, 'w') as f:
+                  f.write( f"this case is a UNIMODE_CASE____IMAGE case" )
+                f.close
+                if DEBUG>22:
+                  print ( f"{PALE_GREEN}CLASSI:           INFO:       segment_cases():  case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_GREEN}' \r\033[122C has been flagged with the UNIMODE_CASE____IMAGE  \r\033[204C (count= {MIKADO}{unimode_case_image_count+1}{RESET})",  flush=True )
+                unimode_case_image_count+=1                                                                  # only segment_cases knows the value of unimode_case_image_count, and we need in generate(), so we return it
+    
+                
+                try:                                                                                         # accumulate class counts. Every tile has an associated label - the same label for every tile image in the directory
+                  label_file = f"{dir_path}/{args.class_numpy_file_name}"
+                  if DEBUG>100:
+                    print ( f"CLASSI:         INFO:   label_file  {ASPARAGUS}{label_file}{RESET}")
+                  label      = np.load( label_file )
+                  if label[0]>args.highest_class_number:
+                    pass
+                  else:
+                    class_counts[label[0]]+=1
+                    
+                  if DEBUG>2:
+                    np.set_printoptions(formatter={'int': lambda x: "{:>6d}".format(x)}) 
+                    print( f"\033[61;200H{BOLD}{BB}  CLASSI:         INFO: class_counts                         = {CARRIBEAN_GREEN}{class_counts}{RESET}{CLEAR_LINE}", flush=True  )
+    
+                except Exception as e:
+                  print ( f"{RED}CLASSI:               FATAL: when processing: '{label_file}'  (21945){RESET}", flush=True)        
+                  print ( f"{RED}CLASSI:                      reported error was: '{e}'{RESET}", flush=True)
+                  print ( f"{RED}CLASSI:                      halting now{RESET}", flush=True)
+                  sys.exit(0)
+    
+              except Exception:
+                if DEBUG>44:
+                  print ( f"{RED}CLASSI:           INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{RED}' \r\033[122C  is not a UNIMODE_CASE case - - skipping{RESET}",  flush=True )
             except Exception:
               if DEBUG>44:
-                print ( f"{RED}CLASSI:           INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{RED}' \r\033[122C  is not a UNIMODE_CASE case - - skipping{RESET}",  flush=True )
-          except Exception:
-            if DEBUG>44:
-              print ( f"{PALE_RED}CLASSI:           INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[122C is not an image case - - skipping{RESET}",  flush=True )                                                                    
-      
-      n+=1  
+                print ( f"{PALE_RED}CLASSI:           INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[122C is not an image case - - skipping{RESET}",  flush=True )                                                                    
+        
+        n+=1  
 
 
     # (1Cv) Designate those RNA cases which are not also MULTIMODE cases. Go through directories one time. Flag UNIMODE_CASE which are also rna cases as UNIMODE_CASE____RNA
@@ -5028,39 +5057,40 @@ def segment_cases( args, n_classes, class_names, n_tiles, pct_test ):
       print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():  about to designate '{ARYLIDE}UNIMODE_CASE____RNA{RESET}{DULL_WHITE}' cases{RESET}",  flush=True )  
     
     directories_considered_count    = 0
-    unimode_case_rna_count          = 0
+
+    if cumulative_rna_file_count > 0:
     
-    for dir_path, dirs, files in os.walk( args.data_dir ):
-  
-      if DEBUG>55:  
-        print( f"{DIM_WHITE}CLASSI:           INFO:   now processing case (directory) {ARYLIDE}{os.path.basename(dir_path)}{RESET}" )
-  
-      if not (dir_path==args.data_dir): 
-                    
-        try:
-          fqn = f"{dir_path}/HAS_RNA"        
-          f = open( fqn, 'r' )
-          if DEBUG>44:
-            print ( f"{GREEN}CLASSI:           INFO:   case                                       case \r\033[55C'{MAGENTA}{dir_path}{RESET}{GREEN}' \r\033[122C is an rna case",  flush=True )
+      for dir_path, dirs, files in os.walk( args.data_dir ):
+    
+        if DEBUG>55:  
+          print( f"{DIM_WHITE}CLASSI:           INFO:   now processing case (directory) {ARYLIDE}{os.path.basename(dir_path)}{RESET}" )
+    
+        if not (dir_path==args.data_dir): 
+                      
           try:
-            fqn = f"{dir_path}/UNIMODE_CASE"        
+            fqn = f"{dir_path}/HAS_RNA"        
             f = open( fqn, 'r' )
-            if DEBUG>2:
-              print ( f"{GREEN}CLASSI:           INFO:   case                                       case \r\033[55C'{MAGENTA}{dir_path}{RESET}{GREEN} \r\033[122C is in a directory containing the UNIMODE_CASE",  flush=True )
-            fqn = f"{dir_path}/UNIMODE_CASE____RNA"            
-            with open(fqn, 'w') as f:
-              f.write( f"this case is a UNIMODE_CASE____RNA case" )
-            f.close
-            if DEBUG>22:
-              print ( f"{PALE_GREEN}CLASSI:           INFO:       segment_cases():  case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_GREEN}' \r\033[122C has been flagged with the UNIMODE_CASE____RNA  \r\033[204C (count= {MIKADO}{unimode_case_rna_count+1}{RESET})",  flush=True )
-            unimode_case_rna_count+=1                                                                      # only segment_cases knows the value of unimode_case_rna_count, and we need in generate(), so we return it
+            if DEBUG>44:
+              print ( f"{GREEN}CLASSI:           INFO:   case                                       case \r\033[55C'{MAGENTA}{dir_path}{RESET}{GREEN}' \r\033[122C is an rna case",  flush=True )
+            try:
+              fqn = f"{dir_path}/UNIMODE_CASE"        
+              f = open( fqn, 'r' )
+              if DEBUG>2:
+                print ( f"{GREEN}CLASSI:           INFO:   case                                       case \r\033[55C'{MAGENTA}{dir_path}{RESET}{GREEN} \r\033[122C is in a directory containing the UNIMODE_CASE",  flush=True )
+              fqn = f"{dir_path}/UNIMODE_CASE____RNA"            
+              with open(fqn, 'w') as f:
+                f.write( f"this case is a UNIMODE_CASE____RNA case" )
+              f.close
+              if DEBUG>22:
+                print ( f"{PALE_GREEN}CLASSI:           INFO:       segment_cases():  case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_GREEN}' \r\033[122C has been flagged with the UNIMODE_CASE____RNA  \r\033[204C (count= {MIKADO}{unimode_case_rna_count+1}{RESET})",  flush=True )
+              unimode_case_rna_count+=1                                                                      # only segment_cases knows the value of unimode_case_rna_count, and we need in generate(), so we return it
+            except Exception:
+              if DEBUG>44:
+                print ( f"{RED}CLASSI:           INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{RED}' \r\033[122C  is not a UNIMODE_CASE case - - skipping{RESET}",  flush=True )
           except Exception:
             if DEBUG>44:
-              print ( f"{RED}CLASSI:           INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{RED}' \r\033[122C  is not a UNIMODE_CASE case - - skipping{RESET}",  flush=True )
-        except Exception:
-          if DEBUG>44:
-            print ( f"{PALE_RED}CLASSI:           INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[122C is not an rna case - - skipping{RESET}",  flush=True )                                                                    
-        
+              print ( f"{PALE_RED}CLASSI:           INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[122C is not an rna case - - skipping{RESET}",  flush=True )                                                                    
+          
 
     # (1Cvi) Designate 'UNIMODE_CASE____IMAGE_TEST' cases. Go through directories one time. Flag 'PCT_TEST' % of the UNIMODE_CASE IMAGE cases as UNIMODE_CASE____IMAGE_TEST
     #        These cases are used for unimode image testing. Necessary to strictly separated cases in this manner for image mode so that tiles from a single image do not end up in both the training and test sets   
@@ -5072,191 +5102,189 @@ def segment_cases( args, n_classes, class_names, n_tiles, pct_test ):
     #        TODO: IDEALLY HERE WE WOULD ALSO ENSURE THAT AT LEAST ONE CASE OF EACH SUBTYPE WAS DESIGNATED AS IMAGE_TEST. OTHERWISE SOME SUBTYPES CAN END UP WITH NO TEST EXAMPLES IF 
     #              THERE IS ONLY A VERY SMALL NUMBER OF EXAMPLES FOR THAT CASE IN TOTAL (BECAUSE THE TEST EXAMPLE QUOTE MIGHT BE FILLED WITHOUT COMING ACROSS AN EXAMPLE OF THAT SUBTYPE)
     
-  
+    if cumulative_png_file_count > 0:
 
-    cases_to_designate = int(pct_test * unimode_case_image_count)
-        
-    if DEBUG>0:
-      print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():    about to randomly re-designate int({CYAN}PCT_TEST{RESET}{DULL_WHITE} {MIKADO}{pct_test*100:4.2f}%{RESET}{DULL_WHITE} * {CYAN}unimode_case_image_count{RESET}{DULL_WHITE} {MIKADO}{unimode_case_image_count}{RESET}{DULL_WHITE}) = {MIKADO}{cases_to_designate} {ARYLIDE}UNIMODE_CASE____IMAGE{RESET}{DULL_WHITE} cases as reserved image test cases by placing the flag {ARYLIDE}UNIMODE_CASE____IMAGE_TEST{RESET}{DULL_WHITE}",  flush=True )
-    
-    unimode_case_image_test_count  = 0
-    class_counts                   = np.zeros( n_classes, dtype=int )
-    ratios                         = np.zeros( n_classes, dtype=int )
-
-
-    startrow=16
-    startcol=180
+      cases_to_designate = int(pct_test * unimode_case_image_count)
+          
+      if DEBUG>0:
+        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():    about to randomly re-designate int({CYAN}PCT_TEST{RESET}{DULL_WHITE} {MIKADO}{pct_test*100:4.2f}%{RESET}{DULL_WHITE} * {CYAN}unimode_case_image_count{RESET}{DULL_WHITE} {MIKADO}{unimode_case_image_count}{RESET}{DULL_WHITE}) = {MIKADO}{cases_to_designate} {ARYLIDE}UNIMODE_CASE____IMAGE{RESET}{DULL_WHITE} cases as reserved image test cases by placing the flag {ARYLIDE}UNIMODE_CASE____IMAGE_TEST{RESET}{DULL_WHITE}",  flush=True )
       
-    UNIMODE_CASE____IMAGE_class_counts = determine_class_counts ( args, n_classes, class_names, n_tiles, 'UNIMODE_CASE____IMAGE' )   # available to be redesignated as ..._TEST cases
-    nominally_required_per_class       =  UNIMODE_CASE____IMAGE_class_counts * pct_test
-    required_per_class                 =  (UNIMODE_CASE____IMAGE_class_counts * pct_test).astype(int) + 1
-    
-    if DEBUG>0:
-      np.set_printoptions(formatter={ 'int':   lambda x: f"{x:>6d}"}    ) 
-      print( f"{SAVE_CURSOR}\033[{startrow+0};{startcol}H{BOLD}{BB}  CLASSI: segment_cases()         INFO: UNIMODE_CASE____IMAGE_class_counts         = {MIKADO}{UNIMODE_CASE____IMAGE_class_counts}{RESET}{CLEAR_LINE}", flush=True  )
-      np.set_printoptions(formatter={ 'float': lambda x: f"{x:>6.2f}"} )  
-      print( f"\033[{startrow+1};{startcol}H{BOLD}{BB}  CLASSI: segment_cases()         INFO: nominally_required_per_class for testing   = {MIKADO}{nominally_required_per_class}{RESET}{CLEAR_LINE}", flush=True  )
-      np.set_printoptions(formatter={ 'int':   lambda x: f"{x:>6d}"}    )       
-      print( f"\033[{startrow+2};{startcol}H{BOLD}{BB}  CLASSI: segment_cases()         INFO: required_per_class                             = {MIKADO}{required_per_class}{RESET}{CLEAR_LINE}", flush=True  )
- 
-    
-    for the_class in range (0, n_classes ):
-
-      cases_to_designate =  required_per_class[the_class]
-
-      a  = random.choice( range(  100,250 ) )
-      b  = random.choice( range(  0,  1   ) )
-      c  = 120
-      BB = f"\033[38;2;{a};{b};{c}m"
+      class_counts                   = np.zeros( n_classes, dtype=int )
+      ratios                         = np.zeros( n_classes, dtype=int )
+  
+  
+      startrow=16
+      startcol=180
+        
+      UNIMODE_CASE____IMAGE_class_counts = determine_class_counts ( args, n_classes, class_names, n_tiles, 'UNIMODE_CASE____IMAGE' )   # available to be redesignated as ..._TEST cases
+      nominally_required_per_class       =  UNIMODE_CASE____IMAGE_class_counts * pct_test
+      required_per_class                 =  (UNIMODE_CASE____IMAGE_class_counts * pct_test).astype(int) + 1
       
       if DEBUG>0:
-        np.set_printoptions(formatter={'int': lambda x: "{:>6d}".format(x)}) 
-        print( f"\033[{startrow+2+the_class};{startcol}H{BOLD}{BB}  CLASSI: segment_cases()         INFO: cases to designate for class {MIKADO}{the_class}{RESET}{BB}             = {MAGENTA}{cases_to_designate}{RESET}{CLEAR_LINE}", flush=True  )
+        np.set_printoptions(formatter={ 'int':   lambda x: f"{x:>6d}"}    ) 
+        print( f"{SAVE_CURSOR}\033[{startrow+0};{startcol}H{BOLD}{BB}  CLASSI: segment_cases()         INFO: UNIMODE_CASE____IMAGE_class_counts         = {MIKADO}{UNIMODE_CASE____IMAGE_class_counts}{RESET}{CLEAR_LINE}", flush=True  )
+        np.set_printoptions(formatter={ 'float': lambda x: f"{x:>6.2f}"} )  
+        print( f"\033[{startrow+1};{startcol}H{BOLD}{BB}  CLASSI: segment_cases()         INFO: nominally_required_per_class for testing   = {MIKADO}{nominally_required_per_class}{RESET}{CLEAR_LINE}", flush=True  )
+        np.set_printoptions(formatter={ 'int':   lambda x: f"{x:>6d}"}    )       
+        print( f"\033[{startrow+2};{startcol}H{BOLD}{BB}  CLASSI: segment_cases()         INFO: required_per_class                             = {MIKADO}{required_per_class}{RESET}{CLEAR_LINE}", flush=True  )
+   
       
-      while True:
-
-        for dir_path, dirs, files in os.walk( args.data_dir, topdown=True ):
-          
-          if DEBUG>100:  
-            print( f"{DIM_WHITE}CLASSI:         INFO:   now considering case {ARYLIDE}{os.path.basename(dir_path)}{RESET}{DIM_WHITE} \r\033[130C as a candidate UNIMODE_CASE____IMAGE_TEST case  " ) 
-              
-          if not (dir_path==args.data_dir):                                                                # the top level directory (dataset) has to be skipped because it only contains sub-directories, not data
-            
-            try:
-              fqn = f"{dir_path}/UNIMODE_CASE____IMAGE"    
-              f = open( fqn, 'r' )                
-              if DEBUG>66:
-                print ( f"{PALE_GREEN}CLASSI:           INFO:   case   \r\033[55C'{RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[130C is a     {CYAN}UNIMODE_CASE____IMAGE{RESET}{PALE_GREEN} case{RESET}",  flush=True )
-              selector = random.randint(0,500)                                                           # the high number has to be larger than the total number of not a multimode cases to give every case a chance of being included 
-              if ( selector>0 ):                                                                       # used 22 but it could be any number
-                fqn = f"{dir_path}/UNIMODE_CASE____IMAGE_TEST"         
-                try:                                                                                       # every tile has an associated label - the same label for every tile image in the directory
-                  label_file = f"{dir_path}/{args.class_numpy_file_name}"
-                  if DEBUG>100:
-                    print ( f"CLASSI:         INFO:   label_file  {ASPARAGUS}{label_file}{RESET}")
-                  label      = (np.load( label_file ))[0]
-                  if DEBUG>100:
-                    print ( f"CLASSI:         INFO:   label       {ASPARAGUS}{label}{RESET}")
-                  if label>args.highest_class_number:
-                    pass
-                  elif label==the_class:
-                    try:
-                      with open(fqn, 'w') as f:
-                        f.write( f"this case is designated as a UNIMODE_CASE____IMAGE_TEST case (for class {the_class})" )
-                        class_counts[the_class]+=1
-                        f.close
-                        os.remove ( f"{dir_path}/UNIMODE_CASE____IMAGE" )
-                      if DEBUG>9:
-                        print ( f"{BLEU}CLASSI:           INFO:    segment_cases()():  case  {RESET}{CYAN}{dir_path}{RESET}{BLEU} \r\033[130C has been randomly (re-)designated as a UNIMODE_CASE____IMAGE_TEST case  \r\033[204C (class = {MIKADO}{the_class}{RESET}{BLEU}{RESET})",  flush=True )
-                    except Exception:
-                      print( f"{RED}CLASSI:       FATAL:  either could not create '{CYAN}UNIMODE_CASE____IMAGE_TEST{RESET}' file or delete the '{CYAN}UNIMODE_CASE____IMAGE{RESET}' " )  
-                      time.sleep(10)
-                      sys.exit(0)              
-                  else:
-                    pass
+      for the_class in range (0, n_classes ):
   
-                except Exception as e:
-                  print ( f"{RED}CLASSI:               FATAL: when processing: '{label_file}'    (05723){RESET}", flush=True)        
-                  print ( f"{RED}CLASSI:                      reported error was: '{e}'{RESET}", flush=True)
-                  print ( f"{RED}CLASSI:                      halting now{RESET}", flush=True)
-                  sys.exit(0)
-
-            except Exception:
-              if DEBUG>66:
-                print ( f"{RED}CLASSI:           INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[130C is not a {CYAN}UNIMODE_CASE____IMAGE{RESET}{RED} case - - skipping{RESET}",  flush=True )
+        cases_to_designate =  required_per_class[the_class]
+  
+        a  = random.choice( range(  100,250 ) )
+        b  = random.choice( range(  0,  1   ) )
+        c  = 120
+        BB = f"\033[38;2;{a};{b};{c}m"
         
+        if DEBUG>0:
+          np.set_printoptions(formatter={'int': lambda x: "{:>6d}".format(x)}) 
+          print( f"\033[{startrow+2+the_class};{startcol}H{BOLD}{BB}  CLASSI: segment_cases()         INFO: cases to designate for class {MIKADO}{the_class}{RESET}{BB}             = {MAGENTA}{cases_to_designate}{RESET}{CLEAR_LINE}", flush=True  )
+        
+        while True:
+  
+          for dir_path, dirs, files in os.walk( args.data_dir, topdown=True ):
+            
+            if DEBUG>100:  
+              print( f"{DIM_WHITE}CLASSI:         INFO:   now considering case {ARYLIDE}{os.path.basename(dir_path)}{RESET}{DIM_WHITE} \r\033[130C as a candidate UNIMODE_CASE____IMAGE_TEST case  " ) 
+                
+            if not (dir_path==args.data_dir):                                                                # the top level directory (dataset) has to be skipped because it only contains sub-directories, not data
+              
+              try:
+                fqn = f"{dir_path}/UNIMODE_CASE____IMAGE"    
+                f = open( fqn, 'r' )                
+                if DEBUG>66:
+                  print ( f"{PALE_GREEN}CLASSI:           INFO:   case   \r\033[55C'{RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[130C is a     {CYAN}UNIMODE_CASE____IMAGE{RESET}{PALE_GREEN} case{RESET}",  flush=True )
+                selector = random.randint(0,500)                                                           # the high number has to be larger than the total number of not a multimode cases to give every case a chance of being included 
+                if ( selector>0 ):                                                                       # used 22 but it could be any number
+                  fqn = f"{dir_path}/UNIMODE_CASE____IMAGE_TEST"         
+                  try:                                                                                       # every tile has an associated label - the same label for every tile image in the directory
+                    label_file = f"{dir_path}/{args.class_numpy_file_name}"
+                    if DEBUG>100:
+                      print ( f"CLASSI:         INFO:   label_file  {ASPARAGUS}{label_file}{RESET}")
+                    label      = (np.load( label_file ))[0]
+                    if DEBUG>100:
+                      print ( f"CLASSI:         INFO:   label       {ASPARAGUS}{label}{RESET}")
+                    if label>args.highest_class_number:
+                      pass
+                    elif label==the_class:
+                      try:
+                        with open(fqn, 'w') as f:
+                          f.write( f"this case is designated as a UNIMODE_CASE____IMAGE_TEST case (for class {the_class})" )
+                          class_counts[the_class]+=1
+                          f.close
+                          os.remove ( f"{dir_path}/UNIMODE_CASE____IMAGE" )
+                        if DEBUG>9:
+                          print ( f"{BLEU}CLASSI:           INFO:    segment_cases()():  case  {RESET}{CYAN}{dir_path}{RESET}{BLEU} \r\033[130C has been randomly (re-)designated as a UNIMODE_CASE____IMAGE_TEST case  \r\033[204C (class = {MIKADO}{the_class}{RESET}{BLEU}{RESET})",  flush=True )
+                      except Exception:
+                        print( f"{RED}CLASSI:       FATAL:  either could not create '{CYAN}UNIMODE_CASE____IMAGE_TEST{RESET}' file or delete the '{CYAN}UNIMODE_CASE____IMAGE{RESET}' " )  
+                        time.sleep(10)
+                        sys.exit(0)              
+                    else:
+                      pass
+    
+                  except Exception as e:
+                    print ( f"{RED}CLASSI:               FATAL: when processing: '{label_file}'    (05723){RESET}", flush=True)        
+                    print ( f"{RED}CLASSI:                      reported error was: '{e}'{RESET}", flush=True)
+                    print ( f"{RED}CLASSI:                      halting now{RESET}", flush=True)
+                    sys.exit(0)
+  
+              except Exception:
+                if DEBUG>66:
+                  print ( f"{RED}CLASSI:           INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[130C is not a {CYAN}UNIMODE_CASE____IMAGE{RESET}{RED} case - - skipping{RESET}",  flush=True )
+          
+            if class_counts[the_class] == cases_to_designate:
+              break
+  
           if class_counts[the_class] == cases_to_designate:
             break
-
-        if class_counts[the_class] == cases_to_designate:
-          break
-
-    if DEBUG>0:
-      np.set_printoptions(formatter={'int': lambda x: "{:>6d}".format(x)}) 
-      print( f"\033[{startrow+2+len(class_counts)};{startcol}H{BOLD}{BB}  CLASSI: segment_cases()         INFO: class_counts for testing                   = {MAGENTA}{class_counts}{RESET}{CLEAR_LINE}", flush=True  )
+  
+      if DEBUG>0:
+        np.set_printoptions(formatter={'int': lambda x: "{:>6d}".format(x)}) 
+        print( f"\033[{startrow+2+len(class_counts)};{startcol}H{BOLD}{BB}  CLASSI: segment_cases()         INFO: class_counts for testing                   = {MAGENTA}{class_counts}{RESET}{CLEAR_LINE}", flush=True  )
+        
+              
+      if DEBUG>0:
+        ratios = np.divide( class_counts, UNIMODE_CASE____IMAGE_class_counts )
+        np.set_printoptions(formatter={ 'float' : lambda x: f"{x:>6.2f}"} )   
+        print( f"\033[{startrow+2+len(class_counts)+1};{startcol}H{BOLD}{GREEN}  CLASSI: segment_cases()         INFO: final ratios ({CYAN}pct_test={MIKADO}{pct_test}{RESET}{BOLD}{GREEN})                = {ratios}{RESET}{CLEAR_LINE}", flush=True  )
+  
+      unimode_case_image_test_count = np.sum ( class_counts )
+      if DEBUG>0:
+        print( f"\033[{startrow+2+len(class_counts)+2};{startcol}H{BOLD}{GREEN}  CLASSI: segment_cases()         INFO: unimode_case_image_test_count              = {MIKADO}{unimode_case_image_test_count}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}", flush=True  )
+  
+      unimode_case_image_count = unimode_case_image_count - unimode_case_image_test_count
       
-            
-    if DEBUG>0:
-      ratios = np.divide( class_counts, UNIMODE_CASE____IMAGE_class_counts )
-      np.set_printoptions(formatter={ 'float' : lambda x: f"{x:>6.2f}"} )   
-      print( f"\033[{startrow+2+len(class_counts)+1};{startcol}H{BOLD}{GREEN}  CLASSI: segment_cases()         INFO: final ratios ({CYAN}pct_test={MIKADO}{pct_test}{RESET}{BOLD}{GREEN})                = {ratios}{RESET}{CLEAR_LINE}", flush=True  )
-
-    unimode_case_image_test_count = np.sum ( class_counts )
-    if DEBUG>0:
-      print( f"\033[{startrow+2+len(class_counts)+2};{startcol}H{BOLD}{GREEN}  CLASSI: segment_cases()         INFO: unimode_case_image_test_count              = {MIKADO}{unimode_case_image_test_count}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}", flush=True  )
-
-    unimode_case_image_count = unimode_case_image_count - unimode_case_image_test_count
-    
- 
- 
+   
  
     # (1Cvii) Designate 'UNIMODE_CASE____RNA_TEST' cases. Go through directories one time. Re-flag 'PCT_TEST' % of the UNIMODE_CASE____RNA cases as UNIMODE_CASE____RNA_TEST and remove the UNIMODE_CASE____RNA flag
     #
     #        Strategy: re-designate an appropriate number of the 'UNIMODE_CASE____RNA' to be 'UNIMODE_CASE____RNA_TEST' (delete the first flag)
+
+    if cumulative_rna_file_count > 0:  
   
-
-    cases_to_designate = int(pct_test * unimode_case_rna_count)
-        
-    if DEBUG>0:
-      print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():    about to randomly re-designate int({CYAN}PCT_TEST{RESET}{DULL_WHITE} {MIKADO}{pct_test*100:4.2f}%{RESET}{DULL_WHITE} * {CYAN}unimode_case_rna_count{RESET}{DULL_WHITE}   {MIKADO}{unimode_case_rna_count}{RESET}{DULL_WHITE}) = {MIKADO}{cases_to_designate} {ARYLIDE}UNIMODE_CASE____RNA{RESET}{DULL_WHITE}   cases as reserved rna   test cases by placing the flag {ARYLIDE}UNIMODE_CASE____RNA_TEST{RESET}{DULL_WHITE}{CLEAR_LINE}",  flush=True )
-    
-    directories_considered_count   = 0
-    unimode_case_rna_test_count    = 0
-    
-    while True:
+      cases_to_designate = int(pct_test * unimode_case_rna_count)
+          
+      if DEBUG>0:
+        print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():    about to randomly re-designate int({CYAN}PCT_TEST{RESET}{DULL_WHITE} {MIKADO}{pct_test*100:4.2f}%{RESET}{DULL_WHITE} * {CYAN}unimode_case_rna_count{RESET}{DULL_WHITE}   {MIKADO}{unimode_case_rna_count}{RESET}{DULL_WHITE}) = {MIKADO}{cases_to_designate} {ARYLIDE}UNIMODE_CASE____RNA{RESET}{DULL_WHITE}   cases as reserved rna   test cases by placing the flag {ARYLIDE}UNIMODE_CASE____RNA_TEST{RESET}{DULL_WHITE}{CLEAR_LINE}",  flush=True )
       
-      for dir_path, dirs, files in os.walk( args.data_dir, topdown=True ):
-    
-        if DEBUG>55:  
-          print( f"{DIM_WHITE}CLASSI:         INFO:   now considering case {ARYLIDE}{os.path.basename(dir_path)}{RESET}{DIM_WHITE} \r\033[130C as a candidate UNIMODE_CASE____RNA_TEST case  " ) 
-            
-        if not (dir_path==args.data_dir):                                                                  # the top level directory (dataset) has to be skipped because it only contains sub-directories, not data
-          try:
-            fqn = f"{dir_path}/UNIMODE_CASE____RNA"    
-            f = open( fqn, 'r' )                
-            if DEBUG>66:
-              print ( f"{PALE_GREEN}CLASSI:           INFO:   case   \r\033[55C'{RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[130C is a     {CYAN}UNIMODE_CASE____RNA{RESET}{PALE_GREEN} case{RESET}",  flush=True )
-            selector = random.randint(0,500)                                                               # the high number has to be larger than the total number of not a multimode cases to give every case a chance of being included 
-            if ( selector==22 ) & ( unimode_case_rna_test_count<cases_to_designate ):                      # used 22 but it could be any number
-              fqn = f"{dir_path}/UNIMODE_CASE____RNA_TEST"         
-              try:
-                with open(fqn, 'w') as f:
-                  f.write( f"this case is designated as a UNIMODE_CASE____RNA_TEST case" )
-                  unimode_case_rna_test_count+=1
-                  f.close
-                  os.remove ( f"{dir_path}/UNIMODE_CASE____RNA" )
-                if DEBUG>66:
-                  print ( f"{BLEU}CLASSI:           INFO:    segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{BLEU} \r\033[130C has been randomly designated as a UNIMODE_CASE____RNA_TEST case  \r\033[204C (count= {MIKADO}{unimode_case_rna_test_count}{BLEU}{RESET})",  flush=True )
-              except Exception:
-                print( f"{RED}CLASSI:       FATAL:  either could not create '{CYAN}UNIMODE_CASE____RNA_TEST{RESET}' file or delete the '{CYAN}UNIMODE_CASE____RNA{RESET}' " )  
-                time.sleep(10)
-                sys.exit(0)              
-          except Exception:
-            if DEBUG>66:
-              print ( f"{RED}CLASSI:           INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[130C is not a {CYAN}UNIMODE_CASE____RNA{RESET}{RED} case - - skipping{RESET}",  flush=True )
-    
-      directories_considered_count+=1
-     
-      if unimode_case_rna_test_count == cases_to_designate:
-        if DEBUG>55:
-          print ( f"{PALE_GREEN}CLASSI:         INFO:   unimode_case_rna_test_count  = {AMETHYST}{unimode_case_rna_test_count}{RESET}",          flush=True )
-        break
-
-    unimode_case_rna_count = unimode_case_rna_count - unimode_case_rna_test_count    
-    
+      directories_considered_count   = 0
+      
+      while True:
+        
+        for dir_path, dirs, files in os.walk( args.data_dir, topdown=True ):
+      
+          if DEBUG>55:  
+            print( f"{DIM_WHITE}CLASSI:         INFO:   now considering case {ARYLIDE}{os.path.basename(dir_path)}{RESET}{DIM_WHITE} \r\033[130C as a candidate UNIMODE_CASE____RNA_TEST case  " ) 
+              
+          if not (dir_path==args.data_dir):                                                                  # the top level directory (dataset) has to be skipped because it only contains sub-directories, not data
+            try:
+              fqn = f"{dir_path}/UNIMODE_CASE____RNA"    
+              f = open( fqn, 'r' )                
+              if DEBUG>66:
+                print ( f"{PALE_GREEN}CLASSI:           INFO:   case   \r\033[55C'{RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[130C is a     {CYAN}UNIMODE_CASE____RNA{RESET}{PALE_GREEN} case{RESET}",  flush=True )
+              selector = random.randint(0,500)                                                               # the high number has to be larger than the total number of not a multimode cases to give every case a chance of being included 
+              if ( selector==22 ) & ( unimode_case_rna_test_count<cases_to_designate ):                      # used 22 but it could be any number
+                fqn = f"{dir_path}/UNIMODE_CASE____RNA_TEST"         
+                try:
+                  with open(fqn, 'w') as f:
+                    f.write( f"this case is designated as a UNIMODE_CASE____RNA_TEST case" )
+                    unimode_case_rna_test_count+=1
+                    f.close
+                    os.remove ( f"{dir_path}/UNIMODE_CASE____RNA" )
+                  if DEBUG>66:
+                    print ( f"{BLEU}CLASSI:           INFO:    segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{BLEU} \r\033[130C has been randomly designated as a UNIMODE_CASE____RNA_TEST case  \r\033[204C (count= {MIKADO}{unimode_case_rna_test_count}{BLEU}{RESET})",  flush=True )
+                except Exception:
+                  print( f"{RED}CLASSI:       FATAL:  either could not create '{CYAN}UNIMODE_CASE____RNA_TEST{RESET}' file or delete the '{CYAN}UNIMODE_CASE____RNA{RESET}' " )  
+                  time.sleep(10)
+                  sys.exit(0)              
+            except Exception:
+              if DEBUG>66:
+                print ( f"{RED}CLASSI:           INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[130C is not a {CYAN}UNIMODE_CASE____RNA{RESET}{RED} case - - skipping{RESET}",  flush=True )
+      
+        directories_considered_count+=1
+       
+        if unimode_case_rna_test_count == cases_to_designate:
+          if DEBUG>55:
+            print ( f"{PALE_GREEN}CLASSI:         INFO:   unimode_case_rna_test_count  = {AMETHYST}{unimode_case_rna_test_count}{RESET}",          flush=True )
+          break
+  
+      unimode_case_rna_count = unimode_case_rna_count - unimode_case_rna_test_count    
+      
 
     if DEBUG>0:
-        print ( f"{DULL_WHITE}{CLEAR_LINE}CLASSI:         INFO:    segment_cases():    these flags have been placed:{RESET}{CLEAR_LINE}                                                   ",     flush=True )
-        print ( f"{DULL_WHITE}{CLEAR_LINE}CLASSI:         INFO:    segment_cases():        HAS_IMAGE ................................. = {MIKADO}{has_image_count}{RESET}                 ",     flush=True )
-        print ( f"{DULL_WHITE}{CLEAR_LINE}CLASSI:         INFO:    segment_cases():        HAS_RNA ................................... = {MIKADO}{has_rna_count}{RESET}                   ",     flush=True )
-        print ( f"{DULL_WHITE}{CLEAR_LINE}CLASSI:         INFO:    segment_cases():        HAS_BOTH .................................. = {MIKADO}{matched_image_rna_count}{RESET}         ",     flush=True )
-        print ( f"{DULL_WHITE}{CLEAR_LINE}CLASSI:         INFO:    segment_cases():        MULTIMODE____TEST . . . . . . . . . . . . . = {MIKADO}{multimode_case_test_count}{RESET}       ",     flush=True )
-        print ( f"{DULL_WHITE}{CLEAR_LINE}CLASSI:         INFO:    segment_cases():        UNIMODE_CASE____MATCHED . . . . . . . . . . = {MIKADO}{unimode_case_matched_count}{RESET}      ",     flush=True )
-        print ( f"{DULL_WHITE}{CLEAR_LINE}CLASSI:         INFO:    segment_cases():        UNIMODE_CASE  . . . . . . . . . . . . . . . = {MIKADO}{unimode_case_unmatched_count}{RESET}    ",     flush=True )
-        print ( f"{DULL_WHITE}{CLEAR_LINE}CLASSI:         INFO:    segment_cases():        UNIMODE_CASE____IMAGE . . . . . . . . . . . = {MIKADO}{unimode_case_image_count}{RESET}        ",     flush=True )
-        print ( f"{DULL_WHITE}{CLEAR_LINE}CLASSI:         INFO:    segment_cases():        UNIMODE_CASE____IMAGE_TEST  . . . . . . . . = {MIKADO}{unimode_case_image_test_count}{RESET}   ",     flush=True )
-        print ( f"{DULL_WHITE}{CLEAR_LINE}CLASSI:         INFO:    segment_cases():        UNIMODE_CASE____RNA . . . . . . . . . . . . = {MIKADO}{unimode_case_rna_count}{RESET}          ",     flush=True )
-        print ( f"{DULL_WHITE}{CLEAR_LINE}CLASSI:         INFO:    segment_cases():        UNIMODE_CASE____RNA_TEST  . . . . . . . . . = {MIKADO}{unimode_case_rna_test_count}{RESET}     ",     flush=True )
+      print ( f"{DULL_WHITE}{CLEAR_LINE}CLASSI:         INFO:    segment_cases():    these quantities of flags have been placed:{RESET}{CLEAR_LINE}                                      ",     flush=True )
+      print ( f"{DULL_WHITE}{CLEAR_LINE}CLASSI:         INFO:    segment_cases():        HAS_IMAGE ................................. = {MIKADO}{has_image_count}{RESET}                 ",     flush=True )
+      print ( f"{DULL_WHITE}{CLEAR_LINE}CLASSI:         INFO:    segment_cases():        HAS_RNA ................................... = {MIKADO}{has_rna_count}{RESET}                   ",     flush=True )
+      print ( f"{DULL_WHITE}{CLEAR_LINE}CLASSI:         INFO:    segment_cases():        HAS_BOTH .................................. = {MIKADO}{matched_image_rna_count}{RESET}         ",     flush=True )
+      print ( f"{DULL_WHITE}{CLEAR_LINE}CLASSI:         INFO:    segment_cases():        MULTIMODE____TEST . . . . . . . . . . . . . = {MIKADO}{multimode_case_test_count}{RESET}       ",     flush=True )
+      print ( f"{DULL_WHITE}{CLEAR_LINE}CLASSI:         INFO:    segment_cases():        UNIMODE_CASE____MATCHED . . . . . . . . . . = {MIKADO}{unimode_case_matched_count}{RESET}      ",     flush=True )
+      print ( f"{DULL_WHITE}{CLEAR_LINE}CLASSI:         INFO:    segment_cases():        UNIMODE_CASE  . . . . . . . . . . . . . . . = {MIKADO}{unimode_case_unmatched_count}{RESET}    ",     flush=True )
+      print ( f"{DULL_WHITE}{CLEAR_LINE}CLASSI:         INFO:    segment_cases():        UNIMODE_CASE____IMAGE . . . . . . . . . . . = {MIKADO}{unimode_case_image_count}{RESET}        ",     flush=True )
+      print ( f"{DULL_WHITE}{CLEAR_LINE}CLASSI:         INFO:    segment_cases():        UNIMODE_CASE____IMAGE_TEST  . . . . . . . . = {MIKADO}{unimode_case_image_test_count}{RESET}   ",     flush=True )
+      print ( f"{DULL_WHITE}{CLEAR_LINE}CLASSI:         INFO:    segment_cases():        UNIMODE_CASE____RNA . . . . . . . . . . . . = {MIKADO}{unimode_case_rna_count}{RESET}          ",     flush=True )
+      print ( f"{DULL_WHITE}{CLEAR_LINE}CLASSI:         INFO:    segment_cases():        UNIMODE_CASE____RNA_TEST  . . . . . . . . . = {MIKADO}{unimode_case_rna_test_count}{RESET}     ",     flush=True )
 
     return multimode_case_test_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case_image_count, unimode_case_image_test_count, unimode_case_rna_count, unimode_case_rna_test_count
 
@@ -6707,7 +6735,7 @@ def show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, pan
   if level=='job':
 
     now              = datetime.datetime.now()
-    fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_conf_matrix_job"
+    fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_confusion_job"
     fqn = f"{fqn[0:255]}.csv"
 
     try:
@@ -6719,7 +6747,7 @@ def show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, pan
       print ( f"{RED}CLASSI:         FATAL:     error was: {e}{RESET}" )
       sys.exit(0)    
     
-    fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_conf_matrix_job_ext"
+    fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__confusion_job_job_ext"
     fqn = f"{fqn[0:255]}.csv"
     try:
       pandas_version_ext.to_csv( fqn, sep='\t' )

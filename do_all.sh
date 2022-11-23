@@ -154,13 +154,13 @@ SKIP_IMAGE_PREPROCESSING="False"
 SKIP_RNA_PREPROCESSING="False"
 SKIP_TILING="False"                                                                                        # supported: any of the sklearn metrics
 SKIP_TRAINING="False"
-STRONG_SUPERVISION='True'                                                                                 # Convenience variable. all it does is change --extract_from_centre to 'True', '--ignore_tile_quality_hyperparameters' to 'True' and 'n_tiles' to 1 in classify.py.  Could achieve same effect the these flags separately, but may also want to othe things with those flags.
+STRONG_SUPERVISION='False'                                                                                 # Convenience variable. all it does is change --extract_from_centre to 'True', '--ignore_tile_quality_hyperparameters' to 'True' and 'n_tiles' to 1 in classify.py.  Could achieve same effect the these flags separately, but may also want to othe things with those flags.
 SUPERGRID_SIZE="2"
 TILES_PER_IMAGE="10"
 TILE_SIZE="32"
 USE_AUTOENCODER_OUTPUT="False"
 
-HIDDEN_LAYER_ENCODER_TOPOLOGY="40 20"
+HIDDEN_LAYER_ENCODER_TOPOLOGY="40 20"                                                                      # This parameter can only be used with the DEEPDENSE, AEDEEPDENSE and TTVAE models. Ignored for other models                                                             
 STAIN_NORMALIZATION='NONE'
 
 USE_UNFILTERED_DATA="True"                                                      
@@ -184,7 +184,7 @@ LOG_LEVEL=1
 
 DEBUG_LEVEL_CLASSIFY=1
 DEBUG_LEVEL_LOADER=1
-DEBUG_LEVEL_DATASET=1
+DEBUG_LEVEL_DATASET=100
 DEBUG_LEVEL_GENERATE=1
 DEBUG_LEVEL_TILER=1
 DEBUG_LEVEL_CONFIG=0

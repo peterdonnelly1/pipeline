@@ -5,22 +5,22 @@
 
 # defaults for use if user doesn't set an option
 
-BATCH_SIZE=59
-HIDDEN_LAYER_NEURONS=2100
-LEARNING_RATE=.00001
-N_EPOCHS=100
-NN_DENSE_DROPOUT_1=.20
-REPEAT=8
+BATCH=59
+HIDDEN=2100                                                                                                # Optimum value of HIDDEN_LAYER_NEURONS
+LR=.00001                                                                                                  # Optimum value of LEARNING_RATE
+DD1=.20                                                                                                    # Optimum value of NN_DENSE_DROPOUT_1
+EPOCHS=150                                                                                                 # N_EPOCHS
+REPEAT=8                                                                                                   # REPEAT
 
-while getopts H:L:o:R:7: option                                                                            # weird choice of letters is because they're the same as used in do_all.sh, where they are 5 out of dozens of parameters
+while getopts H:L:o:R:7: option                                                                            # same letters as used in do_all.sh
   do
     case "${option}"
     in
-    H) HIDDEN_LAYER_NEURONS=${OPTARG};;                                                                    
-    L) LEARNING_RATE=${OPTARG};;                                                                           
-    o) N_EPOCHS=${OPTARG};;
-    R) REPEAT=${OPTARG};; 
-    7) NN_DENSE_DROPOUT_1=${OPTARG};; 
+    H) HIDDEN=${OPTARG};;                                                                                  
+    L) LR=${OPTARG};;                                                                                       
+    o) EPOCHS=${OPTARG};;                                                                                  
+    R) REPEAT=${OPTARG};;                                                                                  
+    7) DD1=${OPTARG};;                                                                                     
     esac
   done
 
@@ -40,17 +40,18 @@ while getopts H:L:o:R:7: option                                                 
 # 
 set -x
 
-./do_all.sh -d kidn -i rna -o ${N_EPOCHS}  -b ${BATCH_SIZE} -L  ".00001 .00003 .00007 .0001 .0003 .0007 .001 .003 .007 .01" -H ${HIDDEN_LAYER_NEURONS} -7 ${NN_DENSE_DROPOUT_1}                                                                -r True N_BOX_PLOT_SHOW="False"    # Base Experiment
-./do_all.sh -d kidn -i rna -o ${N_EPOCHS}  -b ${BATCH_SIZE} -L ${LEARNING_RATE} -H "300 600 900 1200 1500 1800 2100 2400 2700 3000"                    -7 ${NN_DENSE_DROPOUT_1}                                  -X True  -g True                      N_BOX_PLOT_SHOW="False"    # Base Experiment
-./do_all.sh -d kidn -i rna -o ${N_EPOCHS}  -b ${BATCH_SIZE} -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ".00 .05 .10 .15 .20 .25 .30 .35 .40 .45"                                                          -X True  -g True                      N_BOX_PLOT_SHOW="False"    # Base Experiment
-./do_all.sh -d kidn -i rna -o ${N_EPOCHS}  -b ${BATCH_SIZE} -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ${NN_DENSE_DROPOUT_1}                                                                              -X True  -g True -R ${REPEAT}         N_BOX_PLOT_SHOW="False"    # Base Experiment
-./do_all.sh -d kidn -i rna -o ${N_EPOCHS}  -b ${BATCH_SIZE} -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ${NN_DENSE_DROPOUT_1} -I False -D just_hg38_protein_coding_genes                                                    -R ${REPEAT}         N_BOX_PLOT_SHOW="False"    # Variant 1.1
-./do_all.sh -d kidn -i rna -o ${N_EPOCHS}  -b ${BATCH_SIZE} -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ${NN_DENSE_DROPOUT_1} -I False -D pmcc_cancer_genes_of_interest                                                     -R ${REPEAT}         N_BOX_PLOT_SHOW="False"    # Variant 1.2
-./do_all.sh -d kidn -i rna -o ${N_EPOCHS}  -b ${BATCH_SIZE} -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ${NN_DENSE_DROPOUT_1} -I False -D KIDN_genes_of_interest                                                            -R ${REPEAT}         N_BOX_PLOT_SHOW="False"    # Variant 1.3
-./do_all.sh -d kidn -i rna -o ${N_EPOCHS}  -b ${BATCH_SIZE} -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ${NN_DENSE_DROPOUT_1} -4 "ADAM ADAMAX ADAGRAD ADAMW ADAMW_AMSGRAD ADADELTA ASGD RMSPROP RPROP SGD"                                       N_BOX_PLOT_SHOW="False"    # Variant 2
-./do_all.sh -d kidn -i rna -o ${N_EPOCHS}  -b ${BATCH_SIZE} -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ${NN_DENSE_DROPOUT_1} -4 "RPROP"                                                                                    -R ${REPEAT}         N_BOX_PLOT_SHOW="False"    # Variant 2
-./do_all.sh -d stad -i rna -o ${N_EPOCHS}  -b 91            -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ${NN_DENSE_DROPOUT_1}                                                                                               -R ${REPEAT} -r True N_BOX_PLOT_SHOW="False"    # Additional Experiment 1 (option 1)
-./do_all.sh -d sarc -i rna -o ${N_EPOCHS}  -b 50            -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ${NN_DENSE_DROPOUT_1}                                                                                               -R ${REPEAT} -r True N_BOX_PLOT_SHOW="False"    # Additional Experiment 1 (option 2)
-./do_all.sh -d 0008 -i rna -o ${N_EPOCHS}  -b 107           -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ${NN_DENSE_DROPOUT_1}                                                                                               -R ${REPEAT} -r True N_BOX_PLOT_SHOW="False"    # Additional Experiment 2 
-./do_all.sh -d kidn -i rna -o ${N_EPOCHS}  -b ${BATCH_SIZE} -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ${NN_DENSE_DROPOUT_1} -8 "0. .1 .2 .3 .4 .5 .6 .7 .8 .9 1.0 1.1 1.2" -9 "80 90 95"                                               -r True N_BOX_PLOT_SHOW="False"    # Variant 3 - at the end because it takes so long (39 runs)
-./do_all.sh -d kidn -i rna -o ${N_EPOCHS}  -b ${BATCH_SIZE} -L ${LEARNING_RATE} -H ${HIDDEN_LAYER_NEURONS} -7 ${NN_DENSE_DROPOUT_1} -8  0.90  -9 90                                                                               -R ${REPEAT}         N_BOX_PLOT_SHOW="False"    # Variant 3
+./do_all.sh -d kidn -i rna -o ${EPOCHS}  -b ${BATCH} -L ${LR} -H ${HIDDEN} -7 ${DD1}                                                                                           -r True -v True  BOX_PLOT_SHOW="False"    # Dummy run to regernerate the working dataset and to divide cases (-v). Ignore results.
+./do_all.sh -d kidn -i rna -o ${EPOCHS}  -b ${BATCH} -L  ".00001 .00003 .00007 .0001 .0003 .0007 .001 .003 .007 .01" -H ${HIDDEN}    -7 ${DD1}                                                  BOX_PLOT_SHOW="False"    # Base Experiment
+./do_all.sh -d kidn -i rna -o ${EPOCHS}  -b ${BATCH} -L ${LR} -H "300 600 900 1200 1500 1800 2100 2400 2700 3000"                    -7 ${DD1}   -X True  -g True                               BOX_PLOT_SHOW="False"    # Base Experiment
+./do_all.sh -d kidn -i rna -o ${EPOCHS}  -b ${BATCH} -L ${LR} -H ${HIDDEN} -7 ".00 .05 .10 .15 .20 .25 .30 .35 .40 .45"                          -X True  -g True                               BOX_PLOT_SHOW="False"    # Base Experiment
+./do_all.sh -d kidn -i rna -o ${EPOCHS}  -b ${BATCH} -L ${LR} -H ${HIDDEN} -7 ${DD1}                                                             -X True  -g True -R ${REPEAT}                  BOX_PLOT_SHOW="False"    # Base Experiment
+./do_all.sh -d kidn -i rna -o ${EPOCHS}  -b ${BATCH} -L ${LR} -H ${HIDDEN} -7 ${DD1} -I False -D just_hg38_protein_coding_genes                                   -R ${REPEAT}                  BOX_PLOT_SHOW="False"    # Variant 1.1
+./do_all.sh -d kidn -i rna -o ${EPOCHS}  -b ${BATCH} -L ${LR} -H ${HIDDEN} -7 ${DD1} -I False -D pmcc_cancer_genes_of_interest                                    -R ${REPEAT}                  BOX_PLOT_SHOW="False"    # Variant 1.2
+./do_all.sh -d kidn -i rna -o ${EPOCHS}  -b ${BATCH} -L ${LR} -H ${HIDDEN} -7 ${DD1} -I False -D KIDN_genes_of_interest                                           -R ${REPEAT}                  BOX_PLOT_SHOW="False"    # Variant 1.3
+./do_all.sh -d kidn -i rna -o ${EPOCHS}  -b ${BATCH} -L ${LR} -H ${HIDDEN} -7 ${DD1} -4 "ADAM ADAMAX ADAGRAD ADAMW ADAMW_AMSGRAD ADADELTA ASGD RMSPROP RPROP SGD"                               BOX_PLOT_SHOW="False"    # Variant 2
+./do_all.sh -d kidn -i rna -o ${EPOCHS}  -b ${BATCH} -L ${LR} -H ${HIDDEN} -7 ${DD1} -4 "RPROP"                                                                   -R ${REPEAT}                  BOX_PLOT_SHOW="False"    # Variant 2
+./do_all.sh -d stad -i rna -o ${EPOCHS}  -b 91       -L ${LR} -H ${HIDDEN} -7 ${DD1}                                                                              -R ${REPEAT} -r True          BOX_PLOT_SHOW="False"    # Additional Experiment 1 (option 1)
+./do_all.sh -d sarc -i rna -o ${EPOCHS}  -b 50       -L ${LR} -H ${HIDDEN} -7 ${DD1}                                                                              -R ${REPEAT} -r True          BOX_PLOT_SHOW="False"    # Additional Experiment 1 (option 2)
+./do_all.sh -d 0008 -i rna -o ${EPOCHS}  -b 107      -L ${LR} -H ${HIDDEN} -7 ${DD1}                                                                              -R ${REPEAT} -r True          BOX_PLOT_SHOW="False"    # Additional Experiment 2 
+./do_all.sh -d kidn -i rna -o ${EPOCHS}  -b ${BATCH} -L ${LR} -H ${HIDDEN} -7 ${DD1} -8 "0. .1 .2 .3 .4 .5 .6 .7 .8 .9 1.0 1.1 1.2" -9 "80 90 95"                              -r True          BOX_PLOT_SHOW="False"    # Variant 3 - at the end because it takes so long (39 runs)
+./do_all.sh -d kidn -i rna -o ${EPOCHS}  -b ${BATCH} -L ${LR} -H ${HIDDEN} -7 ${DD1} -8  0.90  -9 90                                                              -R ${REPEAT}                  BOX_PLOT_SHOW="False"    # Variant 3
