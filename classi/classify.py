@@ -2048,7 +2048,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
           print( f'\nCLASSI:         INFO:  {CARRIBEAN_GREEN}(RUN {run} of {total_runs_in_job}){RESET} in epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  input:{MIKADO}{input_mode}{RESET} lr:{MIKADO}{lr:<9.6f}{RESET} samples:{MIKADO}{n_samples}{RESET} batch size:{MIKADO}{batch_size}{RESET} tile size:{MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide:{MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {BOLD_MAGENTA}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
 
     
-        if 1==1:                                                                              # skip training in 'test mode'
+        if just_test=='True':                                                                              # skip training in 'test mode'
           pass
         
         # DO TRAINING (AS MANY BATCHES AS ARE NECESSARY TO WORK THROUGH EVERY EXAMPLE)
@@ -2144,12 +2144,12 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   ", end=''  )
           elif ( input_mode=='rna' ):
             print ( f"\
-  \033[4A\
+  \033[5A\
   \r\033[1C\033[2K{DULL_WHITE}\
   \r\033[27Ctest:\
   \r\033[73Craw loss_rna={BITTER_SWEET}{test_loss_genes_sum_ave:5.2f}{DULL_WHITE}\
-  \r\033[120CBATCH AVE LOSS OVER EPOCH (LOSS PER 100 EXAMPLES) = {GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave*100/batch_size:6.2f}{DULL_WHITE}\
-  \r\033[250C{BLACK if epoch<2 else WHITE}min loss: {test_lowest_total_loss_observed_so_far*100/batch_size:6.2f} at epoch {test_lowest_total_loss_observed_so_far_epoch+1:<2d}{DULL_WHITE} \
+  \r\033[120CBATCH AVE LOSS OVER EPOCH (LOSS PER 1000 EXAMPLES) = {GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave*100/batch_size:6.2f}{DULL_WHITE}\
+  \r\033[250C{BLACK if epoch<2 else WHITE}min loss: {test_lowest_total_loss_observed_so_far:6.2f} at epoch {test_lowest_total_loss_observed_so_far_epoch+1:<2d}{DULL_WHITE} \
   \033[5B\
   ", end=''  )
   
@@ -3641,7 +3641,7 @@ def train( args, epoch, train_loader, model, optimizer, loss_function, loss_type
 
 
     if DEBUG>9:
-      print( "CLASSI:         INFO:     train: about to enumerate over dataset" )
+      print( "CLASSI:         INFO:     train: about to enumerate over batches in dataset" )
     
     for i, ( batch_images, batch_genes, image_labels, rna_labels, batch_fnames ) in enumerate( train_loader ):
         
@@ -3682,12 +3682,13 @@ def train( args, epoch, train_loader, model, optimizer, loss_function, loss_type
         encoder_activation = args.encoder_activation
         
         if args.input_mode=='image':
-          y1_hat, y2_hat, embedding = model.forward( [ batch_images, 0          ,  batch_fnames] , gpu, args  )          # perform a step. y1_hat = image outputs; y2_hat = rna outputs
-          
-        elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
+          if DEBUG>9:
+            print ( f"CLASSI:         INFO:     train: batch_images.size()                = {batch_images.size}" )
+          y1_hat, y2_hat, embedding = model.forward( [ batch_images,        0   ,  batch_fnames] , gpu, args  )          # perform a step. y1_hat = image outputs; y2_hat = rna outputs
+        else:
           if DEBUG>9:
             print ( f"CLASSI:         INFO:     train: batch_genes.size()                = {batch_genes.size}" )
-          y1_hat, y2_hat, embedding = model.forward( [0,             batch_genes,  batch_fnames],  gpu, args )           # perform a step. y1_hat = image outputs; y2_hat = rna outputs
+          y1_hat, y2_hat, embedding = model.forward( [       0,      batch_genes,  batch_fnames],  gpu, args )           # perform a step. y1_hat = image outputs; y2_hat = rna outputs
 
 
         if (args.input_mode=='image'):
@@ -3721,17 +3722,15 @@ def train( args, epoch, train_loader, model, optimizer, loss_function, loss_type
               
               # ~ preds_train, p_full_softmax_matrix_train, p_highest, p_2nd_highest_train, p_true_class_train = analyse_probs( y1_hat.cpu().detach(), image_labels.cpu().detach().numpy() ) 
             
-            
-          
           if DEBUG>2:
             print ( f"CLASSI:         INFO:      test: {MAGENTA}loss_images{RESET} (for this mini-batch)  = {PURPLE}{loss_images_value:6.3f}{RESET}" )
+
         
-        if (args.input_mode=='rna') | (args.input_mode=='image_rna'):
+        else:
           if DEBUG>9:
             np.set_printoptions(formatter={'int': lambda x:   "{:>4d}".format(x)})
             rna_labels_numpy = (rna_labels.cpu().data).numpy()
             print ( "CLASSI:         INFO:      test:       rna_labels_numpy                = \n{:}".format( rna_labels_numpy  ) )
-          if DEBUG>9:
             np.set_printoptions(formatter={'float': lambda x: "{:>10.2f}".format(x)})
             y2_hat_numpy = (y2_hat.cpu().data).numpy()
             print ( "CLASSI:         INFO:      test:       y2_hat_numpy                      = \n{:}".format( y2_hat_numpy) )
@@ -3753,6 +3752,7 @@ def train( args, epoch, train_loader, model, optimizer, loss_function, loss_type
           total_loss        = loss_genes_value + l1_loss
           TL=loss_genes_value
         
+        
         if DEBUG>0:
           if ( args.input_mode=='image' ):
             offset=162
@@ -3770,13 +3770,13 @@ def train( args, epoch, train_loader, model, optimizer, loss_function, loss_type
 \r\033[40Cn={i+1:>3d}{CLEAR_LINE}\
 \r\033[73Craw loss_rna={loss_genes_value:5.2f}\
 \r\033[120CBATCH LOSS                (LOSS PER 1000 EXAMPLES) = \r\033[\
-{offset+5*int((TL*5)//1) if TL<1 else offset+6*int((TL*1)//1) if TL<12 else 250}C{PALE_GREEN if TL<1 else PALE_ORANGE if 1<=TL<2 else PALE_RED}{TL*1000/batch_size:6.1f}{RESET}" )
+{offset+5*int((TL*5)//1) if TL<1 else offset+6*int((TL*1)//1) if TL<12 else 250}C{PALE_GREEN if TL<1 else PALE_ORANGE if 1<=TL<2 else PALE_RED}{TL:6.1f}{RESET}" )
             print ( "\033[2A" )          
 
 
         if (args.input_mode=='image'):
           loss_images.backward()
-        if (args.input_mode=='rna') | (args.input_mode=='image_rna'):          
+        else:          
           loss_genes.backward()
 
         # Perform gradient clipping *before* calling `optimizer.step()`.
@@ -3786,7 +3786,7 @@ def train( args, epoch, train_loader, model, optimizer, loss_function, loss_type
         
         if (args.input_mode=='image'):
           loss_images_sum      +=  loss_images_value
-        if (args.input_mode=='rna') | (args.input_mode=='image_rna'):
+        else:
           loss_genes_sum       +=  loss_genes_value
         l1_loss_sum            +=  l1_loss
         total_loss_sum         +=  total_loss
@@ -3795,7 +3795,7 @@ def train( args, epoch, train_loader, model, optimizer, loss_function, loss_type
           del y1_hat                 
           del loss_images
           del image_labels          
-        if ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
+        else:
           del y2_hat   
           del loss_genes
           del rna_labels
@@ -4126,20 +4126,17 @@ def test( run, cfg, args, parameters, best, second_best, embeddings_accum, label
 
         if (args.input_mode=='image'):
           loss_images       = loss_function(y1_hat, image_labels)
-          loss_images_value = loss_images.item()                                                             # use .item() to extract value from tensor: don't create multiple new tensors each of which will have gradient histories
- 
+          loss_images_value = loss_images.item()                                                           # use .item() to extract value from tensor: don't create multiple new tensors each of which will have gradient histories
           if DEBUG>2:
             print ( f"CLASSI:         INFO:      test: {COQUELICOT}loss_images{RESET} (for this mini-batch)  = {PURPLE}{loss_images_value:6.3f}{RESET}" )
             time.sleep(.25)
-             
-        elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
-
+        else:
           if loss_type == 'mean_squared_error':                                                                           # autoencoders use mean squared error. The function needs to be provided with both the input and the output to calculate mean_squared_error 
             loss_genes        = loss_function( y2_hat, batch_genes.squeeze() )            
           else:
             loss_genes        = loss_function( y2_hat, rna_labels            )
 
-          loss_genes_value  = loss_genes.item()                                                              # use .item() to extract value from tensor: don't create multiple new tensors each of which will have gradient histories
+          loss_genes_value  = loss_genes.item()                                                            # use .item() to extract value from tensor: don't create multiple new tensors each of which will have gradient histories
 
 
         # ~ l1_loss          = l1_penalty(model, args.l1_coef)
@@ -4167,7 +4164,7 @@ def test( run, cfg, args, parameters, best, second_best, embeddings_accum, label
 \033[2K\r\033[27Ctest:\
 \r\033[40C{DULL_WHITE}n={i+1:>3d}{CLEAR_LINE}\
 \r\033[73Craw loss_rna={loss_genes_value:5.2f}\
-\r\033[120CBATCH LOSS                (LOSS PER 1000 EXAMPLES) = \r\033[{offset+10*int((total_loss*5)//1) if total_loss<1 else offset+16*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss*1000/batch_size:6.1f}{RESET}" )
+\r\033[120CBATCH LOSS                (LOSS PER 1000 EXAMPLES) = \r\033[{offset+10*int((total_loss*5)//1) if total_loss<1 else offset+16*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:6.1f}{RESET}" )
             print ( "\033[2A" )
 
 

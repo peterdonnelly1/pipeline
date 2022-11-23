@@ -110,7 +110,7 @@ CASES="ALL_ELIGIBLE_CASES"                                                      
 CLUSTERING="NONE"                                                                                          # Supported: 'otsne' (opentsne), 'sktsne' (sklearn t-sne), 'hdbscan', 'dbscan', 'NONE'
 DATASET="stad"
 DIVIDE_CASES="False"                                                                                       # 
-ENCODER_ACTIVATION="none"                                                                                  # (no getopts option) activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
+ENCODER_ACTIVATION="none"                                                                                  # (no getopts option) Autoencoders only ! activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
 EPSILON="0.5"                                                                                         
 GENE_DATA_NORM="GAUSSIAN"                                                                                  # supported options are NONE JUST_SCALE GAUSSIAN 
 GENE_DATA_TRANSFORM="LOG2PLUS1"                                                                            # supported options are NONE LN LOG2 LOG2PLUS1 LOG10 LOG10PLUS1 RANKED
@@ -124,7 +124,7 @@ LABEL_SWAP_PCT=0                                                                
 LEARNING_RATE=".0001"
 #~ MAKE_BALANCED="level_down"
 MAKE_BALANCED="NONE"
-MAKE_BALANCED_MARGIN=20                                                                                    # (Percentage). If MAKE_BALANCED="level_down", allw the subtype with the most slides to have this many % more tiles than the subtype with the least number of tiles
+MAKE_BALANCED_MARGIN=20                                                                                    # (Percentage). If MAKE_BALANCED="level_down", allow the subtype with the most slides to have this many % more tiles than the subtype with the least number of tiles
 MAKE_GREY_PCT="0.0"                                                                                        # (no getopts option) Proportion of tiles to convert to greyscale. Use to check effect of color on learning. 
 METRIC="manhattan"                                                                                         
 MIN_CLUSTER_SIZE="10"
@@ -149,7 +149,7 @@ PERPLEXITY="30."
 PRETRAIN="False"        
 SKIP_GENERATION="False"                                                                                    
 REGEN="False"
-REPEAT=1                                                                                    
+REPEAT=1                                                                                                   # number of times to repeat the experiment                                                                                 
 SKIP_IMAGE_PREPROCESSING="False"
 SKIP_RNA_PREPROCESSING="False"
 SKIP_TILING="False"                                                                                        # supported: any of the sklearn metrics
@@ -184,7 +184,7 @@ LOG_LEVEL=1
 
 DEBUG_LEVEL_CLASSIFY=1
 DEBUG_LEVEL_LOADER=1
-DEBUG_LEVEL_DATASET=100
+DEBUG_LEVEL_DATASET=1
 DEBUG_LEVEL_GENERATE=1
 DEBUG_LEVEL_TILER=1
 DEBUG_LEVEL_CONFIG=0

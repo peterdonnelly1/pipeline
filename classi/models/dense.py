@@ -19,7 +19,9 @@ np.set_printoptions(linewidth=50)
 class DENSE(nn.Module):
   
     def __init__( self, cfg, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, nn_dense_dropout_1, nn_dense_dropout_2  ):
-        
+
+        DEBUG=args.debug_level_algorithm       
+
         if DEBUG>6:
           print ( f"DENSE:          INFO:                 input  dimensions (n_genes)   = {MIKADO}{n_genes}{RESET}"            )  
           print ( f"DENSE:          INFO:                 hidden layer neurons          = {MIKADO}{hidden_layer_neurons}{RESET}"            )
@@ -48,7 +50,9 @@ class DENSE(nn.Module):
 # ------------------------------------------------------------------------------
 
     def encode( self, x, gpu, args ):
-    
+
+      DEBUG=args.debug_level_algorithm  
+            
       if DEBUG>999:
           print ( "DENSE:         INFO:     encode():   x.shape           = {:}".format( x.shape ) ) 
       if DEBUG>999:
@@ -65,6 +69,8 @@ class DENSE(nn.Module):
 # ------------------------------------------------------------------------------
 
     def forward( self, x, gpu, args ):
+
+        DEBUG=args.debug_level_algorithm  
 
         if DEBUG>9:
           print ( f"\033[2KDENSE:          INFO:     forward(): x.shape = {MIKADO}{x.shape}{RESET}" )

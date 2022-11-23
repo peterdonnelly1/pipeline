@@ -44,8 +44,6 @@ FIGURE_HEIGHT=8
 
 
 
-
-
 # 'pre-sets' for the five processing modes
 
 if [[ ${MODE} == "classify" ]]; then
@@ -148,7 +146,7 @@ elif [[ ${DATASET} == "sarc" ]]; then
   
 elif [[ ${DATASET} == "kidn" ]]; then
   
-  CANCER_TYPE="Kidney_Cancer"
+  CANCER_TYPE="KIDN"
   CANCER_TYPE_LONG="Kidney_Cancer"   
   STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL STAD SET & THE TARGET_TILE_COORDS COORDINATES BELOW ARE FOR IT
   TARGET_TILE_COORDS="5000 5500"
