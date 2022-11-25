@@ -1442,12 +1442,13 @@ def generate_rna_dataset ( args, class_names, target, cases_required, highest_cl
     if len(np.unique(rna_labels_new)) != len(class_names):
       print ( f"{RED}GENERATE:       FATAL: different number of cancer types represented in the cases to be trained than in the configuration parameter {CYAN}CLASS_NAMES{RESET}{RESET}"                                          ) 
       print ( f"{RED}GENERATE:       FATAL:    number of unique classes represented in the cases    = {MIKADO}{len(np.unique(rna_labels_new))}{RESET}"                                                                            ) 
-      print ( f"{RED}GENERATE:       FATAL:    classes in {CYAN}CLASS_NAMES{RESET}{RED}                               = {MIKADO}{len(class_names)}{RESET}{RED}, namely: {CYAN}{class_names}{RESET}"                ) 
-      print ( f"{BOLD}{RED}GENERATE:       FATAL: perhaps case division needs to be re-run to reflect changes made to the cases in the working directory (change to case {CYAN}-c {RESET}{BOLD}{RED}selection){RESET}" )
-      print ( f"{BOLD}{RED}GENERATE:       FATAL:    remedy: re-run the experiment with option {CYAN}-v {RESET}{BOLD}{RED} set to {CYAN}True{RESET}{BOLD}{RED} to have cases divided and flagged{RESET}" )
-      print ( f"{BOLD}{RED}GENERATE:       FATAL:                  i.e. '{CYAN}./do_all.sh -d <cancer type code> -i <input type code> ... {CHARTREUSE}-v True{RESET}{BOLD}{RED}'{RESET}" )
+      print ( f"{RED}GENERATE:       FATAL:    classes in {CYAN}CLASS_NAMES{RESET}{RED}                               = {MIKADO}{len(class_names)}{RESET}{RED}, namely: {CYAN}{class_names}{RESET}"                               ) 
+      print ( f"{BOLD}{RED}GENERATE:       FATAL: perhaps case division needs to be re-run to reflect changes made to the cases in the working directory (change to case {CYAN}-c {RESET}{BOLD}{RED}selection){RESET}"            )
+      print ( f"{BOLD}{RED}GENERATE:       FATAL:    remedy: re-run the experiment with option {CYAN}-v {RESET}{BOLD}{RED} set to {CYAN}True{RESET}{BOLD}{RED} to have cases divided and flagged{RESET}"                          )
+      print ( f"{BOLD}{RED}GENERATE:       FATAL:                  i.e. '{CYAN}./do_all.sh -d <cancer type code> -i <input type code> ... {CHARTREUSE}-v True{RESET}{BOLD}{RED}'{RESET}"                                          )
 
-      print ( f"{RED}GENERATE:       FATAL:    alternative remedy (1) include more cases to make it  more likely that examples of the missing class(es) will be represented{RESET}"      )
+      print ( f"{RED}GENERATE:       FATAL:    {RESET}"                                                                                                                                                                           )
+      print ( f"{RED}GENERATE:       FATAL:    alternative remedy (1) include more cases to make it  more likely that examples of the missing class(es) will be represented{RESET}"                                               )
       print ( f"{RED}GENERATE:       FATAL:    alternative remedy (2) edit {CYAN}CLASS_NAMES{RESET}{RED} to only include the names of classes actually represented (but be careful: the order of {CYAN}CLASS_NAMES{RESET}{RED} has to be the same as the order of the class labels as represented in the master spreadsheet {CYAN}{args.cancer_type}_mapping_file_MASTER{RESET}{RED}, and 'gaps' are not permitted" )
       print ( f"{RED}GENERATE:       FATAL: halting now ...{RESET}", flush=True)
       sys.exit(0)    
