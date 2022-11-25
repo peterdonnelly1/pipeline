@@ -9,7 +9,7 @@ BATCH=87
 HIDDEN=2100                                                                                                # Optimum value of HIDDEN_LAYER_NEURONS
 LR=.00001                                                                                                  # Optimum value of LEARNING_RATE
 DD1=.20                                                                                                    # Optimum value of NN_DENSE_DROPOUT_1
-EPOCHS=150                                                                                                 # N_EPOCHS
+EPOCHS=5                                                                                                 # N_EPOCHS
 REPEAT=1                                                                                                   # REPEAT
 
 while getopts H:L:o:R:7: option                                                                            # same letters as used in do_all.sh

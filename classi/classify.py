@@ -3544,9 +3544,8 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
 
     # (G) MAYBE PROCESS AND GENERATE AND SAVE (AND MAYBE DISPLAY) BOX PLOTS
-    
 
-    if ( args.box_plot=='True' ) & (run==total_runs_in_job):      
+    if ( args.box_plot=='True' ) & (run==total_runs_in_job) & (run>minimum_job_size):      
 
         box_plot_by_subtype( args, class_names, n_genes, run_start_time, parameters, zoom_out_mags, zoom_out_prob, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc )
 
@@ -5343,7 +5342,7 @@ def analyse_probs( y1_hat, image_labels_values ):
 
 
     if args.just_test=='True':
-      if DEBUG>0:
+      if DEBUG>9:
         np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
         print ( f"CLASSI:         INFO:      analyse_probs():               p_highest.shape                = {MIKADO}{(np.array(p_highest)).shape}{RESET}"       )
         print ( f"CLASSI:         INFO:      analyse_probs():               p_highest                      = \n{np.array(p_highest)}"                            )          
@@ -5354,7 +5353,7 @@ def analyse_probs( y1_hat, image_labels_values ):
       p_2nd_highest[i] = max( [ el for el in p_full_softmax_matrix[i,:] if el != max(p_full_softmax_matrix[i,:]) ] )
 
     if args.just_test=='True':
-      if DEBUG>0:
+      if DEBUG>9:
         np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
         print ( f"CLASSI:         INFO:      analyse_probs():               p_2nd_highest.shape            = {MIKADO}{(np.array(p_2nd_highest)).shape}{RESET}"    )
         print ( f"CLASSI:         INFO:      analyse_probs():               p_2nd_highest                  = \n{p_2nd_highest}"                                   ) 
