@@ -2042,7 +2042,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   
         if   args.input_mode=='image':
           print( f'\nCLASSI:         INFO:  {CARRIBEAN_GREEN}(RUN {run} of {total_runs_in_job}){RESET} in epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  dataset:{CYAN}{dataset}{RESET}  input:{CYAN}{input_mode}{RESET} network:{BOLD}{CYAN}{nn_type_img}{RESET}  stain norm:{MAGENTA if stain_norm=="spcn" else CYAN}{stain_norm}{RESET}  lr:{MIKADO}{lr:<9.6f}{RESET}  samples:{MIKADO}{n_samples}{RESET}  batch size:{MIKADO}{batch_size}{RESET}  tile size:{MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide:{MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {BOLD_MAGENTA}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
-        else ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
+        else:
           print( f'\nCLASSI:         INFO:  {CARRIBEAN_GREEN}(RUN {run} of {total_runs_in_job}){RESET} in epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  dataset:{CYAN}{dataset}{RESET}  input:{CYAN}{input_mode}{RESET}  lr:{MIKADO}{lr:<9.6f}{RESET}  samples:{MIKADO}{n_samples}{RESET}  batch size:{MIKADO}{batch_size}{RESET}  hidden layer neurons:{MIKADO}{hidden_layer_neurons}{RESET}  embedded dimensions:{MIKADO}{batch_size if args.use_autoencoder_output==True  else "N/A" }{RESET}.  {DULL_WHITE}will halt if test loss increases for {BOLD_MAGENTA}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
 
     
@@ -2073,7 +2073,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   \r\033[27Ctrain:\
   \r\033[49Craw loss_images={train_loss_images_sum_ave:5.2f}\
   \r\033[120CBATCH AVE LOSS {WHITE}OVER EPOCH{DULL_WHITE} (LOSS PER 1000 TILES) = {PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{train_total_loss_sum_ave*1000/batch_size:6.3f}{DULL_WHITE}\
-  \r\033[250C{BLACK if epoch<2 else WHITE}min loss: {train_lowest_total_loss_observed_so_far*1000/batch_size:>6.4f} at epoch {train_lowest_total_loss_observed_so_far_epoch+1:<2d}"
+  \r\033[251C{BLACK if epoch<2 else WHITE}min loss: {train_lowest_total_loss_observed_so_far*1000/batch_size:>6.4f} at epoch {train_lowest_total_loss_observed_so_far_epoch+1:<2d}"
   , end=''  )
             else:
               print ( f"\
@@ -2081,7 +2081,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   \r\033[27Ctrain:\
   \r\033[73Craw loss_rna={train_loss_genes_sum_ave:5.4f}\
   \r\033[120CBATCH AVE LOSS {WHITE}OVER EPOCH{DULL_WHITE} (LOSS PER 1000 EXAMPLES) = {PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{train_total_loss_sum_ave*1000/batch_size:6.3f}{DULL_WHITE}\
-  \r\033[250C{BLACK if epoch<2 else WHITE}min loss: {train_lowest_total_loss_observed_so_far*1000/batch_size:>6.4f} at epoch {train_lowest_total_loss_observed_so_far_epoch+1:<2d}"
+  \r\033[251C{BLACK if epoch<2 else WHITE}min loss: {train_lowest_total_loss_observed_so_far*1000/batch_size:>6.4f} at epoch {train_lowest_total_loss_observed_so_far_epoch+1:<2d}"
   , end=''  )
 
             if last_epoch_loss_increased == True:
@@ -2137,7 +2137,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   \r\033[27Ctest:\
   \r\033[49Craw loss_images={CARRIBEAN_GREEN}{test_loss_images_sum_ave:5.2f}{DULL_WHITE}\
   \r\033[120CBATCH AVE LOSS {WHITE}OVER EPOCH{DULL_WHITE} (LOSS PER 1000 TILES) = {GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave*1000/batch_size:6.3f}{DULL_WHITE}\
-  \r\033[250C{BLACK if epoch<2 else WHITE}min loss: {test_lowest_total_loss_observed_so_far*1000/batch_size:6.4f} at epoch {test_lowest_total_loss_observed_so_far_epoch+1:<2d}{DULL_WHITE}\
+  \r\033[251C{BLACK if epoch<2 else WHITE}min loss: {test_lowest_total_loss_observed_so_far*1000/batch_size:6.4f} at epoch {test_lowest_total_loss_observed_so_far_epoch+1:<2d}{DULL_WHITE}\
   \033[5B\
   ", end=''  )
           elif ( input_mode=='rna' ):
@@ -2147,7 +2147,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   \r\033[27Ctest:\
   \r\033[73Craw loss_rna={test_loss_genes_sum_ave:5.4f}\
   \r\033[120CBATCH AVE LOSS {WHITE}OVER EPOCH{DULL_WHITE} (LOSS PER 1000 EXAMPLES) = {GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave*1000/batch_size:6.3f}{DULL_WHITE}\
-  \r\033[250C{BLACK if epoch<2 else WHITE}min loss: {test_lowest_total_loss_observed_so_far*1000/batch_size:6.4f} at epoch {test_lowest_total_loss_observed_so_far_epoch+1:<2d}{DULL_WHITE} \
+  \r\033[251C{BLACK if epoch<2 else WHITE}min loss: {test_lowest_total_loss_observed_so_far*1000/batch_size:6.4f} at epoch {test_lowest_total_loss_observed_so_far_epoch+1:<2d}{DULL_WHITE} \
   \033[5B\
   ", end=''  )
   
