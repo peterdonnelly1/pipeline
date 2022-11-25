@@ -3000,9 +3000,10 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
            
         fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
 
-        if DEBUG>55:
+        if DEBUG>555:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nCLASSI:         INFO:       probabilities_matrix = \n{CAMEL}{probabilities_matrix}{RESET}", flush=True )
+          print ( f"\nCLASSI:         INFO:       probabilities_matrix.shape = {MIKADO}{probabilities_matrix.shape}{RESET}", flush=True )
+          print ( f"\nCLASSI:         INFO:       probabilities_matrix       = \n{CAMEL}{probabilities_matrix}{RESET}",      flush=True )
 
         true_class_prob = probabilities_matrix[ range(0, true_classes.shape[0]), true_classes ]
         pred_class_idx  = np.argmax ( probabilities_matrix, axis=1   )
@@ -3037,7 +3038,6 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         
         p1 = plt.bar( x=x_labels, height=pd_probabilities_matrix[ 'max_agg_prob' ], color=cols )  
 
-        # ~ ax = sns.barplot( x=c_id,  y=pd_probabilities_matrix[ 'max_agg_prob' ], hue=pd_probabilities_matrix['pred_class'], palette=class_colors, dodge=False )                  # in pandas, 'index' means row index
         ax.set_title   ("Input Data = RNA-Seq UQ FPKM Values;  Bar Height = Probability Assigned to *PREDICTED* Cancer Sub-type",            fontsize=16 )
         ax.set_xlabel  ("Case ID",                                                     fontsize=14 )
         ax.set_ylabel  ("Probability Assigned by Network",                             fontsize=14 )
@@ -3047,29 +3047,29 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         
         i=0
         for p in ax.patches:
-          if not np.isnan(p.get_height()):                                                                   # if it's a number, then it will be a height (y value)
+          if not np.isnan(p.get_height()):                                                                 # if it's a number, then it will be a height (y value)
             for index, row in pd_probabilities_matrix.iterrows():
               if DEBUG>555:
                 print ( f"CLASSI:         INFO:      row['max_agg_prob']                       = {CAMEL}{row['max_agg_prob']}{RESET}", flush=True )            
                 print ( f"CLASSI:         INFO:      p.get_height()                            = {CAMEL}{p.get_height()}{RESET}", flush=True )
                 print ( f"CLASSI:         INFO:      true_classes[{MIKADO}{i}{RESET}]  = {AMETHYST}{true_classes[i]}{RESET}", flush=True ) 
-              if row['max_agg_prob'] == p.get_height():                                                      # this logic is just used to map the bar back to the example (it's ugly, but couldn't come up with any other way)
+              if row['max_agg_prob'] == p.get_height():                                                    # this logic is just used to map the bar back to the example (it's ugly, but couldn't come up with any other way)
                 true_class = row['true_class']
-                if DEBUG>555:
+                if DEBUG>0:
                     print ( f"CLASSI:         INFO:      {GREEN}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< FOUND IT {RESET}",        flush=True ) 
                     print ( f"CLASSI:         INFO:      {GREEN}index                                = {RESET}{MIKADO}{index}{RESET}",                               flush=True ) 
                     print ( f"CLASSI:         INFO:      {GREEN}true class                           = {RESET}{MIKADO}{true_class}{RESET}",                          flush=True )
                     print ( f"CLASSI:         INFO:      {GREEN}class_names[row['true_class']]  = {RESET}{MIKADO}{class_names[row['true_class']]}{RESET}", flush=True )
                     print ( f"CLASSI:         INFO:      {GREEN}pred class                           = {RESET}{MIKADO}{row['pred_class'][0]}{RESET}",                flush=True )
                     print ( f"CLASSI:         INFO:      {GREEN}correct_count                        = {RESET}{MIKADO}{correct_count}{RESET}",                       flush=True )                       
-                if not class_names[row['true_class']] == row['pred_class'][0]:                          # this logic determines whether the prediction was correct or not
+                if not class_names[row['true_class']] == row['pred_class'][0]:                             # this logic determines whether the prediction was correct or not
                   ax.annotate( f"{true_class}", (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center', fontsize=8, color=pkmn_type_colors[true_class], xytext=(0, 5), textcoords='offset points')
                 else:
                   pass
             i+=1 
   
   
-        if DEBUG>8:
+        if DEBUG>0:
           print ( f"\nCLASSI:         INFO:      number correct (rna_seq_probabs_matrix) = {CHARTREUSE}{correct_count}{RESET}", flush=True )
   
         pct_correct = correct_count/n_samples
