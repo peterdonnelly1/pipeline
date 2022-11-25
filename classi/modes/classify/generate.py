@@ -1443,7 +1443,7 @@ def generate_rna_dataset ( args, class_names, target, cases_required, highest_cl
       print ( f"{RED}GENERATE:       FATAL: different number of cancer types represented in the cases to be trained than in the configuration parameter {CYAN}CLASS_NAMES{RESET}{RESET}"                                          ) 
       print ( f"{RED}GENERATE:       FATAL:    number of unique classes represented in the cases    = {MIKADO}{len(np.unique(rna_labels_new))}{RESET}"                                                                            ) 
       print ( f"{RED}GENERATE:       FATAL:    classes in {CYAN}CLASS_NAMES{RESET}{RED}                               = {MIKADO}{len(class_names)}{RESET}{RED}, namely: {CYAN}{class_names}{RESET}"                               ) 
-      print ( f"{BOLD}{RED}GENERATE:       FATAL: perhaps case division needs to be re-run to reflect changes made to the cases in the working directory (change to case {CYAN}-c {RESET}{BOLD}{RED}selection){RESET}"            )
+      print ( f"{BOLD}{RED}GENERATE:       FATAL: perhaps case division needs to be re-run to reflect changes made to the cases in the working directory (for example, changing to case {CYAN}-c {RESET}{BOLD}{RED}selection){RESET}"            )
       print ( f"{BOLD}{RED}GENERATE:       FATAL:    remedy: re-run the experiment with option {CYAN}-v {RESET}{BOLD}{RED} set to {CYAN}True{RESET}{BOLD}{RED} to have cases divided and flagged{RESET}"                          )
       print ( f"{BOLD}{RED}GENERATE:       FATAL:                  i.e. '{CYAN}./do_all.sh -d <cancer type code> -i <input type code> ... {CHARTREUSE}-v True{RESET}{BOLD}{RED}'{RESET}"                                          )
 
