@@ -2145,7 +2145,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   \033[5A\
   \r\033[1C\033[2K{DULL_WHITE}\
   \r\033[27Ctest:\
-  \r\033[73Craw loss_rna={BITTER_SWEET}{test_loss_genes_sum_ave:5.4f}{DULL_WHITE}\
+  \r\033[73Craw loss_rna={test_loss_genes_sum_ave:5.4f}\
   \r\033[120CBATCH AVE LOSS {WHITE}OVER EPOCH{DULL_WHITE} (LOSS PER 1000 EXAMPLES) = {GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave*1000/batch_size:6.3f}{DULL_WHITE}\
   \r\033[250C{BLACK if epoch<2 else WHITE}min loss: {test_lowest_total_loss_observed_so_far*1000/batch_size:6.4f} at epoch {test_lowest_total_loss_observed_so_far_epoch+1:<2d}{DULL_WHITE} \
   \033[5B\
