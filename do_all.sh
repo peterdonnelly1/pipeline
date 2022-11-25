@@ -78,8 +78,8 @@ POINTS_TO_SAMPLE=500                                                            
 
 MOMENTUM=0.8                                                                                               # for use with t-sne, if desired
 BAR_CHART_X_LABELS="case_id"                                                                               # if "case_id" use the case id as the x-axis label for bar charts, otherwise use integer sequence
-BAR_CHART_SORT_HI_LO="False"                                                                               # Some less important bar charts will be suppressed if it is set to 'False'
-BAR_CHART_SHOW_ALL="False"
+BAR_CHART_SORT_HI_LO="True"                                                                               # Some less important bar charts will be suppressed if it is set to 'False'
+BAR_CHART_SHOW_ALL="True"
 RENDER_CLUSTERING="True"
 BOX_PLOT="True"                                                                                            # If true, do a Seaborn box plot for the job (one box plot is generated per 'job', not per 'run')
 BOX_PLOT_SHOW="False"                                                                                      # If true, present the graphic using pyplot
