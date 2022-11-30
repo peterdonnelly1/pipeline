@@ -786,10 +786,10 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
           print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) case_designation_flag.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- = {MIKADO}{case_designation_flag}{RESET}",  flush=True )
           print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) cases_required .-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.- = {MIKADO}{cases_required}{RESET}",         flush=True )
 
-        global_rna_files_processed, n_genes = generate_rna_dataset ( args, class_names, target, cases_required, highest_class_number, case_designation_flag, n_genes, low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform, use_autoencoder_output )
+        global_rna_files_processed_test, n_genes = generate_rna_dataset ( args, class_names, target, cases_required, highest_class_number, case_designation_flag, n_genes, low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform, use_autoencoder_output )
   
         if DEBUG>9:
-          print ( f"{DULL_WHITE}GENERATE:       INFO:    global_rna_files_processed  (this run).-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-. = {MIKADO}{global_rna_files_processed}{RESET}{CLEAR_LINE}", flush=True )
+          print ( f"{DULL_WHITE}GENERATE:       INFO:    global_rna_files_processed_test  (this run).-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-. = {MIKADO}{global_rna_files_processed_test}{RESET}{CLEAR_LINE}", flush=True )
 
       elif args.cases == 'MULTIMODE____TEST':
 
@@ -802,10 +802,10 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
           print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) case_designation_flag .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . .. = {MIKADO}{case_designation_flag}{RESET}",  flush=True )
           print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) cases_required  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . .. = {MIKADO}{cases_required}{RESET}",         flush=True )
 
-        global_rna_files_processed, n_genes = generate_rna_dataset ( args, class_names, target, cases_required, highest_class_number, case_designation_flag, n_genes, low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform, use_autoencoder_output )
+        global_rna_files_processed_test, n_genes = generate_rna_dataset ( args, class_names, target, cases_required, highest_class_number, case_designation_flag, n_genes, low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform, use_autoencoder_output )
   
         if DEBUG>0:
-          print ( f"GENERATE:       INFO:    rna files processed  (this run) .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . . = {MIKADO}{global_rna_files_processed}{RESET}{CLEAR_LINE}", flush=True )
+          print ( f"GENERATE:       INFO:    global_rna_files_processed_test  (this run) .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . . = {MIKADO}{global_rna_files_processed_test}{RESET}{CLEAR_LINE}", flush=True )
 
       elif args.cases == 'ALL_ELIGIBLE_CASES':
 
@@ -818,10 +818,10 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
           print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) case_designation_flag +  .  +  .  +  .  +  .  +  .  +  .  +  .  +  .  +  .  +  . .. = {MIKADO}{case_designation_flag}{RESET}",  flush=True )
           print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) cases_required  +  .  +  .  +  .  +  .  +  .  +  .  +  .  +  .  +  .  +  .  +  . .. = {MIKADO}{cases_required}{RESET}",         flush=True )
 
-        global_rna_files_processed, n_genes = generate_rna_dataset ( args, class_names, target, cases_required, highest_class_number, case_designation_flag, n_genes, low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform, use_autoencoder_output )
+        global_rna_files_processed_test, n_genes = generate_rna_dataset ( args, class_names, target, cases_required, highest_class_number, case_designation_flag, n_genes, low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform, use_autoencoder_output )
   
         if DEBUG>0:
-          print ( f"GENERATE:       INFO:    rna files processed  (this run) +  .  +  .  +  .  +  .  +  .  +  .  +  .  +  . . = {MIKADO}{global_rna_files_processed}{RESET}{CLEAR_LINE}", flush=True )
+          print ( f"GENERATE:       INFO:    global_rna_files_processed_test  (this run) +  .  +  .  +  .  +  .  +  .  +  .  +  .  +  . . = {MIKADO}{global_rna_files_processed_test}{RESET}{CLEAR_LINE}", flush=True )
 
 
     else:
@@ -848,6 +848,11 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO:    (rna_train)   pct_test  (this run)............................................................. = {MIKADO}{pct_test}{RESET}",                                 flush=True )
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO:    (rna_train)   therefore cases_required (training cases = int(n_samples * (1 - pct_test ) ) .... = {MIKADO}{cases_required}{RESET}",                           flush=True )
 
+            global_rna_files_processed_train, n_genes = generate_rna_dataset ( args, class_names, target, cases_required, highest_class_number, case_designation_flag, n_genes, low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform, use_autoencoder_output )
+
+            if DEBUG>0:
+              print ( f"{WHITE}GENERATE:       INFO:    global_rna_files_processed_train  (this run)................................................. = {MIKADO}{global_rna_files_processed_train}{RESET}{CLEAR_LINE}", flush=True )
+
 
           if target=='rna_test':
             cases_required        =  test_cases
@@ -859,10 +864,11 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO:    (rna_test)    pct_test  (this run)............................................................. = {MIKADO}{pct_test}{RESET}",                                 flush=True )
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO:    (rna_test)    therefore cases_required (test cases = n_samples - training_cases) .............. = {MIKADO}{cases_required}{RESET}",                           flush=True )
   
-          global_rna_files_processed, n_genes = generate_rna_dataset ( args, class_names, target, cases_required, highest_class_number, case_designation_flag, n_genes, low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform, use_autoencoder_output )
+            global_rna_files_processed_test, n_genes = generate_rna_dataset ( args, class_names, target, cases_required, highest_class_number, case_designation_flag, n_genes, low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform, use_autoencoder_output )
+
+            if DEBUG>0:
+              print ( f"{WHITE}GENERATE:       INFO:    global_rna_files_processed_test  (this run)................................................. = {MIKADO}{global_rna_files_processed_test}{RESET}{CLEAR_LINE}", flush=True )
     
-          if DEBUG>0:
-            print ( f"{WHITE}GENERATE:       INFO:    rna files processed  (this run)................................................. = {MIKADO}{global_rna_files_processed}{RESET}{CLEAR_LINE}", flush=True )
   
 
       # (b) case_designation_flag for training set = args.cases
@@ -884,25 +890,23 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
 
 
         class_counts = np.zeros( highest_class_number+1, dtype=np.int )        
-        global_rna_files_processed, n_genes = generate_rna_dataset ( args, class_names, target, cases_required, highest_class_number, case_designation_flag, n_genes, low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform, use_autoencoder_output )
+        global_rna_files_processed_train, n_genes = generate_rna_dataset ( args, class_names, target, cases_required, highest_class_number, case_designation_flag, n_genes, low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform, use_autoencoder_output )
 
 
         if DEBUG>0:
-          print ( f"{WHITE}GENERATE:       INFO:  rna files processed  (this run)............................................. = {MIKADO}{global_rna_files_processed}{RESET}{CLEAR_LINE}", flush=True )
+          print ( f"{WHITE}GENERATE:       INFO:  global_rna_files_processed_train  (this run)............................................. = {MIKADO}{global_rna_files_processed_train}{RESET}{CLEAR_LINE}", flush=True )
 
 
-
-    if args.n_samples[0] > global_rna_files_processed:
-      print( f"{ORANGE}GENERATE:       WARNG: proposed number of samples {CYAN}N_SAMPLES{RESET}{ORANGE} ({MIKADO}{args.n_samples[0]}{ORANGE}) is greater than the number of cases processed, 'global_rna_files_processed' ( = {MIKADO}{global_rna_files_processed}{RESET}{ORANGE}){RESET}" )
-      print( f"{ORANGE}GENERATE:       WARNG: now changing {CYAN}args.n_samples[0]{ORANGE} to {MIKADO}{global_rna_files_processed}{RESET}{RESET}" )
-      print( f"{ORANGE}GENERATE:       WARNG: explanation: perhaps you specified a flag such as {CYAN}MULTIMODE____TEST{RESET}{ORANGE}, which selects a subset of the available samples, and this subset is smaller that {CYAN}{n_samples}{RESET}{ORANGE}. This is perfectly fine.{RESET}" )
-      args.n_samples[0] = global_rna_files_processed
-
-    if args.batch_size[0] > global_rna_files_processed:
-      print( f"{ORANGE}GENERATE:       WARNG: proposed batch size ({CYAN}BATCH_SIZE{RESET} = {MIKADO}{args.batch_size[0]}{RESET}{ORANGE}) is greater than the number of cases available, 'global_rna_files_processed'  ( = {MIKADO}{global_rna_files_processed}{RESET}{ORANGE})" )
-      print( f"{ORANGE}GENERATE:       WARNG: changing {CYAN}args.batch_size[0]){CYAN} to {MIKADO}{int(0.2*global_rna_files_processed)}{RESET}" )
+    # ~ if args.n_samples[0] > global_rna_files_processed_test:
+      # ~ print( f"{ORANGE}GENERATE:       WARNG: proposed number of samples {CYAN}N_SAMPLES{RESET}{ORANGE} ({MIKADO}{args.n_samples[0]}{ORANGE}) is greater than the number of cases processed, 'global_rna_files_processed_test' ( = {MIKADO}{global_rna_files_processed_test}{RESET}{ORANGE}){RESET}" )
+      # ~ print( f"{ORANGE}GENERATE:       WARNG: now changing {CYAN}args.n_samples[0]{ORANGE} to {MIKADO}{global_rna_files_processed_test}{RESET}{RESET}" )
+      # ~ print( f"{ORANGE}GENERATE:       WARNG: explanation: perhaps you specified a flag such as {CYAN}MULTIMODE____TEST{RESET}{ORANGE}, which selects a subset of the available samples, and this subset is smaller that {CYAN}{n_samples}{RESET}{ORANGE}. This is perfectly fine.{RESET}" )
+      # ~ args.n_samples[0] = global_rna_files_processed_test
+    if args.batch_size[0] > global_rna_files_processed_test:
+      print( f"{ORANGE}GENERATE:       WARNG: proposed batch size ({CYAN}BATCH_SIZE{RESET} = {MIKADO}{args.batch_size[0]}{RESET}{ORANGE}) is greater than the number of cases available, 'global_rna_files_processed_test'  ( = {MIKADO}{global_rna_files_processed_test}{RESET}{ORANGE})" )
+      print( f"{ORANGE}GENERATE:       WARNG: changing {CYAN}args.batch_size[0]){CYAN} to {MIKADO}{global_rna_files_processed_test}{RESET}" )
       print( f"{ORANGE}GENERATE:       WARNG: further comment: If you don't like this value of {CYAN}BATCH_SIZE{RESET}{ORANGE}, stop the program and provide a new value in the configuration file {MAGENTA}conf.py{RESET}")
-      batch_size = int(0.2*global_rna_files_processed)
+      batch_size = int(global_rna_files_processed_test)
 
   
   

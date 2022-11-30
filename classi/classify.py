@@ -889,7 +889,7 @@ has been set to {RESET}{BOLD_MIKADO} [ 'plane', 'car', 'bird', 'cat', 'deer', 'd
 
            
 
-  if ( ( just_test=='True')  & ( multimode!='image_rna' ) ):
+  if ( ( just_test=='True')  & (input_mode=='image' ) & ( multimode!='image_rna' ) ):
     
     if ( rand_tiles=='True'):
       print ( f"\r{BOLD_ORANGE}CLASSI:         WARNG: {CYAN}( just_test=={MIKADO}'True'{RESET}{CYAN})  & ( multimode!={MIKADO}'image_rna'{RESET}{CYAN}){BOLD_ORANGE} but user argument {CYAN}rand_tiles=={MIKADO}'True'{RESET}{BOLD_ORANGE}. It will  be changed to {MIKADO}'False'{RESET}{BOLD_ORANGE} since test mode requires sequentially generated tiles{RESET}\n\n" )
@@ -1807,9 +1807,10 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         print( f"{ORANGE}CLASSI:         INFO:  'just_test' flag is set.  About to load model state dictionary {MAGENTA}{fqn}{RESET}{CLEAR_LINE}" )
         
       try:
-        model.load_state_dict(torch.load(fqn))       
+        model.load_state_dict(torch.load(fqn))        
       except Exception as e:
         print ( f"{RED}CLASSI:         FATAL:  error when trying to load model {MAGENTA}'{fqn}'{RESET}", flush=True)    
+        print ( f"{RED}CLASSI:         FATAL:  exception was {RED}'{e}'{RESET}", flush=True)    
         if args.input_mode == 'image':
           print ( f"{RED}CLASSI:         FATAL:    explanation 1: this is a test run. ({CYAN}JUST_TEST==TRUE{RESET}{RED} (shell) or {CYAN}--just_test=='True'{RESET}{RED} (python user argument). Did you forget to train a model ?{RESET}", flush=True)
           print ( f"{RED}CLASSI:         FATAL:    explanation 2: perhaps you're using a different tile size ({CYAN}'TILE_SIZE'{RESET}{RED})than than the saved model uses{RESET}", flush=True)
@@ -2472,13 +2473,13 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         pd_aggregate_tile_probabilities_matrix                    = pd.DataFrame( aggregate_tile_probabilities_matrix )   [0:upper_bound_of_indices_to_plot_image]
         pd_aggregate_tile_probabilities_matrix.columns            = class_names
         pd_aggregate_tile_probabilities_matrix[ 'agg_prob'     ]  = np.sum(aggregate_tile_probabilities_matrix,       axis=1 )[0:upper_bound_of_indices_to_plot_image]
-        pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]  = pd_aggregate_tile_probabilities_matrix.max   (axis=1) [0:upper_bound_of_indices_to_plot_image]
+        pd_aggregate_tile_probabilities_matrix[ 'max_prob' ]  = pd_aggregate_tile_probabilities_matrix.max   (axis=1) [0:upper_bound_of_indices_to_plot_image]
         temp = pd_aggregate_tile_probabilities_matrix.iloc[:,0:len(class_names)]                           # we only want the first columns, which correspond to the probabilities for each subtype
         pd_aggregate_tile_probabilities_matrix[ 'pred_class'   ]  = temp.idxmax(axis=1)[0:upper_bound_of_indices_to_plot_image]  # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
         pd_aggregate_tile_probabilities_matrix[ 'true_class'   ]  = patches_true_classes                                  [0:upper_bound_of_indices_to_plot_image]
         pd_aggregate_tile_probabilities_matrix[ 'n_classes'    ]  = len(class_names) 
         pd_aggregate_tile_probabilities_matrix[ 'case_id'      ]  = patches_case_id                                       [0:upper_bound_of_indices_to_plot_image]
-        # ~ pd_aggregate_tile_probabilities_matrix.sort_values( by='max_agg_prob', ascending=False, ignore_index=True, inplace=True )
+        # ~ pd_aggregate_tile_probabilities_matrix.sort_values( by='max_prob', ascending=False, ignore_index=True, inplace=True )
         #fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
         
 
@@ -2486,12 +2487,12 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
           np.set_printoptions(formatter={'float': lambda x: f"{x:>3d}"})
           print ( f"\n\n\n\n\n\nCLASSI:         INFO:      upper_bound_of_indices_to_plot_image                              = {BLEU}{upper_bound_of_indices_to_plot_image}{RESET}{CLEAR_LINE}",                 flush=True      ) 
           print ( f"\nCLASSI:         INFO:      pd_aggregate_tile_probabilities_matrix[ 'case_id' ]         = \n{CHARTREUSE}{pd_aggregate_tile_probabilities_matrix[ 'case_id' ]}{RESET}{CLEAR_LINE}",          flush=True      ) 
-          print ( f"\nCLASSI:         INFO:      pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]    = \n{CHARTREUSE}{pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]}{RESET}{CLEAR_LINE}",     flush=True      )            
+          print ( f"\nCLASSI:         INFO:      pd_aggregate_tile_probabilities_matrix[ 'max_prob' ]    = \n{CHARTREUSE}{pd_aggregate_tile_probabilities_matrix[ 'max_prob' ]}{RESET}{CLEAR_LINE}",     flush=True      )            
   
         if bar_chart_x_labels=='case_id':
-          c_id = pd_aggregate_tile_probabilities_matrix[ 'case_id' ]
+          case_ids = pd_aggregate_tile_probabilities_matrix[ 'case_id' ]
         else:
-          c_id = [i for i in range(pd_aggregate_tile_probabilities_matrix.shape[0])]
+          case_ids = [i for i in range(pd_aggregate_tile_probabilities_matrix.shape[0])]
 
         if DEBUG==2:
           print ( "\033[20B" )
@@ -2506,7 +2507,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
           print ( f"\nCLASSI:         INFO:          aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot_image]  = \n{CHARTREUSE}{aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot_image]}{RESET}", flush=True )
           print ( f"\nCLASSI:         INFO: np.argmax(aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot_image] = \n{CHARTREUSE}{np.argmax(aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot_image], axis=1)}{RESET}", flush=True )
           
-        x_labels = [  str(el) for el in c_id ]
+        x_labels = [  str(el) for el in case_ids ]
         cols     = [ class_colors[el] for el in np.argmax(aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot_image], axis=1)  ]
                   
         if DEBUG>88:
@@ -2518,9 +2519,9 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         # ~ if DEBUG>0:
           # ~ print ( f"\nCLASSI:         INFO:      cols                = {MIKADO}{cols}{RESET}", flush=True )        
         
-        p1 = plt.bar( x=x_labels, height=pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ], color=cols ) 
+        p1 = plt.bar( x=x_labels, height=pd_aggregate_tile_probabilities_matrix[ 'max_prob' ], color=cols ) 
               
-        # ~ ax = sns.barplot( x=c_id,  y=pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ], hue=pd_aggregate_tile_probabilities_matrix['pred_class'], palette=class_colors, dodge=False )                  # in pandas, 'index' means row index
+        # ~ ax = sns.barplot( x=case_ids,  y=pd_aggregate_tile_probabilities_matrix[ 'max_prob' ], hue=pd_aggregate_tile_probabilities_matrix['pred_class'], palette=class_colors, dodge=False )                  # in pandas, 'index' means row index
         ax.set_title   ("Score of Predicted Subtype (sum of tile-level probabilities)",  fontsize=16 )
         ax.set_xlabel  ("Case (Patch)",                                                  fontsize=14 )
         ax.set_ylabel  ("Aggregate Probabilities",                                       fontsize=14 )
@@ -2544,10 +2545,10 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
           if not np.isnan(p.get_height()):                                                                   # if it's a number, then it will be a height (y value)
             for index, row in pd_aggregate_tile_probabilities_matrix.iterrows():
               if DEBUG>888:
-                print ( f"CLASSI:         INFO:      row['max_agg_prob']                       = {CHARTREUSE}{row['max_agg_prob']}{RESET}", flush=True )            
+                print ( f"CLASSI:         INFO:      row['max_prob']                       = {CHARTREUSE}{row['max_prob']}{RESET}", flush=True )            
                 print ( f"CLASSI:         INFO:      p.get_height()                            = {CHARTREUSE}{p.get_height()}{RESET}", flush=True )
                 print ( f"CLASSI:         INFO:      patches_true_classes[{MIKADO}{i}{RESET}]  = {CHARTREUSE}{patches_true_classes[i]}{RESET}", flush=True ) 
-              if row['max_agg_prob'] == p.get_height():                                                      # this logic is just used to map the bar back to the example (it's ugly, but couldn't come up with any other way)
+              if row['max_prob'] == p.get_height():                                                      # this logic is just used to map the bar back to the example (it's ugly, but couldn't come up with any other way)
                 true_class = row['true_class']
                 if DEBUG>888:
                     print ( f"CLASSI:         INFO:      {GREEN}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< FOUND IT {RESET}",        flush=True ) 
@@ -2618,9 +2619,9 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
           print ( f"\nCLASSI:         INFO:      pd_best_tile_probabilities_matrix[ 'case_id' ]         = \n{CHARTREUSE}{pd_best_tile_probabilities_matrix[ 'case_id' ]}{RESET}{CLEAR_LINE}",          flush=True      ) 
   
         if bar_chart_x_labels=='case_id':
-          c_id = pd_best_tile_probabilities_matrix[ 'case_id' ]
+          case_ids = pd_best_tile_probabilities_matrix[ 'case_id' ]
         else:
-          c_id = [i for i in range(pd_best_tile_probabilities_matrix.shape[0])]
+          case_ids = [i for i in range(pd_best_tile_probabilities_matrix.shape[0])]
 
         if DEBUG==2:
           print ( "\033[20B" )
@@ -2635,7 +2636,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
           print ( f"\nCLASSI:         INFO:          best_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot_image]  = \n{CHARTREUSE}{best_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot_image]}{RESET}", flush=True )
           print ( f"\nCLASSI:         INFO: np.argmax(best_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot_image] = \n{CHARTREUSE}{np.argmax(best_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot_image], axis=1)}{RESET}", flush=True )
           
-        x_labels = [  str(el) for el in c_id ]
+        x_labels = [  str(el) for el in case_ids ]
         cols     = [ class_colors[el] for el in np.argmax(best_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot_image], axis=1)  ]
                   
         if DEBUG>88:
@@ -2705,7 +2706,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
             
 
-      # case image-2: PREDICTED - WINNER TAKE ALL probabilities
+        # case image-2: PREDICTED - WINNER TAKE ALL probabilities
         
         if DEBUG>88:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
@@ -2729,9 +2730,9 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         #fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
 
         if bar_chart_x_labels=='case_id':
-          c_id = pd_aggregate_tile_level_winners_matrix[ 'case_id' ]
+          case_ids = pd_aggregate_tile_level_winners_matrix[ 'case_id' ]
         else:
-          c_id = [i for i in range(pd_aggregate_tile_probabilities_matrix.shape[0])]
+          case_ids = [i for i in range(pd_aggregate_tile_probabilities_matrix.shape[0])]
 
         if DEBUG>3:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
@@ -2745,12 +2746,12 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
           print ( f"\nCLASSI:         INFO:          aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot_image]  = \n{AMETHYST}{aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot_image]}{RESET}", flush=True )
           print ( f"\nCLASSI:         INFO: np.argmax(aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot_image] = \n{AMETHYST}{np.argmax(aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot_image], axis=1)}{RESET}", flush=True )
           
-        x_labels = [  str(el) for el in c_id ]
+        x_labels = [  str(el) for el in case_ids ]
         cols     = [ class_colors[el] for el in np.argmax(aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot_image], axis=1)  ]
                 
         p1 = plt.bar( x=x_labels, height=pd_aggregate_tile_level_winners_matrix[ 'max_tile_count' ], color=cols  )   
         
-        # ~ ax = sns.barplot( x=c_id, y=pd_aggregate_tile_level_winners_matrix[ 'max_tile_count' ], hue=pd_aggregate_tile_level_winners_matrix['pred_class'], palette=class_colors, dodge=False )                  # in pandas, 'index' means ROW index
+        # ~ ax = sns.barplot( x=case_ids, y=pd_aggregate_tile_level_winners_matrix[ 'max_tile_count' ], hue=pd_aggregate_tile_level_winners_matrix['pred_class'], palette=class_colors, dodge=False )                  # in pandas, 'index' means ROW index
         #ax.tick_params(axis='x', bottom='on', which='major',  color='lightgrey', labelsize=9,  labelcolor='lightgrey', width=1, length=6, direction = 'out')
         ax.set_title  ("Score of Predicted Subtype ('tile-winner-take-all' scoring)",  fontsize=16 )
         ax.set_xlabel ("Case (Patch)",                                              fontsize=14 )
@@ -2823,9 +2824,9 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
                 
                 
         if bar_chart_x_labels=='case_id':                                                                  # user wants case ids as labels
-          c_id = pd_aggregate_tile_probabilities_matrix[ 'case_id' ]
+          case_ids = pd_aggregate_tile_probabilities_matrix[ 'case_id' ]
         else:
-          c_id = [i for i in range( min(n_samples, total_slides_counted_test)) ]
+          case_ids = [i for i in range( min(n_samples, total_slides_counted_test)) ]
           
         for i in range ( 0, min(n_samples, total_slides_counted_test) ):
 
@@ -2834,13 +2835,13 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
           agg_prob = pd_aggregate_tile_probabilities_matrix[ 'agg_prob'][i]
           arg_max  = np.argmax( aggregate_tile_probabilities_matrix[i,:] )
-          if DEBUG>0:
-            print ( f"CLASSI:         INFO:      str(c_id[i])                                                            = {COTTON_CANDY}{str(c_id[i])}{RESET}", flush=True ) 
+          if DEBUG>222:
+            print ( f"CLASSI:         INFO:      str(case_ids[i])                                                            = {COTTON_CANDY}{str(case_ids[i])}{RESET}", flush=True ) 
             print ( f"CLASSI:         INFO:      arg_max                                                                 = {COTTON_CANDY}{arg_max}{RESET}", flush=True ) 
             print ( f"CLASSI:         INFO:      class_names[ arg_max ]                                                  = {COTTON_CANDY}{class_names[ arg_max ]}{RESET}", flush=True ) 
             print ( f"CLASSI:         INFO:      height = [ aggregate_tile_probabilities_matrix[i,arg_max] / agg_prob ]  = {COTTON_CANDY}{[ aggregate_tile_probabilities_matrix[i,arg_max] / agg_prob ]}{RESET}", flush=True ) 
 
-          x      = [ str(c_id[i]) ]
+          x      = [ str(case_ids[i]) ]
           height = [ aggregate_tile_probabilities_matrix[i,arg_max] / agg_prob ]
           color  =   class_colors[ arg_max ]
           label  =   class_names [ arg_max ]
@@ -2869,7 +2870,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         # save version to logs directory
         now = datetime.datetime.now()
               
-        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_chart_images___probs_assigned_to_TRUE_classes"
+        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_chart_images___probs_assigned_to_TRUE_CLASSES"
         fqn = f"{fqn[0:255]}.png"
         
         fig.savefig(fqn)
@@ -2906,11 +2907,11 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         class_data = [d for d in pd_aggregate_tile_probabilities_matrix]
    
         if bar_chart_x_labels=='case_id':
-          c_id = pd_aggregate_tile_probabilities_matrix[ 'case_id' ]
+          case_ids = pd_aggregate_tile_probabilities_matrix[ 'case_id' ]
         else:
-          c_id = [i for i in range(pd_aggregate_tile_probabilities_matrix.shape[0])]
+          case_ids = [i for i in range(pd_aggregate_tile_probabilities_matrix.shape[0])]
                   
-        x_labels = [  str(el) for el in c_id ]
+        x_labels = [  str(el) for el in case_ids ]
 
         bottom_bars = [0] * (len(class_names)+1)
         top_bars    = [0] * (len(class_names)+1)
@@ -2972,49 +2973,40 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         if DEBUG>55:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
           print ( f"\nCLASSI:         INFO:      probabilities_matrix                 = \n{CAMEL}{probabilities_matrix}{RESET}", flush=True )
-        if DEBUG>0:
+        if DEBUG>22:
           print ( f"\nCLASSI:         INFO:      probabilities_matrix.shape                   = {MIKADO}{probabilities_matrix.shape}{RESET}", flush=True )
 
 
         figure_width  = 20
         figure_height = 10
 
-        if args.just_test!='True':        
-          if args.cases!='ALL_ELIGIBLE_CASES':
-            upper_bound_of_indices_to_plot_rna = n_samples
-          elif args.cases!='MULTIMODE____TEST':
-            upper_bound_of_indices_to_plot_rna = cases_reserved_for_image_rna
-          else:
-            upper_bound_of_indices_to_plot_rna = n_samples
+        if args.cases!='ALL_ELIGIBLE_CASES':
+          upper_bound_of_indices_to_plot_rna = global_number_tested
+        elif args.cases!='MULTIMODE____TEST':
+          upper_bound_of_indices_to_plot_rna = cases_reserved_for_image_rna
         else:
-          upper_bound_of_indices_to_plot_rna   = n_samples
+          upper_bound_of_indices_to_plot_rna = global_number_tested
 
         if DEBUG>8:
           print ( f"\nCLASSI:         INFO:                                 n_samples                                    = {MIKADO}{n_samples}{RESET}",                                        flush=True )
           print ( f"\nCLASSI:         INFO:                                 cases_reserved_for_image_rna                 = {MIKADO}{cases_reserved_for_image_rna}{RESET}",                     flush=True )
           print ( f"\nCLASSI:         INFO:                                 upper_bound_of_indices_to_plot_rna           = {MIKADO}{upper_bound_of_indices_to_plot_rna}{RESET}\n\n\n\n\n\n  ", flush=True )
-        
 
 
-        # Case rna-1:  bar chart showing probability assigned to PREDICTED classes
-           
-        fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
-
-        if DEBUG>555:
+        if DEBUG>222:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nCLASSI:         INFO:       probabilities_matrix.shape = {MIKADO}{probabilities_matrix.shape}{RESET}", flush=True )
-          print ( f"\nCLASSI:         INFO:       probabilities_matrix       = \n{CAMEL}{probabilities_matrix}{RESET}",      flush=True )
+          print ( f"\nCLASSI:         INFO:       probabilities_matrix.shape = {BOLD_GREENBLUE}{probabilities_matrix.shape}{RESET}", flush=True )
+          print ( f"\nCLASSI:         INFO:       probabilities_matrix       = \n{BOLD_GREENBLUE}{probabilities_matrix}{RESET}",      flush=True )
 
         true_class_prob = probabilities_matrix[ range(0, true_classes.shape[0]), true_classes ]
         pred_class_idx  = np.argmax ( probabilities_matrix, axis=1   )
         correct_count   = np.sum    ( true_classes == pred_class_idx )
 
-        plt.xticks( rotation=90 )
-        probabilities_matrix=probabilities_matrix[0:n_samples,:]                                  # possibly truncate rows because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c MULTIMODE____TEST')
+        probabilities_matrix                          = probabilities_matrix[0:global_number_tested,:]                # possibly truncate rows because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c MULTIMODE____TEST')
         pd_probabilities_matrix                       = pd.DataFrame( probabilities_matrix )
         pd_probabilities_matrix.columns               = class_names
-        pd_probabilities_matrix[ 'agg_prob'        ]  = np.sum(probabilities_matrix,   axis=1 )  [0:upper_bound_of_indices_to_plot_rna]
-        pd_probabilities_matrix[ 'max_agg_prob'    ]  = pd_probabilities_matrix.max   (axis=1)   [0:upper_bound_of_indices_to_plot_rna]
+        pd_probabilities_matrix[ 'agg_prob'        ]  = np.sum( probabilities_matrix,  axis=1)   [0:upper_bound_of_indices_to_plot_rna]
+        pd_probabilities_matrix[ 'max_prob'        ]  = pd_probabilities_matrix.max   (axis=1)   [0:upper_bound_of_indices_to_plot_rna]
         pd_probabilities_matrix[ 'pred_class'      ]  = pd_probabilities_matrix.idxmax(axis=1)   [0:upper_bound_of_indices_to_plot_rna]    # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
         pd_probabilities_matrix[ 'true_class'      ]  = true_classes                             [0:upper_bound_of_indices_to_plot_rna]    # same
         pd_probabilities_matrix[ 'n_classes'       ]  = len(class_names) 
@@ -3022,69 +3014,77 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         pd_probabilities_matrix[ 'pred_class_idx'  ]  = pred_class_idx                           [0:upper_bound_of_indices_to_plot_rna]    # possibly truncate rows  because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c MULTIMODE____TEST')
         pd_probabilities_matrix[ 'true_class_prob' ]  = true_class_prob                          [0:upper_bound_of_indices_to_plot_rna]    # same
  
-        if DEBUG>0: ##################DON'T DELETE
-          print ( "\033[20B" )
+        if DEBUG>222:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nCLASSI:         INFO:       (extended) pd_probabilities_matrix {CYAN}(rna){RESET} = \n{ARYLIDE}{pd_probabilities_matrix[0:upper_bound_of_indices_to_plot_rna]}{RESET}", flush=True ) 
-  
-        if bar_chart_x_labels=='case_id':
-          c_id = pd_probabilities_matrix[ 'case_id' ]
+          print ( f"{CLEAR_LINE}CLASSI:         INFO:       pd_probabilities_matrix.shape       = {CAMEL}{pd_probabilities_matrix.shape}{RESET}",      flush=True )
+
+        if bar_chart_x_labels=='case_id':                                                                  # user option
+          case_ids = pd_probabilities_matrix[ 'case_id' ]
         else:
-          c_id = [i for i in range(pd_probabilities_matrix.shape[0])]
+          case_ids = [i for i in range(pd_probabilities_matrix.shape[0])]
 
-
-        x_labels = [  str(el) for el in c_id ]
-        cols     = [ class_colors[el] for el in  pd_probabilities_matrix[ 'pred_class_idx']  ]
+        x_labels = [ str(el) for el in case_ids ]
         
-        p1 = plt.bar( x=x_labels, height=pd_probabilities_matrix[ 'max_agg_prob' ], color=cols )  
+        
+
+        # Case rna-1:  bar chart showing probability assigned to PREDICTED classes
+           
+        fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
+
+
+        if DEBUG>222: ##################DON'T DELETE
+          pd.set_option('display.max_rows', 1000 )
+          upper_bound_of_indices_to_plot_rna = 20
+          np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
+          print ( f"\nCLASSI:         INFO:       (extended) pd_probabilities_matrix {COTTON_CANDY}(rna){RESET} = \n{ARYLIDE}{pd_probabilities_matrix[0:upper_bound_of_indices_to_plot_rna]}{RESET}", flush=True )  
+  
+
+        color    = [ class_colors[el] for el in  pd_probabilities_matrix[ 'pred_class_idx']  ]
+        height   = pd_probabilities_matrix[ 'max_prob' ]
+        
+        p1 = plt.bar( x=x_labels, height=height, color=color  )  
 
         ax.set_title   ("Input Data = RNA-Seq UQ FPKM Values;  Bar Height = Probability Assigned to *PREDICTED* Cancer Sub-type",            fontsize=16 )
         ax.set_xlabel  ("Case ID",                                                     fontsize=14 )
         ax.set_ylabel  ("Probability Assigned by Network",                             fontsize=14 )
-        ax.tick_params (axis='x', labelsize=12,   labelcolor='black')
+        ax.tick_params (axis='x', labelsize=10,   labelcolor='black')
         ax.tick_params (axis='y', labelsize=14,  labelcolor='black')
-        # ~ plt.legend( class_names,loc=2, prop={'size': 14} )        
-        
-        i=0
-        for p in ax.patches:
-          if not np.isnan(p.get_height()):                                                                 # if it's a number, then it will be a height (y value)
-            for index, row in pd_probabilities_matrix.iterrows():
-              if DEBUG>555:
-                print ( f"CLASSI:         INFO:      row['max_agg_prob']                       = {CAMEL}{row['max_agg_prob']}{RESET}", flush=True )            
-                print ( f"CLASSI:         INFO:      p.get_height()                            = {CAMEL}{p.get_height()}{RESET}", flush=True )
-                print ( f"CLASSI:         INFO:      true_classes[{MIKADO}{i}{RESET}]  = {AMETHYST}{true_classes[i]}{RESET}", flush=True ) 
-              if row['max_agg_prob'] == p.get_height():                                                    # this logic is just used to map the bar back to the example (it's ugly, but couldn't come up with any other way)
-                true_class = row['true_class']
-                if DEBUG>0:
-                    print ( f"CLASSI:         INFO:      {GREEN}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< FOUND IT {RESET}",        flush=True ) 
-                    print ( f"CLASSI:         INFO:      {GREEN}index                                = {RESET}{MIKADO}{index}{RESET}",                               flush=True ) 
-                    print ( f"CLASSI:         INFO:      {GREEN}true class                           = {RESET}{MIKADO}{true_class}{RESET}",                          flush=True )
-                    print ( f"CLASSI:         INFO:      {GREEN}class_names[row['true_class']]  = {RESET}{MIKADO}{class_names[row['true_class']]}{RESET}", flush=True )
-                    print ( f"CLASSI:         INFO:      {GREEN}pred class                           = {RESET}{MIKADO}{row['pred_class'][0]}{RESET}",                flush=True )
-                    print ( f"CLASSI:         INFO:      {GREEN}correct_count                        = {RESET}{MIKADO}{correct_count}{RESET}",                       flush=True )                       
-                if not class_names[row['true_class']] == row['pred_class'][0]:                             # this logic determines whether the prediction was correct or not
-                  ax.annotate( f"{true_class}", (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center', fontsize=8, color=pkmn_type_colors[true_class], xytext=(0, 5), textcoords='offset points')
-                else:
-                  pass
-            i+=1 
+        plt.xticks( rotation=90 )        
+        plt.legend( class_names,loc=2, prop={'size': 14} )        
+
+
+        for n in range(global_number_tested):                                                              # annotate the number of the true class at the top of the bar
+          
+          if DEBUG>222: 
+            print ( f"CLASSI:         INFO:      global_number_tested     = {COTTON_CANDY}{global_number_tested}{RESET}                        ",                        end='', flush=True ) 
+            print ( f"CLASSI:         INFO:      case_ids[{MIKADO}{n}{RESET}] = {COTTON_CANDY}{case_ids[n]}{RESET}              ",                        end='', flush=True ) 
+            print ( f"CLASSI:         INFO:      case_ids[pd_probabilities_matrix[ 'max_prob' ][{MIKADO}{n}{RESET}]       = {COTTON_CANDY}{pd_probabilities_matrix[ 'max_prob' ][n]}{RESET}",             flush=True ) 
+
+          tr_cl  = pd_probabilities_matrix[ 'true_class'][n]
+          height = pd_probabilities_matrix[  'max_prob' ][n]
+          colour = class_colors[ tr_cl ]
+          ax.annotate( f"{tr_cl}", ( n, 1.01*height),  ha='center', va='center', fontsize=10, color=colour, weight='bold'   ) 
+          
   
-  
-        if DEBUG>0:
+        if DEBUG>22:
           print ( f"\nCLASSI:         INFO:      number correct (rna_seq_probabs_matrix) = {CHARTREUSE}{correct_count}{RESET}", flush=True )
   
         pct_correct = correct_count/n_samples
         stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
         plt.figtext( 0.15, 0, stats, size=14, color="grey", style="normal" )
-  
         plt.tight_layout()
                   
+
         # ~ writer.add_figure('rna_seq__probs_assigned_to_PREDICTED_classes', fig, 0 )
         
+
         # save version to logs directory
+
         now              = datetime.datetime.now()
-              
-        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_chart_rna_seq__probs_assigned_to_PREDICTED_classes"
+        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_chart_PREDICTED_CLASSES"
         fqn = f"{fqn[0:255]}.png"
+        if DEBUG>0:
+          print ( f"CLASSI:         INFO:      about to save {MAGENTA}{fqn}{RESET} to log directory", flush=True )
         fig.savefig(fqn)
   
   
@@ -3093,58 +3093,55 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         # case rna-2:  bar chart showing probability assigned to TRUE classses
            
         fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
-        # ~ ax.set_title ( args.cancer_type_long )
               
+  
+
+        if DEBUG>222:
+          print ( f"CLASSI:         INFO:      probabilities_matrix {CYAN}(rna){RESET}  = \n{HOT_PINK}{probabilities_matrix}{RESET}", flush=True )
+          
+        if DEBUG>0:
+          pd.set_option('display.max_rows', 1000 )
+          np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
+          print ( f"\nCLASSI:         INFO:       (extended) pd_probabilities_matrix {COTTON_CANDY}(rna){RESET} = \n{ARYLIDE}{pd_probabilities_matrix[0:upper_bound_of_indices_to_plot_rna]}{RESET}", flush=True )            
+
+        true_class      = pd_probabilities_matrix[   'true_class'    ]
+        true_class_p    = pd_probabilities_matrix[ 'true_class_prob' ]
+        color           = [ class_colors[ true_class ] for true_class in pd_probabilities_matrix[   'true_class'    ]   ]
+
+        plt.bar( x=x_labels, height=true_class_p, color=color )
+
+        for n in range(global_number_tested):                                                              # annotate the number of the true class at the top of the bar
+          
+          if DEBUG>0: 
+            print ( f"CLASSI:         INFO:      global_number_tested     = {COTTON_CANDY}{global_number_tested}{RESET}                        ",                        end='', flush=True ) 
+            print ( f"CLASSI:         INFO:      case_ids[{MIKADO}{n}{RESET}] = {COTTON_CANDY}{case_ids[n]}{RESET}              ",                        end='', flush=True ) 
+            print ( f"CLASSI:         INFO:      case_ids[pd_probabilities_matrix[ 'max_prob' ][{MIKADO}{n}{RESET}]       = {COTTON_CANDY}{pd_probabilities_matrix[ 'max_prob' ][n]}{RESET}",             flush=True ) 
+
+          tr_cl          = pd_probabilities_matrix[ 'true_class'      ][n]
+          nominal_height = pd_probabilities_matrix[ 'true_class_prob' ][n]
+          plot_height    = nominal_height+0.01 if nominal_height==0 else 0.99*nominal_height if nominal_height==1 else nominal_height 
+          colour         =  'white' if (pd_probabilities_matrix[ 'pred_class_idx' ][n] ==  pd_probabilities_matrix[ 'true_class' ][n]) else class_colors[ tr_cl ]
+          ax.annotate( f"{tr_cl}", ( n, plot_height),  ha='center', va='center', fontsize=10, color=colour, weight='bold'   ) 
+          
+  
+        if DEBUG>22:
+          print ( f"\nCLASSI:         INFO:      number correct (rna_seq_probabs_matrix) = {CHARTREUSE}{correct_count}{RESET}", flush=True )
+
+
+
+        ax.set_title   ( "Input Data = RNA-Seq UQ FPKM Values;  Bar Height = Probability Assigned to *TRUE* Cancer Sub-type",            fontsize=16 )
+        ax.set_xlabel  ( "Case ID",                                                     fontsize=14 )
+        ax.set_ylabel  ( "Probability Assigned by Network",                             fontsize=14 )
+        ax.tick_params ( axis='x', labelsize=10,   labelcolor='black')
+        ax.tick_params ( axis='y', labelsize=14,   labelcolor='black')
         plt.xticks( rotation=90 )
-        
-        if bar_chart_x_labels=='case_id':
-          c_id = pd_probabilities_matrix[ 'case_id' ]
-        else:
-          c_id = [i for i in range(pd_probabilities_matrix.shape[0])]
+        plt.ylim  (0.0, 1.0)
+        plt.legend( class_names, loc=2, prop={'size':14} )
 
-        if DEBUG>88:
-          print ( f"CLASSI:         INFO:      probabilities_matrix {CYAN}(rna){RESET}  = \n{HOT_PINK}{probabilities_matrix}{RESET}", flush=True ) 
+        if DEBUG>0:
+          print ( f"CLASSI:         INFO:      class_names       = {COTTON_CANDY}{class_names}{RESET}",     flush=True ) 
+          print ( f"CLASSI:         INFO:      class_colors      = {COTTON_CANDY}{class_colors}{RESET}",    flush=True ) 
 
-        for i in range ( 0, probabilities_matrix.shape[0] ):
-          agg_prob = pd_probabilities_matrix[ 'agg_prob'][i]
-          arg_max  = np.argmax( probabilities_matrix[i,:] )
-          if DEBUG>88:
-            print ( f"CLASSI:         INFO:      arg_max                   = {COTTON_CANDY}{arg_max}{RESET}", flush=True ) 
-            print ( f"CLASSI:         INFO:      class_names[ arg_max ]    = {COTTON_CANDY}{class_names[ arg_max ]}{RESET}", flush=True ) 
-          plt.bar( x=[ str(c_id[i]) ],   height=[ probabilities_matrix[i,arg_max] / agg_prob ],  color=class_colors[ arg_max ], label=class_names[ arg_max ] )
-
-
-        # ~ ax = sns.barplot( x=c_id,  y=pd_probabilities_matrix[ 'true_class_prob' ], hue=pd_probabilities_matrix['pred_class'], palette=class_colors, dodge=False )                  # in pandas, 'index' means row index
-        ax.set_title   ("Input Data = RNA-Seq UQ FPKM Values;  Bar Height = Probability Assigned to *TRUE* Cancer Sub-type",            fontsize=16 )
-        ax.set_xlabel  ("Case ID",                                                     fontsize=14 )
-        ax.set_ylabel  ("Probability Assigned by Network",                             fontsize=14 )
-        ax.tick_params (axis='x', labelsize=8,   labelcolor='black')
-        ax.tick_params (axis='y', labelsize=14,  labelcolor='black')
-        plt.ylim        (0.0, 1.0)
-        # ~ plt.legend( class_names,loc=2, prop={'size': 14} )
-        
-        i=0
-        for p in ax.patches:
-          if not np.isnan(p.get_height()):                                                                   # if it's a number, then it will be a height (y value)
-            for index, row in pd_probabilities_matrix.iterrows():
-              if DEBUG>555:
-                print ( f"CLASSI:         INFO:      row['max_agg_prob']                       = {COQUELICOT}{row['max_agg_prob']}{RESET}", flush=True )            
-                print ( f"CLASSI:         INFO:      p.get_height()                            = {COQUELICOT}{p.get_height()}{RESET}", flush=True )
-                print ( f"CLASSI:         INFO:      true_classes[{MIKADO}{i}{RESET}]  = {COQUELICOT}{true_classes[i]}{RESET}", flush=True ) 
-              if row['max_agg_prob'] == p.get_height():                                                      # this logic is just used to map the bar back to the example (it's ugly, but couldn't come up with any other way)
-                true_class = row['true_class']
-                if DEBUG>555:
-                    print ( f"CLASSI:         INFO:      {GREEN}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< FOUND IT {RESET}",        flush=True ) 
-                    print ( f"CLASSI:         INFO:      {GREEN}index                                = {RESET}{MIKADO}{index}{RESET}",                               flush=True ) 
-                    print ( f"CLASSI:         INFO:      {GREEN}true class                           = {RESET}{MIKADO}{true_class}{RESET}",                          flush=True )
-                    print ( f"CLASSI:         INFO:      {GREEN}class_names[row['true_class']]  = {RESET}{MIKADO}{class_names[row['true_class']]}{RESET}", flush=True )
-                    print ( f"CLASSI:         INFO:      {GREEN}pred class                           = {RESET}{MIKADO}{row['pred_class'][0]}{RESET}",                flush=True )
-                    print ( f"CLASSI:         INFO:      {GREEN}correct_count                        = {RESET}{MIKADO}{correct_count}{RESET}",                       flush=True )                       
-                if not class_names[row['true_class']] == row['pred_class'][0]:                          # this logic determines whether the prediction was correct or not
-                  ax.annotate( f"{true_class}", (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center', fontsize=8, color=pkmn_type_colors[true_class], xytext=(0, 5), textcoords='offset points')
-                else:
-                  pass
-            i+=1 
   
         if DEBUG>8:
           print ( f"\nCLASSI:         INFO:      number correct (rna_seq_probabs_matrix) = {COQUELICOT}{correct_count}{RESET}", flush=True )
@@ -3158,10 +3155,15 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         writer.add_figure('rna_seq__probs_assigned_to_TRUE_classes', fig, 0 )
         
         # save version to logs directory
+        
         now              = datetime.datetime.now()
               
-        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_chart_rna_seq__probs_assigned_to_TRUE_classes"
+        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_chart_TRUE_CLASSES"
         fqn = f"{fqn[0:255]}.png"
+
+        if DEBUG>0:
+          print ( f"CLASSI:         INFO:      about to save {MAGENTA}{fqn}{RESET} to log directory", flush=True )
+
         fig.savefig(fqn)
   
   
@@ -3176,31 +3178,26 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
           print ( f"\nCLASSI:         INFO:       probabilities_matrix = \n{BLEU}{pd_probabilities_matrix}{RESET}", flush=True )
   
         plt.xticks( rotation=90 )
-        pd_probabilities_matrix[ 'pred_class_idx'  ]  = pred_class_idx  [0:n_samples]                      # possibly truncate rows  because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c MULTIMODE____TEST')
-        pd_probabilities_matrix[ 'true_class_prob' ]  = true_class_prob [0:n_samples]                      # same
-
-        
-        if bar_chart_x_labels=='case_id':
-          c_id = pd_probabilities_matrix[ 'case_id' ]
-        else:
-          c_id = [i for i in range(pd_probabilities_matrix.shape[0])]
+        pd_probabilities_matrix[ 'pred_class_idx'  ]  = pred_class_idx  [0:global_number_tested]                      # possibly truncate rows  because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c MULTIMODE____TEST')
+        pd_probabilities_matrix[ 'true_class_prob' ]  = true_class_prob [0:global_number_tested]                      # same
                   
-        x_labels    = [   str(el) for el in c_id  ]
         top_bars    = [0] * (len(class_names) + 1 )
         bottom_bars = [0] * (len(class_names) + 1 )
+        # ~ agg_prob    = pd_probabilities_matrix[ 'agg_prob'][i]
 
         for i in range ( 0, len(class_names) ):
-          top_bars    [i]   = pd_probabilities_matrix.iloc[:,i] / agg_prob
+          # ~ top_bars    [i]   = pd_probabilities_matrix.iloc[:,i] / agg_prob
+          top_bars    [i]   = pd_probabilities_matrix.iloc[:,i]
           bottom_bars [i+1] = bottom_bars[i]+top_bars[i]
           plt.bar( x=x_labels, height=top_bars[i],   bottom=bottom_bars[i], color=class_colors[i] ) 
         
         # ~ ax = pd_probabilities_matrix.iloc[0:6,0:6].plot(kind='bar', stacked=True)
-        # ~ ax = sns.barplot( x=c_id,  y=pd_probabilities_matrix, hue=pd_probabilities_matrix['pred_class'], palette=class_colors, dodge=False )                  # in pandas, 'index' means row index
+        # ~ ax = sns.barplot( x=case_ids,  y=pd_probabilities_matrix, hue=pd_probabilities_matrix['pred_class'], palette=class_colors, dodge=False )                  # in pandas, 'index' means row index
         ax.set_title   ("Input Data = RNA-Seq UQ FPKM Values;  Bar Heights = Probabilities Assigned to *EACH* Cancer Sub-type",            fontsize=16 )
         ax.set_xlabel  ("Case ID",                                                     fontsize=14 )
         ax.set_ylabel  ("Probability Assigned by Network",                             fontsize=14 )
-        ax.tick_params (axis='x', labelsize=12,   labelcolor='black')
-        ax.tick_params (axis='y', labelsize=14,  labelcolor='black')
+        ax.tick_params (axis='x', labelsize=10,   labelcolor='black')
+        ax.tick_params (axis='y', labelsize=14,   labelcolor='black')
         plt.legend( class_names,loc=2, prop={'size': 14} )
 
         if DEBUG>0:
@@ -3217,8 +3214,12 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         # save version to logs directory
         now              = datetime.datetime.now()
               
-        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_chart_rna_seq__probs_assigned_to_ALL__classes"
+        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_chart_ALL__CLASSES"
         fqn = f"{fqn[0:255]}.png"        
+
+        if DEBUG>0:
+          print ( f"CLASSI:         INFO:      about to save {MAGENTA}{fqn}{RESET} to log directory", flush=True )
+
         fig.savefig(fqn)
         
   
@@ -3317,22 +3318,22 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
               fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
               
               if bar_chart_x_labels=='case_id':                                                                # user choice for the x_lables 
-                c_id = pd_probabilities_matrix[ 'case_id' ]
+                case_ids = pd_probabilities_matrix[ 'case_id' ]
               else:
-                c_id = [i for i in range(pd_probabilities_matrix.shape[0])]
+                case_ids = [i for i in range(pd_probabilities_matrix.shape[0])]
       
-              x_labels = [  str(el) for el in c_id ]
+              x_labels = [  str(el) for el in case_ids ]
     
       
               set1 =                pd_probabilities_matrix[ 'true_class_prob' ][0:upper_bound_of_indices_to_plot_rna]                               # rna
               set2 = pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ][0:upper_bound_of_indices_to_plot_rna]                               # image
       
               if bar_chart_x_labels=='case_id':
-                c_id = pd_aggregate_tile_probabilities_matrix[ 'case_id' ]
+                case_ids = pd_aggregate_tile_probabilities_matrix[ 'case_id' ]
               else:
-                c_id = [i for i in range(pd_aggregate_tile_probabilities_matrix.shape[0])]    
+                case_ids = [i for i in range(pd_aggregate_tile_probabilities_matrix.shape[0])]    
                         
-              x_labels = [  str(el) for el in c_id ][0:upper_bound_of_indices_to_plot_rna]                                                         
+              x_labels = [  str(el) for el in case_ids ][0:upper_bound_of_indices_to_plot_rna]                                                         
     
               col0     = plt.cm.tab20b(0)
               col1     = plt.cm.Accent(7)   
@@ -4088,18 +4089,23 @@ def test( run, cfg, args, parameters, best, second_best, embeddings_accum, label
             batch_index_lo = i*batch_size
             batch_index_hi = batch_index_lo + batch_size
                                   
-            if DEBUG>88:
+            if DEBUG>22:
               print ( f"\n\n" )
               print ( f"CLASSI:         INFO:      test: batch                            = {BLEU}{i+1}{RESET}"                           )
               print ( f"CLASSI:         INFO:      test: count                            = {BLEU}{(i+1)*batch_size}{RESET}"              ) 
-              print ( f"CLASSI:         INFO:      test: probabilities_matrix.shape       = {BLEU}{probabilities_matrix.shape}{RESET}"    )                                    
               print ( f"CLASSI:         INFO:      test: p_full_softmax_matrix.shape      = {BLEU}{p_full_softmax_matrix.shape}{RESET}"   )                                    
               print ( f"CLASSI:         INFO:      test: batch_index_lo                   = {BLEU}{batch_index_lo}{RESET}"                )                                    
-              print ( f"CLASSI:         INFO:      test: batch_index_hi                   = {BLEU}{batch_index_hi}{RESET}"                )                                    
+              print ( f"CLASSI:         INFO:      test: batch_index_hi                   = {BLEU}{batch_index_hi}{RESET}"                ) 
+            if DEBUG>222:
+              print ( f"CLASSI:         INFO:      test: p_full_softmax_matrix            = {BLEU}{p_full_softmax_matrix}{RESET}"         )                                    
             
             probabilities_matrix [batch_index_lo:batch_index_hi] = p_full_softmax_matrix # + random.uniform( 0.001, 0.01)                      # 'p_full_softmax_matrix' contains probs for an entire mini-batch; 'probabilities_matrix' has enough room for all cases
             true_classes         [batch_index_lo:batch_index_hi] = rna_labels_values
             rna_case_id          [batch_index_lo:batch_index_hi] = batch_fnames_npy[0:batch_size]
+
+            if DEBUG>222:
+              print ( f"CLASSI:         INFO:      test: probabilities_matrix            = {BOLD_PURPLE}{probabilities_matrix}{RESET}"         ) 
+
   
             if DEBUG>55:
               show_last=16
@@ -4201,16 +4207,23 @@ def test( run, cfg, args, parameters, best, second_best, embeddings_accum, label
   
         torch.cuda.empty_cache()
         
-        if DEBUG>2:
+        if DEBUG>222:
           if args.input_mode == 'image':
             print ( "CLASSI:         INFO:      test:        y1_hat.shape                      = {:}".format( y1_hat_values.shape              ) )
             print ( "CLASSI:         INFO:      test:        y1_hat_values_max_indices.shape   = {:}".format( y1_hat_values_max_indices.shape  ) )
             print ( "CLASSI:         INFO:      test:        image_labels_values.shape         = {:}".format( image_labels_values.shape        ) )
           else:
             print ( "CLASSI:         INFO:      test:        y2_hat.shape                      = {:}".format( y2_hat_values.shape              ) )
+            print ( "CLASSI:         INFO:      test:        y2_hat                            = {:}".format( y2_hat_values                    ) )
             print ( "CLASSI:         INFO:      test:        y2_hat_values_max_indices.shape   = {:}".format( y2_hat_values_max_indices.shape  ) )
-            print ( "CLASSI:         INFO:      test:        rna_labels_values.shape           = {:}".format( rna_labels_values.shape        ) )
+            print ( "CLASSI:         INFO:      test:        rna_labels_values.shape           = {:}".format( rna_labels_values.shape          ) )
+        if DEBUG>222:
+          if args.input_mode == 'image':
+            print ( "CLASSI:         INFO:      test:        y1_hat                            = {:}".format( y1_hat_values                    ) )
+          else:
+            print ( "CLASSI:         INFO:      test:        y2_hat                            = {:}".format( y2_hat_values                    ) )
         
+
         number_to_display= 9 if args.dataset=='tcl' else batch_size
         np.set_printoptions(linewidth=10000)   
         np.set_printoptions(edgeitems=10000)
@@ -5304,48 +5317,54 @@ def newline(ax, p1, p2):
     return l
 
 # ------------------------------------------------------------------------------
-def analyse_probs( y1_hat, image_labels_values ):
+def analyse_probs( y_hat, image_labels_values ):
 
     DEBUG     = args.debug_level_classify
     LOG_LEVEL = args.log_level
 
     # convert output probabilities to predicted class
-    _, preds_tensor = torch.max( y1_hat, axis=1 )
+    _, preds_tensor = torch.max( y_hat, axis=1 )
 
-    if DEBUG>99:
-      y1_hat_numpy = (y1_hat.cpu().data).numpy()
-      print ( "CLASSI:         INFO:      analyse_probs():               preds_tensor.shape           = {:}".format( preds_tensor.shape    ) ) 
-      print ( "CLASSI:         INFO:      analyse_probs():               preds_tensor                 = \n{:}".format( preds_tensor      ) ) 
+    if DEBUG>222:
+      y_hat_numpy = (y_hat.cpu().data).numpy()
+      print ( "CLASSI:         INFO:      analyse_probs():               y_hat_numpy.shape           = {:}".format( y_hat_numpy.shape    ) ) 
+      print ( "CLASSI:         INFO:      analyse_probs():               y_hat_numpy                 = \n{:}".format( y_hat_numpy      ) ) 
     
 #    preds = np.squeeze( preds_tensor.cpu().numpy() )
     preds = preds_tensor.cpu().numpy()
 
-    if DEBUG>9:
+    if DEBUG>222:
+      np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
+      print ( f"CLASSI:         INFO:      analyse_probs():               preds.shape               = {BOLD_CORAL}{preds.shape}{RESET}"    )
+      print ( f"CLASSI:         INFO:      analyse_probs():               preds                     = \n{BOLD_CORAL}{preds}"  )  
+      
+
+    if DEBUG>222:
       print ( "CLASSI:         INFO:      analyse_probs():               type(preds)                  = {:}".format( type(preds)           ) )
       print ( "CLASSI:         INFO:      analyse_probs():               preds.shape                  = {:}".format( preds.shape           ) ) 
       print ( "CLASSI:         INFO:      analyse_probs():         FIRST  GROUP BELOW: preds"            ) 
-      print ( "CLASSI:         INFO:      analyse_probs():         SECOND GROUP BELOW: y1_hat_numpy.T"   )
+      print ( "CLASSI:         INFO:      analyse_probs():         SECOND GROUP BELOW: y_hat_numpy.T"   )
       np.set_printoptions(formatter={'int':   lambda x: "\033[1m{:^10d}\033[m".format(x)    }    )
       print ( preds[0:22] )
-      #np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
-      #print (  np.transpose(y1_hat_numpy[0:22,:])  )
+      np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
+      print (  np.transpose(y_hat_numpy[0:22,:])  )
 
-    p_full_softmax_matrix = functional.softmax( y1_hat, dim=1).cpu().numpy()
+    p_full_softmax_matrix = functional.softmax( y_hat, dim=1).cpu().numpy()
 
     if args.just_test=='True':
-      if DEBUG==2:
+      if DEBUG>222:
         np.set_printoptions(formatter={'float': lambda x: "{:>5.3f}".format(x)})
         print ( f"CLASSI:         INFO:      analyse_probs():               p_full_softmax_matrix          = \n{BOLD}{CAMEL}{p_full_softmax_matrix}{RESET}", flush=True )
 
     # make a vector of the HIGHEST probability (for each example in the batch)    
-    p_highest  = np.array(  [ functional.softmax( el, dim=0)[i].item() for i, el in zip(preds, y1_hat) ]   )
+    p_highest  = np.array(  [ functional.softmax( el, dim=0)[i].item() for i, el in zip(preds, y_hat) ]   )
 
 
     if args.just_test=='True':
-      if DEBUG>9:
+      if DEBUG>222:
         np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
         print ( f"CLASSI:         INFO:      analyse_probs():               p_highest.shape                = {MIKADO}{(np.array(p_highest)).shape}{RESET}"       )
-        print ( f"CLASSI:         INFO:      analyse_probs():               p_highest                      = \n{np.array(p_highest)}"                            )          
+        print ( f"CLASSI:         INFO:      analyse_probs():               p_highest                      = \n{MIKADO}{np.array(p_highest)}"                            )          
       
     # make a vector of the SECOND HIGHEST probability (for each example in the batch) (which is a bit trickier)
     p_2nd_highest = np.zeros((len(preds)))
@@ -5353,18 +5372,19 @@ def analyse_probs( y1_hat, image_labels_values ):
       p_2nd_highest[i] = max( [ el for el in p_full_softmax_matrix[i,:] if el != max(p_full_softmax_matrix[i,:]) ] )
 
     if args.just_test=='True':
-      if DEBUG>9:
+      if DEBUG>222:
         np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
-        print ( f"CLASSI:         INFO:      analyse_probs():               p_2nd_highest.shape            = {MIKADO}{(np.array(p_2nd_highest)).shape}{RESET}"    )
-        print ( f"CLASSI:         INFO:      analyse_probs():               p_2nd_highest                  = \n{p_2nd_highest}"                                   ) 
+        print ( f"CLASSI:         INFO:      analyse_probs():               p_2nd_highest.shape            = {AMETHYST}{(np.array(p_2nd_highest)).shape}{RESET}"    )
+        print ( f"CLASSI:         INFO:      analyse_probs():               p_2nd_highest                  = \n{AMETHYST}{p_2nd_highest}"                                   ) 
 
     # make a vector of the probability the network gave for the true class (for each example in the batch)
     for i in range (0, len(image_labels_values)):
       p_true_class = np.choose( image_labels_values, p_full_softmax_matrix.T)
     
-    if DEBUG>9:
+    if DEBUG>222:
       np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
-      print ( f"CLASSI:         INFO:      analyse_probs():               p_true_class              = \n{p_true_class}"  )  
+      print ( f"CLASSI:         INFO:      analyse_probs():               p_true_class.shape               = {BOLD_ASPARAGUS}{p_true_class.shape}{RESET}"    )
+      print ( f"CLASSI:         INFO:      analyse_probs():               p_true_class                     = \n{BOLD_ASPARAGUS}{p_true_class}"  )  
       
    
     return preds, p_full_softmax_matrix, p_highest, p_2nd_highest, p_true_class
