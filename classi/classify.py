@@ -3056,9 +3056,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         for n in range(global_number_tested):                                                              # annotate the number of the true class at the top of the bar
           
           if DEBUG>222: 
-            print ( f"CLASSI:         INFO:      global_number_tested     = {COTTON_CANDY}{global_number_tested}{RESET}                        ",                        end='', flush=True ) 
-            print ( f"CLASSI:         INFO:      case_ids[{MIKADO}{n}{RESET}] = {COTTON_CANDY}{case_ids[n]}{RESET}              ",                        end='', flush=True ) 
-            print ( f"CLASSI:         INFO:      case_ids[pd_probabilities_matrix[ 'max_prob' ][{MIKADO}{n}{RESET}]       = {COTTON_CANDY}{pd_probabilities_matrix[ 'max_prob' ][n]}{RESET}",             flush=True ) 
+            print ( f"CLASSI:         INFO:      global_number_tested     = {COTTON_CANDY}{global_number_tested}{RESET}   \r\033[65C case_ids[{MIKADO}{n}{RESET}] = {COTTON_CANDY}{case_ids[n]}{RESET}   \r\033[100Ccase_ids[pd_probabilities_matrix[ 'max_prob' ][{MIKADO}{n}{RESET}]       = {COTTON_CANDY}{pd_probabilities_matrix[ 'max_prob' ][n]}{RESET}",             flush=True ) 
 
           tr_cl  = pd_probabilities_matrix[ 'true_class'][n]
           height = pd_probabilities_matrix[  'max_prob' ][n]
@@ -3112,10 +3110,8 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
         for n in range(global_number_tested):                                                              # annotate the number of the true class at the top of the bar
           
-          if DEBUG>0: 
-            print ( f"CLASSI:         INFO:      global_number_tested     = {COTTON_CANDY}{global_number_tested}{RESET}                        ",                        end='', flush=True ) 
-            print ( f"CLASSI:         INFO:      case_ids[{MIKADO}{n}{RESET}] = {COTTON_CANDY}{case_ids[n]}{RESET}              ",                        end='', flush=True ) 
-            print ( f"CLASSI:         INFO:      case_ids[pd_probabilities_matrix[ 'max_prob' ][{MIKADO}{n}{RESET}]       = {COTTON_CANDY}{pd_probabilities_matrix[ 'max_prob' ][n]}{RESET}",             flush=True ) 
+          if DEBUG>222: 
+            print ( f"CLASSI:         INFO:      global_number_tested     = {COTTON_CANDY}{global_number_tested}{RESET}   \r\033[65C case_ids[{MIKADO}{n}{RESET}] = {COTTON_CANDY}{case_ids[n]}{RESET}   \r\033[100Ccase_ids[pd_probabilities_matrix[ 'max_prob' ][{MIKADO}{n}{RESET}]       = {COTTON_CANDY}{pd_probabilities_matrix[ 'max_prob' ][n]}{RESET}",             flush=True ) 
 
           tr_cl          = pd_probabilities_matrix[ 'true_class'      ][n]
           nominal_height = pd_probabilities_matrix[ 'true_class_prob' ][n]
