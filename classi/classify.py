@@ -3116,11 +3116,11 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
           if DEBUG>222: 
             print ( f"CLASSI:         INFO:      global_number_tested     = {COTTON_CANDY}{global_number_tested}{RESET}   \r\033[65C case_ids[{MIKADO}{n}{RESET}] = {COTTON_CANDY}{case_ids[n]}{RESET}   \r\033[100Ccase_ids[pd_probabilities_matrix[ 'max_prob' ][{MIKADO}{n}{RESET}]       = {COTTON_CANDY}{pd_probabilities_matrix[ 'max_prob' ][n]}{RESET}",             flush=True ) 
 
-          tr_cl          = pd_probabilities_matrix[ 'true_class'      ][n]
-          nominal_height = pd_probabilities_matrix[ 'true_class_prob' ][n]
-          plot_height    = nominal_height+0.01 if nominal_height==0 else 0.99*nominal_height if nominal_height==1 else nominal_height 
-          colour         =  'black' if (pd_probabilities_matrix[ 'pred_class_idx' ][n] ==  pd_probabilities_matrix[ 'true_class' ][n]) else class_colors[ tr_cl ]
-          ax.annotate( f"{tr_cl}", ( n, plot_height),  ha='center', va='center', fontsize=10, color=colour, weight='bold'   ) 
+          tr_cl              = pd_probabilities_matrix[ 'true_class'      ][n]
+          nominal_height     =  pd_probabilities_matrix[ 'true_class_prob' ][n]
+          annotation_height  = 0.985*nominal_height if nominal_height>=0.97 else nominal_height+0.01 
+          colour             =  'white' if nominal_height>=0.97 else class_colors[ tr_cl ]
+          ax.annotate( f"{tr_cl}", ( n, annotation_height),  ha='center', va='center', fontsize=10, color=colour, weight='bold'   ) 
           
   
         if DEBUG>22:
