@@ -2960,6 +2960,9 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
 
 
+
+
+
       # Case rna: 
     
       elif input_mode=='rna':
@@ -3005,8 +3008,8 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         probabilities_matrix                          = probabilities_matrix[0:global_number_tested,:]                # possibly truncate rows because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c MULTIMODE____TEST')
         pd_probabilities_matrix                       = pd.DataFrame( probabilities_matrix )
         pd_probabilities_matrix.columns               = class_names
+        pd_probabilities_matrix[ 'max_prob'        ]  = pd_probabilities_matrix.max   (axis=1)   [0:upper_bound_of_indices_to_plot_rna]    # make sure this comes before the 'agg_prob' column is added, or else max_prob will always be 1.0 !
         pd_probabilities_matrix[ 'agg_prob'        ]  = np.sum( probabilities_matrix,  axis=1)   [0:upper_bound_of_indices_to_plot_rna]
-        pd_probabilities_matrix[ 'max_prob'        ]  = pd_probabilities_matrix.max   (axis=1)   [0:upper_bound_of_indices_to_plot_rna]
         pd_probabilities_matrix[ 'pred_class'      ]  = pd_probabilities_matrix.idxmax(axis=1)   [0:upper_bound_of_indices_to_plot_rna]    # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
         pd_probabilities_matrix[ 'true_class'      ]  = true_classes                             [0:upper_bound_of_indices_to_plot_rna]    # same
         pd_probabilities_matrix[ 'n_classes'       ]  = len(class_names) 
@@ -3027,12 +3030,12 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         
         
 
-        # Case rna-1:  bar chart showing probability assigned to PREDICTED classes
+        # Case rna-1:  bar chart showing probability assigned to PREDICTED classes (subtypes)
            
         fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
 
 
-        if DEBUG>222: ##################DON'T DELETE
+        if DEBUG>222: ##################DON'T DELETE !!!!!
           pd.set_option('display.max_rows', 1000 )
           upper_bound_of_indices_to_plot_rna = 20
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
@@ -3088,7 +3091,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   
   
   
-        # case rna-2:  bar chart showing probability assigned to TRUE classses
+        # case rna-2:  bar chart showing probability assigned to TRUE classses (subtypes)
            
         fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
               
@@ -3116,7 +3119,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
           tr_cl          = pd_probabilities_matrix[ 'true_class'      ][n]
           nominal_height = pd_probabilities_matrix[ 'true_class_prob' ][n]
           plot_height    = nominal_height+0.01 if nominal_height==0 else 0.99*nominal_height if nominal_height==1 else nominal_height 
-          colour         =  'white' if (pd_probabilities_matrix[ 'pred_class_idx' ][n] ==  pd_probabilities_matrix[ 'true_class' ][n]) else class_colors[ tr_cl ]
+          colour         =  'black' if (pd_probabilities_matrix[ 'pred_class_idx' ][n] ==  pd_probabilities_matrix[ 'true_class' ][n]) else class_colors[ tr_cl ]
           ax.annotate( f"{tr_cl}", ( n, plot_height),  ha='center', va='center', fontsize=10, color=colour, weight='bold'   ) 
           
   
@@ -3165,7 +3168,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   
   
     
-        # case rna-3:  bar chart showing probabilities assigned to ALL classses
+        # case rna-3:  bar chart showing probabilities assigned to ALL classses (subtypes)
 
         fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
 
@@ -4578,6 +4581,7 @@ def determine_top_up_factors ( args, n_classes, class_names, n_tiles, case_desig
         print ( f"{BOLD}{RED}\033[75;0HCLASSI:       FATAL: one of the subtypes has no examples{CLEAR_LINE}",                                                                                                                              flush=True  )                                        
         print ( f"{BOLD}{RED}CLASSI:       FATAL: {CYAN}class_counts{RESET}{BOLD}{RED} are {MIKADO}{class_counts}{BOLD}{RED} for class names (subtypes) {MIKADO}{class_names}{BOLD}{RED} respectively{RESET}{CLEAR_LINE}",                 flush=True  )                                        
         print ( f"{BOLD}{RED}CLASSI:       FATAL: possible remedy (i):  it could be that all cases were allocated to just the training or just the test set. Re-run the experiment with option {CYAN}-v {RESET}{BOLD}{RED} set to {CYAN}True{RESET}{BOLD}{RED} to have cases re-divided and flagged{RESET}{CLEAR_LINE}",       flush=True  )                                        
+        print ( f"{BOLD}{RED}CLASSI:       FATAL:                       it's also possible that, by chance, no representatives of one of the smaller classes made it into the training set. Re-running with option {CYAN}-v {RESET}{BOLD}{RED} might remedy this (might need to try multiple times) {RESET}{CLEAR_LINE}",      flush=True  )                                        
         print ( f"{BOLD}{RED}CLASSI:       FATAL: possible remedy (ii): if al else failes, remove any class or classes that has only a tiny number of examples from the applicable master spreadsheet",                                    flush=True  )                                        
         print ( f"{BOLD}{RED}CLASSI:       FATAL: cannot continue - halting now{RESET}{CLEAR_LINE}" )                 
         sys.exit(0)
