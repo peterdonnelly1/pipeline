@@ -2813,10 +2813,10 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
 
         true_class_prob = aggregate_tile_probabilities_matrix[ range(0, patches_true_classes.shape[0]), patches_true_classes ]   # 'patches_true_classes' was established during test run
-        pred_class_idx  = np.argmax ( aggregate_tile_probabilities_matrix, axis=1   )
-        correct_count   = np.sum    (    patches_true_classes == pred_class_idx     )
+        pred_class  = np.argmax ( aggregate_tile_probabilities_matrix, axis=1   )
+        correct_count   = np.sum    (    patches_true_classes == pred_class     )
 
-        pd_aggregate_tile_probabilities_matrix[ 'pred_class_idx'  ]  = pred_class_idx [0:upper_bound_of_indices_to_plot_image]   # possibly truncate rows  because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c MULTIMODE____TEST')
+        pd_aggregate_tile_probabilities_matrix[ 'pred_class'  ]  = pred_class [0:upper_bound_of_indices_to_plot_image]   # possibly truncate rows  because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c MULTIMODE____TEST')
         pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ]  = true_class_prob[0:upper_bound_of_indices_to_plot_image]   # same
 
         if DEBUG>3:
@@ -2887,19 +2887,19 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
           print ( f"\nCLASSI:         INFO:       pd_aggregate_tile_probabilities_matrix = \n{BLEU}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True ) 
 
         true_class_prob = aggregate_tile_probabilities_matrix[ range(0, patches_true_classes.shape[0]), patches_true_classes ]
-        pred_class_idx  = np.argmax( aggregate_tile_probabilities_matrix, axis=1   )
-        correct_count   = np.sum( patches_true_classes == pred_class_idx )
+        pred_class  = np.argmax( aggregate_tile_probabilities_matrix, axis=1   )
+        correct_count   = np.sum( patches_true_classes == pred_class )
 
         if DEBUG>88:
           print ( f"\033[16B" )
           print ( f"\nCLASSI:         INFO:      patches_case_id                                = \n{ASPARAGUS}{patches_case_id}{RESET}",                              flush=True )  
           print ( f"\nCLASSI:         INFO:      pd_aggregate_tile_probabilities_matrix.shape   = {ASPARAGUS}{pd_aggregate_tile_probabilities_matrix.shape}{RESET}",  flush=True )                
           print ( f"\nCLASSI:         INFO:      true_class_prob                                = \n{ASPARAGUS}{true_class_prob}{RESET}",                               flush=True )
-          print ( f"\nCLASSI:         INFO:      pred_class_idx                                 = \n{ASPARAGUS}{pred_class_idx}{RESET}",                               flush=True )
+          print ( f"\nCLASSI:         INFO:      pred_class                                 = \n{ASPARAGUS}{pred_class}{RESET}",                               flush=True )
           print ( f"\nCLASSI:         INFO:      patches_true_classes                           = \n{ASPARAGUS}{patches_true_classes}{RESET}",                                 flush=True )
   
         plt.xticks( rotation=90 )
-        pd_aggregate_tile_probabilities_matrix[ 'pred_class_idx'  ]  = pred_class_idx                                        [0:upper_bound_of_indices_to_plot_image]   # possibly truncate rows  because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c MULTIMODE____TEST')
+        pd_aggregate_tile_probabilities_matrix[ 'pred_class'  ]  = pred_class                                        [0:upper_bound_of_indices_to_plot_image]   # possibly truncate rows  because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c MULTIMODE____TEST')
         pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ]  = true_class_prob                                       [0:upper_bound_of_indices_to_plot_image]   # same
         
         df = pd_aggregate_tile_probabilities_matrix
@@ -3002,19 +3002,18 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
           print ( f"\nCLASSI:         INFO:       probabilities_matrix       = \n{BOLD_GREENBLUE}{probabilities_matrix}{RESET}",      flush=True )
 
         true_class_prob = probabilities_matrix[ range(0, true_classes.shape[0]), true_classes ]
-        pred_class_idx  = np.argmax ( probabilities_matrix, axis=1   )
-        correct_count   = np.sum    ( true_classes == pred_class_idx )
+        pred_class      = np.argmax ( probabilities_matrix, axis=1   )
+        correct_count   = np.sum    ( true_classes == pred_class )
 
-        probabilities_matrix                          = probabilities_matrix[0:global_number_tested,:]                # possibly truncate rows because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c MULTIMODE____TEST')
+        probabilities_matrix                          = probabilities_matrix[0:global_number_tested,:]                                     # possibly truncate rows because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c MULTIMODE____TEST')
         pd_probabilities_matrix                       = pd.DataFrame( probabilities_matrix )
         pd_probabilities_matrix.columns               = class_names
         pd_probabilities_matrix[ 'max_prob'        ]  = pd_probabilities_matrix.max   (axis=1)   [0:upper_bound_of_indices_to_plot_rna]    # make sure this comes before the 'agg_prob' column is added, or else max_prob will always be 1.0 !
         pd_probabilities_matrix[ 'agg_prob'        ]  = np.sum( probabilities_matrix,  axis=1)   [0:upper_bound_of_indices_to_plot_rna]
-        pd_probabilities_matrix[ 'pred_class'      ]  = pd_probabilities_matrix.idxmax(axis=1)   [0:upper_bound_of_indices_to_plot_rna]    # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
         pd_probabilities_matrix[ 'true_class'      ]  = true_classes                             [0:upper_bound_of_indices_to_plot_rna]    # same
         pd_probabilities_matrix[ 'n_classes'       ]  = len(class_names) 
         pd_probabilities_matrix[ 'case_id'         ]  = rna_case_id                              [0:upper_bound_of_indices_to_plot_rna]    # same
-        pd_probabilities_matrix[ 'pred_class_idx'  ]  = pred_class_idx                           [0:upper_bound_of_indices_to_plot_rna]    # possibly truncate rows  because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c MULTIMODE____TEST')
+        pd_probabilities_matrix[ 'pred_class'  ]      = pred_class                               [0:upper_bound_of_indices_to_plot_rna]    # possibly truncate rows  because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c MULTIMODE____TEST')
         pd_probabilities_matrix[ 'true_class_prob' ]  = true_class_prob                          [0:upper_bound_of_indices_to_plot_rna]    # same
  
         if DEBUG>222:
@@ -3042,45 +3041,48 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
           print ( f"\nCLASSI:         INFO:       (extended) pd_probabilities_matrix {COTTON_CANDY}(rna){RESET} = \n{ARYLIDE}{pd_probabilities_matrix[0:upper_bound_of_indices_to_plot_rna]}{RESET}", flush=True )  
   
 
-        color    = [ class_colors[el] for el in  pd_probabilities_matrix[ 'pred_class_idx']  ]
-        height   = pd_probabilities_matrix[ 'max_prob' ]
-        
-        p1 = plt.bar( x=x_labels, height=height, color=color  )  
+        for sub in range ( 0, len(class_names) ):
+          
+          subtype       = pd_probabilities_matrix.loc[pd_probabilities_matrix['pred_class'] == sub]        # plot one subtype at a time
+          subtype_count = subtype.shape[0]
+
+          if subtype_count > 0:
+  
+            if DEBUG>0:
+              print (subtype)
+    
+            if bar_chart_x_labels=='case_id':                                                              # user option
+              case_ids = subtype[ 'case_id' ]
+            else:
+              case_ids = range(subtype_count)
+    
+            x_labs = [ str(el) for el in case_ids ]
+                      
+            p1 = plt.bar( x=x_labs, height=subtype['max_prob'] )  
+  
 
         ax.set_title   ("Input Data = RNA-Seq UQ FPKM Values;  Bar Height = Probability Assigned to *PREDICTED* Cancer Sub-type",            fontsize=16 )
         ax.set_xlabel  ("Case ID",                                                     fontsize=14 )
         ax.set_ylabel  ("Probability Assigned by Network",                             fontsize=14 )
         ax.tick_params (axis='x', labelsize=10,   labelcolor='black')
-        ax.tick_params (axis='y', labelsize=14,  labelcolor='black')
+        ax.tick_params (axis='y', labelsize=14,   labelcolor='black')
         plt.xticks( rotation=90 )        
         plt.legend( class_names,loc=2, prop={'size': 14} )        
 
-
-        for n in range(global_number_tested):                                                              # annotate the number of the true class at the top of the bar
-          
-          if DEBUG>222: 
-            print ( f"CLASSI:         INFO:      global_number_tested     = {COTTON_CANDY}{global_number_tested}{RESET}   \r\033[65C case_ids[{MIKADO}{n}{RESET}] = {COTTON_CANDY}{case_ids[n]}{RESET}   \r\033[100Ccase_ids[pd_probabilities_matrix[ 'max_prob' ][{MIKADO}{n}{RESET}]       = {COTTON_CANDY}{pd_probabilities_matrix[ 'max_prob' ][n]}{RESET}",             flush=True ) 
-
-          tr_cl  = pd_probabilities_matrix[ 'true_class'][n]
-          height = pd_probabilities_matrix[  'max_prob' ][n]
-          colour = class_colors[ tr_cl ]
-          ax.annotate( f"{tr_cl}", ( n, 1.01*height),  ha='center', va='center', fontsize=10, color=colour, weight='bold'   ) 
-          
-  
         if DEBUG>22:
           print ( f"\nCLASSI:         INFO:      number correct (rna_seq_probabs_matrix) = {CHARTREUSE}{correct_count}{RESET}", flush=True )
   
-        pct_correct = correct_count/n_samples
-        stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
-        plt.figtext( 0.15, 0, stats, size=14, color="grey", style="normal" )
+        correct_count  = np.sum( pd_probabilities_matrix[ 'true_class'      ] == pd_probabilities_matrix[ 'pred_class'      ] )
+        pct_correct    = correct_count/global_number_tested
+        correct_stats  =f"Statistics for held out test samples: correctly predicted: {correct_count}/{global_number_tested} ({100*pct_correct:2.1f}%)"
+        plt.figtext( 0.15, 0.01, correct_stats, size=14, color="grey", style="normal" )
+        
         plt.tight_layout()
                   
-
-        # ~ writer.add_figure('rna_seq__probs_assigned_to_PREDICTED_classes', fig, 0 )
+        writer.add_figure('rna_seq__probs_assigned_to_PREDICTED_classes', fig, 0 )
         
 
-        # save version to logs directory
-
+        # save graphic to logs directory
         now              = datetime.datetime.now()
         fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_chart_PREDICTED_CLASSES"
         fqn = f"{fqn[0:255]}.png"
@@ -3095,7 +3097,6 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
            
         fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
               
-  
 
         if DEBUG>222:
           print ( f"CLASSI:         INFO:      probabilities_matrix {CYAN}(rna){RESET}  = \n{HOT_PINK}{probabilities_matrix}{RESET}", flush=True )
@@ -3105,28 +3106,29 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
           print ( f"\nCLASSI:         INFO:       (extended) pd_probabilities_matrix {COTTON_CANDY}(rna){RESET} = \n{ARYLIDE}{pd_probabilities_matrix[0:upper_bound_of_indices_to_plot_rna]}{RESET}", flush=True )            
 
-        true_class      = pd_probabilities_matrix[   'true_class'    ]
-        true_class_p    = pd_probabilities_matrix[ 'true_class_prob' ]
-        color           = [ class_colors[ true_class ] for true_class in pd_probabilities_matrix[   'true_class'    ]   ]
 
-        plt.bar( x=x_labels, height=true_class_p, color=color )
-
-        for n in range(global_number_tested):                                                              # annotate the number of the true class at the top of the bar
+        for sub in range ( 0, len(class_names) ):
           
-          if DEBUG>222: 
-            print ( f"CLASSI:         INFO:      global_number_tested     = {COTTON_CANDY}{global_number_tested}{RESET}   \r\033[65C case_ids[{MIKADO}{n}{RESET}] = {COTTON_CANDY}{case_ids[n]}{RESET}   \r\033[100Ccase_ids[pd_probabilities_matrix[ 'max_prob' ][{MIKADO}{n}{RESET}]       = {COTTON_CANDY}{pd_probabilities_matrix[ 'max_prob' ][n]}{RESET}",             flush=True ) 
+          subtype = pd_probabilities_matrix.loc[pd_probabilities_matrix['true_class'] == sub]              # plot one subtype at a time
+          subtype_count = subtype.shape[0]
 
-          tr_cl              = pd_probabilities_matrix[ 'true_class'      ][n]
-          nominal_height     =  pd_probabilities_matrix[ 'true_class_prob' ][n]
-          annotation_height  = 0.985*nominal_height if nominal_height>=0.97 else nominal_height+0.01 
-          colour             =  'white' if nominal_height>=0.97 else class_colors[ tr_cl ]
-          ax.annotate( f"{tr_cl}", ( n, annotation_height),  ha='center', va='center', fontsize=10, color=colour, weight='bold'   ) 
+          if subtype_count > 0:
+  
+            if DEBUG>0:
+              print (subtype)
+    
+            if bar_chart_x_labels=='case_id':                                                              # user option
+              case_ids = subtype[ 'case_id' ]
+            else:
+              case_ids = range(subtype_count)
+    
+            x_labs = [ str(el) for el in case_ids ]
+                      
+            p2 = plt.bar( x=x_labs, height=subtype['true_class_prob'] ) 
           
   
         if DEBUG>22:
           print ( f"\nCLASSI:         INFO:      number correct (rna_seq_probabs_matrix) = {CHARTREUSE}{correct_count}{RESET}", flush=True )
-
-
 
         ax.set_title   ( "Input Data = RNA-Seq UQ FPKM Values;  Bar Height = Probability Assigned to *TRUE* Cancer Sub-type",            fontsize=16 )
         ax.set_xlabel  ( "Case ID",                                                     fontsize=14 )
@@ -3136,25 +3138,19 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         plt.xticks( rotation=90 )
         plt.ylim  (0.0, 1.0)
         plt.legend( class_names, loc=2, prop={'size':14} )
+        
 
         if DEBUG>0:
           print ( f"CLASSI:         INFO:      class_names       = {COTTON_CANDY}{class_names}{RESET}",     flush=True ) 
           print ( f"CLASSI:         INFO:      class_colors      = {COTTON_CANDY}{class_colors}{RESET}",    flush=True ) 
 
   
-        if DEBUG>8:
-          print ( f"\nCLASSI:         INFO:      number correct (rna_seq_probabs_matrix) = {COQUELICOT}{correct_count}{RESET}", flush=True )
-  
-        pct_correct = correct_count/n_samples
-        stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
-        plt.figtext( 0.15, 0, stats, size=14, color="grey", style="normal" )
-  
+        plt.figtext( 0.15, 0.01, correct_stats, size=14, color="grey", style="normal" )  
         plt.tight_layout()
                   
         writer.add_figure('rna_seq__probs_assigned_to_TRUE_classes', fig, 0 )
         
-        # save version to logs directory
-        
+        # save graphic to logs directory
         now              = datetime.datetime.now()
               
         fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_chart_TRUE_CLASSES"
@@ -3177,7 +3173,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
           print ( f"\nCLASSI:         INFO:       probabilities_matrix = \n{BLEU}{pd_probabilities_matrix}{RESET}", flush=True )
   
         plt.xticks( rotation=90 )
-        pd_probabilities_matrix[ 'pred_class_idx'  ]  = pred_class_idx  [0:global_number_tested]                      # possibly truncate rows  because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c MULTIMODE____TEST')
+        pd_probabilities_matrix[ 'pred_class'  ]  = pred_class  [0:global_number_tested]                      # possibly truncate rows  because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c MULTIMODE____TEST')
         pd_probabilities_matrix[ 'true_class_prob' ]  = true_class_prob [0:global_number_tested]                      # same
                   
         top_bars    = [0] * (len(class_names) + 1 )
@@ -3198,19 +3194,14 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         ax.tick_params (axis='x', labelsize=10,   labelcolor='black')
         ax.tick_params (axis='y', labelsize=14,   labelcolor='black')
         plt.legend( class_names,loc=2, prop={'size': 14} )
+  
 
-        if DEBUG>0:
-          print ( f"\nCLASSI:         INFO:      number correct (pd_probabilities_matrix) = {COQUELICOT}{correct_count}{RESET}", flush=True )
-  
-        pct_correct = correct_count/n_samples
-        stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
-        plt.figtext( 0.15, 0, stats, size=14, color="grey", style="normal" )
-  
+        plt.figtext( 0.15, 0.01, correct_stats, size=14, color="grey", style="normal" )
         plt.tight_layout()
       
         writer.add_figure('rna_seq__probs_assigned_to_ALL__classes', fig, 0 )
         
-        # save version to logs directory
+        # save graphic to logs directory
         now              = datetime.datetime.now()
               
         fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_chart_ALL__CLASSES"
