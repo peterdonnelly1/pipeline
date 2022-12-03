@@ -119,6 +119,7 @@ class pre_compressConfig(Config):
         print( f"{BOLD}{RED}P_C_CONFIG:         FATAL:  'get_image_net()' Sorry, there is no neural network model called: '{nn_type_img}' ... halting now.{RESET}" )        
         sys.exit(0)
 
+
 # ------------------------------------------------------------------------------
 
     def get_genes_net( self, args, gpu, rank, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, nn_dense_dropout_1, nn_dense_dropout_2  ):
@@ -131,22 +132,24 @@ class pre_compressConfig(Config):
 
       if nn_type_rna=='DENSE':
         return DENSE           ( self, args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, nn_dense_dropout_1, nn_dense_dropout_2 )
+      if nn_type_rna=='DEEPDENSE':
+        return DEEPDENSE       ( self, args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, nn_dense_dropout_1, nn_dense_dropout_2 )
       elif nn_type_rna=='CONV1D':
-        return CONV1D(self)
+        return CONV1D          ( self, args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, nn_dense_dropout_1, nn_dense_dropout_2 )
       elif nn_type_rna=='DENSEPOSITIVE':
-        return DENSEPOSITIVE   ( self, args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, nn_dense_dropout_1, nn_dense_dropout_2  )
+        return DENSEPOSITIVE   ( self, args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, nn_dense_dropout_1, nn_dense_dropout_2 )
       elif nn_type_rna=='DCGANAE128':
-        return DCGANAE128      ( self, args, gpu, rank, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, nn_dense_dropout_1, nn_dense_dropout_2)
+        return DCGANAE128      (self)
       elif nn_type_rna=='AELINEAR':
-        return AELINEAR        ( self, args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, nn_dense_dropout_1, nn_dense_dropout_2  )
+        return AELINEAR        ( self, args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, nn_dense_dropout_1, nn_dense_dropout_2 )
       elif nn_type_rna=='AEDENSE':
-        return AEDENSE         ( self, args, gpu, rank, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, nn_dense_dropout_1, nn_dense_dropout_2  )
+        return AEDENSE         ( self, args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, nn_dense_dropout_1, nn_dense_dropout_2 )
       elif nn_type_rna=='AEDENSEPOSITIVE':
-        return AEDENSEPOSITIVE ( self, args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, nn_dense_dropout_1, nn_dense_dropout_2  )
+        return AEDENSEPOSITIVE ( self, args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, nn_dense_dropout_1, nn_dense_dropout_2 )
       elif nn_type_rna=='AEDEEPDENSE':
         return AEDEEPDENSE     ( self, args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, nn_dense_dropout_1, nn_dense_dropout_2 )
       elif nn_type_rna=='TTVAE':
-        ret = TTVAE            ( self, args, gpu, rank, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, nn_dense_dropout_1, nn_dense_dropout_2   )
+        return TTVAE           ( self, args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, nn_dense_dropout_1, nn_dense_dropout_2   )
         if args.ddp == 'True':
           if DEBUG>0:
             print ( f"{BRIGHT_GREEN}P_C_CONFIG:     INFO:   DDP{YELLOW}[{gpu}] {RESET}{BRIGHT_GREEN}! about to wrap model for multi-GPU processing:{RESET}" )      
@@ -155,9 +158,13 @@ class pre_compressConfig(Config):
           return DDP(  ret.to(rank),  device_ids=[rank], find_unused_parameters=True )                     # wrap for parallel processing
         else:
           return ret
-      else:
-        print( f"\033[31;1mP_C_CONFIG:         FATAL:  'get_genes_net()' Sorry, there is no neural network model called: '{nn_type_rna}' ... halting now.{RESET}" )
-        exit(0)
+      else: 
+        print( f"{BOLD}{RED}CONFIG:              FATAL:  sorry, there is no neural network model named: '{CYAN}{nn_type_rna}{RESET}{RED}'{RESET}" )        
+        print( f"{BOLD}{RED}CONFIG:                      available rna-seq classifier models:{RESET}{CYAN} DENSE, DEEPDENSE, CONV1D, DENSEPOSITIVE{RESET}" )        
+        print( f"{BOLD}{RED}CONFIG:                      available rna-seq autoencoders:     {RESET}{CYAN} AELINEAR, AEDENSE, AEDENSEPOSITIVE, AEDEEPDENSE, TTVAE, DCGANAE128{RESET}" )        
+        print( f"{BOLD}{RED}CONFIG:                      ... halting now.{RESET}" )        
+        sys.exit(0)
+        
 # ------------------------------------------------------------------------------
 
     def get_dataset( self, args, which_dataset, gpu ):
