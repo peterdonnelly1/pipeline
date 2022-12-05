@@ -89,7 +89,8 @@ class TTVAE( nn.Module) :
   torch.set_printoptions( sci_mode  = False )
 
 
-  def __init__( self, cfg, args, gpu, rank, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, nn_dense_dropout_1, nn_dense_dropout_2    ):
+  def __init__( self, cfg, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, nn_dense_dropout_1, nn_dense_dropout_2    ):
+    
     
 #    cuda=False
     cuda=True # PGD
