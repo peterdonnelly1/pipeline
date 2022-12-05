@@ -40,18 +40,19 @@ class AEDENSE(nn.Module):
   
 # ------------------------------------------------------------------------------
 
-  def encode(self, x, gpu, args ):
+  def encode(self, args, x, input_mode, gpu, encoder_activation ):
      
     if DEBUG>99:
       print ( f"AEDENSE:        INFO:       encode(): x.shape   = {MIKADO}{x.shape}{RESET}", flush=True   ) 
 
+
     # ~ if args.encoder_activation=='none':
       # ~ z =  self.fc1(x)
-    if args.encoder_activation=='sigmoid':
+    if encoder_activation=='sigmoid':
       z =  sigmoid(self.fc1(x))
-    if args.encoder_activation=='tanh':
+    elif encoder_activation=='tanh':
       z =  tanh(self.fc1(x))
-    if args.encoder_activation=='relu':
+    elif encoder_activation=='relu':
       z =  relu(self.fc1(x))
     else:
       z =  self.fc1(x)
@@ -82,12 +83,13 @@ class AEDENSE(nn.Module):
 
 # ------------------------------------------------------------------------------
 
-  def forward( self, args, x, gpu, encoder_activation ):
+  def forward( self, args, x, input_mode, gpu, encoder_activation  ):
+    
 
     if DEBUG>99:
       print ( f"AEDENSE:        INFO:    forward():   x.shape   = {MIKADO}{x.shape}{RESET}", flush=True             ) 
     
-    z   = self.encode( x.view(-1, self.input_dim), gpu, args )
+    z   = self.encode( args, x.view(-1, self.input_dim), input_mode, gpu, encoder_activation )
 
     if DEBUG>99:
       print ( f"AEDENSE:        INFO:    forward():   z.shape   = {MIKADO}{z.shape}{RESET}", flush=True             ) 

@@ -106,10 +106,10 @@ class PRECOMPRESS(nn.Module):
           print ( f"PRECOMPRESS:    INFO:    forward(): x.shape     = {CYAN}{x.shape}{RESET}", flush=True   ) 
 
         if input_mode=='image':
-          x2r = self.image_net.forward( args, x, gpu, encoder_activation )
+          x2r = self.image_net.forward( args, x, gpu, input_mode, encoder_activation )
 
         if input_mode=='rna':
-          x2r = self.genes_net.forward( args, x, gpu, encoder_activation )
+          x2r = self.genes_net.forward( args, x, gpu,  input_mode, encoder_activation )
  
         if DEBUG>1:
           print ( f"PRECOMPRESS:    INFO:    forward(): x.shape     = {CYAN}{x.shape}{RESET}", flush=True   ) 
@@ -118,13 +118,13 @@ class PRECOMPRESS(nn.Module):
         
 # ------------------------------------------------------------------------------
 
-    def encode( self, x, input_mode, gpu, encoder_activation ):
+    def encode( self, args, x, input_mode, gpu, encoder_activation ):
 
         if input_mode=='image':
-          z = self.image_net.encode( x, gpu, encoder_activation  )
+          z = self.image_net.encode( args, x, input_mode, gpu, encoder_activation  )
 
         if input_mode=='rna':
-          z = self.genes_net.encode( x, gpu, encoder_activation   )
+          z = self.genes_net.encode( args, x, input_mode, gpu, encoder_activation   )
 
         if DEBUG>1:
           print ( f"PRECOMPRESS:    INFO:          encode(): z.shape [encoded version of x] = {MIKADO}{z.shape}{RESET}"  )
