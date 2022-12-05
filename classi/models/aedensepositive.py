@@ -88,7 +88,7 @@ class AEDENSEPOSITIVE(nn.Module):
 
 # ------------------------------------------------------------------------------
 
-    def forward( self, x, gpu, args ):
+    def forward( self, args, x, gpu, encoder_activation ):
 
         if DEBUG>9:
           print ( f"AEDENSEPOSITIVE: INFO:       forward(): x.shape           = {CYAN}{x.shape}{RESET}", flush=True             ) 
