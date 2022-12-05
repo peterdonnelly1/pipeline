@@ -64,7 +64,7 @@ COLOUR_MAP="tab20"                                                       # see '
 CLASS_COLOURS="darkorange       lime      olive      firebrick     dodgerblue    tomato     limegreen   darkcyan  royalblue  lightseagreen    blueviolet  orangered  turquoise darkorchid"
 
 
-AE_ADD_NOISE="True"
+AE_ADD_NOISE="False"
 BATCH_SIZE="47"
 BATCH_SIZE_TEST="36"
 CASES="ALL_ELIGIBLE_CASES"                                                                                 # DON'T CHANGE THIS DEFAULT. OTHER VALUES GENERATE AND LEAVE FLAGS IN PLACE WHICH CAN CAUSE CONFUSION IF FORGOTTEN ABOUT!
@@ -229,7 +229,7 @@ for EMBEDDING_DIMENSIONS in "2000"
         echo "CUDA_TSNE_MULTI_RUN.SH:  training (first time)"
     
        ./do_all.sh  -n pre_compress  -d ${DATASET}  -i ${INPUT_MODE}      -S ${N_SAMPLES}   -o ${N_EPOCHS}      -f ${TILES_PER_IMAGE}     -T ${TILE_SIZE}             -b ${BATCH_SIZE}       -1 ${PCT_TEST___TRAIN}      -s False    \
-                    -X ${SKIP_RNA_PREPROCESSING}    -g False              -j False          -a ${NN_TYPE_IMG}   -z ${NN_TYPE_RNA}         -E ${EMBEDDING_DIMENSIONS}  c ${CASES}                                \
+                    -X ${SKIP_RNA_PREPROCESSING}    -g False              -j False          -a ${NN_TYPE_IMG}   -z ${NN_TYPE_RNA}         -E ${EMBEDDING_DIMENSIONS}   -c ${CASES}                                \
                     -3 ${PEER_NOISE_PCT}            -4 ${MAKE_GREY_PCT}   -u False          -r ${REGEN}         -v ${DIVIDE_CASES}    
    
       else
@@ -238,7 +238,7 @@ for EMBEDDING_DIMENSIONS in "2000"
         echo "CUDA_TSNE_MULTI_RUN.SH:  run = "${i} " tiling (iff image) and generation will be skipped"
        rm logs/lowest_loss_ae_model.pt
       ./do_all.sh  -n pre_compress   -d ${DATASET}  -i ${INPUT_MODE}      -S ${N_SAMPLES}   -o ${N_EPOCHS}      -f ${TILES_PER_IMAGE}     -T ${TILE_SIZE}             -b ${BATCH_SIZE}       -1 ${PCT_TEST___TRAIN}      -s True     \
-                   -X ${SKIP_RNA_PREPROCESSING}     -g True               -j False          -a ${NN_TYPE_IMG}   -z ${NN_TYPE_RNA}         -E ${EMBEDDING_DIMENSIONS}  c ${CASES}                                                    \
+                   -X ${SKIP_RNA_PREPROCESSING}     -g True               -j False          -a ${NN_TYPE_IMG}   -z ${NN_TYPE_RNA}         -E ${EMBEDDING_DIMENSIONS}  -c ${CASES}                                                    \
                    -3 ${PEER_NOISE_PCT}             -4 ${MAKE_GREY_PCT}   -u False          -r False
   
     fi

@@ -82,7 +82,7 @@ class AEDENSE(nn.Module):
 
 # ------------------------------------------------------------------------------
 
-  def forward( self, x, gpu, args ):
+  def forward( self, args, x, gpu, encoder_activation ):
 
     if DEBUG>99:
       print ( f"AEDENSE:        INFO:    forward():   x.shape   = {MIKADO}{x.shape}{RESET}", flush=True             ) 
