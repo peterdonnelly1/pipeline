@@ -65,7 +65,7 @@ class AELINEAR(nn.Module):
         if DEBUG>0:
           print ( f"AELINEAR:       INFO:       forward(): x.shape           = {CYAN}{x.shape}{RESET}", flush=True             ) 
         
-        z = self.encode( x.view(-1, self.input_dim), gpu, args )
+        z = self.encode( x.view(-1, args.n_genes), gpu, args )
 
         if DEBUG>0:
           print ( f"AELINEAR:       INFO:       forward(): z.shape           = {CYAN}{z.shape}{RESET}", flush=True             ) 
