@@ -250,7 +250,7 @@ class TTVAE( nn.Module) :
 
 
 
-  def forward( self, x, gpu, args ):
+  def forward(  self, args, x, gpu, encoder_activation ):
     
     """Return reconstructed output, mean and variance of embeddings.
     """
