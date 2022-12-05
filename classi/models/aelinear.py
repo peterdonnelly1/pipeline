@@ -23,16 +23,12 @@ class AELINEAR(nn.Module):
         
         super(AELINEAR, self).__init__()
         
-        self.input_dim = cfg.N_GENES
-        emb_dim        = cfg.GENE_EMBED_DIM
         
-        self.fc1       = nn.Linear(self.input_dim, emb_dim)   # encode
-        self.fc2       = nn.Linear(emb_dim, self.input_dim)   # decode
+        self.fc1       = nn.Linear( n_genes, embedding_dimensions)   # encode
+        self.fc2       = nn.Linear(embedding_dimensions, n_genes)   # decode
    
         if DEBUG>0:
-          print( f"AELINEAR:       INFO:       init(): layer self.fc1: (encode)    self.input_dim = cfg.N_GENES        = {CYAN}{self.input_dim}{RESET},   emb_dim        = cfg.GENE_EMBED_DIM = {CYAN}{emb_dim}{RESET}", flush=True   )
-          print( f"AELINEAR:       INFO:       init(): layer self.fc2: (decode)           emb_dim = cfg.GENE_EMBED_DIM = {CYAN}{emb_dim}{RESET},  self.input_dim = cfg.N_GENES         = {CYAN}{self.input_dim}{RESET}", flush=True   )
-          print (f"AELINEAR:       INFO:       init(): {ORANGE}caution: the input vectors must have the same dimensions as m1, viz: {CYAN}{self.input_dim}x{emb_dim}{RESET}",                                            flush=True )
+          print (f"AELINEAR:       INFO:       init(): {ORANGE}caution: the input vectors must have the same dimensions as m1, viz: {CYAN}{n_genes}x{embedding_dimensions}{RESET}",                                            flush=True )
 
 # ------------------------------------------------------------------------------
 
