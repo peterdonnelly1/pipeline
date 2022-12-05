@@ -13,7 +13,7 @@ DEBUG=0
 
 class AELINEAR(nn.Module):
 
-    def __init__( self, cfg, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2 ):
+    def __init__( self, cfg, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, nn_dense_dropout_1, nn_dense_dropout_2  ):
       
         """Initialize simple linear model.
         """
@@ -64,7 +64,7 @@ class AELINEAR(nn.Module):
 
 # ------------------------------------------------------------------------------
 
-    def forward( self, x, gpu, args ): 
+    def forward(  self, args, x, gpu, encoder_activation ): 
 
         if DEBUG>0:
           print ( f"AELINEAR:       INFO:       forward(): x.shape           = {CYAN}{x.shape}{RESET}", flush=True             ) 
