@@ -147,7 +147,6 @@ def main(args):
     print ( f"CLASSI:         INFO:     seaborn       version =  {MIKADO}{sns.__version__}{RESET}",          flush=True    )
     print ( f"CLASSI:         INFO:     pandas        version =  {MIKADO}{pd.__version__}{RESET}",           flush=True    )  
     print ( f"CLASSI:         INFO:     numpy         version =  {MIKADO}{np.version.version}{RESET}",       flush=True    )  
-    print ( f"CLASSI:         INFO:     cupy         version =  {MIKADO}{cupy.version.version}{RESET}",       flush=True    )  
     print ( f"CLASSI:         INFO:     cuda toolkit  version =  {MIKADO}{torch.version.cuda}{RESET}\n",     flush=True    )
     print ( f"CLASSI:         INFO:     cuda          version via os command = \n{MIKADO}",                  flush=True    )  
     print ( f"{os.system('/usr/local/cuda/bin/nvcc --version')}{RESET}\n",                                   flush=True    )

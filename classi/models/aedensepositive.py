@@ -16,7 +16,7 @@ DEBUG=1
 
 class AEDENSEPOSITIVE(nn.Module):
 
-    def __init__( self, cfg, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2  ):
+    def __init__( self, cfg, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, nn_dense_dropout_1, nn_dense_dropout_2 ):
       
         """Initialize simple linear model.
         """
