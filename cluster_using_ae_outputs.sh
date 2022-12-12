@@ -217,7 +217,7 @@ if [[ ${JUST_CLUSTER} != "True" ]]                                              
 
   if [[ ${SKIP_TRAINING} != "True" ]]
   
-    # TRAIN A MODEL: Do if SKIP_TRAINING flag is False. Trains the Autoencoder.
+    # 1  TRAIN A MODEL: Do if SKIP_TRAINING flag is False. Trains the Autoencoder.
     
     then
     
@@ -232,16 +232,20 @@ if [[ ${JUST_CLUSTER} != "True" ]]                                              
   fi
 
      
-  # TEST HELD-OUT EXAMPLES: Pushes feature vectors produced during training (the feature vector file MUST exist) through the best model produced during training
-  # Key flags: -u True means "USE_AUTOENCODER_OUTPUT"   (that is: the embeddings we just generated and not raw inputs)
-  #            -j True means "JUST_TEST"                (that is: use only held out test examples and push them through the optimised/saved model produced during training)
-  #            -g False                                 we do need to generate a dataset in this run. Because this is an autoencoder test run, where the point is to generate reduced dimensionality embeddings, (and not a classifier test run), all *training* examples will be pushed through the model (internal logic takes care of this)
+  # 2  TEST RUN: Pushes feature vectors produced during training (the feature vector file MUST exist) through the best model produced during training
+  # Key flags: (the flag settings are crucial)
+  #              
+  #            -j True  means "JUST_TEST"                (that is:   push examples through the optimised/saved model produced during training)
+  #            -g False means  generate pytorch dataset. (side note: because this is an *autoencoder* test run, where the point is to generate reduced dimensionality embeddings, (and not a classifier test run), all *training* examples will be pushed through the model (internal logic takes care of this) )
+  #            -u True  means "USE_AUTOENCODER_OUTPUT"   (that is:   use the embeddings we just generated above rather than raw inputs)
+  #            -s True  means  skip tiling
+  #            -X False means  perform  RNA-Seq pre-processing
    
       rm logs/ae_output_features.pt  > /dev/null 2>&1
  
       ./do_all.sh   -n pre_compress -d ${DATASET}                -i ${INPUT_MODE}      -S ${N_SAMPLES}               -o ${N_EPOCHS_TEST}     -f ${TILES_PER_IMAGE}    -T ${TILE_SIZE}       -b ${BATCH_SIZE_TEST}      \
-                   -1 ${PCT_TEST___JUST_TEST}   -s True               -X True                       -g False                -j True                  -a ${NN_TYPE_IMG}     -z ${NN_TYPE_RNA}          \
-                   -E ${EMBEDDING_DIMENSIONS}   -u False
+                   -1 ${PCT_TEST___JUST_TEST}                    -s True               -X True                       -g False                -j True                  -a ${NN_TYPE_IMG}     -z ${NN_TYPE_RNA}          \
+                   -E ${EMBEDDING_DIMENSIONS}                    -u False
 
 
 sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
@@ -250,10 +254,7 @@ fi
 
 
 
-
-
-
-# Perform clustering. Always executed.
+# 3  Perform clustering. Always executed.
 
 if [[ ${CLUSTERING} == "all" ]]
 

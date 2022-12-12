@@ -110,7 +110,7 @@ REPEAT=1
 SKIP_RNA_PREPROCESSING="False"
 SKIP_TILING="False"                                                                                        # supported: any of the sklearn metrics
 SKIP_TRAINING="False"
-SUPERGRID_SIZE="4"
+SUPERGRID_SIZE="2"
 TILES_PER_IMAGE="10"
 TILE_SIZE="32"
 USE_AUTOENCODER_OUTPUT="False"
@@ -225,7 +225,7 @@ for EMBEDDING_DIMENSIONS in "2000"
         
         rm logs/lowest_loss_ae_model.pt > /dev/null 2>&1
         
-        # training (first time)
+        # 1  TRAINING RUN (first time)
         echo "CUDA_TSNE_MULTI_RUN.SH:  training (first time)"
     
        ./do_all.sh  -n pre_compress  -d ${DATASET}  -i ${INPUT_MODE}      -S ${N_SAMPLES}   -o ${N_EPOCHS}      -f ${TILES_PER_IMAGE}     -T ${TILE_SIZE}             -b ${BATCH_SIZE}       -1 ${PCT_TEST___TRAIN}      -s False    \
@@ -234,7 +234,7 @@ for EMBEDDING_DIMENSIONS in "2000"
    
       else
   
-        # training (subsequent times)
+        # 1  TRAINING RUN (subsequent times)
         echo "CUDA_TSNE_MULTI_RUN.SH:  run = "${i} " tiling (iff image) and generation will be skipped"
        rm logs/lowest_loss_ae_model.pt
       ./do_all.sh  -n pre_compress   -d ${DATASET}  -i ${INPUT_MODE}      -S ${N_SAMPLES}   -o ${N_EPOCHS}      -f ${TILES_PER_IMAGE}     -T ${TILE_SIZE}             -b ${BATCH_SIZE}       -1 ${PCT_TEST___TRAIN}      -s True     \
@@ -243,6 +243,17 @@ for EMBEDDING_DIMENSIONS in "2000"
   
     fi
       
+    # 2  TEST RUN: Pushes feature vectors produced during training (the feature vector file MUST exist) through the best model produced during training
+    # Key flags: (the flag settings are crucial)
+    #              
+    #            -j True  means "JUST_TEST"                (that is:   push examples through the optimised/saved model produced during training)
+    #            -g False means  generate pytorch dataset. (side note: because this is an *autoencoder* test run, where the point is to generate reduced dimensionality embeddings, (and not a classifier test run), all *training* examples will be pushed through the model (internal logic takes care of this) )
+    #            -u True  means "USE_AUTOENCODER_OUTPUT"   (that is:   use the embeddings we just generated above rather than raw inputs)
+    #            -s True  means  skip tiling
+    #            -X False means  perform  RNA-Seq pre-processing
+
+
+    
     rm logs/ae_output_features.pt
   
     echo ""
@@ -250,12 +261,13 @@ for EMBEDDING_DIMENSIONS in "2000"
     echo "CUDA_TSNE_MULTI_RUN.SH:  generate embeddings using best model produced and saved during training (test mode is invoked by ' -j True' user option)"
     
       ./do_all.sh  -n pre_compress   -d ${DATASET}  -i ${INPUT_MODE}      -S ${N_SAMPLES}   -o ${N_EPOCHS_TEST}  -f ${TILES_PER_IMAGE}    -T ${TILE_SIZE}             -b ${BATCH_SIZE_TEST}  -1 ${PCT_TEST___JUST_TEST}  -s True    \
-                   -X True                          -g True               -j True           -a ${NN_TYPE_IMG}    -z ${NN_TYPE_RNA}        -E ${EMBEDDING_DIMENSIONS}  -c ${CASES}                                   \
+                   -X True                          -g False              -j True           -a ${NN_TYPE_IMG}    -z ${NN_TYPE_RNA}        -E ${EMBEDDING_DIMENSIONS}  -c ${CASES}                                   \
                    -3 ${PEER_NOISE_PCT}             -4 ${MAKE_GREY_PCT}   -u True           -r False
 
-  
-    # cluster and display
-    ./do_all.sh    -n classify       -d ${DATASET}  -i ${INPUT_MODE}      -E ${EMBEDDING_DIMENSIONS}  -t 5000  -s True  -g True    -c ${CASES}  -l cuda_tsne  -p "1 2 3 7 10 20 30 70 100"   \
+    
+    # 3 CLUSTER AND DISPLAY
+    
+    ./do_all.sh    -n classify       -d ${DATASET}  -i ${INPUT_MODE}      -E ${EMBEDDING_DIMENSIONS}  -t 5000  -s True  -g True    -c ${CASES}  -l cuda_tsne  -p "7 10 20 30"   \
                    -G ${SUPERGRID_SIZE} -P ${PRETRAIN}
   
     i=$((i+1))  

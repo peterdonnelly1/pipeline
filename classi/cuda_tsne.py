@@ -466,7 +466,7 @@ def plot( num_subplots, subplot_index, grid_size, x, y, class_names, ax, title, 
                 label = f"{class_names[yi]} ({(y==yi).sum()})",
                 # ~ markeredgecolor="k",
             )
-            for yi in classes
+            for yi in range(len(class_names))
         ]
         
         bbox_to_anchor=( 1., 0.5) if grid_size>1 else (0.9, 0.5)
