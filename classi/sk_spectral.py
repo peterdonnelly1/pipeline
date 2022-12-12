@@ -40,11 +40,12 @@ np.set_printoptions(edgeitems=100000)
 np.set_printoptions(linewidth=100000)
 
 def sk_spectral( args, class_names, pct_test):
-  
+
+  input_mode   = args.input_mode
   n_clusters   = args.n_clusters
   eigen_solver = 'arpack'
   affinity     = "nearest_neighbors" 
-  is_embedding   = args.use_autoencoder_output=='True'
+  use_embeddings = args.use_autoencoder_output=='True'
   
   # 1. load and prepare data
 
@@ -53,50 +54,80 @@ def sk_spectral( args, class_names, pct_test):
     fqn = f"../logs/ae_output_features.pt"
       
     if DEBUG>0:
-      print( f"{BRIGHT_GREEN}SK_SPECTRAL:     INFO:  about to load autoencoder generated is_embedding from input file '{MAGENTA}{fqn}{RESET}'", flush=True )
+      print( f"{BRIGHT_GREEN}SK_SPECTRAL:    INFO:  about to load autoencoder generated embeddings from input file '{MAGENTA}{fqn}{RESET}'", flush=True )
     try:
       dataset  = torch.load( fqn )
       if DEBUG>0:
-        print( f"{BRIGHT_GREEN}SK_SPECTRAL:     INFO:  dataset successfully loaded{RESET}" ) 
+        print( f"{BRIGHT_GREEN}SK_SPECTRAL:    INFO:  dataset successfully loaded{RESET}" ) 
     except Exception as e:
-      print ( f"{RED}SK_SPECTRAL:     ERROR:  could not load feature file. Did you remember to run the system with {CYAN}NN_MODE='pre_compress'{RESET}{RED} and an autoencoder such as {CYAN}'AEDENSE'{RESET}{RED} to generate the feature file? ... can't continue, so halting now [143]{RESET}" )
-      print ( f"{RED}SK_SPECTRAL:     ERROR:  the exception was: {CYAN}'{e}'{RESET}" )
-      print ( f"{RED}SK_SPECTRAL:     ERROR:  halting now" )
+      print ( f"{RED}SK_SPECTRAL:      FATAL:  could not load feature file. Did you remember to run the system with {CYAN}NN_MODE='pre_compress'{RESET}{RED} and an autoencoder such as {CYAN}'AEDENSE'{RESET}{RED} to generate the feature file? ... can't continue, so halting now [143]{RESET}" )
+      print ( f"{RED}SK_SPECTRAL:      FATAL:  the exception was: {CYAN}'{e}'{RESET}" )
+      print ( f"{RED}SK_SPECTRAL:      FATAL:  halting now" )
       sys.exit(0)
   
-    samples_npy  = dataset['embeddings'].cpu().numpy().squeeze()                                           # eliminate empty dimensions
-    labels       = dataset['labels'    ].cpu().numpy().squeeze()                                           # eliminate empty dimensions
+    samples      = dataset['embeddings'].cpu().detach().numpy().squeeze()                                           # eliminate empty dimensions
+    labels       = dataset['labels'    ].cpu().detach().numpy().squeeze()                                           # eliminate empty dimensions
     
     if DEBUG>0:
-      print ( f"SK_SPECTRAL:     INFO:  (is_embedding) samples_npy.shape     =  {MIKADO}{samples_npy.shape}{RESET}"      ) 
-      print ( f"SK_SPECTRAL:     INFO:  sanity check: np.sum(samples_npy)  =  {MIKADO}{np.sum(samples_npy):.2f}{RESET}"      ) 
+      print ( f"SK_SPECTRAL:    INFO:  (embeddings) samples.shape     =  {MIKADO}{samples.shape}{RESET}"      ) 
+      print ( f"SK_SPECTRAL:    INFO:  sanity check: np.sum(samples)  =  {MIKADO}{np.sum(samples):.2f}{RESET}"      ) 
     
-    if np.sum(samples_npy)==0.0:
-      print ( f"{RED}SK_SPECTRAL:     ERROR:  all samples_npy are zero vectors - the input file was completely degenerate{RESET}" )
-      print ( f"{RED}SK_SPECTRAL:     ERROR:  not halting, but might as well be{RESET}" )
+    if np.sum(samples)==0.0:
+      print ( f"{RED}SK_SPECTRAL:      FATAL:  all samples are zero vectors - the input file was completely degenerate{RESET}" )
+      print ( f"{RED}SK_SPECTRAL:      FATAL:  not halting, but might as well be{RESET}" )
  
   else:
-    
-    sample_file = "../logs/all_images_from_last_run_of_generate.npy" 
-    label_file = "../logs/all_image_labels__from_last_run_of_generate.npy"
-    
-    samples_npy  =  np.load( sample_file )
-    labels       =  np.load( label_file  )
   
-
-  if args.input_mode=='image':
-    
-    samples = samples_npy
-    
-    if DEBUG>0:
-      print ( f"SK_SPECTRAL:     INFO:  about to flatten channels and r,g,b dimensions"      ) 
-      print ( f"SK_SPECTRAL:     INFO:  (flattened) samples.shape          = {MIKADO}{samples.shape}{RESET}"      ) 
-
-  if args.input_mode=='rna': 
-    samples = samples_npy
+    if input_mode=='image':
   
-    if DEBUG>0:
-      print ( f"SK_SPECTRAL:     INFO:  samples.shape          = {MIKADO}{samples.shape}{RESET}"      ) 
+      sample_file = "../logs/all_images_from_last_run_of_generate.npy" 
+      label_file = "../logs/all_image_labels__from_last_run_of_generate.npy"
+      
+      try:
+        samples      =  np.load( sample_file )
+      except Exception as e:
+        print( f"{RED}SK_SPECTRAL:    INFO:  could not load file:  {CYAN}{sample_file}{RESET}", flush=True)
+        print( f"{RED}SK_SPECTRAL:    INFO:  can't continue --- halting{RESET}",         flush=True)
+        time.sleep(4)
+        sys.exit(0)
+              
+      try:
+        labels       =  np.load( label_file  )
+      except Exception as e:
+        print( f"{RED}SK_SPECTRAL:    INFO:  could not load file: {CYAN}{sample_file}{RESET}", flush=True)
+        print( f"{RED}SK_SPECTRAL:    INFO:  can't continue --- halting{RESET}",         flush=True)
+        time.sleep(4)
+        sys.exit(0)
+      
+      if DEBUG>0:
+        print ( f"SK_SPECTRAL:    INFO:  input                  = {MIKADO}{input_mode}{RESET}",                flush=True   ) 
+        print ( f"SK_SPECTRAL:    INFO:  about to flatten channels and r,g,b dimensions",                      flush=True   ) 
+        print ( f"SK_SPECTRAL:    INFO:  (flattened) samples.shape          = {MIKADO}{samples.shape}{RESET}", flush=True   ) 
+  
+    if input_mode=='rna': 
+  
+      sample_file = "../logs/all_rna_seq_vectors_from_last_run_of_generate.npy" 
+      label_file = "../logs/all_rna_seq_vector_labels_from_last_run_of_generate.npy"
+      
+      try:
+        samples      =  np.load( sample_file ).squeeze()
+      except Exception as e:
+        print( f"{RED}SK_SPECTRAL:    INFO:  could not load file:  {CYAN}{sample_file}{RESET}", flush=True)
+        print( f"{RED}SK_SPECTRAL:    INFO:  can't continue --- halting{RESET}",         flush=True)
+        time.sleep(4)
+        sys.exit(0)
+              
+      try:
+        labels       =  np.load( label_file  )
+      except Exception as e:
+        print( f"{RED}SK_SPECTRAL:    INFO:  could not load file:  {CYAN}{sample_file}{RESET}", flush=True)
+        print( f"{RED}SK_SPECTRAL:    INFO:  can't continue --- halting{RESET}",         flush=True)
+        time.sleep(4)
+        sys.exit(0)
+      
+      if DEBUG>0:
+        print ( f"SK_SPECTRAL:    INFO:  input                  = {MIKADO}{input_mode}{RESET}",                flush=True   ) 
+        print ( f"SK_SPECTRAL:    INFO:  samples.shape          = {MIKADO}{samples.shape}{RESET}",             flush=True   ) 
 
 
 
@@ -133,7 +164,7 @@ def sk_spectral( args, class_names, pct_test):
 
   # 3. plot the results as a scattergram
   
-  plot( args, is_embedding, samples_npy.shape, clustering.labels_, labels,  n_clusters, all_clusters_unique, eigen_solver, affinity )
+  plot( args, use_embeddings, class_names, samples.shape, clustering.labels_, labels,  n_clusters, all_clusters_unique, eigen_solver, affinity )
     
   plt.show()  
 
@@ -143,7 +174,7 @@ def sk_spectral( args, class_names, pct_test):
 # HELPER FUNCTIONS
 # ------------------------------------------------------------------------------
 
-def plot(args, is_embedding, shape, cluster_labels, true_labels, n_clusters, all_clusters_unique, eigen_solver, affinity ):
+def plot(args, use_embeddings, class_names, shape, cluster_labels, true_labels, n_clusters, all_clusters_unique, eigen_solver, affinity ):
   
   # 3. plot the results as a jittergram
     
@@ -171,7 +202,7 @@ def plot(args, is_embedding, shape, cluster_labels, true_labels, n_clusters, all
   
   N=true_labels.shape[0]
   title    = f"Unsupervised Spectral Clustering of {N:,} TCGA {args.dataset.upper()} {args.input_mode}s;  X=cluster number (jittered), Y=true subtype"
-  subtitle = f"n_clusters={n_clusters};  input dims = {shape[1:]};  autoencoder input used={is_embedding};  eigen_solver={eigen_solver};  affinity={affinity}"
+  subtitle = f"n_clusters={n_clusters};  input dims = {shape[1:]};  autoencoder input used={use_embeddings};  eigen_solver={eigen_solver};  affinity={affinity}"
   
   plt.title ( title, fontsize=16 )
   plt.text  ( -.2, 0, subtitle, ha='left', fontsize=12 )

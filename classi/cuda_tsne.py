@@ -2,7 +2,7 @@ import sys
 import torch
 import random
 import datetime
-from cycler import cycler
+from   cycler import cycler
 
 import numpy             as np
 import matplotlib.pyplot as plt
@@ -26,7 +26,6 @@ np.set_printoptions(linewidth=20)
 
 
 def cuda_tsne( args, class_names, pct_test, super_title, descriptor_clustering ):
-
   
   input_mode        = args.input_mode
   n_iter            = args.n_iterations
@@ -42,8 +41,8 @@ def cuda_tsne( args, class_names, pct_test, super_title, descriptor_clustering )
 
 
   if DEBUG>0:
-    print ( f"CUDA_TSNE:       INFO:  perplexity                  = {MIKADO}{perplexity}{RESET}"             ) 
-    print ( f"CUDA_TSNE:       INFO:  render_clustering           = {MIKADO}{render_clustering}{RESET}"      ) 
+    print ( f"CUDA_TSNE:      INFO:  perplexity                  = {MIKADO}{perplexity}{RESET}"             ) 
+    print ( f"CUDA_TSNE:      INFO:  render_clustering           = {MIKADO}{render_clustering}{RESET}"      ) 
     
       
   # 1. load and prepare data
@@ -53,27 +52,27 @@ def cuda_tsne( args, class_names, pct_test, super_title, descriptor_clustering )
     fqn = f"../logs/ae_output_features.pt"
       
     if DEBUG>0:
-      print( f"{BRIGHT_GREEN}SK_TSNE:        INFO:  about to load autoencoder generated embeddings from input file '{MAGENTA}{fqn}{RESET}'", flush=True )
+      print( f"{BRIGHT_GREEN}CUDA_TSNE:      INFO:  about to load autoencoder generated embeddings from input file '{MAGENTA}{fqn}{RESET}'", flush=True )
     try:
       dataset  = torch.load( fqn )
       if DEBUG>0:
-        print( f"{BRIGHT_GREEN}SK_TSNE:        INFO:  dataset successfully loaded{RESET}" ) 
+        print( f"{BRIGHT_GREEN}CUDA_TSNE:      INFO:  dataset successfully loaded{RESET}" ) 
     except Exception as e:
-      print ( f"{RED}SK_TSNE:        ERROR:  could not load feature file. Did you remember to run the system with {CYAN}NN_MODE='pre_compress'{RESET}{RED} and an autoencoder such as {CYAN}'AEDENSE'{RESET}{RED} to generate the feature file? ... can't continue, so halting now [143]{RESET}" )
-      print ( f"{RED}SK_TSNE:        ERROR:  the exception was: {CYAN}'{e}'{RESET}" )
-      print ( f"{RED}SK_TSNE:        ERROR:  halting now" )
+      print ( f"{RED}CUDA_TSNE:        FATAL:  could not load feature file. Did you remember to run the system with {CYAN}NN_MODE='pre_compress'{RESET}{RED} and an autoencoder such as {CYAN}'AEDENSE'{RESET}{RED} to generate the feature file? ... can't continue, so halting now [143]{RESET}" )
+      print ( f"{RED}CUDA_TSNE:        FATAL:  the exception was: {CYAN}'{e}'{RESET}" )
+      print ( f"{RED}CUDA_TSNE:        FATAL:  halting now" )
       sys.exit(0)
   
     samples      = dataset['embeddings'].cpu().detach().numpy().squeeze()                                           # eliminate empty dimensions
     labels       = dataset['labels'    ].cpu().detach().numpy().squeeze()                                           # eliminate empty dimensions
     
     if DEBUG>0:
-      print ( f"SK_TSNE:        INFO:  (embeddings) samples.shape     =  {MIKADO}{samples.shape}{RESET}"      ) 
-      print ( f"SK_TSNE:        INFO:  sanity check: np.sum(samples)  =  {MIKADO}{np.sum(samples):.2f}{RESET}"      ) 
+      print ( f"CUDA_TSNE:      INFO:  (embeddings) samples.shape     =  {MIKADO}{samples.shape}{RESET}"      ) 
+      print ( f"CUDA_TSNE:      INFO:  sanity check: np.sum(samples)  =  {MIKADO}{np.sum(samples):.2f}{RESET}"      ) 
     
     if np.sum(samples)==0.0:
-      print ( f"{RED}SK_TSNE:        ERROR:  all samples are zero vectors - the input file was completely degenerate{RESET}" )
-      print ( f"{RED}SK_TSNE:        ERROR:  not halting, but might as well be{RESET}" )
+      print ( f"{RED}CUDA_TSNE:        FATAL:  all samples are zero vectors - the input file was completely degenerate{RESET}" )
+      print ( f"{RED}CUDA_TSNE:        FATAL:  not halting, but might as well be{RESET}" )
  
   else:
   
@@ -85,23 +84,23 @@ def cuda_tsne( args, class_names, pct_test, super_title, descriptor_clustering )
       try:
         samples      =  np.load( sample_file )
       except Exception as e:
-        print( f"{RED}SK_TSNE:        INFO:  could not load file:  {CYAN}{sample_file}{RESET}", flush=True)
-        print( f"{RED}SK_TSNE:        INFO:  can't continue --- halting{RESET}",         flush=True)
+        print( f"{RED}CUDA_TSNE:      INFO:  could not load file:  {CYAN}{sample_file}{RESET}", flush=True)
+        print( f"{RED}CUDA_TSNE:      INFO:  can't continue --- halting{RESET}",         flush=True)
         time.sleep(4)
         sys.exit(0)
               
       try:
         labels       =  np.load( label_file  )
       except Exception as e:
-        print( f"{RED}SK_TSNE:        INFO:  could not load file: {CYAN}{sample_file}{RESET}", flush=True)
-        print( f"{RED}SK_TSNE:        INFO:  can't continue --- halting{RESET}",         flush=True)
+        print( f"{RED}CUDA_TSNE:      INFO:  could not load file: {CYAN}{sample_file}{RESET}", flush=True)
+        print( f"{RED}CUDA_TSNE:      INFO:  can't continue --- halting{RESET}",         flush=True)
         time.sleep(4)
         sys.exit(0)
       
       if DEBUG>0:
-        print ( f"SK_TSNE:        INFO:  input                  = {MIKADO}{input_mode}{RESET}",                flush=True   ) 
-        print ( f"SK_TSNE:        INFO:  about to flatten channels and r,g,b dimensions",                      flush=True   ) 
-        print ( f"SK_TSNE:        INFO:  (flattened) samples.shape          = {MIKADO}{samples.shape}{RESET}", flush=True   ) 
+        print ( f"CUDA_TSNE:      INFO:  input                  = {MIKADO}{input_mode}{RESET}",                flush=True   ) 
+        print ( f"CUDA_TSNE:      INFO:  about to flatten channels and r,g,b dimensions",                      flush=True   ) 
+        print ( f"CUDA_TSNE:      INFO:  (flattened) samples.shape          = {MIKADO}{samples.shape}{RESET}", flush=True   ) 
   
     if input_mode=='rna': 
   
@@ -111,22 +110,22 @@ def cuda_tsne( args, class_names, pct_test, super_title, descriptor_clustering )
       try:
         samples      =  np.load( sample_file ).squeeze()
       except Exception as e:
-        print( f"{RED}SK_TSNE:        INFO:  could not load file:  {CYAN}{sample_file}{RESET}", flush=True)
-        print( f"{RED}SK_TSNE:        INFO:  can't continue --- halting{RESET}",         flush=True)
+        print( f"{RED}CUDA_TSNE:      INFO:  could not load file:  {CYAN}{sample_file}{RESET}", flush=True)
+        print( f"{RED}CUDA_TSNE:      INFO:  can't continue --- halting{RESET}",         flush=True)
         time.sleep(4)
         sys.exit(0)
               
       try:
         labels       =  np.load( label_file  )
       except Exception as e:
-        print( f"{RED}SK_TSNE:        INFO:  could not load file:  {CYAN}{sample_file}{RESET}", flush=True)
-        print( f"{RED}SK_TSNE:        INFO:  can't continue --- halting{RESET}",         flush=True)
+        print( f"{RED}CUDA_TSNE:      INFO:  could not load file:  {CYAN}{sample_file}{RESET}", flush=True)
+        print( f"{RED}CUDA_TSNE:      INFO:  can't continue --- halting{RESET}",         flush=True)
         time.sleep(4)
         sys.exit(0)
       
       if DEBUG>0:
-        print ( f"SK_TSNE:        INFO:  input                  = {MIKADO}{input_mode}{RESET}",                flush=True   ) 
-        print ( f"SK_TSNE:        INFO:  samples.shape          = {MIKADO}{samples.shape}{RESET}",             flush=True   ) 
+        print ( f"CUDA_TSNE:      INFO:  input                  = {MIKADO}{input_mode}{RESET}",                flush=True   ) 
+        print ( f"CUDA_TSNE:      INFO:  samples.shape          = {MIKADO}{samples.shape}{RESET}",             flush=True   ) 
 
 
 
@@ -145,9 +144,9 @@ def cuda_tsne( args, class_names, pct_test, super_title, descriptor_clustering )
 
     if  grid_size**2 < len(perplexity):
     
-      print ( f"{ORANGE}CUDA_TSNE:       WARN:  the selected grid size ({MIKADO}{grid_size}x{grid_size}{RESET}{ORANGE} isn't large enough to hold the number of plots required for {MIKADO}{len(perplexity)}{RESET}{ORANGE} values of perplexity)"        ) 
+      print ( f"{ORANGE}CUDA_TSNE:      WARN:  the selected grid size ({MIKADO}{grid_size}x{grid_size}{RESET}{ORANGE} isn't large enough to hold the number of plots required for {MIKADO}{len(perplexity)}{RESET}{ORANGE} values of perplexity)"        ) 
       grid_size = ( int(len(perplexity)**0.5))  if  int(len(perplexity)**0.5)**2==len(perplexity) else (int(len(perplexity)**0.5)+1)
-      print ( f"{ORANGE}CUDA_TSNE:       WARN:  grid size has been changed to {MIKADO}{grid_size}x{grid_size}{RESET}{ORANGE}{RESET}" )
+      print ( f"{ORANGE}CUDA_TSNE:      WARN:  grid size has been changed to {MIKADO}{grid_size}x{grid_size}{RESET}{ORANGE}{RESET}" )
       
     nrows        = grid_size
     ncols        = grid_size
@@ -213,10 +212,10 @@ def cuda_tsne( args, class_names, pct_test, super_title, descriptor_clustering )
           break
     
         if DEBUG>0:
-          print( f"CUDA_TSNE:       INFO:  about to configure {CYAN}cuda TSNE {RESET}object with: n_components={MIKADO}{n_components}{RESET} learning_rate={MIKADO}{learning_rate}{RESET} n_iter={MIKADO}{n_iter:,}{RESET} perplexity={MIKADO}{perplexity[subplot_index]}{RESET}", flush=True )
+          print( f"CUDA_TSNE:      INFO:  about to configure {CYAN}cuda TSNE {RESET}object with: n_components={MIKADO}{n_components}{RESET} learning_rate={MIKADO}{learning_rate}{RESET} n_iter={MIKADO}{n_iter:,}{RESET} perplexity={MIKADO}{perplexity[subplot_index]}{RESET}", flush=True )
     
         if DEBUG>0:
-          print ( f"CUDA_TSNE:       INFO:  subplot_index               = {MIKADO}{subplot_index}{RESET}"      ) 
+          print ( f"CUDA_TSNE:      INFO:  subplot_index               = {MIKADO}{subplot_index}{RESET}"      ) 
     
           
         embedding_train = TSNE(                                                                            # create and configure TSNE object
@@ -229,29 +228,29 @@ def cuda_tsne( args, class_names, pct_test, super_title, descriptor_clustering )
               
         
         if DEBUG>0:
-          print( f"CUDA_TSNE:       INFO:  finished {CYAN}tsne.fit{RESET}", flush=True )
-          print( f"CUDA_TSNE:       INFO:  {CYAN}embedding_train.shape{RESET} = {MIKADO}{embedding_train.shape}{RESET}", flush=True )
-          print( f"CUDA_TSNE:       INFO:  {CYAN}labels.shape{RESET}          = {MIKADO}{labels.shape}{RESET}",         flush=True )
-          # ~ print( f"CUDA_TSNE:       INFO:  {CYAN}embedding_train{RESET}       =\n{MIKADO}{embedding_train}{RESET}",     flush=True )
+          print( f"CUDA_TSNE:      INFO:  finished {CYAN}tsne.fit{RESET}", flush=True )
+          print( f"CUDA_TSNE:      INFO:  {CYAN}embedding_train.shape{RESET} = {MIKADO}{embedding_train.shape}{RESET}", flush=True )
+          print( f"CUDA_TSNE:      INFO:  {CYAN}labels.shape{RESET}          = {MIKADO}{labels.shape}{RESET}",         flush=True )
+          # ~ print( f"CUDA_TSNE:      INFO:  {CYAN}embedding_train{RESET}       =\n{MIKADO}{embedding_train}{RESET}",     flush=True )
       
       
         if (DEBUG>0):
           all_clusters_unique=sorted(set(labels))
-          print ( f"CUDA_TSNE:       INFO:  unique classes represented in samples (truth labels) = {MIKADO}{all_clusters_unique}{RESET}" )
+          print ( f"CUDA_TSNE:      INFO:  unique classes represented in samples (truth labels) = {MIKADO}{all_clusters_unique}{RESET}" )
         
         if (DEBUG>0):
           for i in range ( 0, len(all_clusters_unique) ):
-            print ( f"CUDA_TSNE:       INFO:  number of examples of class label {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(labels==i).sum()}{RESET}" )
+            print ( f"CUDA_TSNE:      INFO:  number of examples of class label {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(labels==i).sum()}{RESET}" )
         
       
     
         # 3. plot the results as a scattergram
   
         if DEBUG>2:
-          print( f"CUDA_TSNE:       INFO:  r             {BLEU}{r}{RESET}", flush=True )
-          print( f"CUDA_TSNE:       INFO:  c             {BLEU}{c}{RESET}", flush=True )
-          print( f"CUDA_TSNE:       INFO:  num_subplots  {BLEU}{num_subplots}{RESET}", flush=True )
-          print( f"CUDA_TSNE:       INFO:  subplot_index {BLEU}{subplot_index}{RESET}", flush=True )
+          print( f"CUDA_TSNE:      INFO:  r             {BLEU}{r}{RESET}", flush=True )
+          print( f"CUDA_TSNE:      INFO:  c             {BLEU}{c}{RESET}", flush=True )
+          print( f"CUDA_TSNE:      INFO:  num_subplots  {BLEU}{num_subplots}{RESET}", flush=True )
+          print( f"CUDA_TSNE:      INFO:  subplot_index {BLEU}{subplot_index}{RESET}", flush=True )
                 
         fig.suptitle( f"(cuda) t-sne Clustering   {super_title}  Embedding Dims={samples.shape[1]}" )
     
@@ -271,7 +270,7 @@ def cuda_tsne( args, class_names, pct_test, super_title, descriptor_clustering )
     ms              = 12 
     
     if DEBUG>0:
-      print( f"CUDA_TSNE:       INFO:  about to configure {CYAN}cuda TSNE {RESET}object with: n_iter={MIKADO}{n_iter}{RESET} perplexity={MIKADO}{perplexity[0]}{RESET}", flush=True )
+      print( f"CUDA_TSNE:      INFO:  about to configure {CYAN}cuda TSNE {RESET}object with: n_iter={MIKADO}{n_iter}{RESET} perplexity={MIKADO}{perplexity[0]}{RESET}", flush=True )
 
       
     embedding_train = TSNE(                                                                                             # create and configure TSNE object
@@ -284,19 +283,19 @@ def cuda_tsne( args, class_names, pct_test, super_title, descriptor_clustering )
           
     
     if DEBUG>0:
-      print( f"CUDA_TSNE:       INFO:  finished {CYAN}tsne.fit{RESET}", flush=True )
-      print( f"CUDA_TSNE:       INFO:  {CYAN}embedding_train.shape{RESET} = {MIKADO}{embedding_train.shape}{RESET}", flush=True )
-      print( f"CUDA_TSNE:       INFO:  {CYAN}labels.shape{RESET}          = {MIKADO}{labels.shape}{RESET}",         flush=True )
-      # ~ print( f"CUDA_TSNE:       INFO:  {CYAN}embedding_train{RESET}       =\n{MIKADO}{embedding_train}{RESET}",     flush=True )
+      print( f"CUDA_TSNE:      INFO:  finished {CYAN}tsne.fit{RESET}", flush=True )
+      print( f"CUDA_TSNE:      INFO:  {CYAN}embedding_train.shape{RESET} = {MIKADO}{embedding_train.shape}{RESET}", flush=True )
+      print( f"CUDA_TSNE:      INFO:  {CYAN}labels.shape{RESET}          = {MIKADO}{labels.shape}{RESET}",         flush=True )
+      # ~ print( f"CUDA_TSNE:      INFO:  {CYAN}embedding_train{RESET}       =\n{MIKADO}{embedding_train}{RESET}",     flush=True )
   
   
     if (DEBUG>0):
       all_clusters_unique=sorted(set(labels))
-      print ( f"CUDA_TSNE:       INFO:  unique classes represented in samples (truth labels) = {MIKADO}{all_clusters_unique}{RESET}" )
+      print ( f"CUDA_TSNE:      INFO:  unique classes represented in samples (truth labels) = {MIKADO}{all_clusters_unique}{RESET}" )
     
     if (DEBUG>0):
       for i in range ( 0, len(all_clusters_unique) ):
-        print ( f"CUDA_TSNE:       INFO:  count of instances of cluster label {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(labels==i).sum()}{RESET}" )
+        print ( f"CUDA_TSNE:      INFO:  count of instances of cluster label {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(labels==i).sum()}{RESET}" )
     
   
 
@@ -365,18 +364,18 @@ def plot( num_subplots, subplot_index, grid_size, x, y, class_names, ax, title, 
     point_colors = list( map(colors.get, y ) )                                                             # get the color for each y and create a python list from same
 
     if (DEBUG>0):
-      print ( f"CUDA_TSNE:       INFO: plot()  class_names           = {BITTER_SWEET}{class_names}{RESET}"   )
-      print ( f"CUDA_TSNE:       INFO: plot()  classes               = {BITTER_SWEET}{classes}{RESET}"       )
-      print ( f"CUDA_TSNE:       INFO: plot()  colors                = {BITTER_SWEET}{colors}{RESET}"        )      # dictionary mapping colors to class
+      print ( f"CUDA_TSNE:      INFO: plot()  class_names           = {BITTER_SWEET}{class_names}{RESET}"   )
+      print ( f"CUDA_TSNE:      INFO: plot()  classes               = {BITTER_SWEET}{classes}{RESET}"       )
+      print ( f"CUDA_TSNE:      INFO: plot()  colors                = {BITTER_SWEET}{colors}{RESET}"        )      # dictionary mapping colors to class
     if (DEBUG>99):
-      print ( f"CUDA_TSNE:       INFO: plot()  point_colors          = {BITTER_SWEET}{point_colors}{RESET}"  )      # the color each individual point will receive
+      print ( f"CUDA_TSNE:      INFO: plot()  point_colors          = {BITTER_SWEET}{point_colors}{RESET}"  )      # the color each individual point will receive
 
     
     if (DEBUG>2):
-      print ( f"CUDA_TSNE:       INFO: plot()  x[:, 0].min()         = {BITTER_SWEET}{x[:, 0].min()}{RESET}" )
-      print ( f"CUDA_TSNE:       INFO: plot()  x[:, 0].max()         = {BITTER_SWEET}{x[:, 0].max()}{RESET}" )
-      print ( f"CUDA_TSNE:       INFO: plot()  x[:, 1].min()         = {BITTER_SWEET}{x[:, 1].min()}{RESET}" )
-      print ( f"CUDA_TSNE:       INFO: plot()  x[:, 1].max()         = {BITTER_SWEET}{x[:, 1].max()}{RESET}" )      
+      print ( f"CUDA_TSNE:      INFO: plot()  x[:, 0].min()         = {BITTER_SWEET}{x[:, 0].min()}{RESET}" )
+      print ( f"CUDA_TSNE:      INFO: plot()  x[:, 0].max()         = {BITTER_SWEET}{x[:, 0].max()}{RESET}" )
+      print ( f"CUDA_TSNE:      INFO: plot()  x[:, 1].min()         = {BITTER_SWEET}{x[:, 1].min()}{RESET}" )
+      print ( f"CUDA_TSNE:      INFO: plot()  x[:, 1].max()         = {BITTER_SWEET}{x[:, 1].max()}{RESET}" )      
 
     if (DEBUG>99):
       print ( f"CUDA_TSNE:       x[:, 0]                             = {BITTER_SWEET}{x[:, 0]}{RESET}"       )
@@ -385,8 +384,27 @@ def plot( num_subplots, subplot_index, grid_size, x, y, class_names, ax, title, 
     x1 = x[:, 0]
     x2 = x[:, 1]
     std_devs=2
-    ax.set_xlim( [ np.median(x1)-std_devs*np.std(x1), np.median(x1)+std_devs*np.std(x1) ] )
-    ax.set_ylim( [ np.median(x2)-std_devs*np.std(x2), np.median(x2)+std_devs*np.std(x2) ] )
+
+
+    if (DEBUG>0):
+      print ( f"CUDA_TSNE:      INFO: plot()  np.median(x1)           = {BITTER_SWEET}{np.median(x1)}{RESET}"   )
+      print ( f"CUDA_TSNE:      INFO: plot()  np.median(x2)           = {BITTER_SWEET}{np.median(x2)}{RESET}"   )
+      print ( f"CUDA_TSNE:      INFO: plot()  np.std(x1)              = {BITTER_SWEET}{np.std(x1)}{RESET}"   )
+      print ( f"CUDA_TSNE:      INFO: plot()  np.std(x2)              = {BITTER_SWEET}{np.std(x2)}{RESET}"   )
+      
+      
+    x_lim_left  = np.median(x1)-std_devs*np.std(x1)
+    x_lim_right = np.median(x1)+std_devs*np.std(x1)
+    y_lim_left  = np.median(x2)-std_devs*np.std(x2)
+    y_lim_right = np.median(x2)+std_devs*np.std(x2)    
+    
+    x_lim_left  = x_lim_left  if not np.isnan(x_lim_left)  else -10
+    x_lim_right = x_lim_right if not np.isnan(x_lim_right) else  10
+    y_lim_left  = y_lim_left  if not np.isnan(y_lim_left)  else -10
+    y_lim_right = y_lim_right if not np.isnan(y_lim_right) else  10
+
+    ax.set_xlim( [ x_lim_left, x_lim_right ] )
+    ax.set_ylim( [ y_lim_left, y_lim_right ] )
     
     # ~ ax.scatter( x[:, 0], x[:, 1], c=point_colors, rasterized=True, **plot_params) 
     # ~ ax.scatter( x[:, 0], x[:, 1], c=point_colors, rasterized=True)
@@ -453,7 +471,7 @@ def plot( num_subplots, subplot_index, grid_size, x, y, class_names, ax, title, 
         
         bbox_to_anchor=( 1., 0.5) if grid_size>1 else (0.9, 0.5)
         
-        legend_kwargs_ = dict(loc="center left", bbox_to_anchor=bbox_to_anchor, frameon=False, labelspacing=0 if (len(class_names)>2 and grid_size>1) else 0 if len(class_names)>2 else 0.1, handletextpad=handletextpad )
+        legend_kwargs_ = dict(loc="center right", bbox_to_anchor=bbox_to_anchor, frameon=False, labelspacing=0 if (len(class_names)>2 and grid_size>1) else 0 if len(class_names)>2 else 0.1, handletextpad=handletextpad )
         if legend_kwargs is not None:
             legend_kwargs_.update(legend_kwargs)
 

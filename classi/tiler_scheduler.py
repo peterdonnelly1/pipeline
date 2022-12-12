@@ -105,6 +105,7 @@ def tiler_scheduler( args, r_norm, case_subset_flag_file, slide_count, tiles_nee
           
           fqd = f"{root}/{d}"
 
+          
           for f in os.listdir( fqd ):
             
             r = random.randint(1, 12)
@@ -112,10 +113,13 @@ def tiler_scheduler( args, r_norm, case_subset_flag_file, slide_count, tiles_nee
                                                                                                            
             if ( ( f.endswith( 'svs' )) | ( f.endswith( 'SVS' ))  | ( f.endswith( 'spcn' )) | ( f.endswith( "jpg" ) ) | ( f.endswith( "jpeg" ) ) | ( f.endswith( "JPG" ) ) | ( f.endswith( "JPEG" ) ) ):
 
+              skip_this_one=False
               if ( f.endswith( "spcn" ) ):
-                
                 if stain_norm!="spcn":
-                  pass
+                  skip_this_one=True
+              else:                                                     # we are doing spcn versions, so skip this file which has an extension other than .spcn
+                if stain_norm=="spcn":
+                  skip_this_one=True
 
               pqn = f"{d}/{f}"
 
@@ -156,57 +160,59 @@ def tiler_scheduler( args, r_norm, case_subset_flag_file, slide_count, tiles_nee
                   for subtype in range ( 0, tiles_needed_per_subtype.shape[0] ):
                     print ( f"{SAVE_CURSOR}\033[{start_row+num_cpus+subtype+10};0f{CLEAR_LINE}{BOLD_ASPARAGUS}TILER_SCHEDULER_{BB}{my_thread:02d}:         INFO:   have sufficient images {MIKADO}{tiles_processed_by_subtype[subtype]:5d}{RESET}{BOLD_ASPARAGUS} for subtype {MIKADO}{subtype:2d}{RESET}{BOLD_ASPARAGUS}  (Needed {MIKADO}{tiles_needed_per_subtype[subtype]:5d}{RESET}{BOLD_ASPARAGUS}){RESET}{RESTORE_CURSOR}",                 end="" )
               
-              subtype, tiles_processed, result = tiler( args, r_norm, n_tiles, stop_tiling_by_subtype, top_up_factors, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob, d, f, my_thread, r )
-              cumulative_tiles_processed += tiles_processed
-              
-              if (subtype != -1)  & (subtype != EXCLUDED_CLASS):
-                tiles_processed_by_subtype[subtype] +=tiles_processed
-
-              if args.make_balanced=='level_down':
-                for subtype in range ( 0, tiles_needed_per_subtype.shape[0] ):
-                  if tiles_processed_by_subtype[subtype] >=  tiles_needed_per_subtype[subtype]:
-                    stop_tiling_by_subtype[subtype]=0
-              
-              if result==SUCCESS:
-                slides_processed+=1
-                if ( ( just_test=='True' ) & ( multimode!='image_rna') )  & (my_thread==0):
-                  if DEBUG>0:
-                    print ( f"{SAVE_CURSOR}\033[{start_row};292H{RESET}{CARRIBEAN_GREEN}{slides_processed:3d} slide{s if slides_processed>1 else ' '} done (quota {my_slide_quota}){RESET}{CLEAR_LINE}{RESTORE_CURSOR}", flush=True ) 
+              if skip_this_one==False:
+                
+                subtype, tiles_processed, result = tiler( args, r_norm, n_tiles, stop_tiling_by_subtype, top_up_factors, tile_size, batch_size, stain_norm, norm_method, zoom_out_mags, zoom_out_prob, d, f, my_thread, r )
+                cumulative_tiles_processed += tiles_processed
+                
+                if (subtype != -1)  & (subtype != EXCLUDED_CLASS):
+                  tiles_processed_by_subtype[subtype] +=tiles_processed
+  
+                if args.make_balanced=='level_down':
+                  for subtype in range ( 0, tiles_needed_per_subtype.shape[0] ):
+                    if tiles_processed_by_subtype[subtype] >=  tiles_needed_per_subtype[subtype]:
+                      stop_tiling_by_subtype[subtype]=0
+                
+                if result==SUCCESS:
+                  slides_processed+=1
+                  if ( ( just_test=='True' ) & ( multimode!='image_rna') )  & (my_thread==0):
+                    if DEBUG>0:
+                      print ( f"{SAVE_CURSOR}\033[{start_row};292H{RESET}{CARRIBEAN_GREEN}{slides_processed:3d} slide{s if slides_processed>1 else ' '} done (quota {my_slide_quota}){RESET}{CLEAR_LINE}{RESTORE_CURSOR}", flush=True ) 
+                  else:
+                    if DEBUG>0:
+                      print ( f"{SAVE_CURSOR}\033[{start_row+my_thread};292H{RESET}{CARRIBEAN_GREEN}{slides_processed:3d} slide{s if slides_processed>1 else ' '} done (quota {my_slide_quota}){RESET}{CLEAR_LINE}{RESTORE_CURSOR}S", flush=True )                           
+                  if slides_processed>=my_expanded_slide_quota:
+                    break              
+                elif result==INSUFFICIENT_TILES:
+                  print(f"{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus};0H{BOLD_ORANGE}{CLEAR_LINE}TILER_SCHEDULER_{FG3}{my_thread}: {BB}WARNING: it would not be possible to extract the required number of tiles from this slide, even if they all qualified ! ({BOLD_CYAN}{pqn}{RESET}{BOLD}{BB}). Slide will be skipped. {RESTORE_CURSOR}", flush=True)
+                  time.sleep(1)
+                  # ~ if slides_processed<n_samples:
+                    # ~ print( f"{RED}TILER_SCHEDULER_{FG3}: FATAL:  n_samples has been reduced to {CYAN}{n_samples}{RESET}{RED} ... halting{RESET}" )
+                    # ~ n_samples=slides_processed
+                elif result==INSUFFICIENT_QUALIFYING_TILES:
+                  time.sleep(1)
+                  print(f"{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus};0H{BOLD_ORANGE}{CLEAR_LINE}TILER_SCHEDULER_{FG3}{my_thread}: {BB}WARNING: not enough qualifying tiles for this case ! ({BOLD_CYAN}{pqn}{RESET}{BOLD}{BB}). Slide will be skipped. {RESET}{RESTORE_CURSOR}", flush=True)
+                  # ~ if slides_processed<n_samples:
+                    # ~ print( f"{RED}TILER_SCHEDULER_{FG3}: FATAL:  n_samples has been reduced to {CYAN}{n_samples}{RESET}{RED} ... halting{RESET}" )
+                    # ~ n_samples=slides_processed
+                elif result==MISSING_IMAGE_FILE:
+                  time.sleep(1)
+                  print(f"{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus};0H{BOLD_ORANGE}{CLEAR_LINE}TILER_SCHEDULER_{FG3}{my_thread}: {BB}WARNING: there was no image file for this case! ({BOLD_CYAN}{pqn}{RESET}{BOLD}{BB}). Slide will be skipped. {RESET}{RESTORE_CURSOR}", flush=True)
+                  # ~ if slides_processed<n_samples:
+                    # ~ print( f"{RED}TILER_SCHEDULER_{FG3}: FATAL:  n_samples has been reduced to {CYAN}{n_samples}{RESET}{RED} ... halting{RESET}" )
+                    # ~ n_samples=slides_processed
+                elif result==EXCLUDED_CLASS:
+                  pass
+                elif result==CLASS_QUOTA_FILLED:
+                  pass
                 else:
-                  if DEBUG>0:
-                    print ( f"{SAVE_CURSOR}\033[{start_row+my_thread};292H{RESET}{CARRIBEAN_GREEN}{slides_processed:3d} slide{s if slides_processed>1 else ' '} done (quota {my_slide_quota}){RESET}{CLEAR_LINE}{RESTORE_CURSOR}S", flush=True )                           
-                if slides_processed>=my_expanded_slide_quota:
-                  break              
-              elif result==INSUFFICIENT_TILES:
-                print(f"{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus};0H{BOLD_ORANGE}{CLEAR_LINE}TILER_SCHEDULER_{FG3}{my_thread}: {BB}WARNING: it would not be possible to extract the required number of tiles from this slide, even if they all qualified ! ({BOLD_CYAN}{pqn}{RESET}{BOLD}{BB}). Slide will be skipped. {RESTORE_CURSOR}", flush=True)
-                time.sleep(1)
-                # ~ if slides_processed<n_samples:
-                  # ~ print( f"{RED}TILER_SCHEDULER_{FG3}: FATAL:  n_samples has been reduced to {CYAN}{n_samples}{RESET}{RED} ... halting{RESET}" )
-                  # ~ n_samples=slides_processed
-              elif result==INSUFFICIENT_QUALIFYING_TILES:
-                time.sleep(1)
-                print(f"{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus};0H{BOLD_ORANGE}{CLEAR_LINE}TILER_SCHEDULER_{FG3}{my_thread}: {BB}WARNING: not enough qualifying tiles for this case ! ({BOLD_CYAN}{pqn}{RESET}{BOLD}{BB}). Slide will be skipped. {RESET}{RESTORE_CURSOR}", flush=True)
-                # ~ if slides_processed<n_samples:
-                  # ~ print( f"{RED}TILER_SCHEDULER_{FG3}: FATAL:  n_samples has been reduced to {CYAN}{n_samples}{RESET}{RED} ... halting{RESET}" )
-                  # ~ n_samples=slides_processed
-              elif result==MISSING_IMAGE_FILE:
-                time.sleep(1)
-                print(f"{SAVE_CURSOR}{RESET}\033[{start_row+num_cpus};0H{BOLD_ORANGE}{CLEAR_LINE}TILER_SCHEDULER_{FG3}{my_thread}: {BB}WARNING: there was no image file for this case! ({BOLD_CYAN}{pqn}{RESET}{BOLD}{BB}). Slide will be skipped. {RESET}{RESTORE_CURSOR}", flush=True)
-                # ~ if slides_processed<n_samples:
-                  # ~ print( f"{RED}TILER_SCHEDULER_{FG3}: FATAL:  n_samples has been reduced to {CYAN}{n_samples}{RESET}{RED} ... halting{RESET}" )
-                  # ~ n_samples=slides_processed
-              elif result==EXCLUDED_CLASS:
-                pass
-              elif result==CLASS_QUOTA_FILLED:
-                pass
-              else:
-                print (f"{SAVE_CURSOR}{RESET}\033[{start_row+my_thread};270H{BOLD_RED}{result}  <<< unknown error{RESET}{RESTORE_CURSOR}",flush=True )                    
-                time.sleep(1)
-                
-                
-              if DEBUG>0:
-                r = f'{RED}FAIL{RESET}' if result==0 else f'{GREEN}SUCCESS{RESET}' if result==1 else f'{ORANGE}INSUF_TILES{RESET}' if result==2 else f'{ORANGE}INSUF_QUALIFYING{RESET}' if result==3 else f'{RED}MISSING_IMAGE_FILE{RESET}' if result==4 else f'{BOLD_GREENBLUE}EXCLUDED_CLASS{RESET}' if result==5 else f'{BRIGHT_GREEN}CLASS_QUOTA_FILLED{RESET}' if result==6 else f'{RED}ERROR{RESET}'  
-                print ( f"\033[{start_row+my_thread};{start_column+210}f{RESET}{CLEAR_LINE}{r} \033[{start_row+my_thread};{start_column+227}f{CLEAR_LINE}{RESET}total={MIKADO}{cumulative_tiles_processed:,} {tiles_processed_by_subtype} {RESET}", flush=True  )                
+                  print (f"{SAVE_CURSOR}{RESET}\033[{start_row+my_thread};270H{BOLD_RED}{result}  <<< unknown error{RESET}{RESTORE_CURSOR}",flush=True )                    
+                  time.sleep(1)
+                  
+                  
+                if DEBUG>0:
+                  r = f'{RED}FAIL{RESET}' if result==0 else f'{GREEN}SUCCESS{RESET}' if result==1 else f'{ORANGE}INSUF_TILES{RESET}' if result==2 else f'{ORANGE}INSUF_QUALIFYING{RESET}' if result==3 else f'{RED}MISSING_IMAGE_FILE{RESET}' if result==4 else f'{BOLD_GREENBLUE}EXCLUDED_CLASS{RESET}' if result==5 else f'{BRIGHT_GREEN}CLASS_QUOTA_FILLED{RESET}' if result==6 else f'{RED}ERROR{RESET}'  
+                  print ( f"\033[{start_row+my_thread};{start_column+210}f{RESET}{CLEAR_LINE}{r} \033[{start_row+my_thread};{start_column+227}f{CLEAR_LINE}{RESET}total={MIKADO}{cumulative_tiles_processed:,} {tiles_processed_by_subtype} {RESET}", flush=True  )                
 
   
       if ( args.make_balanced=='level_down')  & ( np.sum(stop_tiling_by_subtype)==0 ):

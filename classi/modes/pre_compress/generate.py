@@ -70,7 +70,7 @@ SAVE_CURSOR='\033[s'
 RESTORE_CURSOR='\033[u'
 
 SUCCESS=1
-DEBUG=10
+DEBUG=1
 
 def generate( args, class_names, n_samples, highest_class_number, multimode_case_count, unimode_case_count, not_a_multimode_case_count, not_a_multimode_case____image_count, not_a_multimode_case____image_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform ):
 
@@ -683,12 +683,12 @@ def generate( args, class_names, n_samples, highest_class_number, multimode_case
                 if DEBUG>0:
                   print ( f"{label[0]},", end=', ', flush=True )
               except Exception as e:
-                print ( f"{RED}CLASSI:           FATAL: '{e}'{RESET}" )
-                print ( f"{PALE_RED}CLASSI:           FATAL:  explanation: expected a numpy file named {MAGENTA}{args.class_numpy_file_name}{RESET}{PALE_RED} containing the current sample's class number in this location: {MAGENTA}{label_file}{RESET}{PALE_RED}{RESET}" )
-                print ( f"{PALE_RED}CLASSI:           FATAL:  remedy 1: probably no {MAGENTA}{args.class_numpy_file_name}{RESET}{PALE_RED} files exist. Use '{CYAN}./do_all.sh rna <cancer code> {RESET}{PALE_RED}' to regenerate them{RESET}" ) 
-                print ( f"{PALE_RED}CLASSI:           FATAL:  remedy 2: if that doesn't work, use '{CYAN}./do_all.sh rna <cancer code> regen{RESET}{PALE_RED}'. This will regenerate every file in the working dataset from respective sources (note: it can take a long time so try remedy one first){RESET}" )                                    
-                print ( f"{PALE_RED}CLASSI:           FATAL:  remedy 3: this error can also occur if the user specified mapping file (currently filename: '{CYAN}{args.mapping_file_name}{RESET}{PALE_RED}') doesn't exist in '{CYAN}{args.global_data}{RESET}{PALE_RED}', because without it, no class files can be generated'{RESET}" )                                    
-                print ( f"{PALE_RED}CLASSI:           FATAL:  cannot continue - halting now{RESET}" )                 
+                print ( f"{RED}P_C_GENERATE:           FATAL: '{e}'{RESET}" )
+                print ( f"{PALE_RED}P_C_GENERATE:           FATAL:  explanation: expected a numpy file named {MAGENTA}{args.class_numpy_file_name}{RESET}{PALE_RED} containing the current sample's class number in this location: {MAGENTA}{label_file}{RESET}{PALE_RED}{RESET}" )
+                print ( f"{PALE_RED}P_C_GENERATE:           FATAL:  remedy 1: probably no {MAGENTA}{args.class_numpy_file_name}{RESET}{PALE_RED} files exist. Use '{CYAN}./do_all.sh rna <cancer code> {RESET}{PALE_RED}' to regenerate them{RESET}" ) 
+                print ( f"{PALE_RED}P_C_GENERATE:           FATAL:  remedy 2: if that doesn't work, use '{CYAN}./do_all.sh rna <cancer code> regen{RESET}{PALE_RED}'. This will regenerate every file in the working dataset from respective sources (note: it can take a long time so try remedy one first){RESET}" )                                    
+                print ( f"{PALE_RED}P_C_GENERATE:           FATAL:  remedy 3: this error can also occur if the user specified mapping file (currently filename: '{CYAN}{args.mapping_file_name}{RESET}{PALE_RED}') doesn't exist in '{CYAN}{args.global_data}{RESET}{PALE_RED}', because without it, no class files can be generated'{RESET}" )                                    
+                print ( f"{PALE_RED}P_C_GENERATE:           FATAL:  cannot continue - halting now{RESET}" )                 
                 sys.exit(0)     
                 
               rna_labels_new[global_image_rna_files_processed] =  label[0]
@@ -976,12 +976,12 @@ def generate( args, class_names, n_samples, highest_class_number, multimode_case
                     print ( f"{ORANGE}P_C_GENERATE:   INFO: label is greater than '{CYAN}HIGHEST_CLASS_NUMBER{RESET}' - - skipping this example (label = {MIKADO}{label[0]}{ORANGE}){RESET}"      )
                   break
               except Exception as e:
-                print ( f"{RED}CLASSI:         FATAL: '{e}'{RESET}" )
-                print ( f"{RED}CLASSI:         FATAL:  explanation: expected a numpy file named {MAGENTA}{args.class_numpy_file_name}{RESET}{RED} containing the current sample's class number in this location: {MAGENTA}{label_file}{RESET}{RED}{RESET}" )
-                print ( f"{RED}CLASSI:         FATAL:  remedy 1: probably no {MAGENTA}{args.class_numpy_file_name}{RESET}{RED} files exist. Use '{CYAN}./do_all.sh rna <cancer code> {RESET}{RED}' to regenerate them{RESET}" ) 
-                print ( f"{RED}CLASSI:         FATAL:  remedy 2: if that doesn't work, use '{CYAN}./do_all.sh rna <cancer code> regen{RESET}{RED}'. This will regenerate every file in the working dataset from respective sources (note: it can take a long time so try remedy one first){RESET}" )                                    
-                print ( f"{RED}CLASSI:         FATAL:  remedy 3: this error can also occur if the user specified mapping file (currently filename: '{CYAN}{args.mapping_file_name}{RESET}{RED}') doesn't exist in '{CYAN}{args.global_data}{RESET}{RED}', because without it, no class files can be generated'{RESET}" )                                    
-                print ( f"{RED}CLASSI:         FATAL:  cannot continue - halting now{RESET}" )                 
+                print ( f"{RED}P_C_GENERATE:         FATAL: '{e}'{RESET}" )
+                print ( f"{RED}P_C_GENERATE:         FATAL:  explanation: expected a numpy file named {MAGENTA}{args.class_numpy_file_name}{RESET}{RED} containing the current sample's class number in this location: {MAGENTA}{label_file}{RESET}{RED}{RESET}" )
+                print ( f"{RED}P_C_GENERATE:         FATAL:  remedy 1: probably no {MAGENTA}{args.class_numpy_file_name}{RESET}{RED} files exist. Use '{CYAN}./do_all.sh rna <cancer code> {RESET}{RED}' to regenerate them{RESET}" ) 
+                print ( f"{RED}P_C_GENERATE:         FATAL:  remedy 2: if that doesn't work, use '{CYAN}./do_all.sh rna <cancer code> regen{RESET}{RED}'. This will regenerate every file in the working dataset from respective sources (note: it can take a long time so try remedy one first){RESET}" )                                    
+                print ( f"{RED}P_C_GENERATE:         FATAL:  remedy 3: this error can also occur if the user specified mapping file (currently filename: '{CYAN}{args.mapping_file_name}{RESET}{RED}') doesn't exist in '{CYAN}{args.global_data}{RESET}{RED}', because without it, no class files can be generated'{RESET}" )                                    
+                print ( f"{RED}P_C_GENERATE:         FATAL:  cannot continue - halting now{RESET}" )                 
                 sys.exit(0)     
 
   
@@ -1033,15 +1033,15 @@ def generate( args, class_names, n_samples, highest_class_number, multimode_case
       print( f"P_C_GENERATE:   INFO:     fnames_new.shape               = {GOLD}{fnames_new.shape}{RESET}",             flush=True       )
 
     if args.n_samples[0] > case_count:
-      print( f"{ORANGE}P_C_GENERATE:    WARNG: proposed number of samples {CYAN}N_SAMPLES{RESET}{ORANGE} (= {MIKADO}{args.n_samples[0]}{ORANGE}) is greater than the number of cases processed, 'case_count' ( = {MIKADO}{case_count}{RESET}{ORANGE}){RESET}" )
-      print( f"{ORANGE}P_C_GENERATE:    WARNG: now changing {CYAN}args.n_samples[0]){ORANGE} to {MIKADO}{case_count}{RESET}{RESET}" )
-      print( f"{ORANGE}P_C_GENERATE:    WARNG: explanation: perhaps you specified a flag such as {CYAN}MULTIMODE____TEST{RESET}{ORANGE}, which selects a subset of the available samples, and this subset is smaller that {CYAN}{n_samples}{RESET}{ORANGE}. This is perfectly fine.{RESET}" )
+      print( f"{ORANGE}P_C_GENERATE:   WARN: proposed number of samples {CYAN}N_SAMPLES{RESET}{ORANGE} (= {MIKADO}{args.n_samples[0]}{ORANGE}) is greater than the number of cases processed, 'case_count' ( = {MIKADO}{case_count}{RESET}{ORANGE}){RESET}" )
+      print( f"{ORANGE}P_C_GENERATE:   WARN: now changing {CYAN}args.n_samples[0]){ORANGE} to {MIKADO}{case_count}{RESET}{RESET}" )
+      print( f"{ORANGE}P_C_GENERATE:   WARN: explanation: perhaps you specified a flag such as {CYAN}MULTIMODE____TEST{RESET}{ORANGE}, which selects a subset of the available samples, and this subset is smaller that {CYAN}{n_samples}{RESET}{ORANGE}. This is perfectly fine.{RESET}" )
       args.n_samples[0] = case_count
 
     if args.batch_size[0] > case_count:
-      print( f"{ORANGE}P_C_GENERATE:    WARNG: proposed batch size ({CYAN}BATCH_SIZE{RESET} = {MIKADO}{args.batch_size[0]}{RESET}{ORANGE}) is greater than the number of cases available, 'case_count'  ( = {MIKADO}{case_count}{RESET}{ORANGE})" )
-      print( f"{ORANGE}P_C_GENERATE:    WARNG: changing {CYAN}args.batch_size[0]){CYAN} to {MIKADO}{int(0.2*global_rna_files_processed)}{RESET}" )
-      print( f"{ORANGE}P_C_GENERATE:    WARNG: further comment: If you don't like this value of {CYAN}BATCH_SIZE{RESET}{ORANGE}, stop the program and provide a new value in the configuration file {MAGENTA}conf.py{RESET}")
+      print( f"{ORANGE}P_C_GENERATE:   WARN: proposed batch size ({CYAN}BATCH_SIZE{RESET} = {MIKADO}{args.batch_size[0]}{RESET}{ORANGE}) is greater than the number of cases available, 'case_count'  ( = {MIKADO}{case_count}{RESET}{ORANGE})" )
+      print( f"{ORANGE}P_C_GENERATE:   WARN: changing {CYAN}args.batch_size[0]){CYAN} to {MIKADO}{int(0.2*global_rna_files_processed)}{RESET}" )
+      print( f"{ORANGE}P_C_GENERATE:   WARN: further comment: If you don't like this value of {CYAN}BATCH_SIZE{RESET}{ORANGE}, stop the program and provide a new value in the configuration file {MAGENTA}conf.py{RESET}")
       args.batch_size[0] = int(0.2*global_rna_files_processed)
 
 

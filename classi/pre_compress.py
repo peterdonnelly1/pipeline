@@ -83,18 +83,18 @@ def main( args ):
 
 
   if DEBUG>0:
-    print ( f"\nCLASSI:         INFO:     torch         version =  {ASPARAGUS}{torch.__version__}{RESET}"      )
-    print ( f"CLASSI:         INFO:     torchvision   version =  {ASPARAGUS}{torchvision.__version__}{RESET}"  )
-    print ( f"CLASSI:         INFO:     scipy         version =  {ASPARAGUS}{scipy.version.version}{RESET}"    )
-    print ( f"CLASSI:         INFO:     sklearn       version =  {ASPARAGUS}{sklearn.__version__}{RESET}"      )
-    print ( f"CLASSI:         INFO:     matplotlib    version =  {ASPARAGUS}{matplotlib.__version__}{RESET}"   ) 
-    print ( f"CLASSI:         INFO:     seaborn       version =  {ASPARAGUS}{sns.__version__}{RESET}"          )
-    print ( f"CLASSI:         INFO:     pandas        version =  {ASPARAGUS}{pd.__version__}{RESET}"           )  
-    print ( f"CLASSI:         INFO:     numpy         version =  {ASPARAGUS}{np.version.version}{RESET}"       )  
-    print ( f"CLASSI:         INFO:     cuda toolkit  version =  {ASPARAGUS}{torch.version.cuda}{RESET}\n"     )  
-    print ( f"CLASSI:         INFO:     cuda          version via os command = \n{ASPARAGUS}",    flush=True   )  
+    print ( f"\nPRE_COMPRESS:   INFO:     torch         version =  {ASPARAGUS}{torch.__version__}{RESET}"      )
+    print ( f"PRE_COMPRESS:   INFO:     torchvision   version =  {ASPARAGUS}{torchvision.__version__}{RESET}"  )
+    print ( f"PRE_COMPRESS:   INFO:     scipy         version =  {ASPARAGUS}{scipy.version.version}{RESET}"    )
+    print ( f"PRE_COMPRESS:   INFO:     sklearn       version =  {ASPARAGUS}{sklearn.__version__}{RESET}"      )
+    print ( f"PRE_COMPRESS:   INFO:     matplotlib    version =  {ASPARAGUS}{matplotlib.__version__}{RESET}"   ) 
+    print ( f"PRE_COMPRESS:   INFO:     seaborn       version =  {ASPARAGUS}{sns.__version__}{RESET}"          )
+    print ( f"PRE_COMPRESS:   INFO:     pandas        version =  {ASPARAGUS}{pd.__version__}{RESET}"           )  
+    print ( f"PRE_COMPRESS:   INFO:     numpy         version =  {ASPARAGUS}{np.version.version}{RESET}"       )  
+    print ( f"PRE_COMPRESS:   INFO:     cuda toolkit  version =  {ASPARAGUS}{torch.version.cuda}{RESET}\n"     )  
+    print ( f"PRE_COMPRESS:   INFO:     cuda          version via os command = \n{ASPARAGUS}",    flush=True   )  
     print ( f"{os.system('/usr/local/cuda/bin/nvcc --version')}{RESET}\n",                    flush=True    )
-    print ( f"CLASSI:         INFO:     cuda driver  version via os command = \n{ASPARAGUS}",    flush=True    )  
+    print ( f"PRE_COMPRESS:   INFO:     cuda driver  version via os command = \n{ASPARAGUS}",    flush=True    )  
     print ( f"{os.system('cat /proc/driver/nvidia/version')}{RESET}\n",                       flush=True    )
 
 
@@ -345,19 +345,19 @@ g_xform={WHITE}{ORANGE        if not args.gene_data_transform[0]=='NONE' else MA
       break
     
   if master_spreadsheet_found==False:
-    print ( f"{RED}CLASSI:        FATAL:  could not find the '{CYAN}{dataset}{RESET}{RED}' master clinical data spreadsheet in {MAGENTA}{subtype_specific_global_data_location}{RESET}" )
-    print ( f"{RED}CLASSI:        FATAL:  remedy: ensure there's a valid master clinical data spreadsheet (named {MAGENTA}{dataset}_mapping_file_MASTER.csv{RESET}{RED}) in {MAGENTA}{subtype_specific_global_data_location}{RESET}" )
-    print ( f"{RED}CLASSI:        FATAL:          the master clinical data spreadsheet is created with a command line similar to this: {CYAN}python create_master_mapping_file.py  --dataset <DATASET>{RESET}{RED}{RESET}" )                                        
-    print ( f"{RED}CLASSI:        FATAL:          or with the convenience shell script: {CYAN}./create_master.sh <DATASET>{RESET}{RED}{RESET}" )                                        
-    print ( f"{RED}CLASSI:        FATAL:          detailed instructions on how to construct a master spreadsheet can be found in the comments section at the start of {CYAN}create_master_mapping_file.py{RESET}{RED}){RESET}" )                                        
-    print ( f"{RED}CLASSI:        FATAL:  cannot continue - halting now{RESET}" )                 
+    print ( f"{RED}PRE_COMPRESS:  FATAL:  could not find the '{CYAN}{dataset}{RESET}{RED}' master clinical data spreadsheet in {MAGENTA}{subtype_specific_global_data_location}{RESET}" )
+    print ( f"{RED}PRE_COMPRESS:  FATAL:  remedy: ensure there's a valid master clinical data spreadsheet (named {MAGENTA}{dataset}_mapping_file_MASTER.csv{RESET}{RED}) in {MAGENTA}{subtype_specific_global_data_location}{RESET}" )
+    print ( f"{RED}PRE_COMPRESS:  FATAL:          the master clinical data spreadsheet is created with a command line similar to this: {CYAN}python create_master_mapping_file.py  --dataset <DATASET>{RESET}{RED}{RESET}" )                                        
+    print ( f"{RED}PRE_COMPRESS:  FATAL:          or with the convenience shell script: {CYAN}./create_master.sh <DATASET>{RESET}{RED}{RESET}" )                                        
+    print ( f"{RED}PRE_COMPRESS:  FATAL:          detailed instructions on how to construct a master spreadsheet can be found in the comments section at the start of {CYAN}create_master_mapping_file.py{RESET}{RED}){RESET}" )                                        
+    print ( f"{RED}PRE_COMPRESS:  FATAL:  cannot continue - halting now{RESET}" )                 
     sys.exit(0)       
 
 
   fqn = f"{subtype_specific_global_data_location}/{master_spreadsheet_name}"
 
   if DEBUG>0:
-    print ( f"CLASSI:         INFO:  extracting {CYAN}{dataset}{RESET} subtype names from {MAGENTA}{fqn}{RESET}'" )
+    print ( f"PRE_COMPRESS:   INFO:  extracting {CYAN}{dataset}{RESET} subtype names from {MAGENTA}{fqn}{RESET}'" )
 
 
   subtype_names           = pd.read_csv( fqn, usecols=[names_column], sep=',').dropna()                    # use pandas to extract data, dropping all empty cells
@@ -365,32 +365,32 @@ g_xform={WHITE}{ORANGE        if not args.gene_data_transform[0]=='NONE' else MA
 
 
   if DEBUG>99:
-    print ( f"CLASSI:         INFO:  highest_class_number                          = {MIKADO}{highest_class_number}{RESET}" )
-    print ( f"CLASSI:         INFO:  len(subtype_names_as_list)                    = {MIKADO}{len(subtype_names_as_list)}{RESET}" )
-    print ( f"CLASSI:         INFO:  subtype_names_as_list                         = {CYAN}{subtype_names_as_list}{RESET}" )
-    print ( f"CLASSI:         INFO:  subtype_names_as_list[0:highest_class_number] = {CYAN}{subtype_names_as_list[0:highest_class_number+1]}{RESET}" )
+    print ( f"PRE_COMPRESS:   INFO:  highest_class_number                          = {MIKADO}{highest_class_number}{RESET}" )
+    print ( f"PRE_COMPRESS:   INFO:  len(subtype_names_as_list)                    = {MIKADO}{len(subtype_names_as_list)}{RESET}" )
+    print ( f"PRE_COMPRESS:   INFO:  subtype_names_as_list                         = {CYAN}{subtype_names_as_list}{RESET}" )
+    print ( f"PRE_COMPRESS:   INFO:  subtype_names_as_list[0:highest_class_number] = {CYAN}{subtype_names_as_list[0:highest_class_number+1]}{RESET}" )
 
   if highest_class_number > len(subtype_names_as_list)-1:
-    print( f"{BOLD}{ORANGE}CLASSI:         WARNG: config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{BOLD}{ORANGE}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{BOLD}{ORANGE}') = \
+    print( f"{BOLD}{ORANGE}PRE_COMPRESS:   WARN: config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{BOLD}{ORANGE}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{BOLD}{ORANGE}') = \
 {MIKADO}{highest_class_number}{RESET}{BOLD}{ORANGE}, but this is greater than the highest class (subtype) number in the dataset ({MIKADO}{len(subtype_names_as_list)-1}{RESET}{BOLD}{ORANGE}) (note that class (cancer subtype) numbers start at zero){RESET}", flush=True)
-    print( f"{BOLD}{ORANGE}CLASSI:         WARNG: therefore the config setting will be ignored. Continuing ...{RESET}", flush=True)
+    print( f"{BOLD}{ORANGE}PRE_COMPRESS:   WARN: therefore the config setting will be ignored. Continuing ...{RESET}", flush=True)
     time.sleep(4)
   
   if highest_class_number < 2:
-    print( f"{BOLD}{RED}CLASSI:         FATAL: config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{BOLD}{RED}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{BOLD}{RED}') = \
+    print( f"{BOLD}{RED}PRE_COMPRESS:  FATAL: config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{BOLD}{RED}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{BOLD}{RED}') = \
 {MIKADO}{highest_class_number}{RESET}{BOLD}{RED}, but there must be at least two classes (cancer subtypes) for classification to be meaningful", flush=True)
-    print( f"{BOLD}{RED}CLASSI:         FATAL: cannot continue ... halting{RESET}", flush=True)
+    print( f"{BOLD}{RED}PRE_COMPRESS:   FATAL: cannot continue ... halting{RESET}", flush=True)
     time.sleep(10)
     sys.exit(0)
 
   class_specific_global_data_location   = f"{base_dir}/{dataset}_global"
 
   if len(subtype_names_as_list) <2:
-    print( f"{BOLD}{RED}CLASSI:         FATAL:  only '{CYAN}{len(subtype_names_as_list)}{RESET}{BOLD}{RED}' classes (subtypes) were detected but there must be at least two class names (cancer subtype names) \
+    print( f"{BOLD}{RED}PRE_COMPRESS:   FATAL:  only '{CYAN}{len(subtype_names_as_list)}{RESET}{BOLD}{RED}' classes (subtypes) were detected but there must be at least two class names (cancer subtype names) \
 for classification to be meaningful",                                                           flush=True   )
-    print( f"{BOLD}{RED}CLASSI:         FATAL:  further information: review the applicable MASTER mapping file ({MAGENTA}{class_specific_global_data_location}/{args.mapping_file_name}{RESET}{BOLD}{RED}). \
+    print( f"{BOLD}{RED}PRE_COMPRESS:   FATAL:  further information: review the applicable MASTER mapping file ({MAGENTA}{class_specific_global_data_location}/{args.mapping_file_name}{RESET}{BOLD}{RED}). \
 Ensure that at leat two subtypes are listed in the leftmost column, and that the first of these is in row 4",                                                                                flush=True   ) 
-    print( f"{BOLD}{RED}CLASSI:         FATAL:  cannot continue ... halting{RESET}",                                                                                                         flush=True   ) 
+    print( f"{BOLD}{RED}PRE_COMPRESS:   FATAL:  cannot continue ... halting{RESET}",                                                                                                         flush=True   ) 
     time.sleep(10)
     sys.exit(0)
 
@@ -400,7 +400,7 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
   # ~ class_names = subtype_names_as_list
   
   if DEBUG>0:
-    print ( f"CLASSI:         INFO:  subtype names  = {CYAN}{class_names}{RESET}" )
+    print ( f"PRE_COMPRESS:   INFO:  subtype names  = {CYAN}{class_names}{RESET}" )
 
 
 ########################
@@ -437,25 +437,25 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
 
   if just_test!='True':
     if  not (  ( args.cases=='ALL_ELIGIBLE_CASES' ) | ( args.cases=='UNIMODE_CASE' ) | ( args.cases=='MULTIMODE____TEST' )  ):
-      print( f"{RED}CLASSI:         FATAL: in training mode ('{CYAN}just_test=='False'{RESET}{RED})', user option  {CYAN}-c ('cases')  {RESET}{RED} = '{CYAN}{args.cases}{RESET}{RED}' is not supported{RESET}" )
-      print( f"{RED}CLASSI:         FATAL: explanation:  in training mode the following options are supported: '{CYAN}ALL_ELGIBLE_CASES{RESET}{RED}', '{CYAN}MULTIMODE____TEST{RESET}{RED}', '{CYAN}UNIMODE_CASE{RESET}{RED}'" )
-      print( f"{RED}CLASSI:         FATAL: ... halting now{RESET}" )
+      print( f"{RED}PRE_COMPRESS:   FATAL: in training mode ('{CYAN}just_test=='False'{RESET}{RED})', user option  {CYAN}-c ('cases')  {RESET}{RED} = '{CYAN}{args.cases}{RESET}{RED}' is not supported{RESET}" )
+      print( f"{RED}PRE_COMPRESS:   FATAL: explanation:  in training mode the following options are supported: '{CYAN}ALL_ELGIBLE_CASES{RESET}{RED}', '{CYAN}MULTIMODE____TEST{RESET}{RED}', '{CYAN}UNIMODE_CASE{RESET}{RED}'" )
+      print( f"{RED}PRE_COMPRESS:   FATAL: ... halting now{RESET}" )
       sys.exit(0)
   else:
     if pretrain=='True':
-      print( f"{RED}CLASSI:         FATAL: the {CYAN}PRETRAIN{RESET}{RED} option ({CYAN}-p True{RESET}{RED}) corresponding to python argument {CYAN}--pretrain True{RESET}{RED} is not supported in test mode (because it makes no sense){RESET}", flush=True)
-      print( f"{RED}CLASSI:         FATAL: ... halting now{RESET}" )
+      print( f"{RED}PRE_COMPRESS:   FATAL: the {CYAN}PRETRAIN{RESET}{RED} option ({CYAN}-p True{RESET}{RED}) corresponding to python argument {CYAN}--pretrain True{RESET}{RED} is not supported in test mode (because it makes no sense){RESET}", flush=True)
+      print( f"{RED}PRE_COMPRESS:   FATAL: ... halting now{RESET}" )
       sys.exit(0)
     if args.cases=='ALL_ELIGIBLE_CASES':
       pass
-      # ~ print( f"{RED}CLASSI:         FATAL: in test mode '{RESET}{CYAN}-c ALL_ELIGIBLE_CASES{RESET}{RED}' is not supported{RESET}" )
-      # ~ print( f"{RED}CLASSI:         FATAL:   explanation:  The '{CYAN}CASES{RESET}{RED}' subset '{CYAN}ALL_ELIGIBLE_CASES{RESET}{RED}' includes examples used to train the model that is about to be deployed. Therefore, the results would be meaningless{RESET}" )
-      # ~ print( f"{RED}CLASSI:         FATAL:   explanation:  in test mode the following case subsets are supported: ''{CYAN}UNIMODE_CASE{RESET}{RED}', '{CYAN}MULTIMODE____TEST{RESET}{RED}'" )
-      # ~ print( f"{RED}CLASSI:         FATAL:   ... halting now{RESET}" )
+      # ~ print( f"{RED}PRE_COMPRESS:   FATAL: in test mode '{RESET}{CYAN}-c ALL_ELIGIBLE_CASES{RESET}{RED}' is not supported{RESET}" )
+      # ~ print( f"{RED}PRE_COMPRESS:   FATAL:   explanation:  The '{CYAN}CASES{RESET}{RED}' subset '{CYAN}ALL_ELIGIBLE_CASES{RESET}{RED}' includes examples used to train the model that is about to be deployed. Therefore, the results would be meaningless{RESET}" )
+      # ~ print( f"{RED}PRE_COMPRESS:   FATAL:   explanation:  in test mode the following case subsets are supported: ''{CYAN}UNIMODE_CASE{RESET}{RED}', '{CYAN}MULTIMODE____TEST{RESET}{RED}'" )
+      # ~ print( f"{RED}PRE_COMPRESS:   FATAL:   ... halting now{RESET}" )
       # ~ sys.exit(0)
     elif  not ( ( args.cases=='UNIMODE_CASE' ) | ( args.cases=='MULTIMODE____TEST' )  ):
-      print( f"{RED}CLASSI:         FATAL: unknown case subset: {CYAN}-c ('cases')  {RESET}{RED} = '{CYAN}{args.cases}{RESET}{RED}'{RESET}" )
-      print( f"{RED}CLASSI:         FATAL:   ... halting now{RESET}" )
+      print( f"{RED}PRE_COMPRESS:   FATAL: unknown case subset: {CYAN}-c ('cases')  {RESET}{RED} = '{CYAN}{args.cases}{RESET}{RED}'{RESET}" )
+      print( f"{RED}PRE_COMPRESS:   FATAL:   ... halting now{RESET}" )
       sys.exit(0)
 
   if just_test=='True':
@@ -599,7 +599,7 @@ f"\
 
   if (just_test=='True') & (input_mode=='image') & (multimode!= 'image_rna') & (use_autoencoder_output!="True"):   
     if not ( batch_size == int( math.sqrt(batch_size) + 0.5) ** 2 ):
-      print( f"\033[31;1mCLASSI:         FATAL:  in test mode 'batch_size' (currently {batch_size}) must be a perfect square (4, 9, 16, 25 ...) to permit selection of a a 2D contiguous patch. Halting [2989].\033[m" )
+      print( f"\033[31;1mPRE_COMPRESS:   FATAL:  in test mode 'batch_size' (currently {batch_size}) must be a perfect square (4, 9, 16, 25 ...) to permit selection of a a 2D contiguous patch. Halting [2989].\033[m" )
       sys.exit(0)      
 
   
@@ -845,7 +845,7 @@ f"\
       n_genes = generate( args, class_names, n_samples, highest_class_number, multimode_case_count, unimode_case_count, not_a_multimode_case_count, not_a_multimode_case____image_count, not_a_multimode_case____image_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform  ) 
 
       if DEBUG>0:
-        print( f"CLASSI:         INFO:     n_genes (calculated)           = {MIKADO}{n_genes}{RESET}"     )
+        print( f"PRE_COMPRESS:   INFO:     n_genes (calculated)           = {MIKADO}{n_genes}{RESET}"     )
             
       if DEBUG>5:
         print( f"PRE_COMPRESS:     INFO:n_samples               = {BLEU}{n_samples}{RESET}"       )
@@ -900,12 +900,12 @@ f"\
     #(5) Load network
 
     if DEBUG>1:                                                                                                       
-      print( f"CLASSI:         INFO: {BOLD}5 about to load network {MIKADO}{nn_type_img}{RESET}{BOLD} and {MIKADO}{nn_type_rna}{RESET}" )  
+      print( f"PRE_COMPRESS:   INFO: {BOLD}5 about to load network {MIKADO}{nn_type_img}{RESET}{BOLD} and {MIKADO}{nn_type_rna}{RESET}" )  
                                      
     model = PRECOMPRESS( args, gpu, rank, cfg, input_mode, nn_type_img, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, embedding_dimensions, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters  )   
 
     if DEBUG>1: 
-      print( f"CLASSI:         INFO:    {ITALICS}network loaded{RESET}" )
+      print( f"PRE_COMPRESS:   INFO:    {ITALICS}network loaded{RESET}" )
 
 
     # (6) maybe load existing models (two cases where this happens: (i) test mode and (ii) pretrain option selected )
@@ -919,14 +919,14 @@ f"\
 
       try:
         model.load_state_dict(torch.load(fqn_pretrained))
-        print( f"{ORANGE}CLASSI:         INFO:  pre-trained model named {CYAN}{fqn_pretrained}{RESET}{ORANGE} exists.  Will load and use pre-trained model{RESET}", flush=True)
+        print( f"{ORANGE}PRE_COMPRESS:   INFO:  pre-trained model named {CYAN}{fqn_pretrained}{RESET}{ORANGE} exists.  Will load and use pre-trained model{RESET}", flush=True)
       except Exception as e:
-        print( f"{ORANGE}CLASSI:         INFO:  no pre-trained model named {CYAN}{fqn_pretrained}{RESET}{ORANGE} exists.  Will attempt to used model {CYAN}{fqn_image}{RESET}{ORANGE}, if it exists{RESET}", flush=True)
+        print( f"{ORANGE}PRE_COMPRESS:   INFO:  no pre-trained model named {CYAN}{fqn_pretrained}{RESET}{ORANGE} exists.  Will attempt to used model {CYAN}{fqn_image}{RESET}{ORANGE}, if it exists{RESET}", flush=True)
         try:
           model.load_state_dict(torch.load(fqn_image))
-          print( f"{ORANGE}CLASSI:         INFO:  model named {CYAN}{fqn_image}{RESET}{ORANGE} exists.  Will load and use this network model as the starting point for training{RESET}", flush=True)
+          print( f"{ORANGE}PRE_COMPRESS:   INFO:  model named {CYAN}{fqn_image}{RESET}{ORANGE} exists.  Will load and use this network model as the starting point for training{RESET}", flush=True)
         except Exception as e:
-          print( f"{RED}CLASSI:         INFO:  mo model named {CYAN}{fqn_image}{RESET}{RED} exists.  Cannot continue{RESET}", flush=True)
+          print( f"{RED}PRE_COMPRESS:   INFO:  mo model named {CYAN}{fqn_image}{RESET}{RED} exists.  Cannot continue{RESET}", flush=True)
           time.sleep(4)
           sys.exit(0)
 

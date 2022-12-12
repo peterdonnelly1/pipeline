@@ -36,82 +36,103 @@ np.set_printoptions(linewidth=100000)
 
 def _dbscan( args, class_names, pct_test, epsilon ):
 
+  input_mode           = args.input_mode
+  algorithm            = 'best'
+  eps                  = epsilon                                                                           # 'Maximum distance between two samples for one to be considered as in the neighborhood of the other. This is the most important DBSCAN parameter'
+  min_samples          = 5                                                                                 # 'Number of samples (or total weight) in a neighborhood for a point to be considered as a core point. This includes the point itself'
+
  
   # 1. load and prepare data
 
-  algorithm            = 'best'
-  eps                  = epsilon                                                                               # 'Maximum distance between two samples for one to be considered as in the neighborhood of the other. This is the most important DBSCAN parameter'
-  min_samples          = 5                                                                                 # 'Number of samples (or total weight) in a neighborhood for a point to be considered as a core point. This includes the point itself'
-  
   if args.use_autoencoder_output=='True':
     
     fqn = f"../logs/ae_output_features.pt"
       
     if DEBUG>0:
-      print( f"{BRIGHT_GREEN}DBSCAN:          INFO:  about to load autoencoder generated feature file from input file '{MAGENTA}{fqn}{RESET}'", flush=True )
+      print( f"{BRIGHT_GREEN}DBSCAN:         INFO:  about to load autoencoder generated embeddings from input file '{MAGENTA}{fqn}{RESET}'", flush=True )
     try:
       dataset  = torch.load( fqn )
       if DEBUG>0:
-        print( f"{BRIGHT_GREEN}DBSCAN:          INFO:  dataset successfully loaded{RESET}" ) 
+        print( f"{BRIGHT_GREEN}DBSCAN:         INFO:  dataset successfully loaded{RESET}" ) 
     except Exception as e:
-      print ( f"{RED}DBSCAN:          ERROR:  could not load feature file. Did you remember to run the system with {CYAN}NN_MODE='pre_compress'{RESET}{RED} and an autoencoder such as {CYAN}'AEDENSE'{RESET}{RED} to generate the feature file? ... can't continue, so halting now [143]{RESET}" )
-      print ( f"{RED}DBSCAN:          ERROR:  the exception was: {CYAN}'{e}'{RESET}" )
-      print ( f"{RED}DBSCAN:          ERROR:  halting now" )
+      print ( f"{RED}DBSCAN:           FATAL:  could not load feature file. Did you remember to run the system with {CYAN}NN_MODE='pre_compress'{RESET}{RED} and an autoencoder such as {CYAN}'AEDENSE'{RESET}{RED} to generate the feature file? ... can't continue, so halting now [143]{RESET}" )
+      print ( f"{RED}DBSCAN:           FATAL:  the exception was: {CYAN}'{e}'{RESET}" )
+      print ( f"{RED}DBSCAN:           FATAL:  halting now" )
       sys.exit(0)
   
-    embeddings  = dataset['embeddings'].cpu().numpy().squeeze()
-    labels      = dataset['labels']    .cpu().numpy().squeeze()
+    samples      = dataset['embeddings'].cpu().detach().numpy().squeeze()                                           # eliminate empty dimensions
+    labels       = dataset['labels'    ].cpu().detach().numpy().squeeze()                                           # eliminate empty dimensions
     
     if DEBUG>0:
-      print ( f"DBSCAN:          INFO:  np.sum(embeddings)      =  {MIKADO}{np.sum(embeddings)}{RESET}"      ) 
+      print ( f"DBSCAN:         INFO:  (embeddings) samples.shape     =  {MIKADO}{samples.shape}{RESET}"      ) 
+      print ( f"DBSCAN:         INFO:  sanity check: np.sum(samples)  =  {MIKADO}{np.sum(samples):.2f}{RESET}"      ) 
     
-    if np.sum(embeddings)==0.0:
-      print ( f"{RED}DBSCAN:          ERROR:  all embeddings are zero vectors - the input file was completely degenerate{RESET}" )
-      print ( f"{RED}DBSCAN:          ERROR:  not halting, but might as well be{RESET}" )
-    
-    if DEBUG>0:
-      print ( f"DBSCAN:          INFO:  about to flatten channels and r,g,b dimensions"      ) 
-    
-    x_npy = embeddings
-    
-    
-    if DEBUG>0:
-      print ( f"DBSCAN:          INFO:  x_npy.shape          = {MIKADO}{x_npy.shape}{RESET}"      ) 
-      print ( f"DBSCAN:          INFO:  about to convert to pandas dataframe"                     )  
+    if np.sum(samples)==0.0:
+      print ( f"{RED}DBSCAN:           FATAL:  all samples are zero vectors - the input file was completely degenerate{RESET}" )
+      print ( f"{RED}DBSCAN:           FATAL:  not halting, but might as well be{RESET}" )
  
   else:
-    
-    image_file = "../logs/all_images_from_last_run_of_generate.npy" 
-    label_file = "../logs/all_image_labels__from_last_run_of_generate.npy"
-    
-    embeddings = np.load( image_file )
-    labels     = np.load( label_file )
   
-    if DEBUG>0:
-      print( f"\n{GREY_BACKGROUND}DBSCAN:   INFO: {WHITE}{CHARTREUSE}DBSCAN clustering{WHITE}: samples_file={MAGENTA}{image_file}{WHITE}, labels_file={MAGENTA}{label_file}{WHITE}, eps={MIKADO}{eps}{WHITE}, metric={CYAN}{args.metric}{WHITE}, min_samples={MIKADO}{min_samples}{WHITE}                                                          {RESET}" )  
+    if input_mode=='image':
   
-    x_npy = embeddings.reshape( embeddings.shape[0], embeddings.shape[1]*embeddings.shape[2]*embeddings.shape[3] )
-    
-    if DEBUG>0:
-      print( f"DBSCAN:         INFO:  image file shape {MIKADO}{x_npy.shape}{RESET}" )
-      print( f"DBSCAN:         INFO:  label file shape {MIKADO}{labels.shape}{RESET}" )  
-      print( f"DBSCAN:         INFO:  image file {CYAN}{image_file}{RESET} \r\033[60Ccontains {MIKADO}{x_npy.shape[0]}{RESET} samples each with {MIKADO}{x_npy.shape[1]}{RESET} features", flush=True)
-      print( f"DBSCAN:         INFO:  label file {CYAN}{label_file}{RESET} \r\033[60Ccontains {MIKADO}{x_npy.shape[0]}{RESET} labels", flush=True)
+      sample_file = "../logs/all_images_from_last_run_of_generate.npy" 
+      label_file = "../logs/all_image_labels__from_last_run_of_generate.npy"
+      
+      try:
+        samples      =  np.load( sample_file )
+      except Exception as e:
+        print( f"{RED}DBSCAN:         INFO:  could not load file:  {CYAN}{sample_file}{RESET}", flush=True)
+        print( f"{RED}DBSCAN:         INFO:  can't continue --- halting{RESET}",         flush=True)
+        time.sleep(4)
+        sys.exit(0)
+              
+      try:
+        labels       =  np.load( label_file  )
+      except Exception as e:
+        print( f"{RED}DBSCAN:         INFO:  could not load file: {CYAN}{sample_file}{RESET}", flush=True)
+        print( f"{RED}DBSCAN:         INFO:  can't continue --- halting{RESET}",         flush=True)
+        time.sleep(4)
+        sys.exit(0)
+      
+      if DEBUG>0:
+        print ( f"DBSCAN:         INFO:  input                  = {MIKADO}{input_mode}{RESET}",                flush=True   ) 
+        print ( f"DBSCAN:         INFO:  about to flatten channels and r,g,b dimensions",                      flush=True   ) 
+        print ( f"DBSCAN:         INFO:  (flattened) samples.shape          = {MIKADO}{samples.shape}{RESET}", flush=True   ) 
   
-    if DEBUG>0:
-      print( f"DBSCAN:         INFO:  x_npy.shape     = {MIKADO}{x_npy.shape}{RESET}" )  
-      # ~ print( f"DBSCAN:         INFO:  x_npy[0].shape  = {MIKADO}{x_npy[0].shape}{RESET}" )  
+    if input_mode=='rna': 
   
-    if DEBUG>2:
-      print( f"DBSCAN:         INFO:  embeddings[0] = \n{MIKADO}{embeddings[0,2,40:80,90:100]}{RESET}" )  
-      print( f"DBSCAN:         INFO:  x_npy [0]  =  {MIKADO}{x_npy[0,1000:1100]}{RESET}" )  
+      sample_file = "../logs/all_rna_seq_vectors_from_last_run_of_generate.npy" 
+      label_file = "../logs/all_rna_seq_vector_labels_from_last_run_of_generate.npy"
+      
+      try:
+        samples      =  np.load( sample_file ).squeeze()
+      except Exception as e:
+        print( f"{RED}DBSCAN:         INFO:  could not load file:  {CYAN}{sample_file}{RESET}", flush=True)
+        print( f"{RED}DBSCAN:         INFO:  can't continue --- halting{RESET}",         flush=True)
+        time.sleep(4)
+        sys.exit(0)
+              
+      try:
+        labels       =  np.load( label_file  )
+      except Exception as e:
+        print( f"{RED}DBSCAN:         INFO:  could not load file:  {CYAN}{sample_file}{RESET}", flush=True)
+        print( f"{RED}DBSCAN:         INFO:  can't continue --- halting{RESET}",         flush=True)
+        time.sleep(4)
+        sys.exit(0)
+      
+      if DEBUG>0:
+        print ( f"DBSCAN:         INFO:  input                  = {MIKADO}{input_mode}{RESET}",                flush=True   ) 
+        print ( f"DBSCAN:         INFO:  samples.shape          = {MIKADO}{samples.shape}{RESET}",             flush=True   )
 
 
 
   # 2. cluster
   
   if DEBUG>0:
-    print ( f"DBSCAN:          INFO:  about to create a {CYAN}DBSCAN{RESET} clusterer object"      ) 
+    print ( f"DBSCAN:         INFO:  about to create a {CYAN}DBSCAN{RESET} clusterer object"      ) 
+    
+    x_npy = samples
+     
     
     
   ######################################################

@@ -61,63 +61,100 @@ np.set_printoptions(linewidth=100000)
 
 def sk_agglom( args, class_names, pct_test):
   
-  
-  n_clusters   = args.n_clusters
-  is_embedding   = args.use_autoencoder_output=='True'
+  input_mode           = args.input_mode  
+  n_clusters           = args.n_clusters
+  use_embeddings       = args.use_autoencoder_output=='True'
     
+  # 1. load and prepare data
+
   if args.use_autoencoder_output=='True':
     
     fqn = f"../logs/ae_output_features.pt"
       
     if DEBUG>0:
-      print( f"{BRIGHT_GREEN}SK_SPECTRAL:     INFO:  about to load autoencoder generated is_embedding from input file '{MAGENTA}{fqn}{RESET}'", flush=True )
+      print( f"{BRIGHT_GREEN}DBSCAN:         INFO:  about to load autoencoder generated embeddings from input file '{MAGENTA}{fqn}{RESET}'", flush=True )
     try:
       dataset  = torch.load( fqn )
       if DEBUG>0:
-        print( f"{BRIGHT_GREEN}SK_SPECTRAL:     INFO:  dataset successfully loaded{RESET}" ) 
+        print( f"{BRIGHT_GREEN}DBSCAN:         INFO:  dataset successfully loaded{RESET}" ) 
     except Exception as e:
-      print ( f"{RED}SK_SPECTRAL:     ERROR:  could not load feature file. Did you remember to run the system with {CYAN}NN_MODE='pre_compress'{RESET}{RED} and an autoencoder such as {CYAN}'AEDENSE'{RESET}{RED} to generate the feature file? ... can't continue, so halting now [143]{RESET}" )
-      print ( f"{RED}SK_SPECTRAL:     ERROR:  the exception was: {CYAN}'{e}'{RESET}" )
-      print ( f"{RED}SK_SPECTRAL:     ERROR:  halting now" )
+      print ( f"{RED}DBSCAN:           FATAL:  could not load feature file. Did you remember to run the system with {CYAN}NN_MODE='pre_compress'{RESET}{RED} and an autoencoder such as {CYAN}'AEDENSE'{RESET}{RED} to generate the feature file? ... can't continue, so halting now [143]{RESET}" )
+      print ( f"{RED}DBSCAN:           FATAL:  the exception was: {CYAN}'{e}'{RESET}" )
+      print ( f"{RED}DBSCAN:           FATAL:  halting now" )
       sys.exit(0)
   
-    samples_npy  = dataset['embeddings'].cpu().numpy().squeeze()                                           # eliminate empty dimensions
-    labels       = dataset['labels'    ].cpu().numpy().squeeze()                                           # eliminate empty dimensions
+    samples      = dataset['embeddings'].cpu().detach().numpy().squeeze()                                           # eliminate empty dimensions
+    labels       = dataset['labels'    ].cpu().detach().numpy().squeeze()                                           # eliminate empty dimensions
     
     if DEBUG>0:
-      print ( f"SK_SPECTRAL:     INFO:  (is_embedding) samples_npy.shape     =  {MIKADO}{samples_npy.shape}{RESET}"      ) 
-      print ( f"SK_SPECTRAL:     INFO:  sanity check: np.sum(samples_npy)  =  {MIKADO}{np.sum(samples_npy):.2f}{RESET}"      ) 
+      print ( f"DBSCAN:         INFO:  (embeddings) samples.shape     =  {MIKADO}{samples.shape}{RESET}"      ) 
+      print ( f"DBSCAN:         INFO:  sanity check: np.sum(samples)  =  {MIKADO}{np.sum(samples):.2f}{RESET}"      ) 
     
-    if np.sum(samples_npy)==0.0:
-      print ( f"{RED}SK_SPECTRAL:     ERROR:  all samples_npy are zero vectors - the input file was completely degenerate{RESET}" )
-      print ( f"{RED}SK_SPECTRAL:     ERROR:  not halting, but might as well be{RESET}" )
+    if np.sum(samples)==0.0:
+      print ( f"{RED}DBSCAN:           FATAL:  all samples are zero vectors - the input file was completely degenerate{RESET}" )
+      print ( f"{RED}DBSCAN:           FATAL:  not halting, but might as well be{RESET}" )
  
   else:
-    
-    sample_file = "../logs/all_images_from_last_run_of_generate.npy" 
-    label_file = "../logs/all_image_labels__from_last_run_of_generate.npy"
-    
-    samples_npy  =  np.load( sample_file )
-    labels       =  np.load( label_file  )
   
-
-  if args.input_mode=='image':
-    
-    samples = samples_npy
-    
-    if DEBUG>0:
-      print ( f"SK_SPECTRAL:     INFO:  about to flatten channels and r,g,b dimensions"      ) 
-      print ( f"SK_SPECTRAL:     INFO:  (flattened) samples.shape          = {MIKADO}{samples.shape}{RESET}"      ) 
-
-  if args.input_mode=='rna': 
-    samples = samples_npy
+    if input_mode=='image':
   
-    if DEBUG>0:
-      print ( f"SK_SPECTRAL:     INFO:  samples.shape          = {MIKADO}{samples.shape}{RESET}"      ) 
+      sample_file = "../logs/all_images_from_last_run_of_generate.npy" 
+      label_file = "../logs/all_image_labels__from_last_run_of_generate.npy"
+      
+      try:
+        samples      =  np.load( sample_file )
+      except Exception as e:
+        print( f"{RED}DBSCAN:         INFO:  could not load file:  {CYAN}{sample_file}{RESET}", flush=True)
+        print( f"{RED}DBSCAN:         INFO:  can't continue --- halting{RESET}",         flush=True)
+        time.sleep(4)
+        sys.exit(0)
+              
+      try:
+        labels       =  np.load( label_file  )
+      except Exception as e:
+        print( f"{RED}DBSCAN:         INFO:  could not load file: {CYAN}{sample_file}{RESET}", flush=True)
+        print( f"{RED}DBSCAN:         INFO:  can't continue --- halting{RESET}",         flush=True)
+        time.sleep(4)
+        sys.exit(0)
+      
+      if DEBUG>0:
+        print ( f"DBSCAN:         INFO:  input                  = {MIKADO}{input_mode}{RESET}",                flush=True   ) 
+        print ( f"DBSCAN:         INFO:  about to flatten channels and r,g,b dimensions",                      flush=True   ) 
+        print ( f"DBSCAN:         INFO:  (flattened) samples.shape          = {MIKADO}{samples.shape}{RESET}", flush=True   ) 
+  
+    if input_mode=='rna': 
+  
+      sample_file = "../logs/all_rna_seq_vectors_from_last_run_of_generate.npy" 
+      label_file = "../logs/all_rna_seq_vector_labels_from_last_run_of_generate.npy"
+      
+      try:
+        samples      =  np.load( sample_file ).squeeze()
+      except Exception as e:
+        print( f"{RED}DBSCAN:         INFO:  could not load file:  {CYAN}{sample_file}{RESET}", flush=True)
+        print( f"{RED}DBSCAN:         INFO:  can't continue --- halting{RESET}",         flush=True)
+        time.sleep(4)
+        sys.exit(0)
+              
+      try:
+        labels       =  np.load( label_file  )
+      except Exception as e:
+        print( f"{RED}DBSCAN:         INFO:  could not load file:  {CYAN}{sample_file}{RESET}", flush=True)
+        print( f"{RED}DBSCAN:         INFO:  can't continue --- halting{RESET}",         flush=True)
+        time.sleep(4)
+        sys.exit(0)
+      
+      if DEBUG>0:
+        print ( f"DBSCAN:         INFO:  input                  = {MIKADO}{input_mode}{RESET}",                flush=True   ) 
+        print ( f"DBSCAN:         INFO:  samples.shape          = {MIKADO}{samples.shape}{RESET}",             flush=True   )
 
 
 
   # 2. cluster
+  
+  if DEBUG>0:
+    print ( f"DBSCAN:         INFO:  about to create an {CYAN}AgglomerativeClustering{RESET} clusterer object"      ) 
+    
+
 
   for linkage in ('ward', 'average', 'complete'):
     
@@ -131,21 +168,21 @@ def sk_agglom( args, class_names, pct_test):
 
 
     if DEBUG>0:
-      print( f"SK_AGGLOM:     INFO:  clustering.labels_ = \n{MIKADO}{clustering.labels_}{RESET}" )
+      print( f"SK_AGGLOM:      INFO:  clustering.labels_ = \n{MIKADO}{clustering.labels_}{RESET}" )
       
       
     all_clusters_unique=sorted(set(clustering.labels_))
     if (DEBUG>0):
-      print ( f"SK_AGGLOM:     INFO:  unique classes represented  = {MIKADO}{all_clusters_unique}{RESET}" )
+      print ( f"SK_AGGLOM:      INFO:  clusters found                                            = {MIKADO}{all_clusters_unique}{RESET}" )
     
     if (DEBUG>0):
       for i in range ( 0, len(all_clusters_unique) ):
-        print ( f"SK_AGGLOM:     INFO:  count of instances of cluster label {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(clustering.labels_==i).sum()}{RESET}" )
+        print ( f"SK_AGGLOM:      INFO:  count of instances of cluster label (NOT true class!) {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(clustering.labels_==i).sum()}{RESET}" )
         
   
     # 3. plot the results as a scattergram
       
-    plot( args, is_embedding, samples_npy.shape, clustering.labels_, labels,  n_clusters, all_clusters_unique,  f"{linkage:s}" )
+    plot( args, use_embeddings, class_names, samples.shape, clustering.labels_, labels,  n_clusters, all_clusters_unique,  f"{linkage:s}" )
     
     plt.show()
  
@@ -155,7 +192,7 @@ def sk_agglom( args, class_names, pct_test):
 # ------------------------------------------------------------------------------
 
 
-def plot(args, is_embedding, shape, cluster_labels, true_labels, n_clusters, all_clusters_unique, mode ):
+def plot(args, use_embeddings, class_names, shape, cluster_labels, true_labels, n_clusters, all_clusters_unique, mode ):
   
   # 3. plot the results as a jittergram
     
@@ -183,7 +220,7 @@ def plot(args, is_embedding, shape, cluster_labels, true_labels, n_clusters, all
   
   N=true_labels.shape[0]
   title    = f"Unsupervised Agglomerative Clustering of {N:,} TCGA {args.dataset.upper()} {args.input_mode}s;  X=cluster number (jittered), Y=true subtype"
-  subtitle = f"mode = {mode}'  n_clusters={n_clusters};  input dims = {shape[1:]};  autoencoder input used={is_embedding}"
+  subtitle = f"mode = {mode}'  n_clusters={n_clusters};  input dims = {shape[1:]};  autoencoder input used={use_embeddings}"
   
   plt.title ( title, fontsize=16 )
   plt.text  ( -.2, 0.2, subtitle, ha='left', fontsize=12 )

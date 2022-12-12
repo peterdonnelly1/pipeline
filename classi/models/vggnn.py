@@ -62,7 +62,7 @@ class VGGNN( nn.Module ):
         # ~ )
 
         if 0<=tile_size<32:
-          print( f"{RED}VGGNN:           FATAL:  for the VGG models '{CYAN}TILE_SIZE{RESET}{RED}' (corresponding to python argument '{CYAN}--tile_size{RESET}{RED}') is not permitted to be less than {MIKADO}32{RESET}", flush=True)
+          print( f"{RED}VGGNN:           FATAL:  for the VGG models '{CYAN}TILE_SIZE{RESET}{RED}' (corresponding to python argument '{CYAN}--tile_size{RESET}{RED}') is not permitted to be less than {MIKADO}32{RESET}{RED}.  (Currently {MIKADO}{tile_size}{RESET}{RED}){RESET}", flush=True)
           print( f"{RED}VGGNN:           FATAL: ... halting now{RESET}" )
           sys.exit(0)
         
@@ -171,17 +171,17 @@ def make_layers(configs, batch_norm=False):
 
 
 def vgg11_bn( cfg, args, n_classes, tile_size ):
-
+  
       return VGGNN( cfg, args, n_classes, tile_size, make_layers( configs['A'], batch_norm=True) )
 
-def vgg13_bn( cfg,args, n_classes, tile_size ):
+def vgg13_bn( cfg, args, n_classes, tile_size ):
 
       return VGGNN( cfg, args, n_classes, tile_size, make_layers( configs['B'], batch_norm=True) )
 
-def vgg16_bn( cfg,args, n_classes, tile_size ):
+def vgg16_bn( cfg, args, n_classes, tile_size ):
   
       return VGGNN( cfg, args, n_classes, tile_size, make_layers( configs['D'], batch_norm=True) )
 
-def vgg19_bn( cfg,args, n_classes, tile_size ):
+def vgg19_bn( cfg, args, n_classes, tile_size ):
 
       return VGGNN( cfg, args, n_classes, tile_size, make_layers( configs['E'], batch_norm=True) )

@@ -37,6 +37,7 @@ def h_dbscan( args, class_names, pct_test, min_cluster_size ):
  
   # 1. load and prepare data
 
+  input_mode           = args.input_mode
   algorithm            = 'best'
   metric               = args.metric  
   alpha                = 2.0
@@ -46,79 +47,98 @@ def h_dbscan( args, class_names, pct_test, min_cluster_size ):
   leaf_size            = 200
   p                    = None
   
+      
+  # 1. load and prepare data
+
   if args.use_autoencoder_output=='True':
     
     fqn = f"../logs/ae_output_features.pt"
       
     if DEBUG>0:
-      print( f"{BRIGHT_GREEN}HDBSCAN:         INFO:  about to load autoencoder generated feature file from input file '{MAGENTA}{fqn}{RESET}'", flush=True )
+      print( f"{BRIGHT_GREEN}H_DBSCAN:       INFO:  about to load autoencoder generated embeddings from input file '{MAGENTA}{fqn}{RESET}'", flush=True )
     try:
       dataset  = torch.load( fqn )
       if DEBUG>0:
-        print( f"{BRIGHT_GREEN}HDBSCAN:         INFO:  dataset successfully loaded{RESET}" ) 
+        print( f"{BRIGHT_GREEN}H_DBSCAN:       INFO:  dataset successfully loaded{RESET}" ) 
     except Exception as e:
-      print ( f"{RED}HDBSCAN:         ERROR:  could not load feature file. Did you remember to run the system with {CYAN}NN_MODE='pre_compress'{RESET}{RED} and an autoencoder such as {CYAN}'AEDENSE'{RESET}{RED} to generate the feature file? ... can't continue, so halting now [143]{RESET}" )
-      print ( f"{RED}HDBSCAN:         ERROR:  the exception was: {CYAN}'{e}'{RESET}" )
-      print ( f"{RED}HDBSCAN:         ERROR:  halting now" )
+      print ( f"{RED}H_DBSCAN:         FATAL:  could not load feature file. Did you remember to run the system with {CYAN}NN_MODE='pre_compress'{RESET}{RED} and an autoencoder such as {CYAN}'AEDENSE'{RESET}{RED} to generate the feature file? ... can't continue, so halting now [143]{RESET}" )
+      print ( f"{RED}H_DBSCAN:         FATAL:  the exception was: {CYAN}'{e}'{RESET}" )
+      print ( f"{RED}H_DBSCAN:         FATAL:  halting now" )
       sys.exit(0)
   
-    embeddings  = dataset['embeddings'].cpu().numpy().squeeze()
-    labels      = dataset['labels']    .cpu().numpy().squeeze()
+    samples      = dataset['embeddings'].cpu().detach().numpy().squeeze()                                           # eliminate empty dimensions
+    labels       = dataset['labels'    ].cpu().detach().numpy().squeeze()                                           # eliminate empty dimensions
     
     if DEBUG>0:
-      print ( f"HDBSCAN:         INFO:  np.sum(embeddings)      =  {MIKADO}{np.sum(embeddings)}{RESET}"      ) 
+      print ( f"H_DBSCAN:       INFO:  (embeddings) samples.shape     =  {MIKADO}{samples.shape}{RESET}"      ) 
+      print ( f"H_DBSCAN:       INFO:  sanity check: np.sum(samples)  =  {MIKADO}{np.sum(samples):.2f}{RESET}"      ) 
     
-    if np.sum(embeddings)==0.0:
-      print ( f"{RED}HDBSCAN:         ERROR:  all embeddings are zero vectors - the input file was completely degenerate{RESET}" )
-      print ( f"{RED}HDBSCAN:         ERROR:  not halting, but might as well be{RESET}" )
-    
-    if DEBUG>0:
-      print ( f"HDBSCAN:         INFO:  about to flatten channels and r,g,b dimensions"      ) 
-    
-    if args.input_mode=='image': 
-      x_npy = embeddings
-
-    if args.input_mode=='rna': 
-      x_npy = embeddings
-    
-    if DEBUG>0:
-      print ( f"HDBSCAN:         INFO:  x_npy.shape          = {MIKADO}{x_npy.shape}{RESET}"      ) 
-      print ( f"HDBSCAN:         INFO:  about to convert to pandas dataframe"                     )  
+    if np.sum(samples)==0.0:
+      print ( f"{RED}H_DBSCAN:         FATAL:  all samples are zero vectors - the input file was completely degenerate{RESET}" )
+      print ( f"{RED}H_DBSCAN:         FATAL:  not halting, but might as well be{RESET}" )
  
   else:
-    
-    image_file = "../logs/all_images_from_last_run_of_generate.npy" 
-    label_file = "../logs/all_image_labels__from_last_run_of_generate.npy"
-    
-    embeddings = np.load( image_file )
-    labels     = np.load( label_file )
   
-    if DEBUG>0:
-      print( f"\n{GREY_BACKGROUND}HDBSCAN:  INFO: {WHITE}{CHARTREUSE}HDBSCAN clustering{WHITE}: samples_file={MAGENTA}{image_file}{WHITE}, labels_file={MAGENTA}{label_file}{WHITE}, alpha={MIKADO}{alpha}{WHITE}, metric={CYAN}{args.metric}{WHITE}, min_cluster_size={MIKADO}{min_cluster_size}{WHITE}, leaf_size={MIKADO}{leaf_size}                                                          {RESET}" )  
+    if input_mode=='image':
   
-    x_npy = embeddings
-    
-    if DEBUG>0:
-      print( f"HDBSCAN:        INFO:  image file shape {MIKADO}{x_npy.shape}{RESET}" )
-      print( f"HDBSCAN:        INFO:  label file shape {MIKADO}{labels.shape}{RESET}" )  
-      print( f"HDBSCAN:        INFO:  image file {CYAN}{image_file}{RESET} \r\033[60Ccontains {MIKADO}{x_npy.shape[0]}{RESET} samples each with {MIKADO}{x_npy.shape[1]}{RESET} features", flush=True)
-      print( f"HDBSCAN:        INFO:  label file {CYAN}{label_file}{RESET} \r\033[60Ccontains {MIKADO}{x_npy.shape[0]}{RESET} labels", flush=True)
+      sample_file = "../logs/all_images_from_last_run_of_generate.npy" 
+      label_file = "../logs/all_image_labels__from_last_run_of_generate.npy"
+      
+      try:
+        samples      =  np.load( sample_file )
+      except Exception as e:
+        print( f"{RED}H_DBSCAN:       INFO:  could not load file:  {CYAN}{sample_file}{RESET}", flush=True)
+        print( f"{RED}H_DBSCAN:       INFO:  can't continue --- halting{RESET}",         flush=True)
+        time.sleep(4)
+        sys.exit(0)
+              
+      try:
+        labels       =  np.load( label_file  )
+      except Exception as e:
+        print( f"{RED}H_DBSCAN:       INFO:  could not load file: {CYAN}{sample_file}{RESET}", flush=True)
+        print( f"{RED}H_DBSCAN:       INFO:  can't continue --- halting{RESET}",         flush=True)
+        time.sleep(4)
+        sys.exit(0)
+      
+      if DEBUG>0:
+        print ( f"H_DBSCAN:       INFO:  input                  = {MIKADO}{input_mode}{RESET}",                flush=True   ) 
+        print ( f"H_DBSCAN:       INFO:  about to flatten channels and r,g,b dimensions",                      flush=True   ) 
+        print ( f"H_DBSCAN:       INFO:  (flattened) samples.shape          = {MIKADO}{samples.shape}{RESET}", flush=True   ) 
   
-    if DEBUG>0:
-      print( f"HDBSCAN:        INFO:  x_npy.shape     = {MIKADO}{x_npy.shape}{RESET}" )  
-      # ~ print( f"HDBSCAN:        INFO:  x_npy[0].shape  = {MIKADO}{x_npy[0].shape}{RESET}" )  
+    if input_mode=='rna': 
   
-    if DEBUG>2:
-      print( f"HDBSCAN:        INFO:  embeddings[0] = \n{MIKADO}{embeddings[0,2,40:80,90:100]}{RESET}" )  
-      print( f"HDBSCAN:        INFO:  x_npy [0]  =  {MIKADO}{x_npy[0,1000:1100]}{RESET}" )  
+      sample_file = "../logs/all_rna_seq_vectors_from_last_run_of_generate.npy" 
+      label_file = "../logs/all_rna_seq_vector_labels_from_last_run_of_generate.npy"
+      
+      try:
+        samples      =  np.load( sample_file ).squeeze()
+      except Exception as e:
+        print( f"{RED}H_DBSCAN:       INFO:  could not load file:  {CYAN}{sample_file}{RESET}", flush=True)
+        print( f"{RED}H_DBSCAN:       INFO:  can't continue --- halting{RESET}",         flush=True)
+        time.sleep(4)
+        sys.exit(0)
+              
+      try:
+        labels       =  np.load( label_file  )
+      except Exception as e:
+        print( f"{RED}H_DBSCAN:       INFO:  could not load file:  {CYAN}{sample_file}{RESET}", flush=True)
+        print( f"{RED}H_DBSCAN:       INFO:  can't continue --- halting{RESET}",         flush=True)
+        time.sleep(4)
+        sys.exit(0)
+      
+      if DEBUG>0:
+        print ( f"H_DBSCAN:       INFO:  input                  = {MIKADO}{input_mode}{RESET}",                flush=True   ) 
+        print ( f"H_DBSCAN:       INFO:  samples.shape          = {MIKADO}{samples.shape}{RESET}",             flush=True   )
 
 
 
   # 2. cluster
   
   if DEBUG>0:
-    print ( f"HDBSCAN:         INFO:  about to create an {CYAN}HDBSCAN{RESET} clusterer object"      ) 
+    print ( f"HDBSCAN:        INFO:  about to create an {CYAN}HDBSCAN{RESET} clusterer object"      ) 
     
+    x_npy = samples
+     
 
   
   ######################################################
@@ -126,30 +146,30 @@ def h_dbscan( args, class_names, pct_test, min_cluster_size ):
   ######################################################
   
   if DEBUG>0:
-    print ( f"HDBSCAN:         INFO:  about to cluster        {CYAN}x_npy{RESET} using {CYAN}clusterer.fit(x_npy){RESET}"     ) 
-    print ( f"HDBSCAN:         INFO:  now finished clustering {CYAN}x_npy{RESET}"                                             ) 
+    print ( f"HDBSCAN:        INFO:  about to cluster        {CYAN}x_npy{RESET} using {CYAN}clusterer.fit(x_npy){RESET}"     ) 
+    print ( f"HDBSCAN:        INFO:  now finished clustering {CYAN}x_npy{RESET}"                                             ) 
 
   if DEBUG>2:
-    print ( f"HDBSCAN:         INFO:  clusterer.labels_    = {MIKADO}{clusterer.labels_}{RESET}"                              ) 
+    print ( f"HDBSCAN:        INFO:  clusterer.labels_    = {MIKADO}{clusterer.labels_}{RESET}"                              ) 
   
   if (DEBUG>0):
     all_clusters_unique=sorted(set(clusterer.labels_))
-    print ( f"HDBSCAN:         INFO:  unique classes represented  = {MIKADO}{all_clusters_unique}{RESET}" )
+    print ( f"HDBSCAN:        INFO:  unique classes represented  = {MIKADO}{all_clusters_unique}{RESET}" )
   
   if (DEBUG>0):
     for i in range ( -1, len(all_clusters_unique) ):
-      print ( f"HDBSCAN:         INFO:  count of instances of cluster label {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(clusterer.labels_==i).sum()}{RESET}" )
+      print ( f"HDBSCAN:        INFO:  count of instances of cluster label {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(clusterer.labels_==i).sum()}{RESET}" )
 
 
   c = clusterer.labels_
   
   if (DEBUG>1):
-    print ( f"HDBSCAN:         INFO:  labels             = {MIKADO}{labels}{RESET}" )
-    print ( f"HDBSCAN:         INFO:  clusterer.labels_  = {MIKADO}{c}{RESET}" )
+    print ( f"HDBSCAN:        INFO:  labels             = {MIKADO}{labels}{RESET}" )
+    print ( f"HDBSCAN:        INFO:  clusterer.labels_  = {MIKADO}{c}{RESET}" )
 
   if (DEBUG>2):
-    print ( f"HDBSCAN:         INFO:  labels             = {MIKADO}{labels.shape}{RESET}" )
-    print ( f"HDBSCAN:         INFO:  clusterer.labels_  = {MIKADO}{c.shape}{RESET}" )
+    print ( f"HDBSCAN:        INFO:  labels             = {MIKADO}{labels.shape}{RESET}" )
+    print ( f"HDBSCAN:        INFO:  clusterer.labels_  = {MIKADO}{c.shape}{RESET}" )
     
     
 
@@ -166,13 +186,13 @@ def h_dbscan( args, class_names, pct_test, min_cluster_size ):
   # ~ cluster_member_colors = [sns.desaturate(x, p) for x, p in zip(cluster_colors, clusterer.probabilities_)]
 
   if (DEBUG>1):
-    print ( f"HDBSCAN:         INFO:  labels    = \n{MIKADO}{clusterer.labels_}{RESET}" )
+    print ( f"HDBSCAN:        INFO:  labels    = \n{MIKADO}{clusterer.labels_}{RESET}" )
   c = clusterer.labels_ + 1
   if (DEBUG>1):
-    print ( f"HDBSCAN:         INFO:  labels+1  = \n{MIKADO}{c}{RESET}" )
+    print ( f"HDBSCAN:        INFO:  labels+1  = \n{MIKADO}{c}{RESET}" )
   colors  = [f"C{i}" for i in np.arange(1, c.max()+2)]
   if (DEBUG>1):
-    print ( f"HDBSCAN:         INFO:  colors    = {MIKADO}{colors}{RESET}" )
+    print ( f"HDBSCAN:        INFO:  colors    = {MIKADO}{colors}{RESET}" )
   cmap, norm = matplotlib.colors.from_levels_and_colors( np.arange(1, c.max()+3), colors )
   
   X = c

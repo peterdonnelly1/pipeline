@@ -63,13 +63,13 @@ JUST_PROFILE="False"                                                            
 DDP="False"                                                                                                # PRE_COMPRESS mode only: if "True", use PyTorch 'Distributed Data Parallel' to make use of multiple GPUs. (Works on single GPU machines, but is of no benefit and has additional overhead, so should be disabled)
 
 
-MINIMUM_PERMITTED_GREYSCALE_RANGE=210                                                                      # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
-MINIMUM_PERMITTED_UNIQUE_VALUES=210                                                                        # tile must have at least this many unique values or it will be assumed to be degenerate
-MINIMUM_TILE_SD=2.1                                                                                        # Used to cull slides with a very reduced greyscale palette such as background tiles
+#~ MINIMUM_PERMITTED_GREYSCALE_RANGE=210                                                                      # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
+#~ MINIMUM_PERMITTED_UNIQUE_VALUES=210                                                                        # tile must have at least this many unique values or it will be assumed to be degenerate
+#~ MINIMUM_TILE_SD=2.1                                                                                        # Used to cull slides with a very reduced greyscale palette such as background tiles
                                                                                                               #~ # Used to cull slides with a very reduced greyscale palette such as background tiles
-#~ MINIMUM_PERMITTED_GREYSCALE_RANGE=180                                                                      # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
-#~ MINIMUM_PERMITTED_UNIQUE_VALUES=180                                                                        # tile must have at least this many unique values or it will be assumed to be degenerate
-#~ MINIMUM_TILE_SD=1.9                                                                                        # Used to cull slides with a very reduced greyscale palette such as background tiles
+MINIMUM_PERMITTED_GREYSCALE_RANGE=180                                                                      # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
+MINIMUM_PERMITTED_UNIQUE_VALUES=180                                                                        # tile must have at least this many unique values or it will be assumed to be degenerate
+MINIMUM_TILE_SD=1.9                                                                                        # Used to cull slides with a very reduced greyscale palette such as background tiles
 
 #~ MINIMUM_PERMITTED_GREYSCALE_RANGE=1                                                                      # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
 #~ MINIMUM_PERMITTED_UNIQUE_VALUES=1                                                                        # tile must have at least this many unique values or it will be assumed to be degenerate
@@ -123,8 +123,8 @@ JUST_CLUSTER="False"
 JUST_TEST="False"
 LABEL_SWAP_PCT=0                                                                                           # (no getopts option) Swap this percentage of truth labels to random. Used for testing.
 LEARNING_RATE=".0001"
-#~ MAKE_BALANCED="level_down"
-MAKE_BALANCED="NONE"
+MAKE_BALANCED="level_up"
+#~ MAKE_BALANCED="NONE"
 MAKE_BALANCED_MARGIN=20                                                                                    # (Percentage). If MAKE_BALANCED="level_down", allow the subtype with the most slides to have this many % more tiles than the subtype with the least number of tiles
 MAKE_GREY_PCT="0.0"                                                                                        # (no getopts option) Proportion of tiles to convert to greyscale. Use to check effect of color on learning. 
 METRIC="manhattan"                                                                                         
@@ -304,7 +304,7 @@ if [[ ${REGEN} == "True" ]];
       then
         echo "=====> REGENERATING JUST 'RNA-SEQ' FILES FROM SOURCE DATA (IF YOU WANT TO ALSO REGENERATE IMAGE FILES, USE IMAGE MODE (-i image) )"
         rm -rf ${DATA_DIR}
-        rsync -ahW   --no-compress --exclude '*.svs*'  --info=progress2 ${DATA_SOURCE}/    ${DATA_DIR}
+        rsync -ahW   --no-compress --exclude '*.svs*'  --exclude '*.spcn*' --info=progress2 ${DATA_SOURCE}/    ${DATA_DIR}
     else
         echo "=====> REGENERATING DATASET FROM SOURCE DATA - THIS CAN TAKE A LONG TIME (E.G. 20 MINUTES) (IF YOU JUST WANT TO REGENERATE RNA-SEQ FILES, USE RNA MODE (-i rna) )"
         rm -rf ${DATA_DIR}
