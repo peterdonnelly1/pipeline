@@ -1,6 +1,7 @@
 import sys
 import torch
 import random
+import datetime
 import argparse
 import numpy             as np
 import pandas            as pd
@@ -39,7 +40,7 @@ DEBUG   = 1
 np.set_printoptions(edgeitems=100000)
 np.set_printoptions(linewidth=100000)
 
-def sk_spectral( args, class_names, pct_test):
+def sk_spectral( args, class_names, pct_test, super_title, descriptor_clustering ):
 
   input_mode   = args.input_mode
   n_clusters   = args.n_clusters

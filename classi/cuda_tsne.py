@@ -307,7 +307,7 @@ def cuda_tsne( args, class_names, pct_test, super_title, descriptor_clustering )
     plot( 1, 1, grid_size, embedding_train, labels, class_names, axes, title, title_font_size, marker_size, labelspacing, handletextpad, ms  )  
   
   now = datetime.datetime.now()  
-  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}__________{descriptor_clustering}_dims_{samples.shape[1]}____cuda_tsne_clustering.png"
+  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}___________{descriptor_clustering}_dims_{samples.shape[1]}____cuda_tsne_clustering.png"
   fig.savefig(fqn)
 
   if render_clustering=="True":

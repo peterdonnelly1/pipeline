@@ -1,5 +1,6 @@
 import sys
 import torch
+import datetime
 import argparse
 import matplotlib.colors
 import numpy             as np
@@ -33,7 +34,7 @@ DEBUG   = 1
 np.set_printoptions(edgeitems=100000)
 np.set_printoptions(linewidth=100000)
 
-def h_dbscan( args, class_names, pct_test, min_cluster_size ):
+def h_dbscan( args, class_names, pct_test, min_cluster_size, super_title, descriptor_clustering  ):
  
   # 1. load and prepare data
 
@@ -135,7 +136,7 @@ def h_dbscan( args, class_names, pct_test, min_cluster_size ):
   # 2. cluster
   
   if DEBUG>0:
-    print ( f"HDBSCAN:        INFO:  about to create an {CYAN}HDBSCAN{RESET} clusterer object"      ) 
+    print ( f"H_DBSCAN:       INFO:  about to create an {CYAN}HDBSCAN{RESET} clusterer object"      ) 
     
     x_npy = samples
      
@@ -146,30 +147,30 @@ def h_dbscan( args, class_names, pct_test, min_cluster_size ):
   ######################################################
   
   if DEBUG>0:
-    print ( f"HDBSCAN:        INFO:  about to cluster        {CYAN}x_npy{RESET} using {CYAN}clusterer.fit(x_npy){RESET}"     ) 
-    print ( f"HDBSCAN:        INFO:  now finished clustering {CYAN}x_npy{RESET}"                                             ) 
+    print ( f"H_DBSCAN:       INFO:  about to cluster        {CYAN}x_npy{RESET} using {CYAN}clusterer.fit(x_npy){RESET}"     ) 
+    print ( f"H_DBSCAN:       INFO:  now finished clustering {CYAN}x_npy{RESET}"                                             ) 
 
   if DEBUG>2:
-    print ( f"HDBSCAN:        INFO:  clusterer.labels_    = {MIKADO}{clusterer.labels_}{RESET}"                              ) 
+    print ( f"H_DBSCAN:       INFO:  clusterer.labels_    = {MIKADO}{clusterer.labels_}{RESET}"                              ) 
   
   if (DEBUG>0):
     all_clusters_unique=sorted(set(clusterer.labels_))
-    print ( f"HDBSCAN:        INFO:  unique classes represented  = {MIKADO}{all_clusters_unique}{RESET}" )
+    print ( f"H_DBSCAN:       INFO:  unique classes represented  = {MIKADO}{all_clusters_unique}{RESET}" )
   
   if (DEBUG>0):
     for i in range ( -1, len(all_clusters_unique) ):
-      print ( f"HDBSCAN:        INFO:  count of instances of cluster label {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(clusterer.labels_==i).sum()}{RESET}" )
+      print ( f"H_DBSCAN:       INFO:  count of instances of cluster label {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(clusterer.labels_==i).sum()}{RESET}" )
 
 
   c = clusterer.labels_
   
   if (DEBUG>1):
-    print ( f"HDBSCAN:        INFO:  labels             = {MIKADO}{labels}{RESET}" )
-    print ( f"HDBSCAN:        INFO:  clusterer.labels_  = {MIKADO}{c}{RESET}" )
+    print ( f"H_DBSCAN:       INFO:  labels             = {MIKADO}{labels}{RESET}" )
+    print ( f"H_DBSCAN:       INFO:  clusterer.labels_  = {MIKADO}{c}{RESET}" )
 
   if (DEBUG>2):
-    print ( f"HDBSCAN:        INFO:  labels             = {MIKADO}{labels.shape}{RESET}" )
-    print ( f"HDBSCAN:        INFO:  clusterer.labels_  = {MIKADO}{c.shape}{RESET}" )
+    print ( f"H_DBSCAN:       INFO:  labels             = {MIKADO}{labels.shape}{RESET}" )
+    print ( f"H_DBSCAN:       INFO:  clusterer.labels_  = {MIKADO}{c.shape}{RESET}" )
     
     
 
@@ -186,13 +187,13 @@ def h_dbscan( args, class_names, pct_test, min_cluster_size ):
   # ~ cluster_member_colors = [sns.desaturate(x, p) for x, p in zip(cluster_colors, clusterer.probabilities_)]
 
   if (DEBUG>1):
-    print ( f"HDBSCAN:        INFO:  labels    = \n{MIKADO}{clusterer.labels_}{RESET}" )
+    print ( f"H_DBSCAN:       INFO:  labels    = \n{MIKADO}{clusterer.labels_}{RESET}" )
   c = clusterer.labels_ + 1
   if (DEBUG>1):
-    print ( f"HDBSCAN:        INFO:  labels+1  = \n{MIKADO}{c}{RESET}" )
+    print ( f"H_DBSCAN:       INFO:  labels+1  = \n{MIKADO}{c}{RESET}" )
   colors  = [f"C{i}" for i in np.arange(1, c.max()+2)]
   if (DEBUG>1):
-    print ( f"HDBSCAN:        INFO:  colors    = {MIKADO}{colors}{RESET}" )
+    print ( f"H_DBSCAN:       INFO:  colors    = {MIKADO}{colors}{RESET}" )
   cmap, norm = matplotlib.colors.from_levels_and_colors( np.arange(1, c.max()+3), colors )
   
   X = c
@@ -229,8 +230,8 @@ def h_dbscan( args, class_names, pct_test, min_cluster_size ):
         print ( f"i={i:4d} label={MIKADO}{label}{RESET}  class_names[label]={MIKADO}{ class_names[label]:16s}{RESET} class_names[label][0]={MIKADO}{class_names[label][0]}{RESET}" )
 
   if DEBUG>1:
-    print( f"HDBSCAN:        INFO: X = \n{MIKADO}{X}{RESET}" )
-    print( f"HDBSCAN:        INFO: Y = \n{MIKADO}{Y}{RESET}" )
+    print( f"H_DBSCAN:       INFO: X = \n{MIKADO}{X}{RESET}" )
+    print( f"H_DBSCAN:       INFO: Y = \n{MIKADO}{Y}{RESET}" )
   
   lim = (x_npy.min(), x_npy.max())
   

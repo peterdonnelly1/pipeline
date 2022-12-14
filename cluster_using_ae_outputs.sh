@@ -260,80 +260,76 @@ if [[ ${CLUSTERING} == "all" ]]
 
   then
   
-    ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True           -n classify  -c ${CASES}  -l cuda_tsne         -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l sk_tsne           -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l sk_spectral       -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l sk_agglom         -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l dbscan            -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l h_dbscan          -u ${USE_AUTOENCODER_OUTPUT}  
+    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True           -n classify  -c ${CASES}  -l cuda_tsne         -u ${USE_AUTOENCODER_OUTPUT}  
+    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l sk_tsne           -u ${USE_AUTOENCODER_OUTPUT}  
+    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l sk_spectral       -u ${USE_AUTOENCODER_OUTPUT}  
+    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l sk_agglom         -u ${USE_AUTOENCODER_OUTPUT}  
+    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l dbscan            -u ${USE_AUTOENCODER_OUTPUT}  
+    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l h_dbscan          -u ${USE_AUTOENCODER_OUTPUT}  
+
 
 elif [[ ${CLUSTERING} == "sk_spectral" ]]
 
   then
 
-    ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True           -n classify  -c ${CASES}  -l sk_spectral  -p 0.1 -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l sk_spectral  -p 1   -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l sk_spectral  -p 7   -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l sk_spectral  -p 10  -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l sk_spectral  -p 20  -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l sk_spectral  -p 30  -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l sk_spectral  -p 50  -u ${USE_AUTOENCODER_OUTPUT}  
+    ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l sk_spectral  -u ${USE_AUTOENCODER_OUTPUT}  
+
   
 elif [[ ${CLUSTERING} == "sk_agglom" ]]
 
   then
 
-    ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True           -n classify  -c ${CASES}  -l sk_agglom  -p 0.1 -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l sk_agglom  -p 1   -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l sk_agglom  -p 7   -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l sk_agglom  -p 10  -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l sk_agglom  -p 20  -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l sk_agglom  -p 30  -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l sk_agglom  -p 50  -u ${USE_AUTOENCODER_OUTPUT} 
+    ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l sk_agglom   -u ${USE_AUTOENCODER_OUTPUT}  
+
 
 elif [[ ${CLUSTERING} == "sk_tsne" ]]
 
   then
 
-    ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True           -n classify  -c ${CASES}  -l sk_tsne  -p 0.1 -u ${USE_AUTOENCODER_OUTPUT}
-    ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l sk_tsne  -p 1   -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l sk_tsne  -p 7   -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l sk_tsne  -p 10  -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l sk_tsne  -p 20  -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l sk_tsne  -p 30  -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l sk_tsne  -p 50  -u ${USE_AUTOENCODER_OUTPUT}  
+    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True           -n classify  -c ${CASES}  -l sk_tsne  -p 0.1 -u ${USE_AUTOENCODER_OUTPUT}
+    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l sk_tsne  -p 1   -u ${USE_AUTOENCODER_OUTPUT}  
+    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l sk_tsne  -p 7   -u ${USE_AUTOENCODER_OUTPUT}  
+    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l sk_tsne  -p 10  -u ${USE_AUTOENCODER_OUTPUT}  
+    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l sk_tsne  -p 20  -u ${USE_AUTOENCODER_OUTPUT}  
+    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l sk_tsne  -p 30  -u ${USE_AUTOENCODER_OUTPUT}  
+    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l sk_tsne  -p 50  -u ${USE_AUTOENCODER_OUTPUT}  
 
 elif [[ ${CLUSTERING} == "cuda_tsne" ]]
 
   then
 
-    ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True                             -n classify  -c ${CASES}  -l cuda_tsne  -p 30   -u ${USE_AUTOENCODER_OUTPUT}
-    #~ ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l cuda_tsne  -p 70   -u ${USE_AUTOENCODER_OUTPUT}
-    #~ ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l cuda_tsne  -p 100  -u ${USE_AUTOENCODER_OUTPUT}
-    #~ ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l cuda_tsne  -p 300  -u ${USE_AUTOENCODER_OUTPUT}
-    #~ ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l cuda_tsne  -p 700  -u ${USE_AUTOENCODER_OUTPUT}
-    ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l cuda_tsne  -p "1 3 7 8 10 13 17 20 27"  -G ${SUPERGRID_SIZE} -u ${USE_AUTOENCODER_OUTPUT}
+    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True                             -n classify  -c ${CASES}  -l cuda_tsne  -p 30   -u ${USE_AUTOENCODER_OUTPUT}
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l cuda_tsne  -p 70   -u ${USE_AUTOENCODER_OUTPUT}
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l cuda_tsne  -p 100  -u ${USE_AUTOENCODER_OUTPUT}
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l cuda_tsne  -p 300  -u ${USE_AUTOENCODER_OUTPUT}
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l cuda_tsne  -p 700  -u ${USE_AUTOENCODER_OUTPUT}
+    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l cuda_tsne  -p "1 3 7 8 10 13 17 20 27"  -G ${SUPERGRID_SIZE} -u ${USE_AUTOENCODER_OUTPUT}
 
 
 elif [[ ${CLUSTERING} == "dbscan" ]]
 
   then
 
-    ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True           -n classify  -c ${CASES}  -l dbscan  -e 0.1    -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l dbscan  -e 0.7    -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l dbscan  -e 1      -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l dbscan  -e 7      -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l dbscan  -e 10     -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l dbscan  -e 17     -u ${USE_AUTOENCODER_OUTPUT}  
+    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True           -n classify  -c ${CASES}  -l dbscan  -e 0.1    -u ${USE_AUTOENCODER_OUTPUT}  
+    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l dbscan  -e 0.7    -u ${USE_AUTOENCODER_OUTPUT}  
+    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l dbscan  -e 1      -u ${USE_AUTOENCODER_OUTPUT}  
+    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l dbscan  -e 7      -u ${USE_AUTOENCODER_OUTPUT}  
+    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l dbscan  -e 10     -u ${USE_AUTOENCODER_OUTPUT}  
+    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l dbscan  -e 17     -u ${USE_AUTOENCODER_OUTPUT}  
   
 elif [[ ${CLUSTERING} == "h_dbscan" ]]
 
   then
 
-    ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True           -n classify  -c ${CASES}  -l h_dbscan -C 100    -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -n pre_compress -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l h_dbscan -C 100    -u ${USE_AUTOENCODER_OUTPUT}  
+    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True           -n classify  -c ${CASES}  -l h_dbscan -C 100    -u ${USE_AUTOENCODER_OUTPUT}  
+    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l h_dbscan -C 100    -u ${USE_AUTOENCODER_OUTPUT}  
   
-    
+
+else
+
+    echo -e "${RED}DO_ALL.SH: FATAL: ${RED}NO SUCH CLUSTERING ALGORITHM AS '${MIKADO}${CLUSTERING}${RESET}${RED}'  HALTING. ${RESET}"
+
+
 fi
 
 sleep 0.2

@@ -521,8 +521,8 @@ has been set to {RESET}{BOLD_MIKADO} [ 'plane', 'car', 'bird', 'cat', 'deer', 'd
       print ( f"{BOLD}{RED}CLASSI:       FATAL: cannot continue - halting now{RESET}" )                 
       sys.exit(0)
     if any(i >= 0.9 for i in pct_test):
-      print ( f"{BOLD_ORANGE}CLASSI:         WARNG: in training mode, and {CYAN}pct_test={MIKADO}{pct_test}{RESET}{BOLD_ORANGE}. One of more of these values are greater than or equal to 0.9 which seems unusual.{RESET}",        flush=True  )                                        
-      print ( f"{BOLD_ORANGE}CLASSI:         WARNG: proceeding, but be aware that for these values, fewer than 10% of the examples will be used for training{RESET}",             flush=True  )
+      print ( f"{BOLD_ORANGE}CLASSI:         WARN:  in training mode, and {CYAN}pct_test={MIKADO}{pct_test}{RESET}{BOLD_ORANGE}. One of more of these values are greater than or equal to 0.9 which seems unusual.{RESET}",        flush=True  )                                        
+      print ( f"{BOLD_ORANGE}CLASSI:         WARN:  proceeding, but be aware that for these values, fewer than 10% of the examples will be used for training{RESET}",             flush=True  )
       time.sleep(5)       
   
   we_are_autoencoding=False
@@ -583,9 +583,9 @@ has been set to {RESET}{BOLD_MIKADO} [ 'plane', 'car', 'bird', 'cat', 'deer', 'd
       print ( f"CLASSI:         INFO:  subtype_names_as_list[0:highest_class_number] = {CYAN}{subtype_names_as_list[0:highest_class_number+1]}{RESET}" )
   
     if highest_class_number > len(subtype_names_as_list)-1:
-      print( f"{BOLD_ORANGE}CLASSI:         WARNG: config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{BOLD_ORANGE}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{BOLD_ORANGE}') = \
+      print( f"{BOLD_ORANGE}CLASSI:         WARN:  config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{BOLD_ORANGE}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{BOLD_ORANGE}') = \
   {MIKADO}{highest_class_number}{RESET}{BOLD_ORANGE}, which is greater than the highest class (subtype) in the dataset ({MIKADO}{len(subtype_names_as_list)-1}{RESET}{BOLD_ORANGE}) (note that class numbers start at {MIKADO}0{RESET}{BOLD_ORANGE}){RESET}", flush=True)
-      print( f"{ORANGE}CLASSI:         WARNG:   therefore this config setting will be ignored. Continuing ...{RESET}", flush=True)
+      print( f"{ORANGE}CLASSI:         WARN:    therefore this config setting will be ignored. Continuing ...{RESET}", flush=True)
     
     if highest_class_number < 1:
       print( f"{BOLD}{RED}CLASSI:         FATAL: config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{BOLD}{RED}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{BOLD}{RED}') = \
@@ -639,18 +639,18 @@ has been set to {RESET}{BOLD_MIKADO} [ 'plane', 'car', 'bird', 'cat', 'deer', 'd
         sys.exit(0)
         
       if ( source_image_file_count<10 ) & ( dataset !='cifr'):
-        print ( f"{BOLD_ORANGE}\n\nCLASSI:         WARNG:  there are fewer than 10 image files in the working data directory, which seems odd{RESET}" )
-        print ( f"{BOLD_ORANGE}CLASSI:         WARNG:          consider using the the {CYAN}-r {RESET}{BOLD_ORANGE}option ('{CYAN}REGEN{RESET}{BOLD_ORANGE}') to force the dataset to be regenerated{RESET}" )
-        print ( f"{BOLD_ORANGE}CLASSI:         WARNG:          e.g. '{CYAN}./do_all.sh -d <cancer type code> -i image ... {CHARTREUSE}-r True{RESET}{BOLD_ORANGE}'{RESET}" )
-        print ( f"{BOLD_ORANGE}CLASSI:         WARNG: ... continuing, but it's kind of pointless{RESET}\n\n\n" )
+        print ( f"{BOLD_ORANGE}\n\nCLASSI:         WARN:   there are fewer than 10 image files in the working data directory, which seems odd{RESET}" )
+        print ( f"{BOLD_ORANGE}CLASSI:         WARN:           consider using the the {CYAN}-r {RESET}{BOLD_ORANGE}option ('{CYAN}REGEN{RESET}{BOLD_ORANGE}') to force the dataset to be regenerated{RESET}" )
+        print ( f"{BOLD_ORANGE}CLASSI:         WARN:           e.g. '{CYAN}./do_all.sh -d <cancer type code> -i image ... {CHARTREUSE}-r True{RESET}{BOLD_ORANGE}'{RESET}" )
+        print ( f"{BOLD_ORANGE}CLASSI:         WARN:  ... continuing, but it's kind of pointless{RESET}\n\n\n" )
         time.sleep(5)                           
 
 
       if dataset !='cifr':
         if ( just_test != True ):
           if source_image_file_count<np.max(args.n_samples):
-            print( f"{BOLD_ORANGE}CLASSI:         WARNG: there aren't enough samples. A file count reveals a total of {MIKADO}{source_image_file_count:,}{RESET}{BOLD_ORANGE} source image files (SVS or TIF or JPEG) files in {MAGENTA}{args.data_dir}{RESET}{BOLD_ORANGE}, whereas the largest value in user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{BOLD_ORANGE}' = {MIKADO}{np.max(args.n_samples):,}{RESET})" ) 
-            print( f"{ORANGE}CLASSI:         WARNG:   changing values of '{BOLD_CYAN  }N_SAMPLES[]{RESET}{ORANGE} that are greater than {RESET}{BOLD_MIKADO}{source_image_file_count:,}{RESET}{ORANGE} to exactly {BOLD_MIKADO}{source_image_file_count:,}{RESET}{ORANGE} and continuing{RESET}" )
+            print( f"{BOLD_ORANGE}CLASSI:         WARN:  there aren't enough samples. A file count reveals a total of {MIKADO}{source_image_file_count:,}{RESET}{BOLD_ORANGE} source image files (SVS or TIF or JPEG) files in {MAGENTA}{args.data_dir}{RESET}{BOLD_ORANGE}, whereas the largest value in user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{BOLD_ORANGE}' = {MIKADO}{np.max(args.n_samples):,}{RESET})" ) 
+            print( f"{ORANGE}CLASSI:         WARN:    changing values of '{BOLD_CYAN  }N_SAMPLES[]{RESET}{ORANGE} that are greater than {RESET}{BOLD_MIKADO}{source_image_file_count:,}{RESET}{ORANGE} to exactly {BOLD_MIKADO}{source_image_file_count:,}{RESET}{ORANGE} and continuing{RESET}" )
             args.n_samples = [  el if el<=source_image_file_count else source_image_file_count for el in args.n_samples   ]
             n_samples = args.n_samples
           else:
@@ -658,8 +658,8 @@ has been set to {RESET}{BOLD_MIKADO} [ 'plane', 'car', 'bird', 'cat', 'deer', 'd
         else:
           min_required = int(np.max(args.n_samples) * pct_test  )
           if source_image_file_count< min_required:
-            print( f"{BOLD_ORANGE}CLASSI:         WARNG: there aren't enough samples. A file count reveals a total of {MIKADO}{source_image_file_count}{RESET}{BOLD_ORANGE} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}{BOLD_ORANGE}, whereas the absolute minimum number required for this test run is {MIKADO}{min_required}{RESET}" ) 
-            print( f"{ORANGE}CLASSI:         WARNG: changing values of '{CYAN}N_SAMPLES{RESET}{ORANGE} that are greater than {RESET}{MIKADO}{source_image_file_count}{RESET}{ORANGE} to exactly {MIKADO}{source_image_file_count}{RESET}{ORANGE} and continuing{RESET}" )
+            print( f"{BOLD_ORANGE}CLASSI:         WARN:  there aren't enough samples. A file count reveals a total of {MIKADO}{source_image_file_count}{RESET}{BOLD_ORANGE} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}{BOLD_ORANGE}, whereas the absolute minimum number required for this test run is {MIKADO}{min_required}{RESET}" ) 
+            print( f"{ORANGE}CLASSI:         WARN:  changing values of '{CYAN}N_SAMPLES{RESET}{ORANGE} that are greater than {RESET}{MIKADO}{source_image_file_count}{RESET}{ORANGE} to exactly {MIKADO}{source_image_file_count}{RESET}{ORANGE} and continuing{RESET}" )
             args.n_samples = [  el if el<=source_image_file_count else source_image_file_count for el in args.n_samples   ]
             n_samples = args.n_samples
           else:
@@ -682,8 +682,8 @@ has been set to {RESET}{BOLD_MIKADO} [ 'plane', 'car', 'bird', 'cat', 'deer', 'd
               spcn_file_count +=1
             
       if spcn_file_count<np.max(args.n_samples):
-        print( f"{BOLD_ORANGE}CLASSI:         WARNG:  there aren't enough samples. A file count reveals a total of {MIKADO}{spcn_file_count}{RESET} {BOLD}{MAGENTA}spcn{RESET}{BOLD_ORANGE} files in {BOLD}{MAGENTA}{args.data_dir}{RESET}{BOLD_ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{BOLD_ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
-        print( f"{BOLD_ORANGE}CLASSI:         WARNG:  changing values of '{CYAN}N_SAMPLES{RESET}{BOLD_ORANGE} that are greater than {RESET}{BOLD}{MIKADO}{spcn_file_count}{RESET}{BOLD_ORANGE} to exactly {MIKADO}{spcn_file_count}{RESET}{BOLD_ORANGE} and continuing{RESET}" )
+        print( f"{BOLD_ORANGE}CLASSI:         WARN:   there aren't enough samples. A file count reveals a total of {MIKADO}{spcn_file_count}{RESET} {BOLD}{MAGENTA}spcn{RESET}{BOLD_ORANGE} files in {BOLD}{MAGENTA}{args.data_dir}{RESET}{BOLD_ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{BOLD_ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
+        print( f"{BOLD_ORANGE}CLASSI:         WARN:   changing values of '{CYAN}N_SAMPLES{RESET}{BOLD_ORANGE} that are greater than {RESET}{BOLD}{MIKADO}{spcn_file_count}{RESET}{BOLD_ORANGE} to exactly {MIKADO}{spcn_file_count}{RESET}{BOLD_ORANGE} and continuing{RESET}" )
         args.n_samples = [  el if el<=spcn_file_count else spcn_file_count for el in args.n_samples   ]
         n_samples = args.n_samples
       else:
@@ -737,13 +737,13 @@ has been set to {RESET}{BOLD_MIKADO} [ 'plane', 'car', 'bird', 'cat', 'deer', 'd
       time.sleep(4)
   
     if  highest_class_number==1:
-      print( f"\n{CHARTREUSE}CLASSI:         WARNG:  config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{CHARTREUSE}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{CHARTREUSE}') contains the value {MIKADO}1{RESET}{CHARTREUSE}, which seems very odd", flush=True)
-      print( f"{CHARTREUSE}CLASSI:         WARNG: ... continuing{RESET}" )
+      print( f"\n{CHARTREUSE}CLASSI:         WARN:   config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{CHARTREUSE}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{CHARTREUSE}') contains the value {MIKADO}1{RESET}{CHARTREUSE}, which seems very odd", flush=True)
+      print( f"{CHARTREUSE}CLASSI:         WARN:  ... continuing{RESET}" )
       time.sleep(4)
   
     if  highest_class_number==2:
-      print( f"\n{CHARTREUSE}CLASSI:         WARNG:  config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{CHARTREUSE}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{CHARTREUSE}') contains the value {MIKADO}2{RESET}{CHARTREUSE}, which is very low. Was this intentional?", flush=True)
-      print( f"{CHARTREUSE}CLASSI:         WARNG: ... continuing{RESET}" )
+      print( f"\n{CHARTREUSE}CLASSI:         WARN:   config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{CHARTREUSE}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{CHARTREUSE}') contains the value {MIKADO}2{RESET}{CHARTREUSE}, which is very low. Was this intentional?", flush=True)
+      print( f"{CHARTREUSE}CLASSI:         WARN:  ... continuing{RESET}" )
       time.sleep(4)
 
   # ~ if len(args.zoom_out_prob)==1:
@@ -881,7 +881,7 @@ has been set to {RESET}{BOLD_MIKADO} [ 'plane', 'car', 'bird', 'cat', 'deer', 'd
   else:
     if ( input_mode=='image' ) &  ( pretrain!='True' ):
       if not tile_size_max**0.5 == int(tile_size_max**0.5):
-        print( f"{ORANGE}CLASSI:         WARNG: '{CYAN}TILE_SIZE{RESET}{ORANGE}' ({BOLD}{MIKADO}{tile_size_max}{RESET}{ORANGE}) isn't a perfect square, which is fine for training, but will mean you won't be able to use test mode on the model you train here{RESET}" )
+        print( f"{ORANGE}CLASSI:         WARN:  '{CYAN}TILE_SIZE{RESET}{ORANGE}' ({BOLD}{MIKADO}{tile_size_max}{RESET}{ORANGE}) isn't a perfect square, which is fine for training, but will mean you won't be able to use test mode on the model you train here{RESET}" )
         time.sleep(2)
       if supergrid_size>1:
         if DEBUG>99:
@@ -893,7 +893,7 @@ has been set to {RESET}{BOLD_MIKADO} [ 'plane', 'car', 'bird', 'cat', 'deer', 'd
   if ( ( just_test=='True')  & (input_mode=='image' ) & ( multimode!='image_rna' ) ):
     
     if ( rand_tiles=='True'):
-      print ( f"\r{BOLD_ORANGE}CLASSI:         WARNG: {CYAN}( just_test=={MIKADO}'True'{RESET}{CYAN})  & ( multimode!={MIKADO}'image_rna'{RESET}{CYAN}){BOLD_ORANGE} but user argument {CYAN}rand_tiles=={MIKADO}'True'{RESET}{BOLD_ORANGE}. It will  be changed to {MIKADO}'False'{RESET}{BOLD_ORANGE} since test mode requires sequentially generated tiles{RESET}\n\n" )
+      print ( f"\r{BOLD_ORANGE}CLASSI:         WARN:  {CYAN}( just_test=={MIKADO}'True'{RESET}{CYAN})  & ( multimode!={MIKADO}'image_rna'{RESET}{CYAN}){BOLD_ORANGE} but user argument {CYAN}rand_tiles=={MIKADO}'True'{RESET}{BOLD_ORANGE}. It will  be changed to {MIKADO}'False'{RESET}{BOLD_ORANGE} since test mode requires sequentially generated tiles{RESET}\n\n" )
 
       args.rand_tiles = 'False'
       rand_tiles      = 'False'
@@ -901,7 +901,7 @@ has been set to {RESET}{BOLD_MIKADO} [ 'plane', 'car', 'bird', 'cat', 'deer', 'd
 
 
   if use_same_seed=='True':
-    print( f"{ORANGE}CLASSI:         WARNG: '{CYAN}USE_SAME_SEED{RESET}{ORANGE}' flag is set. The same seed will be used for all runs in this job{RESET}" )
+    print( f"{ORANGE}CLASSI:         WARN:  '{CYAN}USE_SAME_SEED{RESET}{ORANGE}' flag is set. The same seed will be used for all runs in this job{RESET}" )
     torch.manual_seed(0.223124)    
 
   if ( input_mode=='rna' ): 
@@ -920,8 +920,8 @@ has been set to {RESET}{BOLD_MIKADO} [ 'plane', 'car', 'bird', 'cat', 'deer', 'd
             rna_file_count +=1
           
     if rna_file_count<np.max(args.n_samples):
-      print( f"{BOLD_ORANGE}CLASSI:         WARNG: there are not {MIKADO}{np.max(args.n_samples)}{BOLD_ORANGE} RNA-Seq examples available to be used. A file count reveals a total of {MIKADO}{rna_file_count}{RESET}{BOLD_ORANGE} rna files in {MAGENTA}{args.data_dir}{RESET}{BOLD_ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES{RESET}{BOLD_ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET}" ) 
-      print( f"{BOLD_ORANGE}CLASSI:         WARNG: changing all values in the user configuration parameter '{CYAN}N_SAMPLES{RESET}{BOLD_ORANGE}' that are greater than {RESET}{BOLD}{MIKADO}{rna_file_count}{RESET}{BOLD_ORANGE} to exactly {MIKADO}{rna_file_count}{RESET}{BOLD_ORANGE}{RESET}" )
+      print( f"{BOLD_ORANGE}CLASSI:         WARN:  there are not {MIKADO}{np.max(args.n_samples)}{BOLD_ORANGE} RNA-Seq examples available to be used. A file count reveals a total of {MIKADO}{rna_file_count}{RESET}{BOLD_ORANGE} rna files in {MAGENTA}{args.data_dir}{RESET}{BOLD_ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES{RESET}{BOLD_ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET}" ) 
+      print( f"{BOLD_ORANGE}CLASSI:         WARN:  changing all values in the user configuration parameter '{CYAN}N_SAMPLES{RESET}{BOLD_ORANGE}' that are greater than {RESET}{BOLD}{MIKADO}{rna_file_count}{RESET}{BOLD_ORANGE} to exactly {MIKADO}{rna_file_count}{RESET}{BOLD_ORANGE}{RESET}" )
       args.n_samples = [  el if el<=rna_file_count else rna_file_count for el in args.n_samples   ]
       n_samples      = args.n_samples
 
@@ -1003,15 +1003,17 @@ has been set to {RESET}{BOLD_MIKADO} [ 'plane', 'car', 'bird', 'cat', 'deer', 'd
   pplog.log         ( "cum", f"\n")
   pplog.log_section ( "cum", f"BATCH_JOB COMMENCED AT {now:%y-%m-%d %H:%M:%S}")
   
-  if skip_tiling=='True':
-
-    if (total_runs_in_job==1) & (args.make_balanced=='level_up'):
-
-      print( f"{SAVE_CURSOR}\033[77;0H{BOLD_ORANGE}CLASSI:         WARNG:  skip tiling flag is set ({CYAN}-s True{RESET}{BOLD_ORANGE}), but cannot skip tiling if there is only one run in a job and {CYAN}MAKE_BALANCED{RESET} is not set to {BOLD_MIKADO}NONE{RESET}{BOLD_ORANGE}, as {CYAN}top_up_factors{RESET}{BOLD_ORANGE}, which are necessary to adjust tiles per subtype per slide, would not be calculated{RESET}" ) 
-      print( f"\033[78;0H{BOLD_ORANGE}CLASSI:         WARNG:  ignoring skip tiling flag - tiling WILL be performed{RESET}{RESTORE_CURSOR}"      ) 
-      skip_tiling='False'
-      args.skip_tiling='False'
-      time.sleep(1)
+  if input_mode=='image':
+  
+    if skip_tiling=='True':
+  
+      if (total_runs_in_job==1) & (args.make_balanced=='level_up'):
+  
+        print( f"{SAVE_CURSOR}\033[77;0H{BOLD_ORANGE}CLASSI:         WARN:   skip tiling flag is set ({CYAN}-s True{RESET}{BOLD_ORANGE}), but cannot skip tiling if there is only one run in a job and {CYAN}MAKE_BALANCED{RESET} is not set to {BOLD_MIKADO}NONE{RESET}{BOLD_ORANGE}, as {CYAN}top_up_factors{RESET}{BOLD_ORANGE}, which are necessary to adjust tiles per subtype per slide, would not be calculated{RESET}" ) 
+        print( f"\033[78;0H{BOLD_ORANGE}CLASSI:         WARN:   ignoring skip tiling flag - tiling WILL be performed{RESET}{RESTORE_CURSOR}"      ) 
+        skip_tiling='False'
+        args.skip_tiling='False'
+        time.sleep(1)
 
     
   # establish and initialise some variables                                                                                                  # current run in the job
@@ -1254,7 +1256,7 @@ f"\
     b  ="BALANCED"
     nb ="NOTBLNCD"
     if input_mode=='image':
-      descriptor = f"_{run+1:02d}_OF_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.lower():_<9s}_{b if make_balanced=='level_up' else nb}_{args.cases[0:20]:_<20s}_{nn_type_img:_<15s}_\
+      descriptor = f"_{run+1:02d}_OF_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{b if make_balanced=='level_up' else nb}_{args.cases[0:20]:_<20s}_{nn_type_img:_<15s}_\
 {stain_norm:_<4s}_{nn_optimizer:_<8s}_e_{args.n_epochs:03d}_N_{n_samples:05d}_hi_{n_classes:02d}_bat_{batch_size:03d}_test_{int(100*pct_test):03d}_lr_{lr:09.6f}_tiles_{n_tiles:04d}_tlsz_{tile_size:04d}\
 __mag_{mags}__prob_{prob:_<20s}"
       descriptor = descriptor[0:200]
@@ -1274,7 +1276,7 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_pct}_Grey_Pct_{make_g
     
       topology_as_whitespace_free_string = '-'.join(map(str, hidden_layer_encoder_topology))
      
-      descriptor = f"_{run+1:02d}_OF_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.lower():_<9s}_{args.cases[0:10]:_<10s}__{rna_genes_tranche[0:10].upper():_<10s}__{nn_type_rna:_<15s}_{nn_optimizer[0:8]:_<8s}\
+      descriptor = f"_{run+1:02d}_OF_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases[0:10]:_<10s}__{rna_genes_tranche[0:10].upper():_<10s}__{nn_type_rna:_<15s}_{nn_optimizer[0:8]:_<8s}\
 _e_{args.n_epochs:03d}_N_{n_samples:04d}_hi_{n_classes:02d}_bat_{batch_size:03d}_test_{int(100*pct_test):03d}_lr_{lr:09.6f}_hid_{hidden_layer_neurons:04d}_lo_{low_expression_threshold:<02.2e}_low_{cutoff_percentile:04.0f}\
 _dr_{100*dropout_1:4.1f}_xfrm_{gene_data_transform:_<8s}_shape_{topology_as_whitespace_free_string}"                                                                                                # need to abbreviate everything because the long topology string will make the file name too long and it will crash
       if topology_length > 14:
@@ -1416,12 +1418,12 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     if args.final_test_batch_size > final_test_batch_size:
       args.final_test_batch_size = final_test_batch_size
       if (input_mode=='image'):
-        print ( f"{ORANGE}CLASSI:         WARNG: there aren't enough test tiles to support a {CYAN}FINAL_TEST_BATCH_SIZE{RESET}{ORANGE} of {MIKADO}{args.final_test_batch_size:,}{RESET}{ORANGE} for this run{RESET}", flush=True )                
-        print ( f"{ORANGE}CLASSI:         WARNG: the number of test tiles available is {CYAN}N_SAMPLES{RESET} x {CYAN}N_TILES{RESET} x {CYAN}PCT_TEST{RESET}  = {MIKADO}{n_samples:,}{RESET} x {MIKADO}{n_tiles:,}{RESET} x {MIKADO}{pct_test:,}{RESET} = {MIKADO}{int(final_test_batch_size):,}{RESET}{ORANGE}{RESET}", flush=True )                
-        print ( f"{ORANGE}CLASSI:         WARNG: {CYAN}FINAL_TEST_BATCH_SIZE{RESET}{ORANGE} has accordingly been set to {MIKADO}{int(final_test_batch_size):,}{RESET} {ORANGE}for this run {RESET}", flush=True )
+        print ( f"{ORANGE}CLASSI:         WARN:  there aren't enough test tiles to support a {CYAN}FINAL_TEST_BATCH_SIZE{RESET}{ORANGE} of {MIKADO}{args.final_test_batch_size:,}{RESET}{ORANGE} for this run{RESET}", flush=True )                
+        print ( f"{ORANGE}CLASSI:         WARN:  the number of test tiles available is {CYAN}N_SAMPLES{RESET} x {CYAN}N_TILES{RESET} x {CYAN}PCT_TEST{RESET}  = {MIKADO}{n_samples:,}{RESET} x {MIKADO}{n_tiles:,}{RESET} x {MIKADO}{pct_test:,}{RESET} = {MIKADO}{int(final_test_batch_size):,}{RESET}{ORANGE}{RESET}", flush=True )                
+        print ( f"{ORANGE}CLASSI:         WARN:  {CYAN}FINAL_TEST_BATCH_SIZE{RESET}{ORANGE} has accordingly been set to {MIKADO}{int(final_test_batch_size):,}{RESET} {ORANGE}for this run {RESET}", flush=True )
       else:
-        print ( f"{ORANGE}CLASSI:         WARNG: there aren't enough examples to support a {CYAN}FINAL_TEST_BATCH_SIZE{RESET}{ORANGE} of {MIKADO}{args.final_test_batch_size}{RESET}{ORANGE} for this run{RESET}", flush=True )                
-        print ( f"{ORANGE}CLASSI:         WARNG: {CYAN}FINAL_TEST_BATCH_SIZE{RESET}{ORANGE} has accordingly been set to {MIKADO}{int(final_test_batch_size)}{RESET} {ORANGE}for this run {RESET}", flush=True )
+        print ( f"{ORANGE}CLASSI:         WARN:  there aren't enough examples to support a {CYAN}FINAL_TEST_BATCH_SIZE{RESET}{ORANGE} of {MIKADO}{args.final_test_batch_size}{RESET}{ORANGE} for this run{RESET}", flush=True )                
+        print ( f"{ORANGE}CLASSI:         WARN:  {CYAN}FINAL_TEST_BATCH_SIZE{RESET}{ORANGE} has accordingly been set to {MIKADO}{int(final_test_batch_size)}{RESET} {ORANGE}for this run {RESET}", flush=True )
 
     # (1) set up Tensorboard
     
@@ -1672,11 +1674,11 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
     if clustering!='NONE':
        if args.input_mode == 'rna':
-        print ( f"{BOLD_ORANGE}CLASSI:         WARNG:  there are almost certainly not enough data points to do meaningful clustering on rna gene expression values{RESET}",   flush=True )
-        print ( f"{BOLD_ORANGE}CLASSI:         WARNG:  continuing, but don't be surprised if the clustering algorithm crashes{RESET}",                                        flush=True )
+        print ( f"{BOLD_ORANGE}CLASSI:         WARN:   there are almost certainly not enough data points to do meaningful clustering on rna gene expression values{RESET}",   flush=True )
+        print ( f"{BOLD_ORANGE}CLASSI:         WARN:   continuing, but don't be surprised if the clustering algorithm crashes{RESET}",                                        flush=True )
      
     if clustering=='o_tsne':
-      o_tsne   ( args, class_names, pct_test)
+      o_tsne   ( args, class_names, pct_test, descriptor_2, descriptor_clustering)
       writer.close()        
       hours   = round( (time.time() - job_start_time) / 3600,  1   )
       minutes = round( (time.time() - job_start_time) /   60,  1   )
@@ -1694,7 +1696,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       sys.exit(0)
       
     elif clustering=='sk_tsne':
-      sk_tsne(  args, class_names, pct_test)
+      sk_tsne(  args, class_names, pct_test, descriptor_2, descriptor_clustering)
       writer.close()        
       hours   = round( (time.time() - job_start_time) / 3600,  1   )
       minutes = round( (time.time() - job_start_time) /   60,  1   )
@@ -1703,7 +1705,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       sys.exit(0)
 
     elif clustering=='sk_agglom':
-      sk_agglom(  args, class_names, pct_test)
+      sk_agglom(  args, class_names, pct_test, descriptor_2, descriptor_clustering)
       writer.close()        
       hours   = round( (time.time() - job_start_time) / 3600,  1   )
       minutes = round( (time.time() - job_start_time) /   60,  1   )
@@ -1712,7 +1714,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       sys.exit(0)
       
     elif clustering=='sk_spectral':
-      sk_spectral(  args, class_names, pct_test)
+      sk_spectral(  args, class_names, pct_test, descriptor_2, descriptor_clustering)
       writer.close()        
       hours   = round( (time.time() - job_start_time) / 3600,  1   )
       minutes = round( (time.time() - job_start_time) /   60,  1   )
@@ -1721,7 +1723,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       sys.exit(0)
       
     elif clustering=='dbscan':
-      _dbscan ( args, class_names, pct_test, epsilon )
+      _dbscan ( args, class_names, pct_test, epsilon, descriptor_2, descriptor_clustering )
       writer.close()        
       hours   = round( (time.time() - job_start_time) / 3600,  1   )
       minutes = round( (time.time() - job_start_time) /   60,  1   )
@@ -1730,7 +1732,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       sys.exit(0)
       
     elif clustering=='h_dbscan':
-      h_dbscan ( args, class_names, pct_test, min_cluster_size )
+      h_dbscan ( args, class_names, pct_test, min_cluster_size, descriptor_2, descriptor_clustering )
       writer.close()        
       hours   = round( (time.time() - job_start_time) / 3600,  1   )
       minutes = round( (time.time() - job_start_time) /   60,  1   )
@@ -1738,7 +1740,10 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       print( f'CLASSI:           INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
       sys.exit(0)
 
-    elif clustering!='NONE':
+    elif clustering=='NONE':
+      pass
+      
+    else:
       print ( f"{RED}CLASSI:         FATAL:    there's no such clustering option as '{CYAN}{clustering}{RESET}'", flush=True)
       print ( f"{RED}CLASSI:         FATAL:    supported clustering algorithms are cuda-tsne ('{CYAN}cuda_tsne{RESET}{RED}'), scikit-learn tsne ('{CYAN}sk_tsne{RESET}{RED}'), agglomerative clustering ('{CYAN}sk_agglom{RESET}{RED}') and spectral clustering ('{CYAN}sk_spectral{RESET}{RED}'); , open tsne ('{CYAN}otsne{RESET}{RED}'), DBSCAN ('{CYAN}dbscan{RESET}{RED}'), HDBSCAN ('{CYAN}h_dbscan{RESET}{RED}'){RESET}", flush=True)
       print ( f"{RED}CLASSI:         FATAL:    halting now...{RESET}", flush=True)      
@@ -2268,7 +2273,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       
         if DEBUG>0:
           print ( "\033[8B" )        
-          print ( f"CLASSI:          INFO: {BOLD_BLEU}about to classify {MIKADO}{final_test_batch_size:,}{RESET}{BOLD_BLEU} test samples using the best model produced during training{RESET}"        )
+          print ( f"CLASSI:         INFO: {BOLD_BLEU}about to classify {MIKADO}{final_test_batch_size:,}{RESET}{BOLD_BLEU} test samples using the best model produced during training{RESET}"        )
         
         pplog.log ( f"\nABOUT TO COMMENCE TEST PHASE:\n" )
 
@@ -3395,9 +3400,9 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   
       if DEBUG>0:    
         print(  '\033[13B' )
-        print( f"CLASSI:           INFO:    {BITTER_SWEET}Test predictions produced during training for this run{RESET}"         )
-        print( f"CLASSI:           INFO:    {BITTER_SWEET}======================================================{RESET}"  )
-        print( f"CLASSI:           INFO:                                                                                      "  )  
+        print( f"CLASSI:         INFO:    {BITTER_SWEET}Test predictions produced during training for this run{RESET}"         )
+        print( f"CLASSI:         INFO:    {BITTER_SWEET}======================================================{RESET}"  )
+        print( f"CLASSI:         INFO:                                                                                      "  )  
     
       total_correct, total_examples  = show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, run_level_classifications_matrix, class_names, level='run' )
   

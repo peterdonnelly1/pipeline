@@ -1,6 +1,7 @@
 
 import sys
 import torch
+import datetime
 import argparse
 import matplotlib.colors
 import numpy             as np
@@ -34,7 +35,7 @@ DEBUG   = 1
 np.set_printoptions(edgeitems=100000)
 np.set_printoptions(linewidth=100000)
 
-def _dbscan( args, class_names, pct_test, epsilon ):
+def _dbscan( args, class_names, pct_test, epsilon, super_title, descriptor_clustering  ):
 
   input_mode           = args.input_mode
   algorithm            = 'best'

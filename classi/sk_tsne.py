@@ -2,6 +2,7 @@ import sys
 import time
 import torch
 import random
+import datetime
 import argparse
 import numpy             as np
 import pandas            as pd
@@ -37,11 +38,11 @@ DEBUG   = 1
 np.set_printoptions(edgeitems=100000)
 np.set_printoptions(linewidth=100000)
 
-def sk_tsne( args, class_names, pct_test):
+def sk_tsne( args, class_names, pct_test, super_title, descriptor_clustering ):
 
 
   input_mode   = args.input_mode
-  
+  render_clustering = args.render_clustering  
   
   
   n_components = 2
@@ -196,13 +197,18 @@ def sk_tsne( args, class_names, pct_test):
   # ~ cmap, norm = matplotlib.colors.from_levels_and_colors( np.arange(1, c.max()+3), colors )
 
   N=labels.shape[0]
-  title=f"Unsupervised Clustering using sklearn T-SNE \n(cancer type={args.dataset}, N={N:,}, n_iter={n_iter:,}, n_components={n_components}, perplexity={perplexity}, metric={metric})"
+  title=f"Unsupervised Clustering using (sklearn) T-SNE \n(cancer type={args.dataset}, N={N:,}, n_iter={n_iter:,}, n_components={n_components}, perplexity={perplexity}, metric={metric})"
 
   # ~ plot( embedding_train, labels, colors=MACOSKO_COLORS )
   plot( embedding_train, labels, class_names, ax=ax, title=title  )
   plt.show()
 
+  now = datetime.datetime.now()  
+  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}___________{descriptor_clustering}_dims_{samples.shape[1]}____sk_tsne_clustering.png"
+  fig.savefig(fqn)
 
+  if render_clustering=="True":
+    plt.show()  
 
 # ------------------------------------------------------------------------------
 # HELPER FUNCTIONS

@@ -18,6 +18,7 @@ This behavior is especially pronounced for the average linkage strategy, that en
 import sys
 import torch
 import random
+import datetime
 import argparse
 import numpy             as np
 import pandas            as pd
@@ -59,7 +60,7 @@ DEBUG   = 1
 np.set_printoptions(edgeitems=100000)
 np.set_printoptions(linewidth=100000)
 
-def sk_agglom( args, class_names, pct_test):
+def sk_agglom( args, class_names, pct_test, super_title, descriptor_clustering ):
   
   input_mode           = args.input_mode  
   n_clusters           = args.n_clusters
@@ -220,7 +221,7 @@ def plot(args, use_embeddings, class_names, shape, cluster_labels, true_labels, 
   
   N=true_labels.shape[0]
   title    = f"Unsupervised Agglomerative Clustering of {N:,} TCGA {args.dataset.upper()} {args.input_mode}s;  X=cluster number (jittered), Y=true subtype"
-  subtitle = f"mode = {mode}'  n_clusters={n_clusters};  input dims = {shape[1:]};  autoencoder input used={use_embeddings}"
+  subtitle = f"mode = {mode};  n_clusters={n_clusters};  input dims = {shape[1:]};  autoencoder input used={use_embeddings}"
   
   plt.title ( title, fontsize=16 )
   plt.text  ( -.2, 0.2, subtitle, ha='left', fontsize=12 )
