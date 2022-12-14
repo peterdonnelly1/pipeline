@@ -222,7 +222,7 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
       tile_size         = 299
       args.tile_size[0] = 299
 
-
+    
     images_new  = images_new.swapaxes(1,3)                                                           # it's stored as 50000,32,32,3 whereas we need 50,000,3,32,32 so we swap second and last axes around
 
 
@@ -1863,7 +1863,8 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
       images_new = images_new_upsized
       tile_size = args.tile_size = 299
 
-  images_new  = images_new.swapaxes(1,3)                                                                   # it's stored as XXX,HH,WW,3 whereas we need XXX,3,HH,WW so we swap second and last axes around
+  if args.dataset =='cifr':   
+    images_new  = images_new.swapaxes(1,3)                                                                 # it's stored as XXX,HH,WW,3 whereas we need XXX,3,HH,WW so we swap second and last axes around
   
   images_new      = torch.Tensor ( images_new )
   fnames_new      = torch.Tensor ( fnames_new ).long()

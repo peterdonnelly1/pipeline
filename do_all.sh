@@ -300,15 +300,38 @@ echo "===> STARTING"
 if [[ ${REGEN} == "True" ]];
   then
     echo "=====> STEP 0 OF 3: REGENERATING DATASET FROM SOURCE DIRECTORY"
-    if [[ ${INPUT_MODE} == "rna" ]]; 
+    
+    DIVIDE_CASES=True
+    SKIP_TRAINING=False
+    SKIP_GENERATION=False
+
+    rm -rf ${DATA_DIR}
+            
+    if [[ ${INPUT_MODE} == "rna" ]];
+    
       then
         echo "=====> REGENERATING JUST 'RNA-SEQ' FILES FROM SOURCE DATA (IF YOU WANT TO ALSO REGENERATE IMAGE FILES, USE IMAGE MODE (-i image) )"
-        rm -rf ${DATA_DIR}
+        
+        SKIP_RNA_PREPROCESSING=False
         rsync -ahW   --no-compress --exclude '*.svs*'  --exclude '*.spcn*' --info=progress2 ${DATA_SOURCE}/    ${DATA_DIR}
+
     else
         echo "=====> REGENERATING DATASET FROM SOURCE DATA - THIS CAN TAKE A LONG TIME (E.G. 20 MINUTES) (IF YOU JUST WANT TO REGENERATE RNA-SEQ FILES, USE RNA MODE (-i rna) )"
-        rm -rf ${DATA_DIR}
-        rsync -ahW   --no-compress                     --info=progress2 ${DATA_SOURCE}/    ${DATA_DIR}
+        
+        SKIP_TILING=False
+        SKIP_IMAGE_PREPROCESSING=False
+        
+        if [[ ${STAIN_NORMALIZATION} == "spcn" ]];
+        
+          then
+        
+            rsync -ahW   --no-compress                         --info=progress2 ${DATA_SOURCE}/    ${DATA_DIR}
+            
+          else
+
+            rsync -ahW   --no-compress   --exclude '*.spcn*'   --info=progress2 ${DATA_SOURCE}/    ${DATA_DIR}
+
+          fi
     fi
 fi
 
