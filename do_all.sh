@@ -335,6 +335,8 @@ if [[ ${REGEN} == "True" ]];
     fi
 fi
 
+
+    
 echo "=====> STEP 1 OF 3: CLEANING DATASET"
 
 # maybe clear case subset flags

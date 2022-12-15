@@ -631,9 +631,12 @@ has been set to {RESET}{BOLD_MIKADO} [ 'plane', 'car', 'bird', 'cat', 'deer', 'd
 
       if ( source_image_file_count==0 ) & ( dataset !='cifr') :
         print ( f"{BOLD_RED}\n\nCLASSI:         FATAL:  there are no image files at all in the working data directory{RESET}" )
-        print ( f"{BOLD_RED}CLASSI:         FATAL:  possible cause: perhaps you changed to a different cancer type or input type but did not regenerate the dataset?{RESET}" )
-        print ( f"{BOLD_RED}CLASSI:         FATAL:                  if so, use the {CYAN}-r {RESET}{BOLD_RED}option ('{BOLD}{CYAN}REGEN{RESET}{BOLD_RED}') to force the dataset to be regenerated into the working directory{RESET}" )
-        print ( f"{BOLD_RED}CLASSI:         FATAL:                  e.g. '{CYAN}./do_all.sh -d <cancer type code> -i image ... {CHARTREUSE}-r True{RESET}{BOLD_RED}'{RESET}" )
+        print ( f"{BOLD_RED}CLASSI:         FATAL:  possible cause 1: perhaps you changed to a different cancer type or input type but did not regenerate the dataset?{RESET}" )
+        print ( f"{BOLD_RED}CLASSI:         FATAL:                    possible remedy: use the {CYAN}-r True{RESET}{BOLD_RED}option ('{BOLD}{CYAN}REGEN{RESET}{BOLD_RED}') to force the dataset to be regenerated into the working directory{RESET}" )
+        print ( f"{BOLD_RED}CLASSI:         FATAL:                                     e.g. ' {CYAN}./do_all.sh -d <cancer type code> -i image ... {CHARTREUSE}-r True{RESET}{BOLD_RED} '{RESET}" )
+        print ( f"{BOLD_RED}CLASSI:         FATAL:  possible cause 2: perhaps this cancer type does not have image data locally{RESET}" )
+        print ( f"{BOLD_RED}CLASSI:         FATAL:                    possible remedy: {CYAN}gdc-fetch{RESET}{BOLD_RED} to acquire image data from the NIH GDC repository{RESET}" )
+        print ( f"{BOLD_RED}CLASSI:         FATAL:                                     e.g. ' {CYAN}./gdc-fetch.sh thym 'filters/TCGA-THYM_case_filter' 'filters/GLOBAL_file_filter_SVS'{RESET}{BOLD_RED} '{RESET}" )        
         print(  f"{BOLD_RED}CLASSI:         FATAL: ... halting now{RESET}\n\n" )
         time.sleep(10)                                    
         sys.exit(0)
@@ -4585,11 +4588,11 @@ def determine_top_up_factors ( args, n_classes, class_names, n_tiles, case_desig
       print( f"\033[{row+3};{col}f{CLEAR_LINE}{leader}final class_counts           = {colour}{class_counts}{RESET}",                                 flush=True  )
   
     if np.any( class_counts < 1):
-        print ( f"{BOLD}{RED}\033[75;0HCLASSI:       FATAL: one of the subtypes has no examples{CLEAR_LINE}",                                                                                                                              flush=True  )                                        
+        print ( f"{BOLD}{RED}\033[77;0HCLASSI:       FATAL: one of the subtypes has no examples{CLEAR_LINE}",                                                                                                                              flush=True  )                                        
         print ( f"{BOLD}{RED}CLASSI:       FATAL: {CYAN}class_counts{RESET}{BOLD}{RED} are {MIKADO}{class_counts}{BOLD}{RED} for class names (subtypes) {MIKADO}{class_names}{BOLD}{RED} respectively{RESET}{CLEAR_LINE}",                 flush=True  )                                        
-        print ( f"{BOLD}{RED}CLASSI:       FATAL: possible remedy (i):  it could be that all cases were allocated to just the training or just the test set. Re-run the experiment with option {CYAN}-v {RESET}{BOLD}{RED} set to {CYAN}True{RESET}{BOLD}{RED} to have cases re-divided and flagged{RESET}{CLEAR_LINE}",       flush=True  )                                        
-        print ( f"{BOLD}{RED}CLASSI:       FATAL:                       it's also possible that, by chance, no representatives of one of the smaller classes made it into the training set. Re-running with option {CYAN}-v {RESET}{BOLD}{RED} might remedy this (might need to try multiple times) {RESET}{CLEAR_LINE}",      flush=True  )                                        
-        print ( f"{BOLD}{RED}CLASSI:       FATAL: possible remedy (ii): if al else failes, remove any class or classes that has only a tiny number of examples from the applicable master spreadsheet",                                    flush=True  )                                        
+        print ( f"{BOLD}{RED}CLASSI:       FATAL: possible remedy   (i): it could be that all cases were allocated to just the training or just the test set. Re-run the experiment with option {CYAN}-v {RESET}{BOLD}{RED} set to {CYAN}True{RESET}{BOLD}{RED} to have cases re-divided and flagged{RESET}{CLEAR_LINE}",       flush=True  )                                        
+        print ( f"{BOLD}{RED}CLASSI:       FATAL: possible remedy  (ii): it's also possible that, by chance, no representatives of one of the smaller classes made it into the training set. Re-running with option {CYAN}-v {RESET}{BOLD}{RED} might remedy this (might need to try multiple times) {RESET}{CLEAR_LINE}",      flush=True  )                                        
+        print ( f"{BOLD}{RED}CLASSI:       FATAL: possible remedy (iii): if al else failes, remove any class or classes that has only a tiny number of examples from the applicable master spreadsheet",                                    flush=True  )                                        
         print ( f"{BOLD}{RED}CLASSI:       FATAL: cannot continue - halting now{RESET}{CLEAR_LINE}" )                 
         sys.exit(0)
 
@@ -4633,15 +4636,14 @@ def determine_top_up_factors ( args, n_classes, class_names, n_tiles, case_desig
 def determine_class_counts ( args, n_classes, class_names, n_tiles, case_designation_flag ):
 
   #  Count the number images per cancer subtype in the dataset for the designated case type (e.g. UNIMODE_CASE) 
-   
-
+  
   class_counts          = np.zeros( n_classes, dtype=int )
 
   for dir_path, dirs, files in os.walk( args.data_dir ):                                                   # each iteration takes us to a new directory under data_dir
 
     for d in dirs:
 
-      if not (d==args.data_dir):                                                                                # the top level directory (dataset) has to be skipped because it only contains sub-directories, not data
+      if not (d==args.data_dir):                                                                           # the top level directory (dataset) has to be skipped because it only contains sub-directories, not data
   
         fqn = f"{dir_path}/{d}/{case_designation_flag}"
         if DEBUG>100:
@@ -4649,16 +4651,15 @@ def determine_class_counts ( args, n_classes, class_names, n_tiles, case_designa
 
         count_this_case_flag=False
 
-        try:
-          fqn = f"{dir_path}/{d}/{case_designation_flag}"
-          f = open( fqn, 'r' )
+        if os.path.isfile ( fqn ):
           count_this_case_flag=True
           if DEBUG>100:
-            print ( f"\r{CLEAR_LINE}{DULL_WHITE}CLASSI:         INFO:  determine_class_counts() case  '{CYAN}{fqn}{RESET}{GREEN}' \r\033[130C is     a case flagged as '{CYAN}{case_designation_flag}{RESET}{GREEN}' - - including{RESET}{CLEAR_LINE}",  flush=True )
-        except Exception:
+            print ( f"\r{CLEAR_LINE}{DULL_WHITE}CLASSI:         INFO:  determine_class_counts() case  '{CYAN}{fqn}{RESET}{GREEN}' \r\033[155C is     a case flagged as '{CYAN}{case_designation_flag}{RESET}{GREEN}' - - including{RESET}{CLEAR_LINE}",  flush=True )
+        else:
           if DEBUG>100:
-            print ( f"\r{CLEAR_LINE}{DULL_WHITE}CLASSI:         INFO:  determine_class_counts() case  '{CYAN}{fqn}{RESET}{RED} \r\033[130C is not a case flagged as '{CYAN}{case_designation_flag}{RESET}{RED}' - - skipping{RESET}{CLEAR_LINE}",  flush=True )
-  
+            print ( f"\r{CLEAR_LINE}{DULL_WHITE}CLASSI:         INFO:  determine_class_counts() case  '{CYAN}{fqn}{RESET}{RED} \r\033[155C is not a case flagged as '{CYAN}{case_designation_flag}{RESET}{RED}' - - skipping{RESET}{CLEAR_LINE}",  flush=True )
+
+
         try:                                                                                               # every tile has an associated label - the same label for every tile image in the directory
           label_file = f"{dir_path}/{d}/{args.class_numpy_file_name}"
           if DEBUG>100:
@@ -4836,7 +4837,7 @@ def segment_cases( args, n_classes, class_names, n_tiles, pct_test ):
 
     # (1Ci) designate MULTIMODE____TEST cases.  Infinite loop with a break condition (necessary to give every case an equal chance of being randonly selected for inclusion in the MULTIMODE case set)
 
-    if ( cumulative_png_file_count > 0 ) &  ( cumulative_rna_file_count > 0):    
+    if ( cumulative_svs_file_count > 0 ) &  ( cumulative_rna_file_count > 0):    
       
       directories_considered_count = 0
   
@@ -4903,7 +4904,7 @@ def segment_cases( args, n_classes, class_names, n_tiles, pct_test ):
 
     # (1Cii) designate UNIMODE_CASE____MATCHED cases. Go through all MATCHED directories one time. Flag any MATCHED case other than those flagged as MULTIMODE____TEST case at 1Ca above with the UNIMODE_CASE____MATCHED
 
-    if ( cumulative_png_file_count > 0 ) &  ( cumulative_rna_file_count > 0):    
+    if ( cumulative_svs_file_count > 0 ) &  ( cumulative_rna_file_count > 0):    
 
       for dir_path, dirs, files in os.walk( args.data_dir, topdown=True ):                                   # ... designate every matched case (HAS_BOTH) other than those flagged as MULTIMODE____TEST above to be UNIMODE_CASE____MATCHED 
     
@@ -4944,7 +4945,7 @@ def segment_cases( args, n_classes, class_names, n_tiles, pct_test ):
       
     # (1Ciii) designate the UNIMODE_CASE____UNMATCHED cases. Go through all directories one time. Flag other than MULTIMODE____TEST and  UNIMODE_CASE____MATCHED cases as UNIMODE_CASE____UNMATCHED
 
-    if ( cumulative_png_file_count > 0 ) | ( cumulative_rna_file_count > 0): 
+    if ( cumulative_svs_file_count > 0 ) | ( cumulative_rna_file_count > 0): 
         
       for dir_path, dirs, files in os.walk( args.data_dir ):                                                 # each iteration takes us to a new directory under the dataset directory
     
@@ -4980,10 +4981,11 @@ def segment_cases( args, n_classes, class_names, n_tiles, pct_test ):
 
     # (1Civ) Designate those IMAGE cases which are not also MULTIMODE cases. Go through directories one time. Flag UNIMODE_CASE which are ALSO image cases as UNIMODE_CASE____IMAGE
     
+    
     if DEBUG>3:
       print ( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():  about to designate '{ARYLIDE}UNIMODE_CASE____IMAGE{RESET}{DULL_WHITE}' cases{RESET}",  flush=True )  
 
-    if cumulative_png_file_count > 0:
+    if cumulative_svs_file_count > 0:
     
       directories_considered_count    = 0
       class_counts                   = np.zeros( n_classes, dtype=int )
@@ -5111,7 +5113,7 @@ def segment_cases( args, n_classes, class_names, n_tiles, pct_test ):
     #        TODO: IDEALLY HERE WE WOULD ALSO ENSURE THAT AT LEAST ONE CASE OF EACH SUBTYPE WAS DESIGNATED AS IMAGE_TEST. OTHERWISE SOME SUBTYPES CAN END UP WITH NO TEST EXAMPLES IF 
     #              THERE IS ONLY A VERY SMALL NUMBER OF EXAMPLES FOR THAT CASE IN TOTAL (BECAUSE THE TEST EXAMPLE QUOTE MIGHT BE FILLED WITHOUT COMING ACROSS AN EXAMPLE OF THAT SUBTYPE)
     
-    if cumulative_png_file_count > 0:
+    if cumulative_svs_file_count > 0:
 
       cases_to_designate = int(pct_test * unimode_case_image_count)
           
