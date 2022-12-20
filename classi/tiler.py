@@ -841,7 +841,7 @@ def highest_uniques(args, BB, oslide, level, slide_width, slide_height, tile_siz
     uniques = len(np.unique(tile ))
 
     if (DEBUG>0):
-      print ( f"{SAVE_CURSOR}\033[{start_row-18};0H{CLEAR_LINE}{BB}TILER:          INFO: searching image for coordinates of a good quality patch: currently looking at (n={MIKADO}{n:3d}{RESET}{BB}) a patch with {BRIGHT_GREEN}{uniques:4d}{RESET}{BB} uniques at x={CYAN}{x:,}{RESET}{BB} \r\033[146Cy={CYAN}{y:,}{RESET}{BB}     \r\033[164C<<<< for each slide in turn, checking ({CYAN}POINTS_TO_SAMPLE{RESET}=) {MIKADO}{args.points_to_sample}{RESET}{BB} candidate patches and selecting best{RESET}{RESTORE_CURSOR}", end='', flush=True )
+      print ( f"{SAVE_CURSOR}\033[{start_row-18};0H{CLEAR_LINE}{BB}TILER:          INFO: searching image (try={MIKADO}{n:3d}{RESET}{BB}) for coordinates of a good quality patch. A patch with {BRIGHT_GREEN}{uniques:4d}{RESET}{BB} uniques at x={CYAN}{x:,}{RESET}{BB} \r\033[146Cy={CYAN}{y:,}{RESET}{BB}     \r\033[164C<<<< for each slide in turn, checking ({CYAN}POINTS_TO_SAMPLE{RESET}=) {MIKADO}{args.points_to_sample}{RESET}{BB} for candidate patches and selecting patch with most uniques{RESET}{RESTORE_CURSOR}", end='', flush=True )
 
 
     if ( uniques>high_uniques ):                                                                                    # then check the tiles at the other three corners of the putative sqaure
