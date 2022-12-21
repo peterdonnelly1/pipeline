@@ -347,7 +347,7 @@ def tiler( args, r_norm, n_tiles, stop_tiling, top_up_factors, tile_size, batch_
 
   # (3b) [test mode only] look for the best possible patch (of the requested size) to use.  Extract and save a copy of it, for later use in the Tensorboard scattergram display
      
-  if ( ( just_test=='True') & ( multimode!='image_rna' ) & (args.show_patch_images=='True' ) & (args.scattergram=='True' ) ):
+  if ( ( just_test=='True') & ( multimode!='image_rna' ) & (args.show_patch_images=='True' ) ):
 
     patch_points_to_sample      = args.patch_points_to_sample
     high_uniques = 0

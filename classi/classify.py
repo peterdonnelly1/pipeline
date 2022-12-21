@@ -4031,46 +4031,48 @@ def test( run, cfg, args, parameters, best, second_best, embeddings_accum, label
                 
                 print("")
                 
-                if args.annotated_tiles=='True':
+                if args.multimode!='image_rna':
                   
-                  fig=plot_classes_preds(args, model, tile_size, grid_images, grid_labels, 0,  grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_full_softmax_matrix, class_names, class_colours )
-                  writer.add_figure('1 annotated tiles', fig, epoch)
-                  plt.close(fig)
-
-                if args.scattergram=='True':
+                  if args.annotated_tiles=='True':
+                    
+                    fig=plot_classes_preds(args, model, tile_size, grid_images, grid_labels, 0,  grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_full_softmax_matrix, class_names, class_colours )
+                    writer.add_figure('1 annotated tiles', fig, epoch)
+                    plt.close(fig)
+  
+                  if args.scattergram=='True':
+                        
+                    batch_fnames_npy = batch_fnames.numpy()                                                      # batch_fnames was set up during dataset generation: it contains a link to the SVS file corresponding to the tile it was extracted from - refer to generate() for details
+                    fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
+                    
+                    try:
+                      background_image = np.load(f"{fq_link}")
+                      if DEBUG>0:
+                        print ( f"CLASSI:         INFO:      test:        fq_link                                              = {MIKADO}{fq_link}{RESET}" )
                       
-                  batch_fnames_npy = batch_fnames.numpy()                                                      # batch_fnames was set up during dataset generation: it contains a link to the SVS file corresponding to the tile it was extracted from - refer to generate() for details
-                  fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
-                  
-                  try:
-                    background_image = np.load(f"{fq_link}")
-                    if DEBUG>0:
-                      print ( f"CLASSI:         INFO:      test:        fq_link                                              = {MIKADO}{fq_link}{RESET}" )
-                    
-                  except Exception as e:
-                    print ( f"{RED}CLASSI:         FATAL:  {e}{RESET}" )
-                    print ( f"{RED}CLASSI:         FATAL:     explanation: a required {MAGENTA}entire_patch.npy{RESET}{RED} file doesn't exist. (Probably none exist). (the link file itself ({CYAN}*.fqln{RESET}{RED}) probably does exist but links to nothing){RESET}" )                
-                    print ( f"{RED}CLASSI:         FATAL:     explanation: {MAGENTA}entire_patch.npy{RESET}{RED} files contain the background images used for the scattergram. {RESET}" )                
-                    print ( f"{RED}CLASSI:         FATAL:     if you used {CYAN}./just_test_dont_tile.sh{RESET}{RED} without first running {CYAN}./just_test.sh{RESET}{RED}' then tiling and patch generation will have been skipped ({CYAN}--skip_tiling = {MIKADO}'True'{RESET}{RED} in that script{RESET}{RED}){RESET}" )
-                    print ( f"{RED}CLASSI:         FATAL:     if so, run '{CYAN}./just_test.sh -d <cancer type code> -i <INPUT_MODE>{RESET}{RED}' at least one time so that these files will be generated{RESET}" )                 
-                    print ( f"{RED}CLASSI:         FATAL:     halting now ...{RESET}" )                 
-                    sys.exit(0)              
-    
-                    
-                  plot_scatter( args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, grid_p_full_softmax_matrix, show_patch_images='True')
-                  # ~ plot_scatter(args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, grid_p_full_softmax_matrix, show_patch_images='False')
-    
-                  if (args.probs_matrix=='True') & (args.multimode!='image_rna'):
-                    
-                    # ~ # without interpolation
-                    # ~ matrix_types = [ 'margin_1st_2nd', 'confidence_RIGHTS', 'p_std_dev' ]
-                    # ~ for n, matrix_type in enumerate(matrix_types):
-                      # ~ plot_matrix (matrix_type, args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_p_full_softmax_matrix, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, 'none' )    # always display without probs_matrix_interpolation 
-                    # with  interpolation
-                    matrix_types = [ 'probs_true' ]
-                    for n, matrix_type in enumerate(matrix_types): 
-                      plot_matrix ( matrix_type, args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_p_full_softmax_matrix, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, args.probs_matrix_interpolation )
-             
+                    except Exception as e:
+                      print ( f"{RED}CLASSI:         FATAL:  {e}{RESET}" )
+                      print ( f"{RED}CLASSI:         FATAL:     explanation: a required {MAGENTA}entire_patch.npy{RESET}{RED} file doesn't exist. (Probably none exist). (the link file itself ({CYAN}*.fqln{RESET}{RED}) probably does exist but links to nothing){RESET}" )                
+                      print ( f"{RED}CLASSI:         FATAL:     explanation: {MAGENTA}entire_patch.npy{RESET}{RED} files contain the background images used for the scattergram. {RESET}" )                
+                      print ( f"{RED}CLASSI:         FATAL:     if you used {CYAN}./just_test_dont_tile.sh{RESET}{RED} without first running {CYAN}./just_test.sh{RESET}{RED}' then tiling and patch generation will have been skipped ({CYAN}--skip_tiling = {MIKADO}'True'{RESET}{RED} in that script{RESET}{RED}){RESET}" )
+                      print ( f"{RED}CLASSI:         FATAL:     if so, run '{CYAN}./just_test.sh -d <cancer type code> -i <INPUT_MODE>{RESET}{RED}' at least one time so that these files will be generated{RESET}" )                 
+                      print ( f"{RED}CLASSI:         FATAL:     halting now ...{RESET}" )                 
+                      sys.exit(0)              
+      
+                      
+                    plot_scatter( args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, grid_p_full_softmax_matrix, show_patch_images='True')
+                    # ~ plot_scatter(args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, grid_p_full_softmax_matrix, show_patch_images='False')
+      
+                    if (args.probs_matrix=='True') & (args.multimode!='image_rna'):
+                      
+                      # ~ # without interpolation
+                      # ~ matrix_types = [ 'margin_1st_2nd', 'confidence_RIGHTS', 'p_std_dev' ]
+                      # ~ for n, matrix_type in enumerate(matrix_types):
+                        # ~ plot_matrix (matrix_type, args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_p_full_softmax_matrix, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, 'none' )    # always display without probs_matrix_interpolation 
+                      # with  interpolation
+                      matrix_types = [ 'probs_true' ]
+                      for n, matrix_type in enumerate(matrix_types): 
+                        plot_matrix ( matrix_type, args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_p_full_softmax_matrix, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, args.probs_matrix_interpolation )
+               
   
 
 
