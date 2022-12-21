@@ -2686,7 +2686,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         plt.tight_layout()
                   
         if args.bar_chart_show_all=='True':
-          writer.add_figure('images___best_tile_level_probabs_matrix', fig, 0 )
+          writer.add_figure('images___best_tile_level_probabs_matrix', fig, 1 )
         
         # save version to logs directory
         now              = datetime.datetime.now()
@@ -2796,7 +2796,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         plt.tight_layout()
         
         if args.bar_chart_show_all=='True':        
-          writer.add_figure('images___aggregate_tile_level_winners_matrix', fig, 0 )
+          writer.add_figure('images___aggregate_tile_level_winners_matrix', fig, 2 )
 
         
         # save version to logs directory
@@ -2864,7 +2864,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         fqn = f"{fqn[0:255]}.png".replace(" ","-")
         plt.savefig(fqn)
 
-        writer.add_figure('images___probs_for_TRUE_classes', fig, 0 )
+        writer.add_figure('images___probs_for_TRUE_classes', fig, 3 )
         
         # ~ plt.show()
   
@@ -2933,7 +2933,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   
         plt.tight_layout()
       
-        writer.add_figure('images___probs_for_ALL__classes', fig, 0 )
+        writer.add_figure('images___probs_for_ALL__classes', fig, 4 )
         
         # save version to logs directory
         now              = datetime.datetime.now()
@@ -3077,7 +3077,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         plt.tight_layout()
                   
 
-        writer.add_figure('rna_seq__probs_for_PREDICTED_classes', fig, 0 )
+        writer.add_figure('rna_seq__probs_for_PREDICTED_classes', fig, 5 )
         
 
         # save version to logs directory
@@ -3150,7 +3150,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
         plt.tight_layout()
                   
-        writer.add_figure('rna_seq__probs_for_TRUE_classes', fig, 0 )
+        writer.add_figure('rna_seq__probs_for_TRUE_classes', fig, 6 )
         
         # save version to logs directory
         
@@ -3204,7 +3204,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         plt.figtext( 0.15, 0.01, correct_stats, size=14, color="grey", style="normal" )
         plt.tight_layout()
       
-        writer.add_figure('rna_seq__probs_for_ALL__classes', fig, 0 )
+        writer.add_figure('rna_seq__probs_for_ALL__classes', fig, 7 )
         
         # save version to logs directory
         now              = datetime.datetime.now()
@@ -3361,7 +3361,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         
               plt.tight_layout()
                         
-              writer.add_figure('z_multimode__probs_for_TRUE_classes', fig, 0 )         
+              writer.add_figure('z_multimode__probs_for_TRUE_classes', fig, 8 )         
             
   
   
@@ -4028,6 +4028,7 @@ def test( run, cfg, args, parameters, best, second_best, embeddings_accum, label
             if global_batch_count%(args.supergrid_size**2)==0:
               
               if args.input_mode=='image':
+                
                 print("")
                 
                 if args.annotated_tiles=='True':
@@ -4035,40 +4036,41 @@ def test( run, cfg, args, parameters, best, second_best, embeddings_accum, label
                   fig=plot_classes_preds(args, model, tile_size, grid_images, grid_labels, 0,  grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_full_softmax_matrix, class_names, class_colours )
                   writer.add_figure('1 annotated tiles', fig, epoch)
                   plt.close(fig)
-  
-                batch_fnames_npy = batch_fnames.numpy()                                                      # batch_fnames was set up during dataset generation: it contains a link to the SVS file corresponding to the tile it was extracted from - refer to generate() for details
-                fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
-                
-                try:
-                  background_image = np.load(f"{fq_link}")
-                  if DEBUG>99:
-                    print ( f"CLASSI:         INFO:      test:        fq_link                                              = {MIKADO}{fq_link}{RESET}" )
-                  
-                except Exception as e:
-                  print ( f"{RED}CLASSI:         FATAL:  '{e}'{RESET}" )
-                  print ( f"{RED}CLASSI:         FATAL:     explanation: a required {MAGENTA}entire_patch.npy{RESET}{RED} file doesn't exist. (Probably none exist). These contain the background images used for the scattergram. {RESET}" )                
-                  print ( f"{RED}CLASSI:         FATAL:     if you used {CYAN}./just_test_dont_tile.sh{RESET}{RED} without first running {CYAN}./just_test.sh{RESET}{RED}' then tiling and patch generation will have been skipped ({CYAN}--skip_tiling = {MIKADO}'True'{RESET}{RED} in that script{RESET}{RED}){RESET}" )
-                  print ( f"{RED}CLASSI:         FATAL:     if so, run '{CYAN}./just_test.sh -d <cancer type code> -i <INPUT_MODE>{RESET}{RED}' at least one time so that these files will be generated{RESET}" )                 
-                  print ( f"{RED}CLASSI:         FATAL:     halting now ...{RESET}" )                 
-                  sys.exit(0)              
 
-                  
                 if args.scattergram=='True':
+                      
+                  batch_fnames_npy = batch_fnames.numpy()                                                      # batch_fnames was set up during dataset generation: it contains a link to the SVS file corresponding to the tile it was extracted from - refer to generate() for details
+                  fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
                   
+                  try:
+                    background_image = np.load(f"{fq_link}")
+                    if DEBUG>0:
+                      print ( f"CLASSI:         INFO:      test:        fq_link                                              = {MIKADO}{fq_link}{RESET}" )
+                    
+                  except Exception as e:
+                    print ( f"{RED}CLASSI:         FATAL:  {e}{RESET}" )
+                    print ( f"{RED}CLASSI:         FATAL:     explanation: a required {MAGENTA}entire_patch.npy{RESET}{RED} file doesn't exist. (Probably none exist). (the link file itself ({CYAN}*.fqln{RESET}{RED}) probably does exist but links to nothing){RESET}" )                
+                    print ( f"{RED}CLASSI:         FATAL:     explanation: {MAGENTA}entire_patch.npy{RESET}{RED} files contain the background images used for the scattergram. {RESET}" )                
+                    print ( f"{RED}CLASSI:         FATAL:     if you used {CYAN}./just_test_dont_tile.sh{RESET}{RED} without first running {CYAN}./just_test.sh{RESET}{RED}' then tiling and patch generation will have been skipped ({CYAN}--skip_tiling = {MIKADO}'True'{RESET}{RED} in that script{RESET}{RED}){RESET}" )
+                    print ( f"{RED}CLASSI:         FATAL:     if so, run '{CYAN}./just_test.sh -d <cancer type code> -i <INPUT_MODE>{RESET}{RED}' at least one time so that these files will be generated{RESET}" )                 
+                    print ( f"{RED}CLASSI:         FATAL:     halting now ...{RESET}" )                 
+                    sys.exit(0)              
+    
+                    
                   plot_scatter( args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, grid_p_full_softmax_matrix, show_patch_images='True')
                   # ~ plot_scatter(args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, grid_p_full_softmax_matrix, show_patch_images='False')
-  
-                if (args.probs_matrix=='True') & (args.multimode!='image_rna'):
-                  
-                  # ~ # without interpolation
-                  # ~ matrix_types = [ 'margin_1st_2nd', 'confidence_RIGHTS', 'p_std_dev' ]
-                  # ~ for n, matrix_type in enumerate(matrix_types):
-                    # ~ plot_matrix (matrix_type, args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_p_full_softmax_matrix, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, 'none' )    # always display without probs_matrix_interpolation 
-                  # with  interpolation
-                  matrix_types = [ 'probs_true' ]
-                  for n, matrix_type in enumerate(matrix_types): 
-                    plot_matrix ( matrix_type, args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_p_full_softmax_matrix, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, args.probs_matrix_interpolation )
-           
+    
+                  if (args.probs_matrix=='True') & (args.multimode!='image_rna'):
+                    
+                    # ~ # without interpolation
+                    # ~ matrix_types = [ 'margin_1st_2nd', 'confidence_RIGHTS', 'p_std_dev' ]
+                    # ~ for n, matrix_type in enumerate(matrix_types):
+                      # ~ plot_matrix (matrix_type, args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_p_full_softmax_matrix, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, 'none' )    # always display without probs_matrix_interpolation 
+                    # with  interpolation
+                    matrix_types = [ 'probs_true' ]
+                    for n, matrix_type in enumerate(matrix_types): 
+                      plot_matrix ( matrix_type, args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_p_full_softmax_matrix, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, args.probs_matrix_interpolation )
+             
   
 
 
@@ -4574,12 +4576,22 @@ def determine_top_up_factors ( args, n_classes, class_names, n_tiles, case_desig
       print( f"\033[{row+3};{col}f{CLEAR_LINE}{leader}final class_counts           = {colour}{class_counts}{RESET}",                                 flush=True  )
   
     if np.any( class_counts < 1):
-        print ( f"{BOLD}{RED}\033[77;0HCLASSI:       FATAL: one of the subtypes has no examples{CLEAR_LINE}",                                                                                                                              flush=True  )                                        
-        print ( f"{BOLD}{RED}CLASSI:       FATAL: {CYAN}class_counts{RESET}{BOLD}{RED} are {MIKADO}{class_counts}{BOLD}{RED} for class names (subtypes) {MIKADO}{class_names}{BOLD}{RED} respectively{RESET}{CLEAR_LINE}",                 flush=True  )                                        
-        print ( f"{BOLD}{RED}CLASSI:       FATAL: possible remedy   (i): it could be that all cases were allocated to just the training or just the test set. Re-run the experiment with option {CYAN}-v {RESET}{BOLD}{RED} set to {CYAN}True{RESET}{BOLD}{RED} to have cases re-divided and flagged{RESET}{CLEAR_LINE}",       flush=True  )                                        
-        print ( f"{BOLD}{RED}CLASSI:       FATAL: possible remedy  (ii): it's also possible that, by chance, no representatives of one of the smaller classes made it into the training set. Re-running with option {CYAN}-v {RESET}{BOLD}{RED} might remedy this (might need to try multiple times) {RESET}{CLEAR_LINE}",      flush=True  )                                        
-        print ( f"{BOLD}{RED}CLASSI:       FATAL: possible remedy (iii): if al else failes, remove any class or classes that has only a tiny number of examples from the applicable master spreadsheet",                                    flush=True  )                                        
-        print ( f"{BOLD}{RED}CLASSI:       FATAL: cannot continue - halting now{RESET}{CLEAR_LINE}" )                 
+        print ( f"{CLEAR_LINE}" )
+        print ( f"{CLEAR_LINE}" )
+        print ( f"{CLEAR_LINE}" )
+        print ( f"{CLEAR_LINE}" )
+        print ( f"{BOLD}{RED}\033[77;0HCLASSI:       FATAL: one of the subtypes has no examples at all{CLEAR_LINE}",                                                                                                                                                                                                                                                                              flush=True  )                                        
+        print ( f"{BOLD}{RED}CLASSI:       FATAL: {CYAN}class_counts{RESET}{BOLD}{RED} are {MIKADO}{class_counts}{BOLD_RED} for class names (subtypes) {MIKADO}{class_names}{BOLD_RED} respectively{RESET}{CLEAR_LINE}",                                                                                                                                                                          flush=True  )                                        
+        print ( f"{BOLD}{RED}CLASSI:       FATAL: possible remedy   (i): it could be that all cases were allocated to just the training or just the test set. Re-run the experiment with option {CYAN}-v {RESET}{BOLD_RED} ({CYAN}DIVIDE_CASES{RESET}{BOLD_RED}) set to {BOLD_MIKADO}True{RESET}{BOLD_RED} to have cases re-divided and flagged{RESET}{CLEAR_LINE}",                              flush=True  )                                        
+        print ( f"{BOLD}{RED}CLASSI:       FATAL: possible remedy  (ii): it's also possible that, by chance, no representatives of one of the smaller subtypes made it into the training set. Re-running with option {CYAN}-v {RESET}{BOLD_RED} might remedy this (might need to try multiple times) {RESET}{CLEAR_LINE}",                                                                        flush=True  )                                        
+        print ( f"{BOLD}{RED}CLASSI:       FATAL: possible remedy (iii): if (ii) is the case, and the order of subtypes in the applicable master spreadsheet is from largest to smallest (as recommneded) then use the {CYAN}HIGHEST_CLASS_NUMBER{RESET}{BOLD_RED} option ({CYAN}-a {RESET}{BOLD_RED}) to remove one or more of the subtypes with a small number of representatives{CLEAR_LINE}", flush=True  )                                        
+        print ( f"{BOLD}{RED}CLASSI:       FATAL: possible remedy  (iv): if al else fails, remove rows corresponding to subtypes that have only a tiny number of examples from the applicable master spreadsheet (named {MAGENTA}{args.dataset}_mapping_file_MASTER.csv{RESET}{BOLD_RED} in {MAGENTA}{args.global_data}{RESET}{BOLD_RED}), making sure that contiguity of class numbers is maintained (0, 1, 2 ... no gaps){RESET}{CLEAR_LINE}",  flush=True  )                                        
+        print ( f"{BOLD}{RED}CLASSI:       FATAL: cannot continue - halting now{RESET}{CLEAR_LINE}" )
+        print ( f"{CLEAR_LINE}" )
+        print ( f"{CLEAR_LINE}" )
+        print ( f"{CLEAR_LINE}" )
+        print ( f"{CLEAR_LINE}" )
+        time.sleep(5)              
         sys.exit(0)
 
     if   args.make_balanced=='level_up':
@@ -5640,7 +5652,7 @@ def plot_scatter( args, writer, i, background_image, tile_size, image_labels, cl
   
   scattergram_name = [ "2 scattergram over tiles" if show_patch_images=='True' else "9 scattergram " ][0]
   plt.show
-  writer.add_figure( scattergram_name, fig, i )
+  writer.add_figure( scattergram_name, fig, 9 )
   plt.close(fig)  
     
   return
