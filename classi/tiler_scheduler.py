@@ -213,7 +213,7 @@ def tiler_scheduler( args, r_norm, case_subset_flag_file, slide_count, tiles_nee
                 if DEBUG>0:
                   np.set_printoptions(formatter={'int': lambda x: "{:>3d}".format(x)})
                   r = f'{RED}FAIL{RESET}' if result==0 else f'{GREEN}SUCCESS{RESET}' if result==1 else f'{ORANGE}INSUF_TILES{RESET}' if result==2 else f'{ORANGE}INSUF_QUALIFYING{RESET}' if result==3 else f'{RED}MISSING_IMAGE_FILE{RESET}' if result==4 else f'{BOLD_GREENBLUE}EXCLUDED_CLASS{RESET}' if result==5 else f'{BRIGHT_GREEN}CLASS_QUOTA_FILLED{RESET}' if result==6 else f'{RED}ERROR{RESET}'  
-                  print ( f"\033[{start_row+my_thread};{start_column+210}f{RESET}{CLEAR_LINE}{r} \033[{start_row+my_thread};{start_column+220}f{CLEAR_LINE}{RESET}total={MIKADO}{cumulative_tiles_processed:>4d} {tiles_processed_by_subtype} {RESET}", flush=True  )                
+                  print ( f"\033[{start_row+my_thread};{start_column+210}f{RESET}{CLEAR_LINE}{r} \033[{start_row+my_thread};{start_column+228}f{CLEAR_LINE}{RESET}total={MIKADO}{cumulative_tiles_processed:>4d} {tiles_processed_by_subtype} {RESET}", flush=True  )                
 
   
       if ( args.make_balanced=='level_down')  & ( np.sum(stop_tiling_by_subtype)==0 ):

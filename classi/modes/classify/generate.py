@@ -518,8 +518,9 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
   
     if found_count==0:
       print ( f"{RED}GENERATE:       FATAL: No qualifying cases were found{RESET}" )
-      print ( f"{RED}GENERATE:       FATAL:   The test for qualification is this: the case must be flagged as '{CYAN}MULTIMODE____TEST{RESET}{RED}' and it must contain a file named '{MAGENTA}image_rna_matched___rna.npy{RESET}{RED}'{RESET}" )
-      print ( f"{RED}GENERATE:       FATAL:   (further information: if a case contains '{MAGENTA}image_rna_matched___rna.npy'{RESET}{RED} it is assumed that it also contains the multiple associated matched image files {MAGENTA}'_XXXXXXX_image_rna_matched___image.npy{RESET}{RED}'){RESET}" )
+      print ( f"{RED}GENERATE:       FATAL:   Explanation:     The test for qualification is this: the case must be flagged as '{CYAN}MULTIMODE____TEST{RESET}{RED}' and it must contain a file named '{MAGENTA}image_rna_matched___rna.npy{RESET}{RED}'{RESET}" )
+      print ( f"{RED}GENERATE:       FATAL:   Further info:    If a case (folder in the working directory) contains '{MAGENTA}image_rna_matched___rna.npy'{RESET}{RED} it is assumed that it also contains the multiple associated matched image files {MAGENTA}'_NNNNNN_image_rna_matched___image.npy{RESET}{RED}'){RESET}" )
+      print ( f"{RED}GENERATE:       FATAL:   Possible remedy: This final multimedia run (run 8) makes uses of the outputs of runs 6 and 7. Scroll the console back and make sure they successfully completed{RESET}{RED}'){RESET}" )
       print ( f"{RED}GENERATE:       FATAL: Cannot continue ... halting now{RESET}" )
       sys.exit(0)
 
@@ -541,7 +542,7 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
 
     # need to know required_number_of_image_rna_files in advance to be able to create numpy array to hold them. Determine using this rule: one concatenated image_rna file (___image_rna.npy) will be created for every existing IMAGE embedding file in a directory that has both an image embedding file (___image.npy)and an rna embedding file (___rna.npy)         
 
-    required_number_of_image_rna_files = n_samples * n_tiles
+    required_number_of_image_rna_files = n_samples * n_tiles * 2
 
     if DEBUG>0:
       print ( f"{CHARTREUSE}GENERATE:       INFO:   (hence) required_number_of_image_rna_files      =  {MIKADO}{required_number_of_image_rna_files}{RESET}",   flush=True )
@@ -572,7 +573,7 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
   
             if  f.endswith( args.embedding_file_suffix_image_rna  ):
               
-              image_rna_file         = os.path.join( dir_path, f         )
+              image_rna_file         = os.path.join( dir_path, f                     )
               label_file             = os.path.join( dir_path, class_numpy_file_name )
   
               # set up the pytorch array

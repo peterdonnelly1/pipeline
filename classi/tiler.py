@@ -747,7 +747,8 @@ def check_background( args, tile ):
   if candidate_tile_sd<args.min_tile_sd:
     IsBackground=True
     if (DEBUG>0):
-      print ( f"\033[{start_row-14};0f{RESET}{RED}TILER:                          INFO:   background   filter: {CYAN}candidate_tile_sd \r\033[88C=  {RESET}{BITTER_SWEET}{RESET}{MIKADO}{candidate_tile_sd:>4.2f}{RESET}{DIM_WHITE} which is less than user provided {CYAN}MINIMUM_TILE_SD                    ({BOLD_MIKADO}{args.min_tile_sd:>4.2f}{CYAN})    {DULL_WHITE}(user provided {CYAN}POINTS_TO_SAMPLE = {MIKADO}{args.points_to_sample}{DULL_WHITE}){RESET}",  end="" )
+      if args.just_test!='True':
+        print ( f"\033[{start_row-14};0f{CLEAR_LINE}{RESET}{RED}TILER:                          INFO:   background   filter: {CYAN}candidate_tile_sd \r\033[88C=  {RESET}{BITTER_SWEET}{RESET}{MIKADO}{candidate_tile_sd:>4.2f}{RESET}{DIM_WHITE} which is less than user provided {CYAN}MINIMUM_TILE_SD                    ({BOLD_MIKADO}{args.min_tile_sd:>4.2f}{CYAN})    {DULL_WHITE}(user provided {CYAN}POINTS_TO_SAMPLE = {MIKADO}{args.points_to_sample}{DULL_WHITE}){RESET}",  end="" )
   else:
     if (DEBUG>44):
       print ( f"TILER:            INFO: check_background(): {BRIGHT_GREEN}No, it's not background tile{RESET}", flush=True )
@@ -772,7 +773,8 @@ def check_contrast( args, tile ):
     
   if GreyscaleRangeBad:
     if (DEBUG>0):
-      print ( f"\033[{start_row-16};0f{RESET}{RED}TILER:                          INFO:   low contrast filter: {CYAN}candidate_greyscale_range  \r\033[88C={RESET}{BITTER_SWEET}{RESET}{MIKADO}{candidate_greyscale_range:>6d}{RESET}{DIM_WHITE} which is less than user provided {CYAN}MINIMUM_PERMITTED_GREYSCALE_RANGE  ({BOLD_MIKADO}{args.greyness:>4d}{CYAN}){RESET}            ",  end="" )
+      if args.just_test!='True':
+        print ( f"\033[{start_row-16};0f{CLEAR_LINE}{RESET}{RED}TILER:                          INFO:   low contrast filter: {CYAN}candidate_greyscale_range  \r\033[88C={RESET}{BITTER_SWEET}{RESET}{MIKADO}{candidate_greyscale_range:>6d}{RESET}{DIM_WHITE} which is less than user provided {CYAN}MINIMUM_PERMITTED_GREYSCALE_RANGE  ({BOLD_MIKADO}{args.greyness:>4d}{CYAN}){RESET}            ",  end="" )
 
       
   return GreyscaleRangeBad
@@ -789,10 +791,10 @@ def check_degeneracy( args, tile ):
     print ( f"\n{RESET}{CLEAR_LINE}TILER:            check_degeneracy()  candidate_unique_values = {RED if IsDegenerate else BRIGHT_GREEN}{candidate_unique_values}{RESET}"      )
     time.sleep(1)
     
-    
   if IsDegenerate:
-    if (DEBUG>0):
-      print ( f"\033[{start_row-15};0f{RESET}{RED}TILER:                          INFO:   degeneracy   filter: {CYAN}candidate_unique_values   \r\033[88C= {RESET}{BITTER_SWEET}{RESET}{MIKADO}{candidate_unique_values:>5d}{RESET}{DIM_WHITE} which is less than user provided {CYAN}MINIMUM_PERMITTED_UNIQUE_VALUES    ({BOLD_MIKADO}{args.min_uniques:4d}{CYAN}){RESET}            ",  end="" )
+    if args.just_test!='True':
+      if (DEBUG>0):
+        print ( f"\033[{start_row-15};0f{CLEAR_LINE}{RESET}{RED}TILER:                          INFO:   degeneracy   filter: {CYAN}candidate_unique_values   \r\033[88C= {RESET}{BITTER_SWEET}{RESET}{MIKADO}{candidate_unique_values:>5d}{RESET}{DIM_WHITE} which is less than user provided {CYAN}MINIMUM_PERMITTED_UNIQUE_VALUES    ({BOLD_MIKADO}{args.min_uniques:4d}{CYAN}){RESET}            ",  end="" )
       
   return IsDegenerate
   
@@ -841,7 +843,7 @@ def highest_uniques(args, BB, oslide, level, slide_width, slide_height, tile_siz
     uniques = len(np.unique(tile ))
 
     if (DEBUG>0):
-      print ( f"{SAVE_CURSOR}\033[{start_row-18};0H{CLEAR_LINE}{BB}TILER:          INFO: searching image (try={MIKADO}{n:3d}{RESET}{BB}) for coordinates of a good quality patch. A patch with {BRIGHT_GREEN}{uniques:4d}{RESET}{BB} uniques at x={CYAN}{x:,}{RESET}{BB} \r\033[146Cy={CYAN}{y:,}{RESET}{BB}     \r\033[164C<<<< for each slide in turn, checking ({CYAN}POINTS_TO_SAMPLE{RESET}=) {MIKADO}{args.points_to_sample}{RESET}{BB} for candidate patches and selecting patch with most uniques{RESET}{RESTORE_CURSOR}", end='', flush=True )
+      print ( f"{SAVE_CURSOR}\033[{start_row-18};0H{CLEAR_LINE}{BB}TILER:          INFO: searching image (try={MIKADO}{n+1:3d}{RESET}{BB}) for coordinates of a good quality patch. A patch with {BRIGHT_GREEN}{uniques:4d}{RESET}{BB} uniques at x={CYAN}{x:,}{RESET}{BB} \r\033[128Cy={CYAN}{y:,}{RESET}{BB}     \r\033[150C<<<< for each slide in turn, checking ({CYAN}POINTS_TO_SAMPLE{RESET}=) {MIKADO}{args.points_to_sample}{RESET}{BB} for candidate patches and selecting patch with most uniques{RESET}{RESTORE_CURSOR}", end='', flush=True )
 
 
     if ( uniques>high_uniques ):                                                                                    # then check the tiles at the other three corners of the putative sqaure

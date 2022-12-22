@@ -1805,7 +1805,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
     elif just_test=='True':                                                                                  # then load the already trained model
 
-      if args.input_mode == 'image':
+      if args.input_mode   == 'image':
         fqn = fqn_image
       elif args.input_mode == 'rna':
         fqn = fqn_rna
@@ -2501,7 +2501,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
         if DEBUG>2:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>3d}"})
-          print ( f"\n\n\n\n\n\nCLASSI:         INFO:      upper_bound_of_indices_to_plot_image                              = {BLEU}{upper_bound_of_indices_to_plot_image}{RESET}{CLEAR_LINE}",                 flush=True      ) 
+          print ( f"\033[0J\n\n\n\n\n\n\03CLASSI:         INFO:      upper_bound_of_indices_to_plot_image                              = {BLEU}{upper_bound_of_indices_to_plot_image}{RESET}{CLEAR_LINE}",                 flush=True      ) 
           print ( f"\nCLASSI:         INFO:      pd_aggregate_tile_probabilities_matrix[ 'case_id' ]         = \n{CHARTREUSE}{pd_aggregate_tile_probabilities_matrix[ 'case_id' ]}{RESET}{CLEAR_LINE}",          flush=True      ) 
           print ( f"\nCLASSI:         INFO:      pd_aggregate_tile_probabilities_matrix[ 'max_prob' ]    = \n{CHARTREUSE}{pd_aggregate_tile_probabilities_matrix[ 'max_prob' ]}{RESET}{CLEAR_LINE}",     flush=True      )            
   
@@ -2722,12 +2722,12 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         #fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
 
         if DEBUG>10:
-          print ( f"\n\n",                                                                                                                                                                             flush=True )  
+          print ( f"\033[0J\n\n",                                                                                                                                                                             flush=True )  
           print ( f"\n{CLEAR_LINE}CLASSI:         INFO:      patches_true_classes {CYAN}image{RESET}                   = \n{COTTON_CANDY}{patches_true_classes}{RESET}{CLEAR_LINE}",                   flush=True )  
         if DEBUG>0:
-          print ( f"\n{CLEAR_LINE}CLASSI:         INFO:      pd_aggregate_tile_probabilities_matrix {CYAN}image{RESET} = \n{COTTON_CANDY}{pd_aggregate_tile_probabilities_matrix}{RESET}{CLEAR_LINE}", flush=True )    
+          print ( f"\033[0J\n{CLEAR_LINE}CLASSI:         INFO:      pd_aggregate_tile_probabilities_matrix {CYAN}image{RESET} = \n{COTTON_CANDY}{pd_aggregate_tile_probabilities_matrix}{RESET}{CLEAR_LINE}", flush=True )    
         if DEBUG>10:
-          print ( f"\n{CLEAR_LINE}CLASSI:         INFO:      aggregate_tile_probabilities_matrix {CYAN}image{RESET}    = \n{COTTON_CANDY}{aggregate_tile_probabilities_matrix}{RESET}{CLEAR_LINE}",    flush=True ) 
+          print ( f"\033[0J\n{CLEAR_LINE}CLASSI:         INFO:      aggregate_tile_probabilities_matrix {CYAN}image{RESET}    = \n{COTTON_CANDY}{aggregate_tile_probabilities_matrix}{RESET}{CLEAR_LINE}",    flush=True ) 
 
 
         if bar_chart_x_labels=='case_id':
@@ -2810,7 +2810,10 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
 
         # Case image-4: Bar chart of probabilities assigned to TRUE classes
-                
+        
+        fig4 = plt.figure()
+        ax1  = fig4.add_subplot(1,1,1)
+
         if bar_chart_x_labels=='case_id':                                                                                        # user wants case ids as labels
           case_ids = pd_aggregate_tile_probabilities_matrix[ 'case_id' ]
         else:
@@ -2824,6 +2827,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
             ylim     = (0.0, 100), 
             color    = colors, 
             figsize  = (figure_width, figure_height),
+            ax       = ax1
                                                             )        # just plots the maximum value
 
         ax.set_title   ("Input Data = Slide Image Tiles;  Bar Height = Probability Assigned to **TRUE** Cancer Sub-type",   fontsize=16 )
@@ -2864,7 +2868,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         fqn = f"{fqn[0:255]}.png".replace(" ","-")
         plt.savefig(fqn)
 
-        writer.add_figure('images___probs_for_TRUE_classes', fig, 3 )
+        writer.add_figure('images___probs_for_TRUE_classes', fig4, 4 )
         
         # ~ plt.show()
   
@@ -3231,137 +3235,138 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   
  
         
-        
-        
-        
-        # case multimode:
+    if (just_test=='True') & (args.input_mode=='image_rna'):             
 
+      upper_bound_of_indices_to_plot_rna = 20      
+      
+      # case multimode:
+
+      if DEBUG>0:
+        print ( f"CLASSI:         INFO:     now loading probabilities dataframe {CYAN}(image){RESET} from {MAGENTA}{fqn}{RESET} if it exists from an earlier run"  ) 
+        
+      image_dataframe_file_exists=False
+      fqn = f"{args.log_dir}/probabilities_dataframe_image.csv"
+      try:
+        pd_aggregate_tile_probabilities_matrix = pd.read_csv( fqn, sep='\t'  )
+        image_dataframe_file_exists=True
+      except Exception as e:
+        print ( f"{ORANGE}CLASSI:         INFO:     could not open file  {MAGENTA}{fqn}{RESET}{ORANGE} - it probably doesn't exist"  )
+        print ( f"{ORANGE}CLASSI:         INFO:     explanation: if you want the bar chart which combines image and rna probabilities, you need to have performed both an image and an rna run. {RESET}" )                
+        print ( f"{ORANGE}CLASSI:         INFO:     e.g. perform the following sequence of runs:{RESET}" )                 
+        print ( f"{ORANGE}CLASSI:         INFO:          {CYAN}./do_all.sh     -d <cancer type code> -i image -c UNIMODE_CASE____MATCHED    -v true{RESET}" )                 
+        print ( f"{ORANGE}CLASSI:         INFO:          {CYAN}./just_test.sh  -d <cancer type code> -i image -c UNIMODE_CASE____MATCHED{RESET}" )                 
+        print ( f"{ORANGE}CLASSI:         INFO:          {CYAN}./do_all.sh     -d <cancer type code> -i rna   -c UNIMODE_CASE____MATCHED{RESET}" )                 
+        print ( f"{ORANGE}CLASSI:         INFO:          {CYAN}./just_test.sh  -d <cancer type code> -i rna   -c UNIMODE_CASE____MATCHED{RESET}" )   
+        print ( f"{ORANGE}CLASSI:         INFO:     continuing...{RESET}" ) 
+
+      if image_dataframe_file_exists:
+
+        upper_bound_of_indices_to_plot_image = len(pd_aggregate_tile_probabilities_matrix.index)
+        
         if DEBUG>0:
-          print ( f"CLASSI:         INFO:     now loading probabilities dataframe {CYAN}(image){RESET} from {MAGENTA}{fqn}{RESET} if it exists from an earlier run"  ) 
+          print ( f"\nCLASSI:         INFO:      upper_bound_of_indices_to_plot_image = {COQUELICOT}{upper_bound_of_indices_to_plot_image}{RESET}", flush=True )
+                    
+        if upper_bound_of_indices_to_plot_image  !=   upper_bound_of_indices_to_plot_rna:
+          print ( f"{ORANGE}CLASSI:         INFO:     for some reason the numbers of image examples and the number of rna examples to be plotted differ{RESET}"      ) 
+          print ( f"{ORANGE}CLASSI:         INFO:        upper_bound_of_indices_to_plot_image = {MIKADO}{upper_bound_of_indices_to_plot_image}{RESET}"  ) 
+          print ( f"{ORANGE}CLASSI:         INFO:        upper_bound_of_indices_to_plot_rna   = {MIKADO}{upper_bound_of_indices_to_plot_rna}{RESET}"  ) 
+          print ( f"{ORANGE}CLASSI:         INFO:     possible explanation: one or both of the {CYAN}N_SAMPLES{RESET}{ORANGE} config settings is too small to have captured sufficient of the {CYAN}{args.cases}{RESET}{ORANGE} cases"      ) 
+          print ( f"{ORANGE}CLASSI:         INFO:     skipping combined image+rna porbabilities plot that would otherwise have been generated{RESET}"      ) 
+          print ( f"{ORANGE}CLASSI:         INFO:     continuing ...{RESET}"      ) 
           
-        image_dataframe_file_exists=False
-        fqn = f"{args.log_dir}/probabilities_dataframe_image.csv"
-        try:
-          pd_aggregate_tile_probabilities_matrix = pd.read_csv( fqn, sep='\t'  )
-          image_dataframe_file_exists=True
-        except Exception as e:
-          print ( f"{ORANGE}CLASSI:         INFO:     could not open file  {MAGENTA}{fqn}{RESET}{ORANGE} - it probably doesn't exist"  )
-          print ( f"{ORANGE}CLASSI:         INFO:     explanation: if you want the bar chart which combines image and rna probabilities, you need to have performed both an image and an rna run. {RESET}" )                
-          print ( f"{ORANGE}CLASSI:         INFO:     e.g. perform the following sequence of runs:{RESET}" )                 
-          print ( f"{ORANGE}CLASSI:         INFO:          {CYAN}./do_all.sh     -d <cancer type code> -i image -c UNIMODE_CASE____MATCHED    -v true{RESET}" )                 
-          print ( f"{ORANGE}CLASSI:         INFO:          {CYAN}./just_test.sh  -d <cancer type code> -i image -c UNIMODE_CASE____MATCHED{RESET}" )                 
-          print ( f"{ORANGE}CLASSI:         INFO:          {CYAN}./do_all.sh     -d <cancer type code> -i rna   -c UNIMODE_CASE____MATCHED{RESET}" )                 
-          print ( f"{ORANGE}CLASSI:         INFO:          {CYAN}./just_test.sh  -d <cancer type code> -i rna   -c UNIMODE_CASE____MATCHED{RESET}" )   
-          print ( f"{ORANGE}CLASSI:         INFO:     continuing...{RESET}" ) 
 
-        if image_dataframe_file_exists:
-
-          upper_bound_of_indices_to_plot_image = len(pd_aggregate_tile_probabilities_matrix.index)
+        else:
           
           if DEBUG>0:
-            print ( f"\nCLASSI:         INFO:      upper_bound_of_indices_to_plot_image = {COQUELICOT}{upper_bound_of_indices_to_plot_image}{RESET}", flush=True )
+            np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
+            print ( f"\nCLASSI:         INFO:     pd_aggregate_tile_probabilities_matrix {CYAN}(image){RESET} (from {MAGENTA}{fqn}{RESET}) = \n{COTTON_CANDY}{pd_aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot_rna]}{RESET}", flush=True )   
+            
+          pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ] /= pd_aggregate_tile_probabilities_matrix[ 'agg_prob' ]   # image case only: normalize by dividing by number of tiles in the patch (which was saved as field 'agg_prob')
+    
+          if DEBUG>0:
+            np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
+            print ( f"\nCLASSI:         INFO:       pd_aggregate_tile_probabilities_matrix {CYAN}(image){RESET} normalized probabilities (from {MAGENTA}{fqn}{RESET}) = \n{COTTON_CANDY}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True )  
+            
+          
+          if DEBUG>0:
+            print ( f"\nCLASSI:         INFO:     n me {CYAN}(rna){RESET} from {MAGENTA}{fqn}{RESET} if it exists from an earlier or the current run"  )  
+       
+          rna_dataframe_file_exists=False             
+          fqn = f"{args.log_dir}/probabilities_dataframe_rna.csv"
+          try:
+            pd_probabilities_matrix = pd.read_csv(  fqn, sep='\t'  )
+            rna_dataframe_file_exists=True
+            if DEBUG>0:
+              np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
+              print ( f"\nCLASSI:         INFO:     pd_probabilities_matrix {CYAN}(rna){RESET} (from {MAGENTA}{fqn}{RESET}) = \n{ARYLIDE}{pd_probabilities_matrix}{RESET}", flush=True )  
+          except Exception as e:
+            print ( f"{ORANGE}CLASSI:         INFO:     could not open file  = {ORANGE}{fqn}{RESET}{ORANGE} - it probably doesn't exist"  )
+            print ( f"{ORANGE}CLASSI:         INFO:     if you want the bar chart which combines image and rna probabilities, you need to have performed both an image and an rna run. {RESET}" )                
+            print ( f"{ORANGE}CLASSI:         INFO:     e.g. perform the following sequence of runs:{RESET}" )                 
+            print ( f"{ORANGE}CLASSI:         INFO:              {CYAN}./do_all.sh     -d <cancer type code> -i image -c UNIMODE_CASE____MATCHED -v true{RESET}{ORANGE}'{RESET}" )                 
+            print ( f"{ORANGE}CLASSI:         INFO:              {CYAN}./just_test.sh  -d <cancer type code> -i image -c UNIMODE_CASE____MATCHED{RESET}" )                 
+            print ( f"{ORANGE}CLASSI:         INFO:              {CYAN}./do_all.sh     -d <cancer type code> -i rna   -c UNIMODE_CASE____MATCHED{RESET}" )                 
+            print ( f"{ORANGE}CLASSI:         INFO:              {CYAN}./just_test.sh  -d <cancer type code> -i rna   -c UNIMODE_CASE____MATCHED{RESET}" )   
+            print ( f"{ORANGE}CLASSI:         INFO:     continuing...{RESET}" ) 
+  
                       
-          if upper_bound_of_indices_to_plot_image  !=   upper_bound_of_indices_to_plot_rna:
-            print ( f"{ORANGE}CLASSI:         INFO:     for some reason the numbers of image examples and the number of rna examples to be plotted differ{RESET}"      ) 
-            print ( f"{ORANGE}CLASSI:         INFO:        upper_bound_of_indices_to_plot_image = {MIKADO}{upper_bound_of_indices_to_plot_image}{RESET}"  ) 
-            print ( f"{ORANGE}CLASSI:         INFO:        upper_bound_of_indices_to_plot_rna   = {MIKADO}{upper_bound_of_indices_to_plot_rna}{RESET}"  ) 
-            print ( f"{ORANGE}CLASSI:         INFO:     possible explanation: one or both of the {CYAN}N_SAMPLES{RESET}{ORANGE} config settings is too small to have captured sufficient of the {CYAN}{args.cases}{RESET}{ORANGE} cases"      ) 
-            print ( f"{ORANGE}CLASSI:         INFO:     skipping combined image+rna porbabilities plot that would otherwise have been generated{RESET}"      ) 
-            print ( f"{ORANGE}CLASSI:         INFO:     continuing ...{RESET}"      ) 
+    
+          if image_dataframe_file_exists & rna_dataframe_file_exists:                                        # then it will be possible to do the multimode plot
+    
+            # case multimode_1:  multimode image+rns - TRUE classses (this is the only case for multimode)
+               
+            fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
             
-
-          else:
+            if bar_chart_x_labels=='case_id':                                                                # user choice for the x_lables 
+              case_ids = pd_probabilities_matrix[ 'case_id' ]
+            else:
+              case_ids = [i for i in range(pd_probabilities_matrix.shape[0])]
+    
+            x_labels = [  str(el) for el in case_ids ]
+  
+    
+            set1 =                pd_probabilities_matrix[ 'true_class_prob' ][0:upper_bound_of_indices_to_plot_rna]                               # rna
+            set2 = pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ][0:upper_bound_of_indices_to_plot_rna]                               # image
+    
+            if bar_chart_x_labels=='case_id':
+              case_ids = pd_aggregate_tile_probabilities_matrix[ 'case_id' ]
+            else:
+              case_ids = [i for i in range(pd_aggregate_tile_probabilities_matrix.shape[0])]    
+                      
+            x_labels = [  str(el) for el in case_ids ][0:upper_bound_of_indices_to_plot_rna]                                                         
+  
+            col0     = plt.cm.tab20b(0)
+            col1     = plt.cm.Accent(7)   
+  
+            if DEBUG>0: 
+              print ( f"\nCLASSI:         INFO:      upper_bound_of_indices_to_plot_rna                                   = {ARYLIDE}{upper_bound_of_indices_to_plot_rna}{RESET}", flush=True )
+              print ( f"\nCLASSI:         INFO:      x_labels                                                             = \n{ARYLIDE}{x_labels}{RESET}", flush=True )
+              print ( f"\nCLASSI:         INFO:      {CYAN}(rna){RESET} pd_probabilities_matrix                [ 'true_class_prob' ]   = \n{ARYLIDE}{set1}{RESET}", flush=True )
+              print ( f"\nCLASSI:         INFO:      {CYAN}(img){RESET} pd_aggregate_tile_probabilities_matrix [ 'true_class_prob' ]   = \n{COTTON_CANDY}{set2}{RESET}", flush=True )
+  
             
+            p1 = plt.bar( x=x_labels, height=set1,               color=col0 )
+            p2 = plt.bar( x=x_labels, height=set2, bottom=set1,  color=col1 )
+           
+            ax.set_title   ("Input Data = Imaga Tiles; RNA-Seq FPKM UQ;  Bar Height = Composite (Image + RNA-Seq) Probability Assigned to *TRUE* Cancer Sub-types",  fontsize=16 )
+            ax.set_xlabel  ("Case ID",                                                     fontsize=14 )
+            ax.set_ylabel  ("Probability Assigned by Network",                             fontsize=14 )
+            ax.tick_params (axis='x', labelsize=8,   labelcolor='black')
+            ax.tick_params (axis='y', labelsize=14,  labelcolor='black')
+            # ~ plt.legend( class_names,loc=2, prop={'size': 14} )
+            plt.xticks( rotation=90 )     
+    
+      
             if DEBUG>0:
-              np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-              print ( f"\nCLASSI:         INFO:     pd_aggregate_tile_probabilities_matrix {CYAN}(image){RESET} (from {MAGENTA}{fqn}{RESET}) = \n{COTTON_CANDY}{pd_aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot_rna]}{RESET}", flush=True )   
-              
-            pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ] /= pd_aggregate_tile_probabilities_matrix[ 'agg_prob' ]   # image case only: normalize by dividing by number of tiles in the patch (which was saved as field 'agg_prob')
+              print ( f"\nCLASSI:         INFO:      number correct (image+rna) = {CHARTREUSE}{correct_count}{RESET}", flush=True )
       
-            if DEBUG>0:
-              np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-              print ( f"\nCLASSI:         INFO:       pd_aggregate_tile_probabilities_matrix {CYAN}(image){RESET} normalized probabilities (from {MAGENTA}{fqn}{RESET}) = \n{COTTON_CANDY}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True )  
-              
-            
-            if DEBUG>0:
-              print ( f"\nCLASSI:         INFO:     n me {CYAN}(rna){RESET} from {MAGENTA}{fqn}{RESET} if it exists from an earlier or the current run"  )  
-         
-            rna_dataframe_file_exists=False             
-            fqn = f"{args.log_dir}/probabilities_dataframe_rna.csv"
-            try:
-              pd_probabilities_matrix = pd.read_csv(  fqn, sep='\t'  )
-              rna_dataframe_file_exists=True
-              if DEBUG>0:
-                np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-                print ( f"\nCLASSI:         INFO:     pd_probabilities_matrix {CYAN}(rna){RESET} (from {MAGENTA}{fqn}{RESET}) = \n{ARYLIDE}{pd_probabilities_matrix}{RESET}", flush=True )  
-            except Exception as e:
-              print ( f"{ORANGE}CLASSI:         INFO:     could not open file  = {ORANGE}{fqn}{RESET}{ORANGE} - it probably doesn't exist"  )
-              print ( f"{ORANGE}CLASSI:         INFO:     if you want the bar chart which combines image and rna probabilities, you need to have performed both an image and an rna run. {RESET}" )                
-              print ( f"{ORANGE}CLASSI:         INFO:     e.g. perform the following sequence of runs:{RESET}" )                 
-              print ( f"{ORANGE}CLASSI:         INFO:              {CYAN}./do_all.sh     -d <cancer type code> -i image -c UNIMODE_CASE____MATCHED -v true{RESET}{ORANGE}'{RESET}" )                 
-              print ( f"{ORANGE}CLASSI:         INFO:              {CYAN}./just_test.sh  -d <cancer type code> -i image -c UNIMODE_CASE____MATCHED{RESET}" )                 
-              print ( f"{ORANGE}CLASSI:         INFO:              {CYAN}./do_all.sh     -d <cancer type code> -i rna   -c UNIMODE_CASE____MATCHED{RESET}" )                 
-              print ( f"{ORANGE}CLASSI:         INFO:              {CYAN}./just_test.sh  -d <cancer type code> -i rna   -c UNIMODE_CASE____MATCHED{RESET}" )   
-              print ( f"{ORANGE}CLASSI:         INFO:     continuing...{RESET}" ) 
-    
-                        
+            pct_correct = correct_count/n_samples
+            stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
+            plt.figtext( 0.15, 0, stats, size=14, color="grey", style="normal" )
       
-            if image_dataframe_file_exists & rna_dataframe_file_exists:                                        # then it will be possible to do the multimode plot
-      
-              # case multimode_1:  multimode image+rns - TRUE classses (this is the only case for multimode)
-                 
-              fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
-              
-              if bar_chart_x_labels=='case_id':                                                                # user choice for the x_lables 
-                case_ids = pd_probabilities_matrix[ 'case_id' ]
-              else:
-                case_ids = [i for i in range(pd_probabilities_matrix.shape[0])]
-      
-              x_labels = [  str(el) for el in case_ids ]
-    
-      
-              set1 =                pd_probabilities_matrix[ 'true_class_prob' ][0:upper_bound_of_indices_to_plot_rna]                               # rna
-              set2 = pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ][0:upper_bound_of_indices_to_plot_rna]                               # image
-      
-              if bar_chart_x_labels=='case_id':
-                case_ids = pd_aggregate_tile_probabilities_matrix[ 'case_id' ]
-              else:
-                case_ids = [i for i in range(pd_aggregate_tile_probabilities_matrix.shape[0])]    
-                        
-              x_labels = [  str(el) for el in case_ids ][0:upper_bound_of_indices_to_plot_rna]                                                         
-    
-              col0     = plt.cm.tab20b(0)
-              col1     = plt.cm.Accent(7)   
-    
-              if DEBUG>0: 
-                print ( f"\nCLASSI:         INFO:      upper_bound_of_indices_to_plot_rna                                   = {ARYLIDE}{upper_bound_of_indices_to_plot_rna}{RESET}", flush=True )
-                print ( f"\nCLASSI:         INFO:      x_labels                                                             = \n{ARYLIDE}{x_labels}{RESET}", flush=True )
-                print ( f"\nCLASSI:         INFO:      {CYAN}(rna){RESET} pd_probabilities_matrix                [ 'true_class_prob' ]   = \n{ARYLIDE}{set1}{RESET}", flush=True )
-                print ( f"\nCLASSI:         INFO:      {CYAN}(img){RESET} pd_aggregate_tile_probabilities_matrix [ 'true_class_prob' ]   = \n{COTTON_CANDY}{set2}{RESET}", flush=True )
-    
-              
-              p1 = plt.bar( x=x_labels, height=set1,               color=col0 )
-              p2 = plt.bar( x=x_labels, height=set2, bottom=set1,  color=col1 )
-             
-              ax.set_title   ("Input Data = Imaga Tiles; RNA-Seq FPKM UQ;  Bar Height = Composite (Image + RNA-Seq) Probability Assigned to *TRUE* Cancer Sub-types",  fontsize=16 )
-              ax.set_xlabel  ("Case ID",                                                     fontsize=14 )
-              ax.set_ylabel  ("Probability Assigned by Network",                             fontsize=14 )
-              ax.tick_params (axis='x', labelsize=8,   labelcolor='black')
-              ax.tick_params (axis='y', labelsize=14,  labelcolor='black')
-              # ~ plt.legend( class_names,loc=2, prop={'size': 14} )
-              plt.xticks( rotation=90 )     
-      
-        
-              if DEBUG>0:
-                print ( f"\nCLASSI:         INFO:      number correct (image+rna) = {CHARTREUSE}{correct_count}{RESET}", flush=True )
-        
-              pct_correct = correct_count/n_samples
-              stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
-              plt.figtext( 0.15, 0, stats, size=14, color="grey", style="normal" )
-        
-              plt.tight_layout()
-                        
-              writer.add_figure('z_multimode__probs_for_TRUE_classes', fig, 8 )         
+            plt.tight_layout()
+                      
+            writer.add_figure('z_multimode__probs_for_TRUE_classes', fig, 8 )         
             
   
   
@@ -3933,7 +3938,7 @@ def test( run, cfg, args, parameters, best, second_best, embeddings_accum, label
             
             if args.scattergram=='True':
               if DEBUG>0:
-                  print ( f"CLASSI:         INFO:      test:           global_batch_count {DIM_WHITE}(super-patch number){RESET} = {global_batch_count+1:5d}  {DIM_WHITE}({((global_batch_count+1)/(args.supergrid_size**2)):04.2f}){RESET}" )
+                  print ( f"{CLEAR_LINE}CLASSI:         INFO:      test:           global_batch_count {DIM_WHITE}(super-patch number){RESET} = {global_batch_count+1:5d}  {DIM_WHITE}({((global_batch_count+1)/(args.supergrid_size**2)):04.2f}){RESET}" )
                         
             if global_batch_count%(args.supergrid_size**2)==0:                                             # establish grid arrays on the FIRST batch for each grid
               grid_images                = batch_images.cpu().numpy()
@@ -3946,7 +3951,7 @@ def test( run, cfg, args, parameters, best, second_best, embeddings_accum, label
               image_tile_width           = args.supergrid_size**2*batch_size
 
               if DEBUG>0:
-                print ( f"CLASSI:         INFO:      test:             supergrid_size                                                 = {BLEU}{args.supergrid_size}{RESET} hence image dimensions (tiles*tiles*batch_size = {args.supergrid_size}*{args.supergrid_size}*{batch_size}={image_tile_width}) will be {BLEU}{image_tile_width}x{image_tile_width}{RESET}{CLEAR_LINE}"  )
+                print ( f"{CLEAR_LINE}CLASSI:         INFO:      test:             supergrid_size                                                 = {BLEU}{args.supergrid_size}{RESET} hence image dimensions (tiles*tiles*batch_size = {args.supergrid_size}*{args.supergrid_size}*{batch_size}={image_tile_width}) will be {BLEU}{image_tile_width}x{image_tile_width}{RESET}{CLEAR_LINE}"  )
               if DEBUG>90:
                 print ( f"CLASSI:         INFO:      test:             i                                                              = {BLEU}{i}{RESET}{CLEAR_LINE}"                                    )
                 print ( f"CLASSI:         INFO:      test:             grid_labels.shape                                              = {BLEU}{grid_labels.shape}{RESET}{CLEAR_LINE}"                    )
@@ -4047,7 +4052,7 @@ def test( run, cfg, args, parameters, best, second_best, embeddings_accum, label
                     try:
                       background_image = np.load(f"{fq_link}")
                       if DEBUG>0:
-                        print ( f"CLASSI:         INFO:      test:        fq_link                                              = {MIKADO}{fq_link}{RESET}" )
+                        print ( f"{CLEAR_LINE}CLASSI:         INFO:      test:        fq_link                                    =                 {MIKADO}{fq_link}{RESET}" )
                       
                     except Exception as e:
                       print ( f"{RED}CLASSI:         FATAL:  {e}{RESET}" )
@@ -4455,15 +4460,16 @@ def test( run, cfg, args, parameters, best, second_best, embeddings_accum, label
 #      if args.input_mode=='image':
 #        writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, tile_size, batch_images, image_labels, preds, p_highest, p_2nd_highest, p_full_softmax_matrix, class_names, class_colours), epoch)
 
-    if loss_type != 'mean_squared_error':                                                                                 # the following only make sense if we are classifying, so skip for autoencoders 
-  
-      if args.just_test=='False':                                                                          # This call to plot_classes_preds() is for use by test during training, and not for use in "just_test" mode (the latter needs support for supergrids)
-        if args.annotated_tiles=='True':
-          fig=plot_classes_preds(args, model, tile_size, batch_images.cpu().numpy(), image_labels.cpu().numpy(), batch_fnames.cpu().numpy(), preds, p_highest, p_2nd_highest, p_full_softmax_matrix, class_names, class_colours)
-          writer.add_figure('Predictions v Truth', fig, epoch)
-          plt.close(fig)
-
     if (args.input_mode=='image'):
+
+      if loss_type != 'mean_squared_error':                                                                                 # the following only make sense if we are classifying, so skip for autoencoders 
+    
+        if args.just_test=='False':                                                                          # This call to plot_classes_preds() is for use by test() during training, and not for use in "just_test" mode (the latter needs support for supergrids)
+          if args.annotated_tiles=='True':
+            fig=plot_classes_preds(args, model, tile_size, batch_images.cpu().numpy(), image_labels.cpu().numpy(), batch_fnames.cpu().numpy(), preds, p_highest, p_2nd_highest, p_full_softmax_matrix, class_names, class_colours)
+            writer.add_figure('Predictions v Truth', fig, epoch)
+            plt.close(fig)
+
       del batch_images
       del image_labels
 
@@ -5762,7 +5768,7 @@ def plot_classes_preds(args, model, tile_size, batch_images, image_labels, batch
     #
     #  (1) Training mode: the simple case because we are just displaying a set of random tiles which have passed through the network during training
     #
-    if args.just_test=='False':
+    if args.just_test!='True':
   
       # ~ number_to_plot = len(image_labels)    
       # ~ figure_width   = 10
@@ -5852,12 +5858,12 @@ def plot_classes_preds(args, model, tile_size, batch_images, image_labels, batch
   
       # (2a) set up all axes
          
-      if DEBUG>0:
+      if DEBUG>9:
         print ( f"CLASSI:         INFO:        plot_classes_preds():  {ORANGE if args.just_test=='True' else MIKADO} about to set up {MIKADO}{figure_width}x{figure_height} inch{RESET} figure and axes for {MIKADO}{nrows}x{ncols}={number_to_plot}{RESET} subplots. (Note: This takes a long time for larger values of nrows/ncols)", end="", flush=True )
             
       fig, axes = plt.subplots( nrows=nrows, ncols=ncols, sharex=True, sharey=True, squeeze=True, figsize=( figure_width, figure_height ) )        # This takes a long time to execute for larger values of nrows and ncols
     
-      if DEBUG>0:
+      if DEBUG>9:
         print ( f"  ... done", flush=True )
       
 

@@ -17,7 +17,7 @@ EMBEDDING_FILE_SUFFIX_IMAGE_RNA="___image_rna.npy"
 
 # defaults for use if user doesn't set an option
 
-HIGHEST_CLASS_NUMBER=4
+HIGHEST_CLASS_NUMBER=2
 BATCH_SIZE=59
 HIDDEN_LAYER_NEURONS=2100
 LEARNING_RATE=.00001
@@ -80,7 +80,7 @@ rm classi/modes/classify/dataset_rna_test.pth       > /dev/null 2>&1            
 
 echo ""
 echo "========================================================================================================================================================================"
-echo "MULTIMODE RUN 3: TRAIN RNA-SEQ MODEL AGAINST UNIMODE IMAGE TRAINING CASES"
+echo "MULTIMODE RUN 3: TRAIN RNA-SEQ MODEL AGAINST UNIMODE RNA-SEQ TRAINING CASES"
 echo "========================================================================================================================================================================"
 echo ""
 
@@ -166,7 +166,7 @@ echo "MULTIMODE RUN 8: COMBINE THE EMBEDDINGS FROM RUNS 6 & 7 AND CLASSIFY THEM 
 echo "========================================================================================================================================================================"
 echo ""
 
-# Run 8 -   combines the embeddings from Runs 6 & 7 and classifies them using the trained image+rna model generated at step 5
+# Run 8 -   combines the embeddings from Runs 6 & 7 and classify them using the trained image+rna model generated at step 5
 ./do_all.sh   -d stad  -i image_rna  -m image_rna  -c MULTIMODE____TEST   -X True -j True   -b 10       -A ${HIGHEST_CLASS_NUMBER}
 
 
