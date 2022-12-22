@@ -1279,8 +1279,8 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_pct}_Grey_Pct_{make_g
     
       topology_as_whitespace_free_string = '-'.join(map(str, hidden_layer_encoder_topology))
      
-      descriptor = f"_{run+1:02d}_OF_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases[0:10]:_<10s}__{rna_genes_tranche[0:10].upper():_<10s}__{nn_type_rna:_<15s}_{nn_optimizer[0:8]:_<8s}\
-_e_{args.n_epochs:03d}_N_{n_samples:04d}_hi_{n_classes:02d}_bat_{batch_size:03d}_test_{int(100*pct_test):03d}_lr_{lr:09.6f}_hid_{hidden_layer_neurons:04d}_lo_{low_expression_threshold:<02.2e}_low_{cutoff_percentile:04.0f}\
+      descriptor = f"_{run+1:02d}_OF_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases[0:10]:_<10s}__{rna_genes_tranche[0:10].upper():_<10s}________{nn_type_rna:_<15s}______{nn_optimizer[0:8]:_<8s}\
+_e_{args.n_epochs:03d}_N_{n_samples:05d}_hi_{n_classes:02d}_bat_{batch_size:03d}_test_{int(100*pct_test):03d}_lr_{lr:09.6f}_hid_{hidden_layer_neurons:04d}_lo_{low_expression_threshold:<02.2e}_low_{cutoff_percentile:04.0f}\
 _dr_{100*dropout_1:4.1f}_xfrm_{gene_data_transform:_<8s}_shape_{topology_as_whitespace_free_string}"                                                                                                # need to abbreviate everything because the long topology string will make the file name too long and it will crash
       if topology_length > 14:
         descriptor = descriptor[0:200-topology_length]
@@ -2942,7 +2942,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         # save version to logs directory
         now              = datetime.datetime.now()
               
-        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_image___ALL"
+        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_image__ALL"
         fqn = f"{fqn[0:255]}.png"
         
         fig.savefig(fqn)
@@ -3532,7 +3532,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         # ~ display( df)
       
         now = datetime.datetime.now()
-        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__confusion_by_subtype"
+        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_confusion_by_subtype"
         fqn = f"{fqn[0:255]}.tsv"
 
         df.to_csv ( fqn, sep='\t' )
@@ -6771,7 +6771,7 @@ def show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, pan
       print ( f"{RED}CLASSI:         FATAL:     error was: {e}{RESET}" )
       sys.exit(0)    
     
-    fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__confusion_job_job_ext"
+    fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_confusion_job_ext"
     fqn = f"{fqn[0:255]}.csv"
     try:
       pandas_version_ext.to_csv( fqn, sep='\t' )
