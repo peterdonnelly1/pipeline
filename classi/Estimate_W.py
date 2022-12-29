@@ -6,7 +6,8 @@
 
 import sys
 import os
-import spams
+import numpy as spams
+#import spams
 import numpy as np
 import math
 from sklearn import preprocessing

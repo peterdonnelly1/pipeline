@@ -11,7 +11,8 @@ Author: Takumiando, University of Tokyo, Tokyo, Japan
 import sys
 import cv2
 import numpy as np
-import spams
+import numpy as spams
+# ~ import spams
 
 np.set_printoptions(edgeitems=38)
 np.set_printoptions(linewidth=350)
