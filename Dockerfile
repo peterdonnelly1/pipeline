@@ -48,7 +48,7 @@ RUN apt-key add /var/cuda-repo-ubuntu2004-11-2-local/7fa2af80.pub
 RUN apt-get install -y /home/peter/git/cuda.deb
 
 
-RUN git clone --depth 2 https://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@github.com/peterdonnelly1/pipeline
+RUN git clone --depth 1 https://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@github.com/peterdonnelly1/pipeline
 
 #RUN	git clone https://github.com/SBU-BMI/quip_classification && \
 #	cd /root/quip_classification/u24_lymphocyte/prediction/NNFramework_TF_models && \

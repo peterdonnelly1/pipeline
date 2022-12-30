@@ -34,7 +34,7 @@ echo "TRAINING RUN"
 echo "========================================================================================================================================================================"
 echo ""
 
-./do_all.sh -d stad   -i rna   -z DENSE  -H 2200   -L .00001  -7 0.1    -b 100  -o 100  -c UNIMODE_CASE -v True
+./do_all.sh -d stad   -i rna   -z DENSE  -H 2200   -L .00001  -7 0.1    -b 100  -o 100  -A 5 -c UNIMODE_CASE -v True
 
 
 sleep 5
@@ -47,7 +47,7 @@ echo "TEST RUN"
 echo "========================================================================================================================================================================"
 echo ""
 
-./do_all.sh -d stad   -i rna   -z DENSE  -H 2200   -7 0.1    -b 100   -c UNIMODE_CASE -j True
+./do_all.sh -d stad   -i rna   -z DENSE  -H 2200   -7 0.1    -b 100   -c UNIMODE_CASE -A 5  -j True
 
 
 
