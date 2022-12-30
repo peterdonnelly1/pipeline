@@ -47,8 +47,8 @@
 
 
 
-export MKL_DEBUG_CPU_TYPE=5
-export KMP_WARNINGS=FALSE
+#export MKL_DEBUG_CPU_TYPE=5   # ONLY USE WITH INTEL CPUS (NOT AMD)
+#export KMP_WARNINGS=FALSE     # ONLY USE WITH INTEL CPUS (NOT AMD)
 
 if [[ ${INPUT_MODE} == "image" ]]; then
   FINAL_TEST_BATCH_SIZE=5                                                                                  # number of BATCHES of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated). Don't make it too large because it's passed through as a single super-batch.

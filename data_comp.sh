@@ -33,8 +33,8 @@
 #
 #############################################################################################################################################################
 
-export MKL_DEBUG_CPU_TYPE=5
-export KMP_WARNINGS=FALSE
+#export MKL_DEBUG_CPU_TYPE=5   # ONLY USE WITH INTEL CPUS (NOT AMD)
+#export KMP_WARNINGS=FALSE     # ONLY USE WITH INTEL CPUS (NOT AMD)
 
 
 MINIMUM_JOB_SIZE=2                                                       # Only do a box plot if the job has at least this many runs (otherwise it's a bit meaningless)

@@ -22,6 +22,7 @@ LABEL org.opencontainers.image.authors="pd@red.com.au"
 ENV PYTHONPATH="/usr/local/lib/python3.7"
 
 RUN ln -s /usr/bin/python3 /usr/bin/python
+RUN ln -s /usr/bin/python3 /usr/bin/python
 
 RUN adduser --disabled-password --gecos 'default classi user' user_1
 
@@ -48,7 +49,7 @@ RUN   pip uninstall hdbscan
 RUN   pip   install hdbscan==0.8.27
 
 
-RUN git clone --depth 1 https://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@github.com/peterdonnelly1/pipeline
+RUN git clone --depth 2 https://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@github.com/peterdonnelly1/pipeline
 
 #RUN	git clone https://github.com/SBU-BMI/quip_classification && \
 #	cd /root/quip_classification/u24_lymphocyte/prediction/NNFramework_TF_models && \

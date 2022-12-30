@@ -3,8 +3,8 @@
 # exit if any command fails
 # set -e
 
-export MKL_DEBUG_CPU_TYPE=5
-export KMP_WARNINGS=FALSE
+#export MKL_DEBUG_CPU_TYPE=5   # ONLY USE WITH INTEL CPUS (NOT AMD)
+#export KMP_WARNINGS=FALSE     # ONLY USE WITH INTEL CPUS (NOT AMD)
 
 BASE_DIR=/home/peter/git/pipeline                                        # root directory for everything (shell scripts, code, datasets, logs ...)
 DATA_ROOT=dataset                                                        # holds working copy of the dataset. Cleaned each time if "do_all" script used. Fully regenerated if "regen" option specified. Not cleaned if "just_.. or _only_ scripts used (to save time. Regeneration i particular can take a lot of time)

@@ -4,8 +4,8 @@
 # set -e
 
 
-export MKL_DEBUG_CPU_TYPE=5
-export KMP_WARNINGS=FALSE
+#export MKL_DEBUG_CPU_TYPE=5   # ONLY USE WITH INTEL CPUS (NOT AMD)
+#export KMP_WARNINGS=FALSE     # ONLY USE WITH INTEL CPUS (NOT AMD)
 
 BASE_DIR=/home/peter/git/pipeline                                                                          # root directory for everything (shell scripts, code, datasets, logs ...)
 DATA_SOURCE=${BASE_DIR}/source_data/${DATASET}                                                             # structured directory containing dataset. A copy is made to DATA_ROOT. DATA_SOURCE is left untouched
