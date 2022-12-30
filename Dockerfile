@@ -1,8 +1,23 @@
+# To build:
+#
+#   sudo DOCKER_BUILDKIT=1 docker build -t classi .
+#
+# To run:                                                     
+#
+#    sudo docker run -it --shm-size 2g classi:latest bash
+#
+# To run using datasets outside the containter:
+#
+#    sudo docker run -v /home/peter/git/pipeline/working_data:/home/peter/git/pipeline/working_data -v /home/peter/git/pipeline/source_data:/home/peter/git/pipeline/source_data -it --shm-size 2g classi:latest bash
+#
+
 
 FROM python:3.7 as cache
 
 #VERSION OF CUDA-TOOLKIT THAT I USED FOR DEVELOPING CLASSI
-RUN wget https://developer.download.nvidia.com/compute/cuda/11.2.2/local_installers/cuda-repo-ubuntu2004-11-2-local_11.2.2-460.32.03-1_amd64.deb   -O cuda.deb
+RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin
+RUN mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600
+RUN wget https://developer.download.nvidia.com/compute/cuda/11.2.2/local_installers/cuda-repo-ubuntu2004-11-2-local_11.2.2-460.32.03-1_amd64.deb
 
 
 
@@ -18,7 +33,7 @@ RUN adduser --disabled-password --gecos 'default classi user' user_1
 
 RUN \
     --mount=type=cache,target=/var/cache/apt \
-    apt-get update && apt-get install -y git python3 python3-pip python3-numpy libvips openslide-tools wget git tree vim 
+    apt-get update && apt-get install -y git python3 python3-pip python3-numpy libvips openslide-tools wget git tree vim rsync
 
 
 WORKDIR /home/peter/git
@@ -36,16 +51,13 @@ RUN --mount=type=cache,target=/root/.cache/pip python3.7 -m pip install -r requi
 RUN --mount=type=cache,target=/root/.cache/pip python3.7 -m pip install -r requirements_2.txt
 RUN --mount=type=cache,target=/root/.cache/pip python3.7 -m pip install -r requirements_1.txt
 
- 
 
-
-#VERSION OF CUDA-TOOLKIT THAT I USED FOR DEVELOPING CLASSI
-COPY --from=cache cuda.deb   /home/peter/git
-RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin
-#RUN mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600
-run dpkg -i cuda.deb
+# VERSION OF THE CUDA-TOOLKIT THAT I USED FOR DEVELOPING CLASSI (11.2)
+COPY --from=cache cuda-repo-ubuntu2004-11-2-local_11.2.2-460.32.03-1_amd64.deb  .
+RUN dpkg -i cuda-repo-ubuntu2004-11-2-local_11.2.2-460.32.03-1_amd64.deb
 RUN apt-key add /var/cuda-repo-ubuntu2004-11-2-local/7fa2af80.pub
-RUN apt-get install -y /home/peter/git/cuda.deb
+RUN apt-get update
+#RUN apt-get install -y cuda
 
 
 RUN git clone --depth 1 https://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@github.com/peterdonnelly1/pipeline
