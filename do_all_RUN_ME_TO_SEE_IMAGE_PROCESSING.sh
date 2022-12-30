@@ -34,7 +34,7 @@ echo "TRAINING RUN"
 echo "========================================================================================================================================================================"
 echo ""
 
-./do_all.sh -d stad  -i image -f 22 -a VGG11  -b 16  -T 64  -o 10  -c UNIMODE_CASE  -A 4  -v True
+./do_all.sh -d stad  -i image -f 22 -a VGG11  -b 16  -T 64  -o 10  -c UNIMODE_CASE  -A 4  -v True -r True
 
 
 sleep 5
