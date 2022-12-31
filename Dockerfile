@@ -2,18 +2,39 @@
 #
 #   sudo DOCKER_BUILDKIT=1 docker build -t classi .
 #
-# To run:                                                     
+# To run, use one of the following depending on whether or not you have installed the NVIDIA Container Runtime (see note below):                                                     
 #
-#    sudo docker run -it --shm-size 2g classi:latest bash
+#    sudo docker run                 -it --shm-size 2g classi:latest bash
+#    sudo docker run --gpus device=0 -it --shm-size 2g classi:latest bash
 #
-# To run using datasets outside the containter:
+# To run with datasets that external to the container, but in the default location (don't use: this is for me):
 #
+#    sudo docker run                 -v /home/peter/git/pipeline/working_data:/home/peter/git/pipeline/working_data -v /home/peter/git/pipeline/source_data:/home/peter/git/pipeline/source_data -it --shm-size 2g classi:latest bash
 #    sudo docker run --gpus device=0 -v /home/peter/git/pipeline/working_data:/home/peter/git/pipeline/working_data -v /home/peter/git/pipeline/source_data:/home/peter/git/pipeline/source_data -it --shm-size 2g classi:latest bash
 #
+# To install the NVIDIA Container Runtime (highly recommended):
+#
+# If you use standard docker, CLASSI will only use CPUs:  GPUs will be ignored. All CLASSI capabilities except cuda_tsne (which is expicitly designed for use with a GPU) will work, albeit a lot slower.
+# For GPU support, the NVIDIA Container Runtime is required on the system running Docker. The base image (FROM nvidia/cuda) creates an image that supports GPUs, but you also require NVIDIA Container Runtime. 
+# Installation instructions follow (these are from https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html). # (Note: there is no  NVIDIA Container Runtime for Windows).
+#
+# distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
+#      && curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
+#      && curl -s -L https://nvidia.github.io/libnvidia-container/$distribution/libnvidia-container.list | \
+#            sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+            sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+# sudo apt-get update
+# sudo apt-get install -y nvidia-docker2
+# sudo systemctl restart docker
+#
+#
 
-
-#FROM nvidia/cuda:11.2.0-devel-ubuntu20.04
 FROM nvidia/cuda:11.2.0-runtime-ubuntu20.04
+#FROM nvidia/cuda:11.2.0-devel-ubuntu20.04
+#FROM nvidia/cuda:11.2.0-base-ubuntu20.04
+
+# CuPy, which is used in cuda_tsne, expects there to be a link called libcuda.so.1 to the cuda drivers. For some reason it is not put in place (Docker or not) so have to manually create one
+ln -s /usr/local/cuda-11.2/compat/libcuda.so.460.106.00  /usr/lib/x86_64-linux-gnu/libcuda.so.1 
 
 ENV DEBIAN_FRONTEND=noninteractve
 
@@ -21,7 +42,6 @@ LABEL org.opencontainers.image.authors="pd@red.com.au"
 
 ENV PYTHONPATH="/usr/local/lib/python3.7"
 
-RUN ln -s /usr/bin/python3 /usr/bin/python
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
 RUN adduser --disabled-password --gecos 'default classi user' user_1
@@ -49,7 +69,7 @@ RUN   pip uninstall hdbscan
 RUN   pip   install hdbscan==0.8.27
 
 
-RUN git clone --depth 2 https://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@github.com/peterdonnelly1/pipeline
+RUN git clone --depth 1 --branch master https://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@github.com/peterdonnelly1/pipeline
 
 #RUN	git clone https://github.com/SBU-BMI/quip_classification && \
 #	cd /root/quip_classification/u24_lymphocyte/prediction/NNFramework_TF_models && \
