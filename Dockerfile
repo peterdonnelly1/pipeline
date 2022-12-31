@@ -1,11 +1,11 @@
 # To build:
 #
-#   sudo DOCKER_BUILDKIT=1 docker build -t classi .
+#    sudo DOCKER_BUILDKIT=1 docker build -t classi .
 #
-# To run, use one of the following depending on whether or not you have installed the NVIDIA Container Runtime (see note below):                                                     
+# To run:                                                     
 #
-#    sudo docker run                 -it --shm-size 2g classi:latest bash
-#    sudo docker run --gpus device=0 -it --shm-size 2g classi:latest bash
+#    sudo docker run                 -it --shm-size 2g classi:latest bash 
+#    sudo docker run --gpus device=0 -it --shm-size 2g classi:latest bash  << only use if you have installed the NVIDIA Container Runtime (see note below)
 #
 # To run with datasets that external to the container, but in the default location (don't use: this is for me):
 #
@@ -14,15 +14,15 @@
 #
 # To install the NVIDIA Container Runtime (highly recommended):
 #
-# If you use standard docker, CLASSI will only use CPUs:  GPUs will be ignored. All CLASSI capabilities except cuda_tsne (which is expicitly designed for use with a GPU) will work, albeit a lot slower.
-# For GPU support, the NVIDIA Container Runtime is required on the system running Docker. The base image (FROM nvidia/cuda) creates an image that supports GPUs, but you also require NVIDIA Container Runtime. 
-# Installation instructions follow (these are from https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html). # (Note: there is no  NVIDIA Container Runtime for Windows).
+#   If you use standard docker, CLASSI will only make use of CPUs; GPUs will be ignored. All CLASSI capabilities except cuda_tsne (which is expicitly designed to use a GPU) will work, albeit a lot slower.
+#   For GPU support, the NVIDIA Container Runtime is required on the system running Docker. The base image (FROM nvidia/cuda ...) creates an image that supports GPUs, but you also require NVIDIA Container Runtime. 
+#   Installation instructions follow (these are from https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html). Note: there is no  NVIDIA Container Runtime for Windows.
 #
-# distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
+#   distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
 #      && curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
 #      && curl -s -L https://nvidia.github.io/libnvidia-container/$distribution/libnvidia-container.list | \
 #            sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
-            sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+#            sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
 # sudo apt-get update
 # sudo apt-get install -y nvidia-docker2
 # sudo systemctl restart docker
