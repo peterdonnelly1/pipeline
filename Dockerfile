@@ -40,7 +40,7 @@ ENV DEBIAN_FRONTEND=noninteractve
 
 LABEL org.opencontainers.image.authors="pd@red.com.au"
 
-#ENV PYTHONPATH="/usr/local/lib/python3.7"
+####ENV PYTHONPATH="/usr/local/lib/python3.7"
 
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
