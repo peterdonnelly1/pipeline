@@ -7,6 +7,17 @@
 #    sudo docker run                 -it --shm-size 2g classi:latest bash 
 #    sudo docker run --gpus device=0 -it --shm-size 2g classi:latest bash  << only use if you have installed the NVIDIA Container Runtime (see note below)
 #
+# To run with support for Firefox (needed to see Tensorboard output)
+#
+#    from the host, run:
+#        xhost +; sudo docker run  --gpus device=0  -v /home/peter/git/pipeline/working_data:/home/peter/git/pipeline/working_data -v /home/peter/git/pipeline/source_data:/home/peter/git/pipeline/source_data --net=host -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY -it --shm-size 2g classi:latest bash
+#    then, toggle back to the host and open a second shell using:
+#       sudo docker exec -it blissful_kowalevski bash
+#    and when in the classi docker container run
+#       tensorboard --logdir=classi/runs --samples_per_plugin images=0 --reload_interval=10
+#    then, toggle back to the host and open a third shell in the clasi docker container to run the experiment (classification or clustering) using:
+#       sudo docker exec -it blissful_kowalevski bash
+#
 # To run with datasets that external to the container, but in the default location (don't use: this is for me):
 #
 #    sudo docker run                 -v /home/peter/git/pipeline/working_data:/home/peter/git/pipeline/working_data -v /home/peter/git/pipeline/source_data:/home/peter/git/pipeline/source_data -it --shm-size 2g classi:latest bash
@@ -48,7 +59,7 @@ RUN adduser --disabled-password --gecos 'default classi user' user_1
 
 RUN \
     --mount=type=cache,target=/var/cache/apt \
-    apt-get update && apt-get install -y git python3 python3-pip python3-numpy libvips openslide-tools wget git tree vim rsync libsm6 libxext6 mlocate
+    apt-get update && apt-get install -y git python3 python3-pip python3-numpy libvips openslide-tools wget git tree vim rsync libsm6 libxext6 mlocate gimp firefox
 
 
 WORKDIR /home/peter/git
