@@ -394,6 +394,8 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
     time.sleep(10)
     sys.exit(0)
 
+  if not os.path.exists( log_dir ):
+    os.mkdir( log_dir )
     
   class_names  =  subtype_names_as_list if highest_class_number>=len(subtype_names_as_list) else subtype_names_as_list[0:highest_class_number+1]
 

@@ -378,8 +378,8 @@ def plot( num_subplots, subplot_index, grid_size, x, y, class_names, ax, title, 
       print ( f"CUDA_TSNE:      INFO: plot()  x[:, 1].max()         = {BITTER_SWEET}{x[:, 1].max()}{RESET}" )      
 
     if (DEBUG>99):
-      print ( f"CUDA_TSNE:       x[:, 0]                             = {BITTER_SWEET}{x[:, 0]}{RESET}"       )
-      print ( f"CUDA_TSNE:       x[:, 1]                             = {BITTER_SWEET}{x[:, 1]}{RESET}"       )
+      print ( f"CUDA_TSNE:       x[:, 0]                           = {BITTER_SWEET}{x[:, 0]}{RESET}"       )
+      print ( f"CUDA_TSNE:       x[:, 1]                           = {BITTER_SWEET}{x[:, 1]}{RESET}"       )
 
     x1 = x[:, 0]
     x2 = x[:, 1]
@@ -387,10 +387,10 @@ def plot( num_subplots, subplot_index, grid_size, x, y, class_names, ax, title, 
 
 
     if (DEBUG>0):
-      print ( f"CUDA_TSNE:      INFO: plot()  np.median(x1)           = {BITTER_SWEET}{np.median(x1)}{RESET}"   )
-      print ( f"CUDA_TSNE:      INFO: plot()  np.median(x2)           = {BITTER_SWEET}{np.median(x2)}{RESET}"   )
-      print ( f"CUDA_TSNE:      INFO: plot()  np.std(x1)              = {BITTER_SWEET}{np.std(x1)}{RESET}"   )
-      print ( f"CUDA_TSNE:      INFO: plot()  np.std(x2)              = {BITTER_SWEET}{np.std(x2)}{RESET}"   )
+      print ( f"CUDA_TSNE:      INFO: plot()  np.median(x1)         = {BITTER_SWEET}{np.median(x1)}{RESET}"   )
+      print ( f"CUDA_TSNE:      INFO: plot()  np.median(x2)         = {BITTER_SWEET}{np.median(x2)}{RESET}"   )
+      print ( f"CUDA_TSNE:      INFO: plot()  np.std(x1)            = {BITTER_SWEET}{np.std(x1)}{RESET}"   )
+      print ( f"CUDA_TSNE:      INFO: plot()  np.std(x2)            = {BITTER_SWEET}{np.std(x2)}{RESET}"   )
       
       
     x_lim_left  = np.median(x1)-std_devs*np.std(x1)

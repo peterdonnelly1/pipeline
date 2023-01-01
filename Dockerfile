@@ -1,6 +1,6 @@
 # To build:
 #
-#    sudo DOCKER_BUILDKIT=1 docker build -t classi .
+#    sudo DOCKER_BUILDKIT=1 docker build --progress=plain  -t classi .
 #
 # To run:                                                     
 #
@@ -67,6 +67,7 @@ RUN --mount=type=cache,target=/root/.cache/pip python3 -m pip install -r require
 
 RUN   pip uninstall -y hdbscan
 RUN   pip   install hdbscan==0.8.29
+RUN   pip   install tsnecuda==3.0.1+cu112 -f https://tsnecuda.isx.ai/tsnecuda_stable.html
 
 
 RUN git clone --depth 1 --branch master https://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@github.com/peterdonnelly1/pipeline
