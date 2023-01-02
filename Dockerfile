@@ -7,7 +7,8 @@
 # To run experiment:
 #
 #    from a host console:
-#        sudo docker run -it -p 6006:6006 --name classi --gpus device=0  --shm-size 2g   classi:latest
+#       sudo docker run -it -p 6006:6006 --name classi --gpus device=0  -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY --shm-size 2g   classi:latest
+#
 #    then in the classi container:
 #       tensorboard --logdir=/home/peter/git/pipeline/classi/runs --samples_per_plugin images=0 --reload_interval=1 --bind_all &
 #       cd pipeline
@@ -22,8 +23,7 @@
 #
 # To run with datasets external to the container, in the default location (don't use: this is for me during development):
 #
-#    sudo docker run -it -p 6006:6006 --name classi                  -v /home/peter/git/pipeline/working_data:/home/peter/git/pipeline/working_data -v /home/peter/git/pipeline/source_data:/home/peter/git/pipeline/source_data  --shm-size 2g   classi:latest
-#    sudo docker run -it -p 6006:6006 --name classi --gpus device=0  -v /home/peter/git/pipeline/working_data:/home/peter/git/pipeline/working_data -v /home/peter/git/pipeline/source_data:/home/peter/git/pipeline/source_data  --shm-size 2g   classi:latest
+#       sudo docker run -it -p 6006:6006 --name classi --gpus device=0  -v /home/peter/git/pipeline/working_data:/home/peter/git/pipeline/working_data -v /home/peter/git/pipeline/source_data:/home/peter/git/pipeline/source_data  -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY --shm-size 2g   classi:latest
 #
 # To enter the running classi container with a bash shell
 #
