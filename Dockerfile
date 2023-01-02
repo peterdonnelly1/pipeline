@@ -1,32 +1,81 @@
-# To build:
+######################################################################################################################################################################################################################################################################################################################################
+#
+#  Quick reference for those familar with Docker. Install the NVIDIA Container Runtime first !!! (see note *** below)
+#
+#    HOST:
+#        sudo DOCKER_BUILDKIT=1 docker build --progress=plain  -t classi .
+#        xhost +; sudo docker run -it --name classi --gpus device=0  -v /home/peter/git/pipeline/working_data:/home/peter/git/pipeline/working_data -v /home/peter/git/pipeline/source_data:/home/peter/git/pipeline/source_data --net=host -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY --shm-size 2g   classi:latest bash
+#    CONTAINER:
+#       tensorboard --logdir=classi/runs --samples_per_plugin images=0 --reload_interval=10 &
+#       firefox --url=localhost:6006 &
+#       cd pipeline
+#       ll
+#       ./do_all_RUN_ME_TO_SEE_RNASEQ_PROCESSING.sh
+#
+######################################################################################################################################################################################################################################################################################################################################
+#
+# To build classi image:
 #
 #    sudo DOCKER_BUILDKIT=1 docker build --progress=plain  -t classi .
 #
-# To run:                                                     
+# To run classi container without support for Firefox:                                                     
 #
-#    sudo docker run                 -it --shm-size 2g classi:latest bash 
-#    sudo docker run --gpus device=0 -it --shm-size 2g classi:latest bash  << only use if you have installed the NVIDIA Container Runtime (see note below)
+#    sudo docker run -it --name classi                  --shm-size 2g classi:latest bash 
+#    sudo docker run -it --name classi --gpus device=0  --shm-size 2g classi:latest bash     << only use if you have installed the NVIDIA Container Runtime (highly recommended - see note *** below)
 #
-# To run with support for Firefox (needed to see Tensorboard output)
+# To run classi container with support for Firefox:  (needed to see Tensorboard output)
 #
-#    from the host, run:
-#        xhost +; sudo docker run  --gpus device=0  -v /home/peter/git/pipeline/working_data:/home/peter/git/pipeline/working_data -v /home/peter/git/pipeline/source_data:/home/peter/git/pipeline/source_data --net=host -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY -it --shm-size 2g classi:latest bash
-#    then, toggle back to the host and open a second shell using:
-#       sudo docker exec -it blissful_kowalevski bash
-#    and when in the classi docker container run
-#       tensorboard --logdir=classi/runs --samples_per_plugin images=0 --reload_interval=10
-#    then, toggle back to the host and open a third shell in the clasi docker container to run the experiment (classification or clustering) using:
-#       sudo docker exec -it blissful_kowalevski bash
+#    from a host bash console, run:
+#        xhost +; sudo docker run -it --name classi --gpus device=0  -v /home/peter/git/pipeline/working_data:/home/peter/git/pipeline/working_data -v /home/peter/git/pipeline/source_data:/home/peter/git/pipeline/source_data --net=host -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY --shm-size 2g   classi:latest bash
+#    then, from within the classi docker container run:
+#       tensorboard --logdir=classi/runs --samples_per_plugin images=0 --reload_interval=10 &
+#    press the Enter key, then:
+#       firefox --url=localhost:6006 &
+#    a web page will appear. Toggle back to the container console and run an experiment (classification or clustering) using:
+#       cd pipeline
+#    then one of the following
+#       ./do_all_RUN_ME_TO_SEE_RNASEQ_PROCESSING.sh
+#       ./do_all_RUN_ME_TO_SEE_IMAGE_PROCESSING.sh
+#       ./do_all_RUN_ME_TO_SEE_CLUSTERING_1.sh
 #
-# To run with datasets that external to the container, but in the default location (don't use: this is for me):
+# To monitor experiment progress and see results:
 #
-#    sudo docker run                 -v /home/peter/git/pipeline/working_data:/home/peter/git/pipeline/working_data -v /home/peter/git/pipeline/source_data:/home/peter/git/pipeline/source_data -it --shm-size 2g classi:latest bash
-#    sudo docker run --gpus device=0 -v /home/peter/git/pipeline/working_data:/home/peter/git/pipeline/working_data -v /home/peter/git/pipeline/source_data:/home/peter/git/pipeline/source_data -it --shm-size 2g classi:latest bash
+#    during the experiment, monitor progress via container console output
+#    during the experiment, observe learning curves via the web page you opened
+#    after the experiment has comleted, run 'gimp' inside the container to view images produced by classi. eg. cd logs; gimp 230102_0247__01 ... bar_chart_AL.png
 #
-# To install the NVIDIA Container Runtime (highly recommended):
+# To run with datasets external to the container, in the default location (don't use: this is for me):
+#
+#    sudo docker run -it --name classi                 -v /home/peter/git/pipeline/working_data:/home/peter/git/pipeline/working_data -v /home/peter/git/pipeline/source_data:/home/peter/git/pipeline/source_data --shm-size 2g classi:latest bash
+#    sudo docker run -it --name classi --gpus device=0 -v /home/peter/git/pipeline/working_data:/home/peter/git/pipeline/working_data -v /home/peter/git/pipeline/source_data:/home/peter/git/pipeline/source_data --shm-size 2g classi:latest bash
+#
+# To enter the running classi container with a bash shell
+#
+#    sudo docker exec -it classi bash
+#
+# To stop/start the classi container:
+#
+#    sudo docker stop  classi
+#    sudo docker start classi
+#
+# To delete the running container:
+#  
+#    sudo docker rm classi
+#
+#    this does not delete the classi image
+#
+# To delete the classi image:
+#
+#    sudo docker rmi -f classi
+#
+#    you will have to build it again if you do this. Building should be very fast since Docker will have cached everything that did not change since the last build.
+#
+######################################################################################################################################################################################################################################################################################################################################
+#
+# *** To install the NVIDIA Container Runtime on your host machine (highly recommended):
 #
 #   If you use standard docker, CLASSI will only make use of CPUs; GPUs will be ignored. All CLASSI capabilities except cuda_tsne (which is expicitly designed to use a GPU) will work, albeit a lot slower.
-#   For GPU support, the NVIDIA Container Runtime is required on the system running Docker. The base image (FROM nvidia/cuda ...) creates an image that supports GPUs, but you also require NVIDIA Container Runtime. 
+#   For GPU support, the NVIDIA Container Runtime is required on the system running Docker. The "FROM nvidia/cuda ... directive below creates an image that supports GPUs, but you _also_ require the NVIDIA Container Runtime. 
 #   Installation instructions follow (these are from https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html). Note: there is no  NVIDIA Container Runtime for Windows.
 #
 #   distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
@@ -38,7 +87,8 @@
 # sudo apt-get install -y nvidia-docker2
 # sudo systemctl restart docker
 #
-#
+######################################################################################################################################################################################################################################################################################################################################
+
 
 FROM nvidia/cuda:11.2.0-runtime-ubuntu20.04
 #FROM nvidia/cuda:11.2.0-devel-ubuntu20.04
@@ -61,7 +111,6 @@ RUN \
     --mount=type=cache,target=/var/cache/apt \
     apt-get update && apt-get install -y git python3 python3-pip python3-numpy libvips openslide-tools wget git tree vim rsync libsm6 libxext6 mlocate gimp firefox
 
-
 WORKDIR /home/peter/git
 
 RUN mkdir pipeline
@@ -80,20 +129,6 @@ RUN   pip uninstall -y hdbscan
 RUN   pip   install hdbscan==0.8.29
 RUN   pip   install tsnecuda==3.0.1+cu112 -f https://tsnecuda.isx.ai/tsnecuda_stable.html
 
-
 RUN git clone --depth 1 --branch master https://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@github.com/peterdonnelly1/pipeline
-
-#RUN	git clone https://github.com/SBU-BMI/quip_classification && \
-#	cd /root/quip_classification/u24_lymphocyte/prediction/NNFramework_TF_models && \
-#	wget -v -O models.zip -L \
-#	  https://stonybrookmedicine.box.com/shared/static/bl15zu4lwb9cc7ltul15aa8kyrn7kh2d.zip >/dev/null 2>&1 && \
-#        unzip -o models.zip && rm -f models.zip && \
-#	chmod 0755 /root/quip_classification/u24_lymphocyte/scripts/*
-
-#ENV	BASE_DIR="/root/"
-#ENV	PATH="./":$PATH
-#ENV PYTHONPATH "${PYTHONPATH}:/your/custom/path"
-#ENV PYTHONPATH "${PYTHONPATH}
-#ENV PATH /usr/local/bin:$PATH
 
 CMD ["/bin/bash", "./do_all.sh"]
