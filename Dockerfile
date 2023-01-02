@@ -1,53 +1,29 @@
 ######################################################################################################################################################################################################################################################################################################################################
 #
-#  Quick reference for those familar with Docker. Install the NVIDIA Container Runtime first !!! (see note *** below)
-#
-#    HOST:
-#        sudo DOCKER_BUILDKIT=1 docker build --progress=plain  -t classi .
-#        xhost +; sudo docker run -it --name classi --gpus device=0  -v /home/peter/git/pipeline/working_data:/home/peter/git/pipeline/working_data -v /home/peter/git/pipeline/source_data:/home/peter/git/pipeline/source_data --net=host -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY --shm-size 2g   classi:latest bash
-#    CONTAINER:
-#       tensorboard --logdir=classi/runs --samples_per_plugin images=0 --reload_interval=10 &
-#       firefox --url=localhost:6006 &
-#       cd pipeline
-#       ll
-#       ./do_all_RUN_ME_TO_SEE_RNASEQ_PROCESSING.sh
-#
-######################################################################################################################################################################################################################################################################################################################################
-#
-# To build classi image:
+# To build docker image:
 #
 #    sudo DOCKER_BUILDKIT=1 docker build --progress=plain  -t classi .
 #
-# To run classi container without support for Firefox:                                                     
+# To run experiment:
 #
-#    sudo docker run -it --name classi                  --shm-size 2g classi:latest bash 
-#    sudo docker run -it --name classi --gpus device=0  --shm-size 2g classi:latest bash     << only use if you have installed the NVIDIA Container Runtime (highly recommended - see note *** below)
-#
-# To run classi container with support for Firefox:  (needed to see Tensorboard output)
-#
-#    from a host bash console, run:
-#        xhost +; sudo docker run -it --name classi --gpus device=0  -v /home/peter/git/pipeline/working_data:/home/peter/git/pipeline/working_data -v /home/peter/git/pipeline/source_data:/home/peter/git/pipeline/source_data --net=host -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY --shm-size 2g   classi:latest bash
-#    then, from within the classi docker container run:
-#       tensorboard --logdir=classi/runs --samples_per_plugin images=0 --reload_interval=10 &
-#    press the Enter key, then:
-#       firefox --url=localhost:6006 &
-#    a web page will appear. Toggle back to the container console and run an experiment (classification or clustering) using:
+#    from a host console:
+#        sudo docker run -it -p 6006:6006 --name classi --gpus device=0  --shm-size 2g   classi:latest
+#    then in the classi container:
+#       tensorboard --logdir=/home/peter/git/pipeline/classi/runs --samples_per_plugin images=0 --reload_interval=1 --bind_all &
 #       cd pipeline
-#    then one of the following
-#       ./do_all_RUN_ME_TO_SEE_RNASEQ_PROCESSING.sh
-#       ./do_all_RUN_ME_TO_SEE_IMAGE_PROCESSING.sh
-#       ./do_all_RUN_ME_TO_SEE_CLUSTERING_1.sh
+#       ./do_all_RUN_ME_TO_SEE_RNASEQ_PROCESSING.sh or ./do_all_RUN_ME_TO_SEE_IMAGE_PROCESSING.sh or ./do_all_RUN_ME_TO_SEE_CLUSTERING_1.sh
 #
-# To monitor experiment progress and see results:
+# To monitor experiment and see results:
 #
-#    during the experiment, monitor progress via container console output
-#    during the experiment, observe learning curves via the web page you opened
+#    during the experiment
+#       monitor progress via container console output
+#       observe learning curves with browser pointing to http://localhost:6006
 #    after the experiment has comleted, run 'gimp' inside the container to view images produced by classi. eg. cd logs; gimp 230102_0247__01 ... bar_chart_AL.png
 #
-# To run with datasets external to the container, in the default location (don't use: this is for me):
+# To run with datasets external to the container, in the default location (don't use: this is for me during development):
 #
-#    sudo docker run -it --name classi                 -v /home/peter/git/pipeline/working_data:/home/peter/git/pipeline/working_data -v /home/peter/git/pipeline/source_data:/home/peter/git/pipeline/source_data --shm-size 2g classi:latest bash
-#    sudo docker run -it --name classi --gpus device=0 -v /home/peter/git/pipeline/working_data:/home/peter/git/pipeline/working_data -v /home/peter/git/pipeline/source_data:/home/peter/git/pipeline/source_data --shm-size 2g classi:latest bash
+#    sudo docker run -it -p 6006:6006 --name classi                  -v /home/peter/git/pipeline/working_data:/home/peter/git/pipeline/working_data -v /home/peter/git/pipeline/source_data:/home/peter/git/pipeline/source_data  --shm-size 2g   classi:latest
+#    sudo docker run -it -p 6006:6006 --name classi --gpus device=0  -v /home/peter/git/pipeline/working_data:/home/peter/git/pipeline/working_data -v /home/peter/git/pipeline/source_data:/home/peter/git/pipeline/source_data  --shm-size 2g   classi:latest
 #
 # To enter the running classi container with a bash shell
 #
@@ -109,7 +85,7 @@ RUN adduser --disabled-password --gecos 'default classi user' user_1
 
 RUN \
     --mount=type=cache,target=/var/cache/apt \
-    apt-get update && apt-get install -y git python3 python3-pip python3-numpy libvips openslide-tools wget git tree vim rsync libsm6 libxext6 mlocate gimp firefox
+    apt-get update && apt-get install -y git python3 python3-pip python3-numpy libvips openslide-tools wget git tree vim rsync libsm6 libxext6 mlocate gimp firefox net-tools
 
 WORKDIR /home/peter/git
 
@@ -131,4 +107,4 @@ RUN   pip   install tsnecuda==3.0.1+cu112 -f https://tsnecuda.isx.ai/tsnecuda_st
 
 RUN git clone --depth 1 --branch master https://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@github.com/peterdonnelly1/pipeline
 
-CMD ["/bin/bash", "./do_all.sh"]
+#CMD ["/bin/bash", "./do_all.sh"]
