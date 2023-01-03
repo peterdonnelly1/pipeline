@@ -6,13 +6,14 @@
 #
 # To run experiment:
 #
-#    from a host console:
-#       sudo docker run -it -p 6006:6006 --name classi --gpus device=0  -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY --shm-size 2g   classi:latest
+#    from host console:
+#       sudo docker container rm -f classi     <<< not necessary for the very first run after a build
+#       sudo docker run -it --name classi --gpus device=0  --network=host -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY --shm-size 2g   classi:latest
 #
-#    then in the classi container:
+#    then, in the classi container:
 #       tensorboard --logdir=/home/peter/git/pipeline/classi/runs --samples_per_plugin images=0 --reload_interval=1 --bind_all &
 #       cd pipeline
-#       ./do_all_RUN_ME_TO_SEE_RNASEQ_PROCESSING.sh or ./do_all_RUN_ME_TO_SEE_IMAGE_PROCESSING.sh or ./do_all_RUN_ME_TO_SEE_CLUSTERING_1.sh
+#       ./do_all_RUN_ME_TO_SEE_RNASEQ_PROCESSING.sh    or   ./do_all_RUN_ME_TO_SEE_IMAGE_PROCESSING.sh    or  ./do_all_RUN_ME_TO_SEE_CLUSTERING_USING_SCIKIT_SPECTRAL.sh
 #
 # To monitor experiment and see results:
 #
@@ -23,7 +24,7 @@
 #
 # To run with datasets external to the container, in the default location (don't use: this is for me during development):
 #
-#       sudo docker run -it -p 6006:6006 --name classi --gpus device=0  -v /home/peter/git/pipeline/working_data:/home/peter/git/pipeline/working_data -v /home/peter/git/pipeline/source_data:/home/peter/git/pipeline/source_data  -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY --shm-size 2g   classi:latest
+#       sudo docker run -it --name classi --gpus device=0  --network=host -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY --shm-size 2g -v /home/peter/git/pipeline/working_data:/home/peter/git/pipeline/working_data -v /home/peter/git/pipeline/source_data:/home/peter/git/pipeline/source_data   classi:latest
 #
 # To enter the running classi container with a bash shell
 #
@@ -85,7 +86,7 @@ RUN adduser --disabled-password --gecos 'default classi user' user_1
 
 RUN \
     --mount=type=cache,target=/var/cache/apt \
-    apt-get update && apt-get install -y git python3 python3-pip python3-numpy libvips openslide-tools wget git tree vim rsync libsm6 libxext6 mlocate gimp firefox net-tools
+    apt-get update && apt-get install -y git python3 python3-pip python3-numpy libvips openslide-tools wget git tree vim rsync libsm6 libxext6 mlocate gimp firefox python3-tk
 
 WORKDIR /home/peter/git
 
@@ -106,5 +107,7 @@ RUN   pip   install hdbscan==0.8.29
 RUN   pip   install tsnecuda==3.0.1+cu112 -f https://tsnecuda.isx.ai/tsnecuda_stable.html
 
 RUN git clone --depth 1 --branch master https://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@github.com/peterdonnelly1/pipeline
+RUN tensorboard --logdir=/home/peter/git/pipeline/classi/runs --samples_per_plugin images=0 --reload_interval=1 --bind_all &
+RUN cd pipeline
 
 #CMD ["/bin/bash", "./do_all.sh"]

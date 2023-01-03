@@ -1,4 +1,5 @@
 # all code used for spcn stain normalisation is due to:
+#
 #     D. Anand, G. Ramakrishnan, A. Sethi
 #     Fast GPU-enabled color normalization for digital pathology
 #     International Conference on Systems, Signals and Image Processing, Osijek, Croatia (2019), pp. 219-224
