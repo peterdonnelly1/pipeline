@@ -11,7 +11,7 @@
 #       sudo docker run -it --name classi --gpus device=0  --network=host -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY --shm-size 2g   classi:latest
 #
 #    then, in the classi container:
-#       tensorboard --logdir=/home/peter/git/pipeline/classi/runs --samples_per_plugin images=0 --reload_interval=1 --bind_all &
+#       ./start.sh     <<< this will start tensorboard. Press Enter to get the console back.
 #       cd pipeline
 #       ./do_all_RUN_ME_TO_SEE_RNASEQ_PROCESSING.sh    or   ./do_all_RUN_ME_TO_SEE_IMAGE_PROCESSING.sh    or  ./do_all_RUN_ME_TO_SEE_CLUSTERING_USING_SCIKIT_SPECTRAL.sh
 #
@@ -107,7 +107,7 @@ RUN   pip   install hdbscan==0.8.29
 RUN   pip   install tsnecuda==3.0.1+cu112 -f https://tsnecuda.isx.ai/tsnecuda_stable.html
 
 RUN git clone --depth 1 --branch master https://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@github.com/peterdonnelly1/pipeline
-RUN tensorboard --logdir=/home/peter/git/pipeline/classi/runs --samples_per_plugin images=0 --reload_interval=1 --bind_all &
-RUN cd pipeline
+RUN mkdir /home/peter/git/pipeline/classi/runs
 
-#CMD ["/bin/bash", "./do_all.sh"]
+RUN echo '#!/bin/bash\nnohup tensorboard --logdir=/home/peter/git/pipeline/classi/runs --samples_per_plugin images=0 --reload_interval=1 --bind_all &' > start.sh
+RUN chmod +x start.sh
