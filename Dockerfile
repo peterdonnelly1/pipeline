@@ -89,16 +89,15 @@ RUN \
 WORKDIR /home/peter/git
 RUN mkdir pipeline
 
-####################### NEED TO MOVE
-COPY requirements.txt   .                                               
-COPY requirements_1.txt .
-COPY requirements_2.txt .
+COPY Dockerfile_pip_requirements_1.txt   .                                               
+COPY Dockerfile_pip_requirements_2.txt   .                                               
+COPY Dockerfile_pip_requirements_3.txt   .                                               
 
 RUN --mount=type=cache,target=/root/.cache/pip python3 -m pip install --upgrade pip setuptools wheel
 RUN --mount=type=cache,target=/root/.cache/pip python3 -m pip install --upgrade numpy
-RUN --mount=type=cache,target=/root/.cache/pip python3 -m pip install -r requirements.txt
-RUN --mount=type=cache,target=/root/.cache/pip python3 -m pip install -r requirements_2.txt
-RUN --mount=type=cache,target=/root/.cache/pip python3 -m pip install -r requirements_1.txt
+RUN --mount=type=cache,target=/root/.cache/pip python3 -m pip install -r Dockerfile_pip_requirements_1.txt
+RUN --mount=type=cache,target=/root/.cache/pip python3 -m pip install -r Dockerfile_pip_requirements_2.txt
+RUN --mount=type=cache,target=/root/.cache/pip python3 -m pip install -r Dockerfile_pip_requirements_3.txt
 
 RUN   pip uninstall -y hdbscan
 RUN   pip   install hdbscan==0.8.29

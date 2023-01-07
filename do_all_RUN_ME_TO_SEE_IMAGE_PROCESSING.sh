@@ -47,7 +47,7 @@ echo "TEST RUN"
 echo "========================================================================================================================================================================"
 echo ""
 
-./do_all.sh -d stad  -i image -f 22 -a VGG11  -b 16  -T 64        -c UNIMODE_CASE  -A 4   -j True 
+./do_all.sh -d stad  -i image -f 22 -a VGG11  -b 16  -T 64        -c UNIMODE_CASE  -A 4  -S 20   -j True 
 
 
 #
