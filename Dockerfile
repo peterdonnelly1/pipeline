@@ -2,7 +2,8 @@
 #
 # To build docker image:
 #
-#    sudo DOCKER_BUILDKIT=1 docker build --build-arg CLONE_FROM_GITHUB=True --progress=plain  -t classi .
+#    COMMIT_HASH=$(git ls-remote https://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@github.com/peterdonnelly1/pipeline HEAD)
+#    sudo DOCKER_BUILDKIT=1 docker build --build-arg HASH=$COMMIT_HASH--progress=plain  -t classi .
 #
 # To run experiment:
 #
@@ -103,8 +104,8 @@ RUN   pip uninstall -y hdbscan
 RUN   pip   install hdbscan==0.8.29
 RUN   pip   install tsnecuda==3.0.1+cu112 -f https://tsnecuda.isx.ai/tsnecuda_stable.html
 
-ARG CLONE_FROM_GITHUB
-RUN if [ "$CLONE_FROM_GITHUB" = "True" ]; then git clone --depth 1 --branch master https://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@github.com/peterdonnelly1/pipeline; fi
+ARG HASH
+RUN git clone --depth 1 --branch $HASH https://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@github.com/peterdonnelly1/pipeline
 
 RUN mkdir /home/peter/git/pipeline/classi/runs
 
