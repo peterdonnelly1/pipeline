@@ -2,8 +2,7 @@
 #
 # To build docker image:
 #
-#    COMMIT_HASH=$(git ls-remote https://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@github.com/peterdonnelly1/pipeline HEAD)
-#    sudo DOCKER_BUILDKIT=1 docker build --build-arg HASH=$COMMIT_HASH--progress=plain  -t classi .
+#    sudo DOCKER_BUILDKIT=1 docker build --progress=plain  -t classi .
 #
 # To run experiment:
 #
@@ -71,7 +70,7 @@
 
 
 FROM nvidia/cuda:11.2.0-runtime-ubuntu20.04
-
+  
 # CuPy, which is used in cuda_tsne, expects there to be a link called libcuda.so.1 to the cuda drivers. For some reason it is not put in place (Docker or not) so have to manually create one
 RUN ln -s /usr/local/cuda-11.2/compat/libcuda.so.460.106.00  /usr/lib/x86_64-linux-gnu/libcuda.so.1 
 
@@ -104,10 +103,9 @@ RUN   pip uninstall -y hdbscan
 RUN   pip   install hdbscan==0.8.29
 RUN   pip   install tsnecuda==3.0.1+cu112 -f https://tsnecuda.isx.ai/tsnecuda_stable.html
 
-ARG HASH
-RUN git clone --depth 1 --branch $HASH https://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@github.com/peterdonnelly1/pipeline
+RUN git clone --depth 1 https://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@github.com/peterdonnelly1/pipeline
 
-RUN mkdir /home/peter/git/pipeline/classi/runs
+RUN mkdir -p /home/peter/git/pipeline/classi/runs
 
 RUN echo '#!/bin/bash\nnohup tensorboard --logdir=/home/peter/git/pipeline/classi/runs --samples_per_plugin images=0 --reload_interval=1 --bind_all &' > start.sh
 RUN chmod +x start.sh
