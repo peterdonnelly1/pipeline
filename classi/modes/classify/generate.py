@@ -81,7 +81,7 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
     except Exception as e:
       print ( f"{BOLD_RED}GENERATE:       INFO:  could not load {MAGENTA}{fqn}{RESET}{BOLD_RED}. Disable -X to force it to be regenerated ... can't continue, so halting now [143]{RESET}" )
       if DEBUG>0:
-        print ( f"{BOLD_RED}GENERATE:       INFO:  the exception was: {CYAN}'{e}'{RESET}" )
+        print ( f"{BOLD_RED}GENERATE:       INFO:  the exception was: {CYAN}{e}{RESET}" )
       sys.exit(0)
 
     if DEBUG>2:

@@ -244,7 +244,7 @@ if [[ ${JUST_CLUSTER} != "True" ]]                                              
       rm logs/ae_output_features.pt  > /dev/null 2>&1
  
       ./do_all.sh   -n pre_compress -d ${DATASET}                -i ${INPUT_MODE}      -S ${N_SAMPLES}               -o ${N_EPOCHS_TEST}     -f ${TILES_PER_IMAGE}    -T ${TILE_SIZE}       -b ${BATCH_SIZE_TEST}      \
-                   -1 ${PCT_TEST___JUST_TEST}                    -s True               -X False                      -g False                -j True                  -a ${NN_TYPE_IMG}     -z ${NN_TYPE_RNA}          \
+                   -1 ${PCT_TEST___JUST_TEST}                    -s True               -X True                       -g False                -j True                  -a ${NN_TYPE_IMG}     -z ${NN_TYPE_RNA}          \
                    -E ${EMBEDDING_DIMENSIONS}                    -u False
 
 
@@ -272,14 +272,14 @@ elif [[ ${CLUSTERING} == "sk_spectral" ]]
 
   then
 
-    ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l sk_spectral  -u ${USE_AUTOENCODER_OUTPUT}  
+    ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True           -n classify  -c ${CASES}  -l sk_spectral  -u ${USE_AUTOENCODER_OUTPUT}  
 
   
 elif [[ ${CLUSTERING} == "sk_agglom" ]]
 
   then
 
-    ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l sk_agglom   -u ${USE_AUTOENCODER_OUTPUT}  
+    ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True           -n classify  -c ${CASES}  -l sk_agglom   -u ${USE_AUTOENCODER_OUTPUT}  
 
 
 elif [[ ${CLUSTERING} == "sk_tsne" ]]
@@ -299,10 +299,6 @@ elif [[ ${CLUSTERING} == "cuda_tsne" ]]
   then
 
     ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True                             -n classify  -c ${CASES}  -l cuda_tsne  -p 30   -u ${USE_AUTOENCODER_OUTPUT}
-    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l cuda_tsne  -p 70   -u ${USE_AUTOENCODER_OUTPUT}
-    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l cuda_tsne  -p 100  -u ${USE_AUTOENCODER_OUTPUT}
-    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l cuda_tsne  -p 300  -u ${USE_AUTOENCODER_OUTPUT}
-    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l cuda_tsne  -p 700  -u ${USE_AUTOENCODER_OUTPUT}
     ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -X True -s True  -g True  -n classify  -c ${CASES}  -l cuda_tsne  -p "1 3 7 8 10 13 17 20 27"  -G ${SUPERGRID_SIZE} -u ${USE_AUTOENCODER_OUTPUT}
 
 
