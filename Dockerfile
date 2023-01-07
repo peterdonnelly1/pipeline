@@ -2,7 +2,7 @@
 #
 # To build docker image:
 #
-#    sudo DOCKER_BUILDKIT=1 docker build --progress=plain  -t classi .
+#    sudo DOCKER_BUILDKIT=1 docker build --build-arg CLONE_FROM_GITHUB=True --progress=plain  -t classi .
 #
 # To run experiment:
 #
@@ -103,7 +103,9 @@ RUN   pip uninstall -y hdbscan
 RUN   pip   install hdbscan==0.8.29
 RUN   pip   install tsnecuda==3.0.1+cu112 -f https://tsnecuda.isx.ai/tsnecuda_stable.html
 
-RUN git clone --depth 1 --branch master https://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@github.com/peterdonnelly1/pipeline
+ARG CLONE_FROM_GITHUB
+RUN if [ "$CLONE_FROM_GITHUB" = "True" ]; then git clone --depth 1 --branch master https://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@github.com/peterdonnelly1/pipeline; fi
+
 RUN mkdir /home/peter/git/pipeline/classi/runs
 
 RUN echo '#!/bin/bash\nnohup tensorboard --logdir=/home/peter/git/pipeline/classi/runs --samples_per_plugin images=0 --reload_interval=1 --bind_all &' > start.sh
