@@ -1,5 +1,7 @@
 ######################################################################################################################################################################################################################################################################################################################################
 #
+# First, install the NVIDIA Container Runtime on your host machine (instructions below)
+#
 # To build docker image:
 #
 #    sudo DOCKER_BUILDKIT=1 docker build --progress=plain  -t classi .
@@ -7,23 +9,23 @@
 # To run experiment:
 #
 #    from host console:
-#       sudo docker container rm -f classi     <<< not necessary for the very first run after a build
+#       sudo docker container rm -f classi                              <<< not necessary for the very first run after a build
 #       sudo docker run -it --name classi --gpus device=0  --network=host -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY --shm-size 2g   classi:latest
 #
 #    then, in the classi container:
-#       ./start.sh                             <<< this will start tensorboard. Press Enter to get the console back.
+#       ./start.sh                                                      <<< this will start tensorboard. Press Enter to get the console back.
 #       cd pipeline
 #       ./do_all_RUN_ME_TO_SEE_RNASEQ_PROCESSING.sh    or   ./do_all_RUN_ME_TO_SEE_IMAGE_PROCESSING.sh    or  ./do_all_RUN_ME_TO_SEE_CLUSTERING_USING_SCIKIT_SPECTRAL.sh
 #
 # To monitor experiment and see results:
 #
-#    _during_ the experiment
+#    _during_ the experiment:
 #       monitor progress via container console output
-#       observe learning curves with browser pointing to http://localhost:6006
-#    _after_ the experiment has completed
+#       observe learning curves with any browser pointing to http://localhost:6006
+#    _after_ the experiment has completed:
 #       run 'gimp' inside the container to view images produced by classi. eg. cd logs; gimp 230102_0247__01 ... bar_chart_AL.png
 #
-# To enter running classi container with bash shell
+# To enter running classi container with a bash shell
 #
 #    sudo docker exec -it classi bash
 #
@@ -99,8 +101,8 @@ RUN --mount=type=cache,target=/root/.cache/pip python3 -m pip install -r Dockerf
 RUN --mount=type=cache,target=/root/.cache/pip python3 -m pip install -r Dockerfile_pip_requirements_2.txt
 RUN --mount=type=cache,target=/root/.cache/pip python3 -m pip install -r Dockerfile_pip_requirements_3.txt
 
-RUN   pip uninstall -y hdbscan
-RUN   pip   install hdbscan==0.8.29
+#RUN   pip uninstall -y hdbscan
+#RUN   pip   install hdbscan==0.8.29
 RUN   pip   install tsnecuda==3.0.1+cu112 -f https://tsnecuda.isx.ai/tsnecuda_stable.html
 
 RUN git clone --depth 1 https://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@github.com/peterdonnelly1/pipeline
