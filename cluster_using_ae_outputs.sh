@@ -244,7 +244,7 @@ if [[ ${JUST_CLUSTER} != "True" ]]                                              
       rm logs/ae_output_features.pt  > /dev/null 2>&1
  
       ./do_all.sh   -n pre_compress -d ${DATASET}                -i ${INPUT_MODE}      -S ${N_SAMPLES}               -o ${N_EPOCHS_TEST}     -f ${TILES_PER_IMAGE}    -T ${TILE_SIZE}       -b ${BATCH_SIZE_TEST}      \
-                   -1 ${PCT_TEST___JUST_TEST}                    -s True               -X True                       -g False                -j True                  -a ${NN_TYPE_IMG}     -z ${NN_TYPE_RNA}          \
+                   -1 ${PCT_TEST___JUST_TEST}                    -s True               -X False                      -g False                -j True                  -a ${NN_TYPE_IMG}     -z ${NN_TYPE_RNA}          \
                    -E ${EMBEDDING_DIMENSIONS}                    -u False
 
 
