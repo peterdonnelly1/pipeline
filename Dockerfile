@@ -10,8 +10,7 @@
 #
 #    from host console:
 #       sudo docker container rm -f classi                              <<< not necessary for the very first run after a build
-#       sudo docker run -it --name classi --gpus device=0  --network=host -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY --shm-size 2g   classi:latest
-#
+#       sudo docker run  -it --name classi --env TZ=$(cat /etc/timezone)  --gpus device=0  --network=host --shm-size 2g -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY   classi:latest
 #    then, in the classi container:
 #       ./start.sh                                                      <<< this will start tensorboard. Press Enter to get the console back.
 #       cd pipeline
@@ -66,7 +65,7 @@
 ######################################################################################################################################################################################################################################################################################################################################
 # To run with datasets external to the container, in the default location (don't use: this is for me during development):
 #
-#    sudo docker run -it --name classi --gpus device=0  --network=host -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY --shm-size 2g -v /home/peter/git/pipeline/working_data:/home/peter/git/pipeline/working_data -v /home/peter/git/pipeline/source_data:/home/peter/git/pipeline/source_data   classi:latest
+#    sudo docker run -it --name classi --env TZ=$(cat /etc/timezone)  --gpus device=0  --network=host --shm-size 2g -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY -v /home/peter/git/pipeline/working_data:/home/peter/git/pipeline/working_data -v /home/peter/git/pipeline/source_data:/home/peter/git/pipeline/source_data  classi:latest
 #
 ######################################################################################################################################################################################################################################################################################################################################
 
