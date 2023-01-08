@@ -1,5 +1,5 @@
 """============================================================================= 
-Main program file
+Main program file for classification mode
 ============================================================================="""
 
 import sys
@@ -69,8 +69,8 @@ from   sk_spectral                  import sk_spectral
 
 from constants  import *
 
-last_stain_norm='NULL'
-last_gene_norm='NULL'
+last_stain_norm = 'NULL'
+last_gene_norm  = 'NULL'
 
 np.set_printoptions(edgeitems=100)
 np.set_printoptions(linewidth=300)
@@ -104,8 +104,8 @@ pkmn_type_colors = ['#78C850',  # Grass
                    ]
 
 
-device = cuda.device()
-num_cpus = multiprocessing.cpu_count()
+device       = cuda.device()
+num_cpus     = multiprocessing.cpu_count()
 start_column = 112
 start_row    = 60-num_cpus
 
@@ -355,9 +355,42 @@ has been set to {RESET}{BOLD_MIKADO}'False'{RESET}{GREENBLUE} (the dataset balan
   case_column                   = args.case_column
   class_column                  = args.class_column
 
+  # Need to remember these across all runs in a job
+  global top_up_factors_train
+  global top_up_factors_test  
+  
+  global last_stain_norm                                                                                   
+  global last_gene_norm                                                                                    
+  global run_level_classifications_matrix
+  global run_level_classifications_matrix_acc
+  global job_level_classifications_matrix 
+  global aggregate_tile_probabilities_matrix
+  global best_tile_probabilities_matrix
+  global aggregate_tile_level_winners_matrix
+  global patches_true_classes
+  global patches_case_id  
+  
+  global probabilities_matrix                                                                              # same, but for rna
+  global true_classes                                                                                      # same, but for rna
+  global rna_case_id                                                                                       # same, but for rna
+  
+  global descriptor
+  global class_colors
+
+  multimode_case_count = unimode_case_matched_count = unimode_case_unmatched_count = unimode_case____image_count = unimode_case____image_test_count = unimode_case____rna_count = unimode_case____rna_test_count = 0
 
 
-  def expand_args( parm, bash_name, highlight_colour ):
+  ################################################################################################################################################################################################################################
+  #
+  # SETTING UP, INCLUDING:
+  #      INTERPRETING USER PARAMETERS
+  #      ENSURING THAT COMBINATIONS OF USER PARAMETERS ARE VALID
+  #      ENSURING THAT SUFFICIENT RESOURCES ARE AVAILABLE TO PERFORM THE REQUEST ACTIVITY (e.g. sufficient slide images) 
+  #      SETTING UP CLASS NAMES (subtype names)
+
+
+  # Treatment for non-standard use of certain user parameters to cater for mixed tile magnifications (ZOOM_OUT_PROB and ZOOM_OUT_MAGS)
+  def expand_args( parm, bash_name, highlight_colour ):                                  
     
     COL = highlight_colour
     c=57
@@ -424,8 +457,8 @@ has been set to {RESET}{BOLD_MIKADO}'False'{RESET}{GREENBLUE} (the dataset balan
   args.n_samples      = expand_args( args.n_samples,        "N_SAMPLES",       CAMEL  )
   args.pct_test       = expand_args( args.pct_test,         "PCT_TEST",        CAMEL  )
   
-  if n_tiles[0]==0:                                                                                        # special case. indicates user requires only one "tile" so disable these two
-    print( f"{BOLD_ORANGE}CLASSI:         INFO:    {CYAN}n_tiles{RESET}{BOLD_ORANGE}=={MIKADO}0{RESET}{BOLD_ORANGE}, so only one 'tile' will be selected per image. Certain number of hyperparameters which would otherwise clash with this requirement will be disabled for this run{RESET}", flush=True)
+  if n_tiles[0]==0:                                                                                        # special case. indicates user requires only one "tile" so disable certain hyperparameters which would otherwise clash with this requirement
+    print( f"{BOLD_ORANGE}CLASSI:         INFO:    {CYAN}n_tiles{RESET}{BOLD_ORANGE}=={MIKADO}0{RESET}{BOLD_ORANGE}, so only one 'tile' will be selected per image. Certain hyperparameters which would otherwise clash with this requirement will be disabled for this run{RESET}", flush=True)
     time.sleep(2)
     zoom_out_mags=[1.]
     args.zoom_out_mags=[1.]
@@ -452,7 +485,6 @@ has been set to {RESET}{BOLD_MIKADO}'False'{RESET}{GREENBLUE} (the dataset balan
       zoom_out_prob[0] = np.around(1.-np.sum(zoom_out_prob[1:]), 3)
       zoom_out_prob = zoom_out_prob.tolist()                                                              # convert back to python list
     
-    
   n_tiles       = args.n_tiles
   tile_size     = args.tile_size
   batch_size    = args.batch_size
@@ -470,30 +502,7 @@ has been set to {RESET}{BOLD_MIKADO}'False'{RESET}{GREENBLUE} (the dataset balan
   (args.tile_size).sort  ( reverse=True )                                                                  # ditto
   tile_size.sort         ( reverse=True )                                                                  # ditto
    
-  
-  # Need to remember these across all runs in a job
-  global top_up_factors_train
-  global top_up_factors_test  
-  
-  global last_stain_norm                                                                                   
-  global last_gene_norm                                                                                    
-  global run_level_classifications_matrix
-  global run_level_classifications_matrix_acc
-  global job_level_classifications_matrix 
-  global aggregate_tile_probabilities_matrix
-  global best_tile_probabilities_matrix
-  global aggregate_tile_level_winners_matrix
-  global patches_true_classes
-  global patches_case_id  
-  
-  global probabilities_matrix                                                                              # same, but for rna
-  global true_classes                                                                                      # same, but for rna
-  global rna_case_id                                                                                       # same, but for rna
-  
-  global descriptor
-  global class_colors
 
-  multimode_case_count = unimode_case_matched_count = unimode_case_unmatched_count = unimode_case____image_count = unimode_case____image_test_count = unimode_case____rna_count = unimode_case____rna_test_count = 0
 
   if dataset=='cifr':
     skip_tiling   = args.skip_tiling   = 'True'
@@ -543,7 +552,7 @@ has been set to {RESET}{BOLD_MIKADO} [ 'plane', 'car', 'bird', 'cat', 'deer', 'd
 
   # extract subtype names from the applicable master clinical data spreadsheet
   
-  if dataset == 'cifr':
+  if dataset == 'cifr':                                                                                    # hardwired for cifr, which is a special case
     class_names  =  [  'plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck'  ]
 
   else:
@@ -569,7 +578,6 @@ has been set to {RESET}{BOLD_MIKADO} [ 'plane', 'car', 'bird', 'cat', 'deer', 'd
   
     if DEBUG>0:
       print ( f"CLASSI:         INFO:  extracting {CYAN}{dataset}{RESET} subtype names from {MAGENTA}{fqn}{RESET}'" )
-  
   
     subtype_names           = pd.read_csv( fqn, usecols=[names_column], sep=',').dropna()                    # use pandas to extract data, dropping all empty cells
     subtype_names_as_list   = list( subtype_names[names_column][2:] )                                        # convert everything from row 2 onward into a python list. row 2 is where the subtype names are supposed to start
@@ -609,12 +617,12 @@ has been set to {RESET}{BOLD_MIKADO} [ 'plane', 'car', 'bird', 'cat', 'deer', 'd
   if DEBUG>0:
     print ( f"CLASSI:         INFO:  subtype names  = {CYAN}{class_names}{RESET}" )
 
+  # make sure there are enough source images available to cover the user's requested 'n_samples'
+  
   if ( input_mode=='image' ):
   
     if stain_norm[0]!='spcn':
       
-      # make sure there are enough source images available to cover the user's requested 'n_samples'
-    
       source_image_file_count = 0
       has_image_flag_count    = 0
     
@@ -670,8 +678,6 @@ has been set to {RESET}{BOLD_MIKADO} [ 'plane', 'car', 'bird', 'cat', 'deer', 'd
 
     if stain_norm[0]=='spcn':
       
-      # make sure there are enough samples available to cover the user's requested 'n_samples' - spcn case
-    
       spcn_file_count   = 0
     
       for dir_path, dirs, files in os.walk( args.data_dir ):                                               
@@ -692,21 +698,20 @@ has been set to {RESET}{BOLD_MIKADO} [ 'plane', 'car', 'bird', 'cat', 'deer', 'd
         print( f"CLASSI:         INFO:  {WHITE}a file count shows there is a total of {MIKADO}{spcn_file_count}{RESET} spcn files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' = {MIKADO}{np.max(args.n_samples)}{RESET})" )
 
 
-    # if tiling is to be skipped, make sure there tiling has been previously conducted (i.e. tile files exist)
+    # if tiling is to be skipped, make sure it was previously conducted (i.e. tile files exist)
   
     if ( skip_tiling=='True' ) & ( dataset !='cifr') :
   
       tile_file_count   = 0
     
-      for dir_path, dirs, files in os.walk( args.data_dir ):                                                 # each iteration takes us to a new directory under data_dir
+      for dir_path, dirs, files in os.walk( args.data_dir ):                                               # each iteration takes us to a new directory under data_dir
     
-        if not (dir_path==args.data_dir):                                                                    # the top level directory (dataset) has be skipped because it only contains sub-directories, not data      
+        if not (dir_path==args.data_dir):                                                                  # the top level directory (dataset) has be skipped because it only contains sub-directories, not data      
           
           for f in files:
            
             if  f.endswith( 'png' ):
               tile_file_count +=1
-          
       
       if tile_file_count<20:
         print( f"{BOLD}{RED}CLASSI:         FATAL:  a count just now reveals a total of {MIKADO}{tile_file_count}{RESET}{BOLD}{RED} tiles (png files) in {MAGENTA}{args.data_dir}{RESET}{BOLD}{RED} !!!{RESET}" ) 
@@ -714,11 +719,8 @@ has been set to {RESET}{BOLD_MIKADO} [ 'plane', 'car', 'bird', 'cat', 'deer', 'd
         time.sleep(10)
         sys.exit(0)
 
-
-
   if  ( stain_norm[0]=='spcn' ):
     print( f"{MAGENTA}{BOLD}CLASSI:         INFO:  '{CYAN}{BOLD}stain_norm{RESET}{MAGENTA}'{BOLD} option '{CYAN}{BOLD}spcn{RESET}{MAGENTA}{BOLD}' is set. The spcn slide set will be used and the svs side set will be ignored{RESET}", flush=True)
-
 
   if  any( el<0.05 for el in pct_test ):
     print( f"{BOLD_RED}CLASSI:         INFO:  pct_test = {MIKADO}{pct_test}{BOLD_RED}. At least one of these is less than 0.05 (5%){RESET}{BOLD_RED}'. This is such a low percentage for hold out testing that it might be unintended.{RESET}", flush=True)
@@ -757,9 +759,6 @@ has been set to {RESET}{BOLD_MIKADO} [ 'plane', 'car', 'bird', 'cat', 'deer', 'd
    # ~ print( f"\r{RESET}{BOLD}{RED}CLASSI:         FATAL: can't continue ... halting now{RESET}" )   
    # ~ sys.exit(0)
    
-   
-     
-
   if args.clustering == 'NONE':
     if  'VGG' in nn_type_img[0]:
       if  min(args.tile_size)<32:
@@ -797,8 +796,6 @@ has been set to {RESET}{BOLD_MIKADO} [ 'plane', 'car', 'bird', 'cat', 'deer', 'd
         print( f"{RED}CLASSI:         FATAL: unknown case subset: {CYAN}-c ('cases')  {RESET}{RED} = '{CYAN}{args.cases}{RESET}{RED}'{RESET}" )
         print( f"{RED}CLASSI:         FATAL:   ... halting now{RESET}" )
         sys.exit(0)
-  
-      
 
   if  ( args.cases!='ALL_ELIGIBLE_CASES' ) & ( args.divide_cases == 'False' ):
     print( f"{ORANGE}CLASSI:         INFO:  user option {CYAN}-v ('divide_cases') {RESET}{ORANGE} = {CYAN}False{RESET}{ORANGE}, however option {CYAN}-c ('cases'){RESET}{ORANGE} is NOT '{CYAN}ALL_ELIGIBLE_CASES{RESET}{ORANGE}'.  The requested subset of cases may or may not already exist{RESET}" )
@@ -816,7 +813,6 @@ has been set to {RESET}{BOLD_MIKADO} [ 'plane', 'car', 'bird', 'cat', 'deer', 'd
       print ( f"{RED}CLASSI:         INFO: sorry - parameter '{CYAN}BATCH_SIZE{RESET}{RED}' (currently '{MIKADO}{batch_size}{RESET}{RED}' cannot include a value <2 for images{RESET}" )
       print ( f"{RED}CLASSI:         INFO: halting now{RESET}" )      
       sys.exit(0) 
- 
   
   # ~ if  (mode=='classify') & (args.clustering=='NONE'):
     # ~ if  'AE' in nn_type_img[0]:
@@ -826,7 +822,6 @@ has been set to {RESET}{BOLD_MIKADO} [ 'plane', 'car', 'bird', 'cat', 'deer', 'd
       # ~ print( f"{RED}CLASSI:         FATAL: the network model must {UNDER}not{RESET}{RED} be an autoencoder if mode='{MIKADO}{mode}{RESET}{RED}' (you have NN_TYPE_RNA='{MIKADO}{nn_type_rna[0]}{RESET}{RED}', which is an autoencoder) ... halting now{RESET}" )
       # ~ sys.exit(0)
       
-
   if clustering=='NONE':
     if  ( use_autoencoder_output=='True' ):
       if  ( input_mode=='image' ) and not  ( 'AE' in nn_type_img[0] ) :
@@ -890,8 +885,6 @@ has been set to {RESET}{BOLD_MIKADO} [ 'plane', 'car', 'bird', 'cat', 'deer', 'd
           print( f"{ORANGE}CLASSI:         INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'  flag is NOT set, so supergrid_size (currently {MIKADO}{supergrid_size}{RESET}{ORANGE}) will be ignored{RESET}" )
         args.supergrid_size=1
 
-           
-
   if ( ( just_test=='True')  & (input_mode=='image' ) & ( multimode!='image_rna' ) ):
     
     if ( rand_tiles=='True'):
@@ -899,8 +892,6 @@ has been set to {RESET}{BOLD_MIKADO} [ 'plane', 'car', 'bird', 'cat', 'deer', 'd
 
       args.rand_tiles = 'False'
       rand_tiles      = 'False'
-
-
 
   if use_same_seed=='True':
     print( f"{ORANGE}CLASSI:         WARN:  '{CYAN}USE_SAME_SEED{RESET}{ORANGE}' flag is set. The same seed will be used for all runs in this job{RESET}" )
@@ -939,8 +930,14 @@ has been set to {RESET}{BOLD_MIKADO} [ 'plane', 'car', 'bird', 'cat', 'deer', 'd
       print ( f"CLASSI:         INFO:  tile_size            = {MIKADO}{tile_size}{RESET}",               flush=True)
 
 
-  # (A)  SET UP JOB LOOP
 
+
+
+  ################################################################################################################################################################################################################################
+  #
+  # (A)  SET UP JOB LOOP
+  #
+  
   already_tiled=False
   already_generated=False
   total_tiles_required_train = 456789
@@ -1155,7 +1152,11 @@ f"\
       sys.exit(0)      
 
 
-  # (B) RUN JOB LOOP
+
+  ################################################################################################################################################################################################################################
+  #
+  # (B)  RUN JOB LOOP
+  #
 
   run=0
   
@@ -1192,7 +1193,6 @@ f"\
         print( f"{RED}CLASSI:         FATAL: explanation:  it will resegment the cases, meaning there is every chance cases you've trained on will end up in the test set{RESET}" )
         print( f"{RED}CLASSI:         FATAL: ... halting now{RESET}" )
         sys.exit(0)
- 
 
     if input_mode=='image':                                                                                # in the case of images, the HAS_IMAGE flag MUST be present, so we check.  Can't automate, as segment_cases should only be run one time, after regeneration of the dataset. 
       
@@ -1218,8 +1218,6 @@ f"\
         print(  f"{BOLD}{RED}CLASSI:         FATAL: ... halting now{RESET}\n\n" )                           
         sys.exit(0)
     
-
-
     if use_unfiltered_data == True:
       args.rna_genes_tranche  = f"EVERY_GENE"
       rna_genes_tranche       = f"EVERY_GENE"
@@ -1230,7 +1228,6 @@ f"\
 
     mags = ("_".join(str(z) for z in zoom_out_mags))
     prob = ("_".join(str(z) for z in zoom_out_prob))
-
 
     if ( dataset != 'cifr' ) & ( dataset != 'skin'):
       
@@ -1333,8 +1330,8 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
     # accumulator
     if just_test!='True':
-      aggregate_tile_probabilities_matrix         =  np.zeros     ( ( n_samples, n_classes ),     dtype=float               )
-      aggregate_tile_level_winners_matrix         =  np.full_like ( aggregate_tile_probabilities_matrix, 0                  )
+      aggregate_tile_probabilities_matrix         =  np.zeros     ( ( n_samples, n_classes ),     dtype=float       )
+      aggregate_tile_level_winners_matrix         =  np.full_like ( aggregate_tile_probabilities_matrix, 0          )
       patches_true_classes                        =  np.zeros     ( ( n_samples            ),     dtype=int         )
       patches_case_id                             =  np.zeros     ( ( n_samples            ),     dtype=int         )    
       
@@ -1342,9 +1339,9 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       true_classes                                =  np.zeros     ( ( n_samples            ),     dtype=int         )              # same, but for rna 
       rna_case_id                                 =  np.zeros     ( ( n_samples            ),     dtype=int         )              # same, but for rna 
     else:
-      aggregate_tile_probabilities_matrix         =  np.zeros     ( ( n_samples, n_classes ),     dtype=float               ) 
-      best_tile_probabilities_matrix              =  np.zeros     ( ( n_samples, n_classes ),     dtype=float               ) 
-      aggregate_tile_level_winners_matrix         =  np.full_like ( aggregate_tile_probabilities_matrix, 0                  )
+      aggregate_tile_probabilities_matrix         =  np.zeros     ( ( n_samples, n_classes ),     dtype=float       ) 
+      best_tile_probabilities_matrix              =  np.zeros     ( ( n_samples, n_classes ),     dtype=float       ) 
+      aggregate_tile_level_winners_matrix         =  np.full_like ( aggregate_tile_probabilities_matrix, 0          )
       patches_true_classes                        =  np.zeros     ( ( n_samples            ),     dtype=int         )
       patches_case_id                             =  np.zeros     ( ( n_samples            ),     dtype=int         )    
       
@@ -1427,6 +1424,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         print ( f"{ORANGE}CLASSI:         WARN:  there aren't enough examples to support a {CYAN}FINAL_TEST_BATCH_SIZE{RESET}{ORANGE} of {MIKADO}{args.final_test_batch_size}{RESET}{ORANGE} for this run{RESET}", flush=True )                
         print ( f"{ORANGE}CLASSI:         WARN:  {CYAN}FINAL_TEST_BATCH_SIZE{RESET}{ORANGE} has accordingly been set to {MIKADO}{int(final_test_batch_size)}{RESET} {ORANGE}for this run {RESET}", flush=True )
 
+
     # (1) set up Tensorboard
     
     if DEBUG>3:    
@@ -1438,8 +1436,6 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     #print ( f"\033[36B",  flush=True )
     if DEBUG>3:    
       print( "CLASSI:         INFO:   \033[3mTensorboard has been set up\033[m" )
-
-
 
 
 
@@ -1780,7 +1776,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
 
 
-    # (6) maybe load existing models (two cases where this happens: (i) test mode and (ii) pretrain option selected )
+    # (6) maybe load existing model (two cases where this happens: (i) test mode and (ii) pretrain option selected )
 
     fqn_pretrained = f"{log_dir}/model_pretrained.pt"
     fqn_image      = f"{log_dir}/model_image.pt"
@@ -1836,7 +1832,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     #(7) Send model to GPU(s)
     
     if DEBUG>3:    
-      print( f"CLASSI:         INFO: {BOLD}6 about to send model to device{RESET}" )   
+      print( f"CLASSI:         INFO: {BOLD}about to send model to device{RESET}" )   
     model = model.to(device)
     if DEBUG>3:
       print( f"CLASSI:         INFO:     {ITALICS}model sent to device{RESET}" ) 
@@ -1856,7 +1852,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     
     
     if DEBUG>3: 
-      print( f"CLASSI:         INFO: {BOLD}7 about to call dataset loader" )
+      print( f"CLASSI:         INFO: {BOLD}about to call dataset loader" )
     train_loader, test_loader, final_test_batch_size, final_test_loader = loader.get_data_loaders( args,
                                                          gpu,
                                                          cfg,
@@ -1874,8 +1870,6 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   
     #if just_test=='False':                                                                                # c.f. loader() Sequential'SequentialSampler' doesn't return indices
     #  pplog.save_test_indices(test_loader.sampler.indices)
-
-
 
 
 
@@ -1936,8 +1930,6 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       sys.exit(0)
  
  
- 
- 
          
     # (10) Select Loss function
     
@@ -1995,10 +1987,6 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     #                   '\tTest x1 err\tTest x2 err\tTest l1')
    
    
-   
-   
-   
-   
     # (11) Train/Test
     
     if DEBUG>3:
@@ -2027,7 +2015,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     test_lowest_total_loss_observed_so_far_epoch  = 0
 
 
-    # (12) Prep for embeddings accumulation (Autoencoder only) 
+    # Prep for embeddings accumulation (Autoencoder only) 
       
     if (just_test=='True') & (we_are_autoencoding==True):
       
@@ -2048,7 +2036,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
 
 
-    # (13) Main loop - Main loop - Main loop - Main loop - Main loop - Main loop - Main loop - Main loop - Main loop - Main loop - Main loop - Main loop - Main loop - Main loop - Main loop - Main loop - Main loop - Main loop - 
+    # (12) Main loop - Main loop - Main loop - Main loop - Main loop - Main loop - Main loop - Main loop - Main loop - Main loop - Main loop - Main loop - Main loop - Main loop - Main loop - Main loop - Main loop - Main loop - 
 
     for epoch in range(1, n_epochs+1):
   
@@ -2209,17 +2197,15 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
     #  ^^^^^^^^  THE MAIN LOOP FINISHES HERE ^^^^^^^^
 
-
-
-
-
-
     np.set_printoptions(formatter={'int':   lambda x: f"{x:>6d}"  })
     np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
 
 
 
-    # (A)  SAVE THE AUTOENCODER GENERATED EMBEDDINGS, IFF THIS WAS AN AUTOENCODER TEST RUN
+
+
+
+    # (AA)  SAVE AUTOENCODER GENERATED EMBEDDINGS, IFF THIS WAS AN AUTOENCODER TEST RUN
 
     if loss_type=='mean_squared_error':
 
@@ -2244,13 +2230,12 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
             }, fqn )
             
           except Exception as e:
-            print( f"{BOLD_RED}CLASSI:         FATAL:  couldn't save embeddings to file !!! '{MAGENTA}{fqn}{RESET}{BOLD_RED}'{RESET}" )  
+            print( f"{BOLD_RED}CLASSI:         FATAL:  couldn't save autoencoder generated embeddings to file !!! '{MAGENTA}{fqn}{RESET}{BOLD_RED}'{RESET}" )  
             print( f"{BOLD_RED}CLASSI:         FATAL:  exception was: {MAGENTA}{e}{RESET}" )  
             time.sleep(50)          
         
         if DEBUG>0:
           print( f"{CLEAR_LINE}{BOLD_CHARTREUSE}CLASSI:         INFO:        embeddings have been saved{RESET}"   )          
-
 
       # This is all we have to do in the case of Autoencoding, so we close up and end
   
@@ -2271,7 +2256,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   
   
   
-    # (B)  MAYBE CLASSIFY FINAL_TEST_BATCH_SIZE TEST SAMPLES USING THE BEST MODEL SAVED DURING THIS RUN
+    # (BB)  MAYBE CLASSIFY FINAL_TEST_BATCH_SIZE TEST SAMPLES USING THE BEST MODEL SAVED DURING THIS RUN
   
     if final_test_batch_size>0:
     
@@ -2309,18 +2294,20 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         if DEBUG>0:
           print ( f"CLASSI:         INFO:      test: final_test_batch_size = {MIKADO}{final_test_batch_size:,}{RESET}" )
           
-        # note that we pass 'final_test_loader' to test
+        # note that we pass 'final_test_loader' to test()
         
         is_final_test=True
-        embeddings_accum, labels_accum, test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min, embedding     =\
-                          test ( run, cfg, args, parameters, best, second_best, embeddings_accum, labels_accum, epoch, final_test_loader,  model,  tile_size, loss_function, loss_type, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
-                                                                                                           test_loss_min, show_all_test_examples, is_final_test, final_test_batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours )    
+        embeddings_accum, labels_accum, test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, \
+                          test_loss_min, embedding     = \
+                          test ( run, cfg, args, parameters, best, second_best, embeddings_accum, labels_accum, epoch, final_test_loader,  model,  tile_size, loss_function, loss_type, writer, max_correct_predictions, 
+                                 global_correct_prediction_count, global_number_tested, max_percent_correct, test_loss_min, show_all_test_examples, is_final_test, final_test_batch_size, nn_type_img, nn_type_rna, 
+                                 annotated_tiles, class_names, class_colours )    
     
       job_level_classifications_matrix  += run_level_classifications_matrix                                # accumulate for the job level stats. Has to be just after call to 'test'    
 
 
 
-    # (C)  FOR MULTIMODE (ONLY) SAVE EMBEDDINGS FOR ALL TEST SAMPLES (IN TEST MODE, THE OPTIMUM MODEL WAS LOADED AT STEP (6) ABOVE)
+    # (CC)  FOR MULTIMODE (ONLY) SAVE EMBEDDINGS FOR ALL TEST SAMPLES (IN TEST MODE THE OPTIMUM MODEL WAS LOADED AT STEP (6) ABOVE)
     
     if (just_test=='True') & (multimode=="image_rna"):
 
@@ -2439,13 +2426,13 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
 
 
-    # (D)  DISPLAY & SAVE BAR CHARTS
+    # (DD)  DISPLAY & SAVE BAR CHARTS
 
-    display_and_save_bar_charts( args, writer, class_names, total_slides_counted_test, probabilities_matrix, global_number_tested )
+    display_and_save_bar_charts( args, writer, class_names, n_samples, n_tiles, total_slides_counted_test, probabilities_matrix, global_number_tested )
 
 
 
-    # (E)  MAYBE PROCESS AND DISPLAY RUN LEVEL CONFUSION MATRICES   
+    # (EE)  MAYBE PROCESS AND DISPLAY RUN LEVEL CONFUSION MATRICES   
     
     if ( args.just_test!='True')  | ( (args.just_test=='true')  &  (args.input_mode=='image_rna') & (args.multimode=='image_rna') ):
     
@@ -2475,7 +2462,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     
   
 
-    # (F)  PROCESS AND GENERATE AND SAVE (AND MAYBE DISPLAY) JOB LEVEL CONFUSION MATRIX
+    # (FF)  PROCESS AND GENERATE AND SAVE (AND MAYBE DISPLAY) JOB LEVEL CONFUSION MATRIX
 
     if (args.just_test!='True') & (run==total_runs_in_job):
 
@@ -2596,7 +2583,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       print ( f"\n" )
 
 
-    # (G) MAYBE PROCESS AND GENERATE AND SAVE (AND MAYBE DISPLAY) BOX PLOTS
+    # (GG) MAYBE PROCESS AND GENERATE AND SAVE (AND MAYBE DISPLAY) BOX PLOTS
 
     if ( args.box_plot=='True' ) & (run==total_runs_in_job) & (run>minimum_job_size):      
 
@@ -2635,7 +2622,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
 
 
 
-  # (H)  CLOSE UP AND END
+  # (HH)  CLOSE UP AND END
   
   writer.close()        
 
@@ -2670,6 +2657,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     pplog.log_section( "run", 'Model specs.')
     pplog.log_section( "job", 'Model specs.')
     pplog.log_model(model)
+
 
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -5885,7 +5873,7 @@ def color_negative_red(val):  # not currently used
 
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def  display_and_save_bar_charts( args, writer, class_names, total_slides_counted_test, probabilities_matrix, global_number_tested ):
+def  display_and_save_bar_charts( args, writer, class_names, n_samples, n_tiles, total_slides_counted_test, probabilities_matrix, global_number_tested ):
 
   # (D)  DISPLAY & SAVE BAR CHARTS
   
@@ -5899,7 +5887,6 @@ def  display_and_save_bar_charts( args, writer, class_names, total_slides_counte
   just_test                    = args.just_test
   multimode                    = args. multimode
   input_mode                   = args.input_mode
-  n_samples                    = args.n_samples
   figure_width                 = args.figure_width
   figure_height                = args.figure_height
   bar_chart_x_labels           = args.bar_chart_x_labels
@@ -5926,12 +5913,12 @@ def  display_and_save_bar_charts( args, writer, class_names, total_slides_counte
 
       if args.cases=='MULTIMODE____TEST':
         upper_bound_of_indices_to_plot_image = cases_reserved_for_image_rna
-      else:  # correct for UNIMODE_CASE
+      else:  # UNIMODE_CASE
         upper_bound_of_indices_to_plot_image = min(n_samples, total_slides_counted_test)
 
 
 
-      # case image-1:  Bar chart of PREDICTIONS - METRIC: AGGREGATE PROBABILITY FOR EACH SUBTYPE / TILE IN THE PATCH
+      # case image-1:  Bar chart of PREDICTIONS.  METRIC: AGGREGATE PROBABILITY FOR EACH SUBTYPE / TILE IN THE PATCH
       
       if DEBUG>88:
         np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
@@ -5949,7 +5936,7 @@ def  display_and_save_bar_charts( args, writer, class_names, total_slides_counte
       pd_aggregate_tile_probabilities_matrix                    = pd.DataFrame( aggregate_tile_probabilities_matrix )   [0:upper_bound_of_indices_to_plot_image]
       pd_aggregate_tile_probabilities_matrix.columns            = class_names
       pd_aggregate_tile_probabilities_matrix[ 'agg_prob'     ]  = np.sum(aggregate_tile_probabilities_matrix,       axis=1 )[0:upper_bound_of_indices_to_plot_image]
-      pd_aggregate_tile_probabilities_matrix[ 'max_prob' ]      = pd_aggregate_tile_probabilities_matrix.max   (axis=1) [0:upper_bound_of_indices_to_plot_image]
+      pd_aggregate_tile_probabilities_matrix[ 'max_prob'     ]  = pd_aggregate_tile_probabilities_matrix.max   (axis=1) [0:upper_bound_of_indices_to_plot_image]
       temp = pd_aggregate_tile_probabilities_matrix.iloc[:,0:len(class_names)]                                                 # we only want the first columns, which correspond to the probabilities for each subtype
       pd_aggregate_tile_probabilities_matrix[ 'pred_class'   ]  = temp.idxmax(axis=1)[0:upper_bound_of_indices_to_plot_image]  # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
       pd_aggregate_tile_probabilities_matrix[ 'true_class'   ]  = patches_true_classes                                  [0:upper_bound_of_indices_to_plot_image]
@@ -5992,8 +5979,6 @@ def  display_and_save_bar_charts( args, writer, class_names, total_slides_counte
         print ( f"\nCLASSI:         INFO:                                                     cols = \n{CHARTREUSE}{cols}{RESET}", flush=True )
         print ( f"\nCLASSI:         INFO:                                                len(cols) = \n{CHARTREUSE}{len(cols)}{RESET}", flush=True )
         
-      # ~ if DEBUG>0:
-        # ~ print ( f"\nCLASSI:         INFO:      cols                = {MIKADO}{cols}{RESET}", flush=True )        
       
       p1 = plt.bar( x=x_labels, height=pd_aggregate_tile_probabilities_matrix[ 'max_prob' ], color=cols ) 
             
@@ -6050,7 +6035,7 @@ def  display_and_save_bar_charts( args, writer, class_names, total_slides_counte
 
 
 
-      # case image-2:  Bar chart of PREDICTIONS - METRIC: INDIVIDUAL TILE WITH THE HIGHEST PROBABILITY SUBTYPE IN THE SLIDE
+      # case image-2:  Bar chart of PREDICTIONS.   METRIC: INDIVIDUAL TILE WITH THE HIGHEST PROBABILITY SUBTYPE IN THE SLIDE
       
       if DEBUG>88:
         np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
@@ -6177,7 +6162,6 @@ def  display_and_save_bar_charts( args, writer, class_names, total_slides_counte
       pd_aggregate_tile_level_winners_matrix[ 'true_class' ]       = patches_true_classes                                   [0:upper_bound_of_indices_to_plot_image]
       pd_aggregate_tile_probabilities_matrix[ 'pred_class_idx'  ]  = pred_class_idx                                         [0:upper_bound_of_indices_to_plot_image]   # possibly truncate rows  because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c MULTIMODE____TEST')
       pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ]  = true_class_prob                                        [0:upper_bound_of_indices_to_plot_image]   # same
-      
       # ~ pd_aggregate_tile_level_winners_matrix.sort_values( by='max_tile_count', ascending=False, ignore_index=True, inplace=True )
       #fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
 
@@ -6212,8 +6196,6 @@ def  display_and_save_bar_charts( args, writer, class_names, total_slides_counte
               
       p1 = plt.bar( x=x_labels, height=pd_aggregate_tile_level_winners_matrix[ 'max_tile_count' ], color=cols  )   
       
-      # ~ ax = sns.barplot( x=case_ids, y=pd_aggregate_tile_level_winners_matrix[ 'max_tile_count' ], hue=pd_aggregate_tile_level_winners_matrix['pred_class'], palette=class_colors, dodge=False )                  # in pandas, 'index' means ROW index
-      #ax.tick_params(axis='x', bottom='on', which='major',  color='lightgrey', labelsize=9,  labelcolor='lightgrey', width=1, length=6, direction = 'out')
       ax.set_title  ("Score of Predicted Subtype ('tile-winner-take-all' scoring)",   fontsize=16 )
       ax.set_xlabel ("Case (Patch)",                                                  fontsize=14 )
       ax.set_ylabel ("Number of Winning Tiles",                                       fontsize=14 )
