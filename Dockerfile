@@ -22,7 +22,7 @@
 #       monitor progress via container console output
 #       observe learning curves with any browser pointing to http://localhost:6006
 #    _after_ the experiment has completed:
-#       run 'gimp' inside the container to view images produced by classi. eg. cd logs; gimp 230102_0247__01 ... bar_chart_AL.png
+#       run 'gimp' inside the container to view images produced by classi. eg. cd logs; gimp 230102_0247__01 ... bar_chart_AL.png &
 #
 # To enter running classi container with a bash shell
 #
@@ -63,6 +63,7 @@
 #    sudo systemctl restart docker
 #
 ######################################################################################################################################################################################################################################################################################################################################
+#
 # To run with datasets external to the container, in the default location (don't use: this is for me during development):
 #
 #    sudo docker run -it --name classi --env TZ=$(cat /etc/timezone)  --gpus device=0  --network=host --shm-size 2g -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY -v /home/peter/git/pipeline/working_data:/home/peter/git/pipeline/working_data -v /home/peter/git/pipeline/source_data:/home/peter/git/pipeline/source_data  classi:latest
@@ -104,7 +105,7 @@ RUN --mount=type=cache,target=/root/.cache/pip python3 -m pip install -r Dockerf
 #RUN   pip   install hdbscan==0.8.29
 RUN   pip   install tsnecuda==3.0.1+cu112 -f https://tsnecuda.isx.ai/tsnecuda_stable.html
 
-RUN git clone --depth 6 https://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@github.com/peterdonnelly1/pipeline
+RUN git clone --depth 7 https://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@github.com/peterdonnelly1/pipeline
 
 RUN mkdir -p /home/peter/git/pipeline/classi/runs
 
