@@ -17,29 +17,34 @@ EMBEDDING_FILE_SUFFIX_IMAGE_RNA="___image_rna.npy"
 
 # defaults for use if user doesn't set an option
 
-HIGHEST_CLASS_NUMBER=2
+HIGHEST_CLASS_NUMBER=3
 BATCH_SIZE=59
+DIVIDE_CASES="True"
 HIDDEN_LAYER_NEURONS=2100
 LEARNING_RATE=.00001
-N_EPOCHS=150
+N_EPOCHS=4
 NN_DENSE_DROPOUT_1=.20
 REGEN="True"
 REPEAT=8
 MAKE_BALANCED="False"
+SKIP_GENERATION="False"                                                                                    
+SKIP_TILING="False" 
 
-
-while getopts A:b:h:H:L:o:r:R:7: option     # weird choice of letters is because they're the same as used in do_all.sh, where they are a few out of dozens of parameters
+while getopts A:b:g:h:H:L:o:r:R:s:v:7: option     # weird choice of letters is because they're the same as used in do_all.sh, where they are a few out of dozens of parameters
   do
     case "${option}"
     in
     A) HIGHEST_CLASS_NUMBER=${OPTARG};;     
-    b) BATCH_SIZE=${OPTARG};;                                                                                
+    b) BATCH_SIZE=${OPTARG};;
+    g) SKIP_GENERATION=${OPTARG};;                                                                           
     h) MAKE_BALANCED=${OPTARG};;                                                                             
     H) HIDDEN_LAYER_NEURONS=${OPTARG};;                                                                      
     L) LEARNING_RATE=${OPTARG};;                                                                           
     o) N_EPOCHS=${OPTARG};;                
     r) REGEN=${OPTARG};;                   
-    R) REPEAT=${OPTARG};;                  
+    R) REPEAT=${OPTARG};;
+    s) SKIP_TILING=${OPTARG};;
+    v) DIVIDE_CASES=${OPTARG};;
     7) NN_DENSE_DROPOUT_1=${OPTARG};;      
     esac
   done
@@ -60,7 +65,7 @@ echo "==========================================================================
 echo ""
 
 # Run 1
-./do_all.sh   -d stad  -i image                    -c UNIMODE_CASE  -v True -o ${N_EPOCHS}  -r ${REGEN} -A ${HIGHEST_CLASS_NUMBER}   #                          train image      model against unimode training cases   <<<< NOTE: -v ('divide_classes') option causes the cases to be divided into UNIMODE_CASE____MATCHED and MULTIMODE____TEST. Do this once only.
+./do_all.sh   -d stad  -i image                    -c UNIMODE_CASE  -v True -o ${N_EPOCHS}  -h ${MAKE_BALANCED} -v ${DIVIDE_CASES}  -s ${SKIP_TILING}  -g {SKIP_GENERATION} -r ${REGEN} -A ${HIGHEST_CLASS_NUMBER}   #                          train image      model against unimode training cases   <<<< NOTE: -v ('divide_classes') option causes the cases to be divided into UNIMODE_CASE____MATCHED and MULTIMODE____TEST. Do this once only.
 # Output is a trained image model for use in Run 2 and Run 6
 
 echo ""
@@ -70,8 +75,8 @@ echo "==========================================================================
 echo ""
 
 # Run 2
-./do_all.sh   -d stad  -i image      -m image_rna  -c UNIMODE_CASE                 -h False -j True     -A ${HIGHEST_CLASS_NUMBER}   # generate image features: using held out unimode image cases. 
-# Output is a set of image feature vectors, for use in Run 5 only                                                                    #   -m image_rna flag means (i) generate feature vectors for multimodal training (ii) use the TRAINING indices that were used for training (we want every feature vector we can get our hands on)
+./do_all.sh   -d stad  -i image      -m image_rna  -c UNIMODE_CASE                          -h False                        -A ${HIGHEST_CLASS_NUMBER}   -j True   # generate image features: using held out unimode image cases. 
+# Output is a set of image feature vectors, for use in Run 5 only                                                                                                  #   -m image_rna flag means (i) generate feature vectors for multimodal training (ii) use the TRAINING indices that were used for training (we want every feature vector we can get our hands on)
 
 rm logs/model_rna.pt                                > /dev/null 2>&1                                                                 # delete existing trained rna-seq model,                  if one exists
 rm classi/modes/classify/dataset_rna_train.pth      > /dev/null 2>&1                                                                 # delete existing         pytorch input rna   dataset     if one exists

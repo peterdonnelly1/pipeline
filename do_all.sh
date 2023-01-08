@@ -57,23 +57,22 @@ else
 fi
 
 MINIMUM_JOB_SIZE=2                                                                                         # Only do a box plot if the job has at least this many runs
-CASES_RESERVED_FOR_IMAGE_RNA=0                                                                             # number of cases to be reserved for image+rna testing. <<< HAS TO BE ABOVE ABOUT 5 FOR SOME REASON -- NO IDEA WHY ATM
+CASES_RESERVED_FOR_IMAGE_RNA=0  # SUGGEST 16 TO ENSURE ALL SUBTYPES HAVE TEST CASES                       # number of cases to be reserved for image+rna testing. <<< HAS TO BE ABOVE ABOUT 5 FOR SOME REASON -- NO IDEA WHY ATM
 USE_SAME_SEED="False"                                                                                      # set to TRUE to use the same seed every time for random numbers generation, for reproducability across runs (i.e. so that results can be more validly compared)
 JUST_PROFILE="False"                                                                                       # if "True" just analyse slide/tiles then exit
 DDP="False"                                                                                                # PRE_COMPRESS mode only: if "True", use PyTorch 'Distributed Data Parallel' to make use of multiple GPUs. (Works on single GPU machines, but is of no benefit and has additional overhead, so should be disabled)
-
 
 #~ MINIMUM_PERMITTED_GREYSCALE_RANGE=210                                                                      # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
 #~ MINIMUM_PERMITTED_UNIQUE_VALUES=210                                                                        # tile must have at least this many unique values or it will be assumed to be degenerate
 #~ MINIMUM_TILE_SD=2.1                                                                                        # Used to cull slides with a very reduced greyscale palette such as background tiles
                                                                                                               #~ # Used to cull slides with a very reduced greyscale palette such as background tiles
-MINIMUM_PERMITTED_GREYSCALE_RANGE=180                                                                      # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
-MINIMUM_PERMITTED_UNIQUE_VALUES=180                                                                        # tile must have at least this many unique values or it will be assumed to be degenerate
-MINIMUM_TILE_SD=1.9                                                                                        # Used to cull slides with a very reduced greyscale palette such as background tiles
+#~ MINIMUM_PERMITTED_GREYSCALE_RANGE=180                                                                      # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
+#~ MINIMUM_PERMITTED_UNIQUE_VALUES=180                                                                        # tile must have at least this many unique values or it will be assumed to be degenerate
+#~ MINIMUM_TILE_SD=1.9                                                                                        # Used to cull slides with a very reduced greyscale palette such as background tiles
 
-#~ MINIMUM_PERMITTED_GREYSCALE_RANGE=1                                                                      # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
-#~ MINIMUM_PERMITTED_UNIQUE_VALUES=1                                                                        # tile must have at least this many unique values or it will be assumed to be degenerate
-#~ MINIMUM_TILE_SD=0.1  
+MINIMUM_PERMITTED_GREYSCALE_RANGE=1                                                                      # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
+MINIMUM_PERMITTED_UNIQUE_VALUES=1                                                                        # tile must have at least this many unique values or it will be assumed to be degenerate
+MINIMUM_TILE_SD=0.1  
 
 POINTS_TO_SAMPLE=500                                                                                       # Used for determining/culling background tiles via 'min_tile_sd', how many points to sample on a tile when making determination if it is mostly background
 
