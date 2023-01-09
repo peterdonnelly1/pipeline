@@ -6785,6 +6785,7 @@ def  display_and_save_bar_charts( args, writer, class_names, n_samples, n_tiles,
 
   
         if DEBUG>0:
+          correct_count = np.sum ( pd_probabilities_matrix[ 'pred_class_idx' ]==pd_probabilities_matrix[ 'true_class' ] )
           print ( f"\nCLASSI:         INFO:      number correct (image+rna) = {CHARTREUSE}{correct_count}{RESET}", flush=True )
   
         pct_correct = correct_count/n_samples

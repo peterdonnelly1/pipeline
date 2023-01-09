@@ -57,7 +57,7 @@ else
 fi
 
 MINIMUM_JOB_SIZE=2                                                                                         # Only do a box plot if the job has at least this many runs
-CASES_RESERVED_FOR_IMAGE_RNA=0  # SUGGEST 16 TO ENSURE ALL SUBTYPES HAVE TEST CASES                       # number of cases to be reserved for image+rna testing. <<< HAS TO BE ABOVE ABOUT 5 FOR SOME REASON -- NO IDEA WHY ATM
+CASES_RESERVED_FOR_IMAGE_RNA=16  # SUGGEST 16 TO ENSURE ALL SUBTYPES HAVE TEST CASES                       # number of cases to be reserved for image+rna testing. <<< HAS TO BE ABOVE ABOUT 5 FOR SOME REASON -- NO IDEA WHY ATM
 USE_SAME_SEED="False"                                                                                      # set to TRUE to use the same seed every time for random numbers generation, for reproducability across runs (i.e. so that results can be more validly compared)
 JUST_PROFILE="False"                                                                                       # if "True" just analyse slide/tiles then exit
 DDP="False"                                                                                                # PRE_COMPRESS mode only: if "True", use PyTorch 'Distributed Data Parallel' to make use of multiple GPUs. (Works on single GPU machines, but is of no benefit and has additional overhead, so should be disabled)
