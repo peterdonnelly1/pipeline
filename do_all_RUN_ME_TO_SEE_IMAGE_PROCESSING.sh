@@ -28,13 +28,53 @@
 # Log file outputs (including some graphical outputs that aren't visible via tensorboard) will be found in '<BASE_DIR>/logs'
 #
 
+# defaults for use if user doesn't set an option
+
+HIGHEST_CLASS_NUMBER=3
+BATCH_SIZE=16
+DIVIDE_CASES="True"
+LEARNING_RATE=.00001
+MAKE_BALANCED="level_up"
+N_EPOCHS=10
+N_SAMPLES=20
+NN_TYPE_IMG="VGG11"
+#~ REGEN="True"
+REGEN="False"
+REPEAT=8
+SKIP_GENERATION="False"                                                                                    
+SKIP_TILING="False"
+TILE_SIZE="64"
+TILES_PER_IMAGE="10"
+
+while getopts a:A:b:f:g:h:L:o:r:R:s:S:T:v: option     # weird choice of letters is because they're the same as used in do_all.sh, where they are a few out of dozens of parameters
+  do
+    case "${option}"
+    in
+    a) NN_TYPE_IMG=${OPTARG};; 
+    A) HIGHEST_CLASS_NUMBER=${OPTARG};;     
+    b) BATCH_SIZE=${OPTARG};;
+    f) TILES_PER_IMAGE=${OPTARG};; 
+    g) SKIP_GENERATION=${OPTARG};;                                                                           
+    h) MAKE_BALANCED=${OPTARG};;                                                                             
+    L) LEARNING_RATE=${OPTARG};;                                                                           
+    o) N_EPOCHS=${OPTARG};;                
+    r) REGEN=${OPTARG};;                   
+    R) REPEAT=${OPTARG};;
+    s) SKIP_TILING=${OPTARG};;
+    S) N_SAMPLES=${OPTARG};;
+    T) TILE_SIZE=${OPTARG};;
+    v) DIVIDE_CASES=${OPTARG};;
+    esac
+  done
+  
+
 echo ""
 echo "========================================================================================================================================================================"
 echo "TRAINING RUN"
 echo "========================================================================================================================================================================"
 echo ""
 
-./do_all.sh -d stad  -i image -f 22 -a VGG11  -b 16  -T 64  -o 10  -c UNIMODE_CASE  -A 4  -v True -r True
+./do_all.sh -d stad  -i image -f ${TILES_PER_IMAGE} -a ${NN_TYPE_IMG}  -b ${BATCH_SIZE}  -T ${TILE_SIZE}  -o ${N_EPOCHS}  -c UNIMODE_CASE  -A ${HIGHEST_CLASS_NUMBER}  -v ${DIVIDE_CASES} -r ${REGEN}
 
 
 sleep 5
@@ -47,7 +87,7 @@ echo "TEST RUN"
 echo "========================================================================================================================================================================"
 echo ""
 
-./do_all.sh -d stad  -i image -f 22 -a VGG11  -b 16  -T 64        -c UNIMODE_CASE  -A 4  -S 20   -j True 
+./do_all.sh -d stad  -i image -f -${TILES_PER_IMAGE} -a ${NN_TYPE_IMG}  -b ${BATCH_SIZE}  -T ${TILE_SIZE}       -c UNIMODE_CASE  -A ${HIGHEST_CLASS_NUMBER}   -S ${N_SAMPLES}   -j True 
 
 
 #

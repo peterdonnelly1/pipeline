@@ -85,5 +85,5 @@ class DEEPDENSE( nn.Module) :
     if DEBUG>1:
       print ( f"DEEPDENSE:      INFO:         encode(): z.shape = {MAGENTA}{z.shape}{RESET}",    flush=True  )
 
-    return z, 0
+    return z, 0, 0
 

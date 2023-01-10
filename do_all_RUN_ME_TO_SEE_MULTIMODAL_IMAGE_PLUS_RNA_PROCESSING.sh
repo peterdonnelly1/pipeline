@@ -19,37 +19,33 @@ EMBEDDING_FILE_SUFFIX_IMAGE_RNA="___image_rna.npy"
 
 HIGHEST_CLASS_NUMBER=3
 BATCH_SIZE=59
-DIVIDE_CASES="True"
+DIVIDE_CASES="False"
 HIDDEN_LAYER_NEURONS=2100
 LEARNING_RATE=.00001
-N_EPOCHS=4
+N_EPOCHS=30
 NN_DENSE_DROPOUT_1=.20
-#~ REGEN="True"
-REGEN="False"
+REGEN="True"
 REPEAT=8
-MAKE_BALANCED="False"
+MAKE_BALANCED="level_up"
 SKIP_GENERATION="False"                                                                                    
-SKIP_TILING="False" 
+REGEN="False"
 
-while getopts A:b:g:h:H:L:o:r:R:s:v:7: option     # weird choice of letters is because they're the same as used in do_all.sh, where they are a few out of dozens of parameters
+while getopts A:b:h:H:L:o:r:R:v:7: option     # weird choice of letters is because they're the same as used in do_all.sh, where they are a few out of dozens of parameters
   do
     case "${option}"
     in
     A) HIGHEST_CLASS_NUMBER=${OPTARG};;     
-    b) BATCH_SIZE=${OPTARG};;
-    g) SKIP_GENERATION=${OPTARG};;                                                                           
+    b) BATCH_SIZE=${OPTARG};;                                                                                
     h) MAKE_BALANCED=${OPTARG};;                                                                             
     H) HIDDEN_LAYER_NEURONS=${OPTARG};;                                                                      
     L) LEARNING_RATE=${OPTARG};;                                                                           
     o) N_EPOCHS=${OPTARG};;                
     r) REGEN=${OPTARG};;                   
     R) REPEAT=${OPTARG};;
-    s) SKIP_TILING=${OPTARG};;
     v) DIVIDE_CASES=${OPTARG};;
     7) NN_DENSE_DROPOUT_1=${OPTARG};;      
     esac
   done
-
 
 rm logs/model_image.pt                              > /dev/null 2>&1                                                 #                          delete existing trained image model,                    if one exists
 rm classi/modes/classify/dataset_image_train.pth    > /dev/null 2>&1                                                 #                          delete existing         pytorch input image dataset     if one exists
@@ -66,7 +62,7 @@ echo "==========================================================================
 echo ""
 
 # Run 1
-./do_all.sh   -d stad  -i image                    -c UNIMODE_CASE  -v True -o ${N_EPOCHS}  -h ${MAKE_BALANCED} -v ${DIVIDE_CASES}  -s ${SKIP_TILING}  -g {SKIP_GENERATION} -r ${REGEN} -A ${HIGHEST_CLASS_NUMBER}   #                          train image      model against unimode training cases   <<<< NOTE: -v ('divide_classes') option causes the cases to be divided into UNIMODE_CASE____MATCHED and MULTIMODE____TEST. Do this once only.
+./do_all.sh   -d stad  -i image                    -c UNIMODE_CASE  -v ${DIVIDE_CASES} -o ${N_EPOCHS}  -h ${MAKE_BALANCED} -r ${REGEN} -A ${HIGHEST_CLASS_NUMBER}   #                          train image      model against unimode training cases   <<<< NOTE: -v ('divide_classes') option causes the cases to be divided into UNIMODE_CASE____MATCHED and MULTIMODE____TEST. Do this once only.
 # Output is a trained image model for use in Run 2 and Run 6
 
 echo ""

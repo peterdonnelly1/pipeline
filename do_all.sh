@@ -66,13 +66,13 @@ DDP="False"                                                                     
 #~ MINIMUM_PERMITTED_UNIQUE_VALUES=210                                                                        # tile must have at least this many unique values or it will be assumed to be degenerate
 #~ MINIMUM_TILE_SD=2.1                                                                                        # Used to cull slides with a very reduced greyscale palette such as background tiles
                                                                                                               #~ # Used to cull slides with a very reduced greyscale palette such as background tiles
-#~ MINIMUM_PERMITTED_GREYSCALE_RANGE=180                                                                      # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
-#~ MINIMUM_PERMITTED_UNIQUE_VALUES=180                                                                        # tile must have at least this many unique values or it will be assumed to be degenerate
-#~ MINIMUM_TILE_SD=1.9                                                                                        # Used to cull slides with a very reduced greyscale palette such as background tiles
+MINIMUM_PERMITTED_GREYSCALE_RANGE=180                                                                      # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
+MINIMUM_PERMITTED_UNIQUE_VALUES=180                                                                        # tile must have at least this many unique values or it will be assumed to be degenerate
+MINIMUM_TILE_SD=1.9                                                                                        # Used to cull slides with a very reduced greyscale palette such as background tiles
 
-MINIMUM_PERMITTED_GREYSCALE_RANGE=1                                                                      # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
-MINIMUM_PERMITTED_UNIQUE_VALUES=1                                                                        # tile must have at least this many unique values or it will be assumed to be degenerate
-MINIMUM_TILE_SD=0.1  
+#~ MINIMUM_PERMITTED_GREYSCALE_RANGE=1                                                                      # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
+#~ MINIMUM_PERMITTED_UNIQUE_VALUES=1                                                                        # tile must have at least this many unique values or it will be assumed to be degenerate
+#~ MINIMUM_TILE_SD=0.1  
 
 POINTS_TO_SAMPLE=500                                                                                       # Used for determining/culling background tiles via 'min_tile_sd', how many points to sample on a tile when making determination if it is mostly background
 
@@ -133,8 +133,11 @@ NN_DENSE_DROPOUT_1="0.2"                                                        
 NN_DENSE_DROPOUT_2="0.0"                                                                                   # (no getopts option) percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
 MODE="classify"                                                                                            # 
 NN_OPTIMIZER="ADAM"                                                                                        # supported options are ADAM, ADAMAX, ADAGRAD, ADAMW, ADAMW_AMSGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
-NN_TYPE_IMG="VGG11"                                                                                        # 
+NN_TYPE_IMG="VGG16"                                                                                        # 
+#~ NN_TYPE_IMG="RESNET152"                                                                                        # 
+#~ NN_TYPE_IMG="INCEPT4"                                                                                        # 
 NN_TYPE_RNA="DENSE"                                                                                        # 
+#~ NN_TYPE_RNA="DEEPDENSE"                                                                                        # 
 N_CLUSTERS="5"                                                                                             # supported: 'otsne' (opentsne), 'sktsne' (sklearn t-sne), 'hdbscan', 'dbscan', 'NONE'
 N_EPOCHS="10"                                                                                              # 
 N_EPOCHS_TEST="1"
@@ -157,7 +160,7 @@ SKIP_TRAINING="False"
 STRONG_SUPERVISION='False'                                                                                 # Convenience variable. all it does is change --extract_from_centre to 'True', '--ignore_tile_quality_hyperparameters' to 'True' and 'n_tiles' to 1 in classify.py.  Could achieve same effect the these flags separately, but may also want to othe things with those flags.
 SUPERGRID_SIZE="2"
 TILES_PER_IMAGE="10"
-TILE_SIZE="32"
+TILE_SIZE="64"
 USE_AUTOENCODER_OUTPUT="False"
 
 HIDDEN_LAYER_ENCODER_TOPOLOGY="40 20"                                                                      # This parameter can only be used with the DEEPDENSE, AEDEEPDENSE and TTVAE models. Ignored for other models                                                             

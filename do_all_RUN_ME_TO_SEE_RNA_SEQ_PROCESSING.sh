@@ -1,18 +1,16 @@
 #!/bin/bash
 
-# Train and the test (with held out samples) for TCGA stomach cancer whole slide images
+# Train and then test (with held out samples) for TCGA RNA-Seq samples
 #
 #
 # PREQEQUISITE:
 #
 # The image dataset must first be downloaded (from NIH TCGA data repository) and pre-processed. Use the following command.  
 #
-#    ./gdc-fetch.sh stad TCGA-stad_case_filter GLOBAL_file_filter_SVS
+#    ./gdc-fetch.sh stad TCGA-stad_case_filter GLOBAL_file_filter_UQ
 #
 # Don't use the TCGA download tool - the downloaded files have to extensively pre-processed, and gdc_fetch does that in addition to downloading them
 #
-#
-# It will extract 22 tiles for each slide, each of tile size 64x64 pixels, and perform 10 training epochs so don't expect much generalisation) using a mini-batch size of 16
 # "-A 4" means that Only cancer subtypes 0,1,2,3 and 4, corresponding to tubular, intest_nos, stomach_nos, diffuse, mucinous, will be used.  Subtypes 5 and 6 (, signet, papillary) which have a very small number of examples, are excluded.
 #
 # A lot of console output will be seen. This is deliberate, to enable you to see what's going on. You can suppress console output using the DEBUG_LEVEL_xxx parameters in 'do_all.sh'
@@ -27,6 +25,42 @@
 # 
 # Log file outputs (including some graphical outputs that aren't visible via tensorboard) will be found in '<BASE_DIR>/logs'
 #
+# defaults for use if user doesn't set an option:
+
+HIGHEST_CLASS_NUMBER=4
+BATCH_SIZE=16
+DIVIDE_CASES="True"
+HIDDEN_LAYER_NEURONS=2100
+LEARNING_RATE=.00001
+MAKE_BALANCED="level_up"
+N_EPOCHS=100
+N_SAMPLES=98765
+NN_DENSE_DROPOUT_1="0.2"
+NN_TYPE_RNA="DENSE"
+#~ REGEN="True"
+REGEN="False"
+REPEAT=1
+SKIP_GENERATION="False"                                                                                    
+
+while getopts A:b:g:h:H:L:o:r:R:S:v:z:7: option                         # weird choice of letters is because they're the same as used in do_all.sh, where they are a few out of dozens of parameters
+  do
+    case "${option}"
+    in
+    A) HIGHEST_CLASS_NUMBER=${OPTARG};;     
+    b) BATCH_SIZE=${OPTARG};;
+    g) SKIP_GENERATION=${OPTARG};;                                                                           
+    h) MAKE_BALANCED=${OPTARG};;                                                                             
+    H) HIDDEN_LAYER_NEURONS=${OPTARG};;                                                                      
+    L) LEARNING_RATE=${OPTARG};;                                                                           
+    o) N_EPOCHS=${OPTARG};;                
+    r) REGEN=${OPTARG};;                   
+    R) REPEAT=${OPTARG};;
+    S) N_SAMPLES=${OPTARG};;
+    v) DIVIDE_CASES=${OPTARG};;
+    z) NN_TYPE_RNA=${OPTARG};;
+    7) NN_DENSE_DROPOUT_1=${OPTARG};;
+    esac
+  done
 
 echo ""
 echo "========================================================================================================================================================================"
@@ -34,7 +68,7 @@ echo "TRAINING RUN"
 echo "========================================================================================================================================================================"
 echo ""
 
-./do_all.sh -d stad   -i rna   -z DENSE  -H 2200   -L .00001  -7 0.1    -b 100  -o 100  -A 4 -c UNIMODE_CASE -v True -r True
+./do_all.sh -d stad   -i rna   -z ${NN_TYPE_RNA}  -H ${HIDDEN_LAYER_NEURONS}   -L ${LEARNING_RATE}  -7 ${NN_DENSE_DROPOUT_1}    -b ${BATCH_SIZE}  -o ${N_EPOCHS}  -A ${HIGHEST_CLASS_NUMBER} -c UNIMODE_CASE -v ${DIVIDE_CASES} -r ${REGEN}
 
 
 sleep 5
@@ -47,7 +81,7 @@ echo "TEST RUN"
 echo "========================================================================================================================================================================"
 echo ""
 
-./do_all.sh -d stad   -i rna   -z DENSE  -H 2200   -7 0.1    -b 100   -c UNIMODE_CASE -A 4  -j True
+./do_all.sh -d stad   -i rna  -z ${NN_TYPE_RNA}  -H ${HIDDEN_LAYER_NEURONS}                                                       -b ${BATCH_SIZE}   -c UNIMODE_CASE -A ${HIGHEST_CLASS_NUMBER}  -j True
 
 
 
