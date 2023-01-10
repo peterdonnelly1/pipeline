@@ -72,7 +72,7 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
       fqn =  f"{args.base_dir}/{args.application_dir}/modes/{args.mode}/dataset_rna_test.pth"
 
     if DEBUG>0:
-      print( f"{BOLD}{ORANGE}GENERATE:       INFO:  {CYAN}-g{RESET}{BOLD}{ORANGE} flag ({CYAN}SKIP_GENERATION{RESET}{BOLD}{ORANGE}) is set so loading pre-existing pytorch dataset (which MUST exist): {RESET}{MAGENTA}modes/{args.mode}/dataset_rna_train.pth{RESET}",  flush=True )
+      print( f"{BOLD}{ORANGE}GENERATE:       INFO:  {CYAN}-g{RESET}{BOLD}{ORANGE} flag ({CYAN}SKIP_GENERATION{RESET}{BOLD}{ORANGE}) is set so loading pre-existing torch dataset (which MUST exist): {RESET}{MAGENTA}modes/{args.mode}/dataset_rna_train.pth{RESET}",  flush=True )
     try:
       data       = torch.load( fqn )
       genes      = data['genes']
@@ -180,7 +180,7 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
 
   # (2) process IMAGE data if applicable
   
-  if dataset =='cifr':                                                                                     # CIFAR10 is a special case. Pytorch has methods to retrieve cifar and some other benchmakring databases, and stores them in a format that is ready for immediate loading, hence earlier steps like tiling, and also the generation steps that have to be applied to GDC datasets can be skipped
+  if dataset =='cifr':                                                                                     # CIFAR10 is a special case. Torch has methods to retrieve cifar and some other benchmakring databases, and stores them in a format that is ready for immediate loading, hence earlier steps like tiling, and also the generation steps that have to be applied to GDC datasets can be skipped
   
     if DEBUG>=0:
       print( f"{ORANGE}GENERATE:       NOTE:    about  to load cifar-10 dataset" )
@@ -576,7 +576,7 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
               image_rna_file         = os.path.join( dir_path, f                     )
               label_file             = os.path.join( dir_path, class_numpy_file_name )
   
-              # set up the pytorch array
+              # set up the torch array
               if DEBUG>8:
                 print ( f"{DIM_WHITE}GENERATE:       INFO:  file                         = {BLEU}{f}{RESET}", flush=True )
               
@@ -615,12 +615,13 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
                 if DEBUG>0:
                   print ( f"{label[0]},", end=', ', flush=True )
               except Exception as e:
-                print ( f"{RED}GENERATE:       FATAL: '{e}'{RESET}" )
+                print ( f"{BOLD_RED}GENERATE:       FATAL: '{e}'{RESET}" )
                 print ( f"{PALE_RED}GENERATE:       FATAL:  explanation: expected a numpy file named {MAGENTA}{args.class_numpy_file_name}{RESET}{PALE_RED} containing the current sample's class number in this location: {MAGENTA}{label_file}{RESET}{PALE_RED}{RESET}" )
-                print ( f"{PALE_RED}GENERATE:       FATAL:  remedy 1: probably no {MAGENTA}{args.class_numpy_file_name}{RESET}{PALE_RED} files exist. Use '{CYAN}./do_all.sh rna <cancer code> {RESET}{PALE_RED}' to regenerate them{RESET}" ) 
-                print ( f"{PALE_RED}GENERATE:       FATAL:  remedy 2: if that doesn't work, use '{CYAN}./do_all.sh rna <cancer code> regen{RESET}{PALE_RED}'. This will regenerate every file in the working dataset from respective sources (note: it can take a long time so try remedy one first){RESET}" )                                    
+                print ( f"{PALE_RED}GENERATE:       FATAL:  remedy 1: probably no {MAGENTA}{args.class_numpy_file_name}{RESET}{PALE_RED} files exist. Use '{CYAN}./do_all.sh rna {args.dataset} {RESET}{PALE_RED}' to regenerate the torch dataset{RESET}" ) 
+                print ( f"{PALE_RED}GENERATE:       FATAL:  remedy 2: if that doesn't work, use '{CYAN}./do_all.sh -d {args.dataset} -i {'image' if args.input_mode=='image' else 'rna'} ... {CHARTREUSE}-r True{RESET}{BOLD_RED}'. This will regenerate every file in the working dataset from respective sources {'(note: it can take a long time so try remedy 1 first)' if args.dataset=='image' else ''}{RESET}" )                                    
                 print ( f"{PALE_RED}GENERATE:       FATAL:  remedy 3: this error can also occur if the user specified mapping file (currently filename: '{CYAN}{args.mapping_file_name}{RESET}{PALE_RED}') doesn't exist in '{CYAN}{args.global_data}{RESET}{PALE_RED}', because without it, no class files can be generated'{RESET}" )                                    
                 print ( f"{PALE_RED}GENERATE:       FATAL:  cannot continue - halting now{RESET}" )                 
+                time.sleep(10)
                 sys.exit(0)     
                 
               rna_labels_new[global_image_rna_files_processed] =  label[0]
@@ -731,12 +732,13 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
                 if DEBUG>2:
                   print ( f"GENERATE:       INFO:  n_genes (determined)  = {MIKADO}{n_genes}{RESET}"        )
               except Exception as e:
-                  print ( f"{BOLD}{RED}GENERATE:       FATAL: error message: '{e}'{RESET}" )
-                  print ( f"{BOLD}{RED}GENERATE:       FATAL: explanation: a required rna class file doesn't exist. (Probably none exist){RESET}" )                 
-                  print ( f"{BOLD}{RED}GENERATE:       FATAL: did you change from image mode to rna mode but neglect to regenerate the rna files the NN needs for rna mode ? {RESET}" )
-                  print ( f"{BOLD}{RED}GENERATE:       FATAL: if so, run '{CYAN}./do_all.sh -d <cancer type code> -i rna {BOLD}{CHARTREUSE}-r True{RESET}{BOLD}{RED}' to generate the rna files{RESET}" )                 
-                  print ( f"{BOLD}{RED}GENERATE:       FATAL: when you do this, don't suppress preprocessing or dataset generation (i.e. DON'T use either '{BOLD}{CYAN}-X True{RESET}{BOLD}{RED}' or '{BOLD}{CYAN}-g True{RESET}{BOLD}{RED}')" )                 
-                  print ( f"{BOLD}{RED}GENERATE:       FATAL: halting now ...{RESET}" )                 
+                  print ( f"{BOLD_RED}GENERATE:       FATAL: error message: '{e}'{RESET}" )
+                  print ( f"{BOLD_RED}GENERATE:       FATAL: explanation: a required rna class file doesn't exist. (Probably none exist){RESET}" )                 
+                  print ( f"{BOLD_RED}GENERATE:       FATAL: did you change from image mode to rna mode but neglect to regenerate the rna files the NN needs for rna mode ? {RESET}" )
+                  print ( f"{BOLD_RED}GENERATE:       FATAL: if so, run '{CYAN}./do_all.sh -d {args.dataset} -i rna {BOLD}{CHARTREUSE}-r True{RESET}{BOLD_RED}' to generate the rna files{RESET}" )                 
+                  print ( f"{BOLD_RED}GENERATE:       FATAL: when you do this, don't suppress preprocessing or dataset generation (i.e. DON'T use either '{BOLD}{CYAN}-X True{RESET}{BOLD_RED}' or '{BOLD}{CYAN}-g True{RESET}{BOLD_RED}')" )                 
+                  print ( f"{BOLD_RED}GENERATE:       FATAL: halting now ...{RESET}" )                 
+                  time.sleep(10)
                   sys.exit(0)
 
     if found_one==False:                  
@@ -1090,7 +1092,7 @@ def generate_rna_dataset ( args, class_names, target, cases_required, highest_cl
             rna_file      = os.path.join( dir_path, args.rna_file_name         )
             label_file    = os.path.join( dir_path, args.class_numpy_file_name )
 
-            # set up the pytorch array
+            # set up the torch array
           
             if DEBUG>8:
               print ( f"{DIM_WHITE}GENERATE:       INFO:  file                         = {BLEU}{f}{RESET}", flush=True )
@@ -1179,12 +1181,12 @@ def generate_rna_dataset ( args, class_names, target, cases_required, highest_cl
                     print ( f"\033[1A{PALE_ORANGE}GENERATE:       INFO:    {MAGENTA}{os.path.basename(os.path.normpath(dir_path))}{RESET}{PALE_ORANGE} \r\033[66C <<< this case's class label (subtype) ({MIKADO}{label[0]:2d}{RESET}{PALE_ORANGE}) is greater than {CYAN}HIGHEST_CLASS_NUMBER{RESET}{PALE_ORANGE} ({MIKADO}{highest_class_number:2d}{RESET}{PALE_ORANGE}) so it won't be used {RESET}")
                 break
             except Exception as e:
-              print ( f"{RED}GENERATE:       FATAL: '{e}'{RESET}" )
-              print ( f"{RED}GENERATE:       FATAL:  explanation: expected a numpy file named {MAGENTA}{args.class_numpy_file_name}{RESET}{RED} containing the current sample's class number in this location: {MAGENTA}{label_file}{RESET}{RED}{RESET}" )
-              print ( f"{RED}GENERATE:       FATAL:  remedy 1: probably no {MAGENTA}{args.class_numpy_file_name}{RESET}{RED} files exist. Use '{CYAN}./do_all.sh rna <cancer code> {RESET}{RED}' to regenerate them{RESET}" ) 
-              print ( f"{RED}GENERATE:       FATAL:  remedy 2: if that doesn't work, use '{CYAN}./do_all.sh rna <cancer code> -r True{RESET}{RED}'. This will regenerate every file in the working dataset from respective sources (note: it can take a long time so try remedy one first){RESET}" )                                    
-              print ( f"{RED}GENERATE:       FATAL:  remedy 3: this error can also occur if the user specified mapping file (currently filename: '{CYAN}{args.mapping_file_name}{RESET}{RED}') doesn't exist in '{CYAN}{args.global_data}{RESET}{RED}', because without it, no class files can be generated'{RESET}" )                                    
-              print ( f"{RED}GENERATE:       FATAL:  cannot continue - halting now{RESET}" )                 
+              print ( f"{BOLD_RED}GENERATE:       FATAL: '{e}'{RESET}" )
+              print ( f"{BOLD_RED}GENERATE:       FATAL:  explanation: expected a numpy file named {MAGENTA}{args.class_numpy_file_name}{RESET}{BOLD_RED} containing the current sample's class number in this location: {MAGENTA}{label_file}{RESET}{BOLD_RED}{RESET}" )
+              print ( f"{BOLD_RED}GENERATE:       FATAL:  remedy 1: probably no {MAGENTA}{args.class_numpy_file_name}{RESET}{BOLD_RED} files exist. Use '{CYAN}./do_all.sh -d {args.dataset} -i {'image' if args.input_mode=='image' else 'rna'}{RESET}{BOLD_RED}' to regenerate the torch dataset{RESET}" ) 
+              print ( f"{BOLD_RED}GENERATE:       FATAL:  remedy 2: if that doesn't work, use '{CYAN}./do_all.sh -d {args.dataset} -i {'image' if args.input_mode=='image' else 'rna'} ... {CHARTREUSE}-r True{RESET}{BOLD_RED}'. This will regenerate every file in the working dataset from respective sources {'(note: it can take a long time so try remedy 1 first)' if args.dataset=='image' else ''}{RESET}" )                                    
+              print ( f"{BOLD_RED}GENERATE:       FATAL:  remedy 3: this error can also occur if the user specified mapping file (currently filename: '{CYAN}{args.mapping_file_name}{RESET}{BOLD_RED}') doesn't exist in '{CYAN}{args.global_data}{RESET}{BOLD_RED}', because without it, no class files can be generated'{RESET}" )                                    
+              print ( f"{BOLD_RED}GENERATE:       FATAL:  cannot continue - halting now{RESET}" )                 
               sys.exit(0)     
 
 
@@ -1833,7 +1835,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
   img_labels_new  = img_labels_new [0:global_tiles_processed]                                            # ditto
   fnames_new      = fnames_new     [0:global_tiles_processed]                                            # ditto
   
-  if args.dataset =='skin':                                                                                     # CIFAR10 is a special case. Pytorch has methods to retrieve cifar and some other benchmakring databases, and stores them in a format that is ready for immediate loading, hence earlier steps like tiling, and also the generation steps that have to be applied to GDC datasets can be skipped
+  if args.dataset =='skin':                                                                                     # CIFAR10 is a special case. Torch has methods to retrieve cifar and some other benchmakring databases, and stores them in a format that is ready for immediate loading, hence earlier steps like tiling, and also the generation steps that have to be applied to GDC datasets can be skipped
   
     if ( tile_size<299) & ( (any( 'INCEPT'in item for item in args.nn_type_img ) ) ):
 
