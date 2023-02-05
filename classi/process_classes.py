@@ -16,12 +16,12 @@ import argparse
 import numpy  as np
 import pandas as pd
 
-from classi.constants  import *
+from constants  import *
 
 DEBUG   = 1
 
 #====================================================================================================================================================
-def main(args):
+def process_classes(args):
   
   dataset                = args.dataset  
   data_dir               = args.data_dir

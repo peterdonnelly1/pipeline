@@ -48,7 +48,7 @@
 
 
 #export MKL_DEBUG_CPU_TYPE=5   # ONLY USE WITH INTEL CPUS (NOT AMD)
-#export KMP_WARNINGS=FALSE     # ONLY USE WITH INTEL CPUS (NOT AMD)
+export KMP_WARNINGS=FALSE     # ONLY USE WITH INTEL CPUS (NOT AMD)
 
 if [[ ${INPUT_MODE} == "image" ]]; then
   FINAL_TEST_BATCH_SIZE=5                                                                                  # number of BATCHES of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated). Don't make it too large because it's passed through as a single super-batch.
@@ -85,8 +85,8 @@ BOX_PLOT="True"                                                                 
 BOX_PLOT_SHOW="False"                                                                                      # If true, present the graphic using pyplot
 MAX_CONSECUTIVE_LOSSES=7                                                                                   # training will stop after this many consecutive losses, regardless of nthe value of N_EPOCHS
 
-#~ ZOOM_OUT_MAGS="0.125 0.25  0.5  0.75  1.0   2.0   4.0  8.0"                                             # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_PROB
-#~ ZOOM_OUT_PROB="0.1   0.1   0.1  0.15  0.2   0.15  0.1  0.1"    
+ZOOM_OUT_MAGS="0.25  0.5  0.75  1.0   2.0   4.0"                                             # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_PROB
+ZOOM_OUT_PROB="0.1   0.15  0.25  0.25  0.15  0.1"    
 
 #~ ZOOM_OUT_MAGS="0.125 8.0  -6  -1  -1"                                                                      # interpolate 6 additional values between 0.125 and 8.0. -1 means choose them randomly.
 #~ ZOOM_OUT_PROB="0.1   1.0  -6  -1  -1"                                                                              
@@ -94,8 +94,8 @@ MAX_CONSECUTIVE_LOSSES=7                                                        
 #~ ZOOM_OUT_MAGS="0.125 0.25  0.5  0.75  1.0   2.0   4.0  8.0"                                             # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_PROB
 #~ ZOOM_OUT_PROB=0.  
 
-ZOOM_OUT_MAGS=1.                                                                                        # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_PROB
-ZOOM_OUT_PROB=1.        
+#~ ZOOM_OUT_MAGS=1.                                                                                        # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_PROB
+#~ ZOOM_OUT_PROB=1.        
 
 COLOUR_MAP="tab20"                                                                                         # see 'https://matplotlib.org/3.3.3/tutorials/colors/colormaps.html' for allowed COLOUR_MAPs (Pastel1', 'Pastel2', 'Accent', 'Dark2' etc.)
 #~ COLOUR_MAP="tab40"                                                                                      # see 'https://matplotlib.org/3.3.3/tutorials/colors/colormaps.html' for allowed COLOUR_MAPs (Pastel1', 'Pastel2', 'Accent', 'Dark2' etc.)
@@ -474,32 +474,35 @@ fi
         fi
     fi
     
-    echo "=====> STEP 2B OF 3: (IF APPLICABLE) PRE-PROCESSING CLASS (GROUND TRUTH) INFORMATION AND SAVING AS NUMPY FILES"
-    
-    if [[  ${SKIP_IMAGE_PREPROCESSING} != "True" && ${SKIP_RNA_PREPROCESSING} != "True" &&  ${SKIP_GENERATION} != "True" && ${SKIP_TILING} != "True" ]] ; then
 
-      sleep ${SLEEP_TIME}
-      cp ${GLOBAL_DATA}/${MAPPING_FILE_NAME}                                    ${DATA_DIR}
-      cp ${GLOBAL_DATA}/${ENSG_REFERENCE_FILE_NAME}                             ${DATA_DIR}
-      
-      python process_classes.py  --data_dir ${DATA_DIR} --dataset ${DATASET} --global_data ${GLOBAL_DATA}   --class_numpy_filename ${CLASS_NUMPY_FILENAME} --mapping_file ${MAPPING_FILE} \
-                                 --mapping_file_name ${MAPPING_FILE_NAME}    --names_column=${NAMES_COLUMN} --case_column ${CASE_COLUMN}                   --class_column=${CLASS_COLUMN} \
-                                 --skip_rna_preprocessing  ${SKIP_RNA_PREPROCESSING}
-    
-    else
-      echo -e "${ORANGE}DO_ALL.SH: ${CYAN}SKIP_RNA_PREPROCESSING${RESET}${ORANGE} flag is set, so ${CYAN}process_classes${RESET}${ORANGE} will not be called${RESET}"    
-    fi
+# MOVED INTO CLASSI. NEED TO ALSO DO SO FOR THE OTHER TOP LEVEL PROCESSING MODES LIKE CLUSTERING 
+
+#    echo "=====> STEP 2B OF 3: (IF APPLICABLE) PRE-PROCESSING CLASS (GROUND TRUTH) INFORMATION AND SAVING AS NUMPY FILES"
+#    
+#    if [[  ${SKIP_IMAGE_PREPROCESSING} != "True" && ${SKIP_RNA_PREPROCESSING} != "True" &&  ${SKIP_GENERATION} != "True" && ${SKIP_TILING} != "True" ]] ; then
+#
+#      sleep ${SLEEP_TIME}
+#      cp ${GLOBAL_DATA}/${MAPPING_FILE_NAME}                                    ${DATA_DIR}
+#      cp ${GLOBAL_DATA}/${ENSG_REFERENCE_FILE_NAME}                             ${DATA_DIR}
+#      
+#      python process_classes.py  --data_dir ${DATA_DIR} --dataset ${DATASET} --global_data ${GLOBAL_DATA}   --class_numpy_filename ${CLASS_NUMPY_FILENAME} --mapping_file ${MAPPING_FILE} \
+#                                 --mapping_file_name ${MAPPING_FILE_NAME}    --names_column=${NAMES_COLUMN} --case_column ${CASE_COLUMN}                   --class_column=${CLASS_COLUMN} \
+#                                 --skip_rna_preprocessing  ${SKIP_RNA_PREPROCESSING}
+#    
+#    else
+#      echo -e "${ORANGE}DO_ALL.SH: ${CYAN}SKIP_RNA_PREPROCESSING${RESET}${ORANGE} flag is set, so ${CYAN}process_classes${RESET}${ORANGE} will not be called${RESET}"    
+#    fi
 
 
-echo "=====> STEP 3 OF 3: RUNNING THE NETWORK (PYTORCH DATASET WILL BE GENERATED AND TILING WILL BE PERFORMED IF IMAGE MODE, UNLESS EITHER SUPPRESSED BY USER OPTION)"
+echo "=====> STEP 3 OF 3: RUN THE EXPERIMENT (PYTORCH DATASET WILL BE GENERATED AND TILING WILL BE PERFORMED IF IMAGE MODE, UNLESS EITHER SUPPRESSED BY USER OPTION)"
 sleep ${SLEEP_TIME}
 cd ${APPLICATION_DIR}
 CUDA_LAUNCH_BLOCKING=1 python ${MAIN_APPLICATION_NAME} \
 --debug_level_classify ${DEBUG_LEVEL_CLASSIFY}  --debug_level_config ${DEBUG_LEVEL_CONFIG}  DEBUG_LEVEL_CONFIG --debug_level_tiler ${DEBUG_LEVEL_TILER} --debug_level_generate ${DEBUG_LEVEL_GENERATE} --debug_level_dataset ${DEBUG_LEVEL_DATASET} --log_level ${LOG_LEVEL} \
---debug_level_loader ${DEBUG_LEVEL_LOADER} --debug_level_algorithm ${DEBUG_LEVEL_ALGORITHM} \
---input_mode ${INPUT_MODE}   --strong_supervision ${STRONG_SUPERVISION} --multimode ${MULTIMODE} --just_profile ${JUST_PROFILE} --just_test ${JUST_TEST} --skip_tiling ${SKIP_TILING} --skip_generation ${SKIP_GENERATION} \
+--debug_level_loader ${DEBUG_LEVEL_LOADER} --debug_level_algorithm ${DEBUG_LEVEL_ALGORITHM} --input_mode ${INPUT_MODE}   --strong_supervision ${STRONG_SUPERVISION} --multimode ${MULTIMODE} \
+--just_profile ${JUST_PROFILE} --just_test ${JUST_TEST} --skip_tiling ${SKIP_TILING} --skip_generation ${SKIP_GENERATION} --skip_image_preprocessing ${SKIP_IMAGE_PREPROCESSING} --skip_rna_preprocessing ${SKIP_RNA_PREPROCESSING} \
 --dataset ${DATASET} --cases ${CASES} --application_dir ${APPLICATION_DIR}  --data_dir ${DATA_DIR} --data_source ${DATA_SOURCE} --divide_cases ${DIVIDE_CASES} --cases_reserved_for_image_rna ${CASES_RESERVED_FOR_IMAGE_RNA} \
---global_data ${GLOBAL_DATA} --mapping_file_name ${MAPPING_FILE_NAME} \
+--global_data ${GLOBAL_DATA} --mapping_file ${MAPPING_FILE} --mapping_file_name ${MAPPING_FILE_NAME} --ensg_reference_file_name${ENSG_REFERENCE_FILE_NAME} \
 --log_dir ${LOG_DIR} --save_model_name ${SAVE_MODEL_NAME} \
 --ddp ${DDP} --use_autoencoder_output ${USE_AUTOENCODER_OUTPUT} --ae_add_noise ${AE_ADD_NOISE} --pretrain ${PRETRAIN} \
 --clustering ${CLUSTERING} --render_clustering ${RENDER_CLUSTERING} --n_clusters ${N_CLUSTERS} --metric ${METRIC} --epsilon ${EPSILON} --repeat ${REPEAT} --min_cluster_size ${MIN_CLUSTER_SIZE} --perplexity ${PERPLEXITY} --momentum ${MOMENTUM} \

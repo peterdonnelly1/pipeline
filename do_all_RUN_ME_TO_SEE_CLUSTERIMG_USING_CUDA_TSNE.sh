@@ -69,13 +69,13 @@ BATCH_SIZE="47"
 BATCH_SIZE_TEST="36"
 CASES="ALL_ELIGIBLE_CASES"                                                                                 # DON'T CHANGE THIS DEFAULT. OTHER VALUES GENERATE AND LEAVE FLAGS IN PLACE WHICH CAN CAUSE CONFUSION IF FORGOTTEN ABOUT!
 CLUSTERING="NONE"                                                                                          # Supported: 'otsne' (opentsne), 'sktsne' (sklearn t-sne), 'hdbscan', 'dbscan', 'NONE'
-DATASET="stad"
+DATASET="kidn"
 DIVIDE_CASES="False"                                                                                       # 
 ENCODER_ACTIVATION="none"                                                                                  # (no getopts option) activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
 EPSILON="0.5"                                                                                         
 GENE_DATA_NORM="GAUSSIAN"                                                                                      # supported options are NONE JUST_SCALE GAUSSIAN 
 GENE_DATA_TRANSFORM="LOG2PLUS1"                                                                           # supported options are NONE LN LOG2 LOG2PLUS1 LOG10 LOG10PLUS1 RANKED
-EMBEDDING_DIMENSIONS="100"
+EMBEDDING_DIMENSIONS="5000"
 HIDDEN_LAYER_NEURONS="1100"
 INPUT_MODE="rna"
 JUST_CLUSTER="False"
@@ -93,7 +93,7 @@ NN_OPTIMIZER="ADAM"                                                             
 NN_TYPE_IMG="VGG11"                                                                                        # 
 NN_TYPE_RNA="AEDENSE"                                                                                        # 
 N_CLUSTERS="5"                                                                                             # supported: 'otsne' (opentsne), 'sktsne' (sklearn t-sne), 'hdbscan', 'dbscan', 'NONE'
-N_EPOCHS="150"                                                                                             # 
+N_EPOCHS="15"                                                                                             # 
 N_EPOCHS_TEST="1"
 N_ITERATIONS="250"                                                                                         # 
 N_TESTS="1"                                                                                                # (test mode only) Number of examples to put through the model when just_test=='True'
@@ -212,7 +212,7 @@ source conf/variables.sh
 
 i=1
 
-for EMBEDDING_DIMENSIONS in "2000"
+for EMBEDDING_DIMENSIONS in "5000"
 
   do
   

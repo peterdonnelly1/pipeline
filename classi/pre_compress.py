@@ -1,10 +1,10 @@
-
-"""=============================================================================
+"""==========================================================================
 Code to support Dimensionality Reduction Mode
 ============================================================================="""
 
 import os
 import time
+import shutil
 import argparse
 import numpy    as np
 import seaborn  as sns
@@ -67,6 +67,7 @@ torch.backends.cudnn.enabled     = True                                         
 LOG_EVERY        = 2
 SAVE_MODEL_EVERY = 100
 
+from process_classes     import process_classes
 from constants  import *
 
 
@@ -98,11 +99,12 @@ def main( args ):
     print ( f"{os.system('cat /proc/driver/nvidia/version')}{RESET}\n",                       flush=True    )
 
 
-
-
+  
     
 # THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 
 
+  args.cases_reserved_for_image_rna=0
+  
 # COMMENTED OUT BECAUSE WE NOW WANT TO USE THE use_autoencoder_output FLAG TO INSTRUCT THE LOADER TO RANDOM SHUFFLE SELECTED TILES, WHICH IS SOMETHING WE DON'T DO FOR THE EXISTING USE OF JUST_TEST 
 # (WHERE WE CONSTRUCT A PATCH FROM A SEQUENTIAL SELECTION OF TILES) 
 # AT SOME POINT, CHANGE THE NAME OF THIS FLAG TO "USING_AUTOECODER"
@@ -241,6 +243,8 @@ g_xform={WHITE}{ORANGE        if not args.gene_data_transform[0]=='NONE' else MA
   pretrain                      = args.pretrain
   skip_tiling                   = args.skip_tiling
   skip_generation               = args.skip_generation
+  skip_rna_preprocessing        = args.skip_rna_preprocessing
+  skip_image_preprocessing      = args.skip_image_preprocessing
   dataset                       = args.dataset
   cases                         = args.cases
   divide_cases                  = args.divide_cases
@@ -249,6 +253,7 @@ g_xform={WHITE}{ORANGE        if not args.gene_data_transform[0]=='NONE' else MA
   global_data                   = args.global_data
   mapping_file_name             = args.mapping_file_name
   target_genes_reference_file   = args.target_genes_reference_file
+  ensg_reference_file_name      = args.ensg_reference_file_name
   cancer_type                   = args.cancer_type
   cancer_type_long              = args.cancer_type_long    
   class_colours                 = args.class_colours
@@ -263,7 +268,7 @@ g_xform={WHITE}{ORANGE        if not args.gene_data_transform[0]=='NONE' else MA
   embedding_dimensions                = args.embedding_dimensions
   nn_dense_dropout_1            = args.nn_dense_dropout_1
   nn_dense_dropout_2            = args.nn_dense_dropout_2
-  label_swap_pct            = args.label_swap_pct
+  label_swap_pct                = args.label_swap_pct
   nn_optimizer                  = args.optimizer
   n_samples                     = args.n_samples
   pct_test                      = args.pct_test
@@ -280,8 +285,8 @@ g_xform={WHITE}{ORANGE        if not args.gene_data_transform[0]=='NONE' else MA
   greyness                      = args.greyness
   min_tile_sd                   = args.min_tile_sd
   min_uniques                   = args.min_uniques  
-  make_grey_pct             = args.make_grey_pct
-  peer_noise_pct            = args.peer_noise_pct
+  make_grey_pct                 = args.make_grey_pct
+  peer_noise_pct                = args.peer_noise_pct
   stain_norm                    = args.stain_norm
   stain_norm_target             = args.stain_norm_target
   annotated_tiles               = args.annotated_tiles
@@ -480,6 +485,17 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
       del batch_size[1:]
 
 
+  if  (skip_image_preprocessing != 'True') & (skip_rna_preprocessing != True) &  (skip_generation != 'True') & (skip_tiling != 'True'):
+    
+    src = f"{global_data}/{mapping_file_name}"
+    dst = f"{data_dir}"
+    shutil.copy2( src, dst )
+
+    src = f"{global_data}/{ensg_reference_file_name}"
+    dst = f"{data_dir}"
+    shutil.copy2( src, dst )
+
+    process_classes( args )
 
   # (A)  SET UP JOB LOOP
 
@@ -497,7 +513,7 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
                         nn_type_img  =   nn_type_img,
                         nn_type_rna  =   nn_type_rna,
                hidden_layer_neurons  =   hidden_layer_neurons,
-                     embedding_dimensions  =   embedding_dimensions,
+               embedding_dimensions  =   embedding_dimensions,
                  nn_dense_dropout_1  =   nn_dense_dropout_1,
                  nn_dense_dropout_2  =   nn_dense_dropout_2,
                         nn_optimizer =  nn_optimizer,
@@ -1650,67 +1666,70 @@ def segment_cases( pct_test ):
       print ( f"{WHITE}PRE_COMPRESS:     INFO:     segment_cases():  about to segment cases by placing flags according to the following logic:         {CAMEL}UNIMODE_CASE____MATCHED{RESET}{DULL_WHITE}   XOR {RESET}{ASPARAGUS} MULTIMODE____TEST{RESET}",  flush=True )
       print ( f"{DULL_WHITE}PRE_COMPRESS:     INFO:     segment_cases():  config parameter '{CYAN}CASES_RESERVED_FOR_IMAGE_RNA{RESET}{DULL_WHITE}' = {MIKADO}{args.cases_reserved_for_image_rna}{RESET}{DULL_WHITE}, therefore {MIKADO}{args.cases_reserved_for_image_rna}{RESET}{DULL_WHITE} cases selected at random will be flagged with the    {ASPARAGUS}MULTIMODE____TEST{RESET}{DULL_WHITE} thereby exclusively setting them aside for multimode testing",  flush=True )
 
-
-    # (1Ce) designate MULTIMODE cases.  Infinite loop with a break condition (necessary to give every case an equal chance of being randonly selected for inclusion in the MULTIMODE case set)
+    designated_multimode_case_count=0
     
-    directories_considered_count     = 0
-    designated_multimode_case_count  = 0
-    
-    while True:
+    if args.cases_reserved_for_image_rna>0:
       
-      for dir_path, dirs, files in os.walk( args.data_dir, topdown=True ):                                                      # select the multimode cases ...
-    
-        if DEBUG>55:  
-          print( f"{DIM_WHITE}PRE_COMPRESS:     INFO:  now considering case {ARYLIDE}{os.path.basename(dir_path)}{RESET}{DIM_WHITE} as a multimode case  " ) 
-    
+      # (1Ce) designate MULTIMODE cases.  Infinite loop with a break condition (necessary to give every case an equal chance of being randonly selected for inclusion in the MULTIMODE case set)
+      
+      directories_considered_count     = 0
+      designated_multimode_case_count  = 0
+      
+      while True:
         
-        if not (dir_path==args.data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
-  
-          if DEBUG>55:
-            print ( f"{PALE_GREEN}PRE_COMPRESS:     INFO:  case   \r\033[60C{RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[120C has both image and rna files\r\033[140C (count= {dirs_which_have_matched_image_rna_files}{RESET}{PALE_GREEN})",  flush=True )
-            
-          try:
-            fqn = f"{dir_path}/HAS_BOTH"        
-            f = open( fqn, 'r' )
+        for dir_path, dirs, files in os.walk( args.data_dir, topdown=True ):                                                      # select the multimode cases ...
+      
+          if DEBUG>55:  
+            print( f"{DIM_WHITE}PRE_COMPRESS:     INFO:  now considering case {ARYLIDE}{os.path.basename(dir_path)}{RESET}{DIM_WHITE} as a multimode case  " ) 
+      
+          
+          if not (dir_path==args.data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
+    
             if DEBUG>55:
-              print ( f"{PALE_GREEN}PRE_COMPRESS:     INFO:  case                                       {RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files (listed above)  \r\033[160C (count= {dirs_which_have_matched_image_rna_files}{RESET}{PALE_GREEN})",  flush=True )
-              print ( f"{PALE_GREEN}PRE_COMPRESS:     INFO:  designated_multimode_case_count          = {AMETHYST}{designated_multimode_case_count}{RESET}",          flush=True )
-              print ( f"{PALE_GREEN}PRE_COMPRESS:     INFO:  dirs_which_have_matched_image_rna_files  = {AMETHYST}{dirs_which_have_matched_image_rna_files}{RESET}",  flush=True )
-              print ( f"{PALE_GREEN}PRE_COMPRESS:     INFO:  cases_reserved_for_image_rna             = {AMETHYST}{args.cases_reserved_for_image_rna}{RESET}",        flush=True )
-            selector = random.randint(0,500)                                                               # the high number has to be larger than the total number of matched cases to give every case a chance of being included 
-            if ( selector==22 ) & ( designated_multimode_case_count<args.cases_reserved_for_image_rna ):   # used 22 but it could be any number
-
-              fqn = f"{dir_path}/MULTIMODE____TEST"         
-              try:
-                with open(fqn, 'r') as f:                                                                  # have to check that the case (directory) was not already flagged as a multimode cases, else it will do it again and think it was an additional case, therebody creating one (or more) fewer cases
-                  pass
-              except Exception:
+              print ( f"{PALE_GREEN}PRE_COMPRESS:     INFO:  case   \r\033[60C{RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[120C has both image and rna files\r\033[140C (count= {dirs_which_have_matched_image_rna_files}{RESET}{PALE_GREEN})",  flush=True )
+              
+            try:
+              fqn = f"{dir_path}/HAS_BOTH"        
+              f = open( fqn, 'r' )
+              if DEBUG>55:
+                print ( f"{PALE_GREEN}PRE_COMPRESS:     INFO:  case                                       {RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files (listed above)  \r\033[160C (count= {dirs_which_have_matched_image_rna_files}{RESET}{PALE_GREEN})",  flush=True )
+                print ( f"{PALE_GREEN}PRE_COMPRESS:     INFO:  designated_multimode_case_count          = {AMETHYST}{designated_multimode_case_count}{RESET}",          flush=True )
+                print ( f"{PALE_GREEN}PRE_COMPRESS:     INFO:  dirs_which_have_matched_image_rna_files  = {AMETHYST}{dirs_which_have_matched_image_rna_files}{RESET}",  flush=True )
+                print ( f"{PALE_GREEN}PRE_COMPRESS:     INFO:  cases_reserved_for_image_rna             = {AMETHYST}{args.cases_reserved_for_image_rna}{RESET}",        flush=True )
+              selector = random.randint(0,500)                                                               # the high number has to be larger than the total number of matched cases to give every case a chance of being included 
+              if ( selector==22 ) & ( designated_multimode_case_count<args.cases_reserved_for_image_rna ):   # used 22 but it could be any number
+  
                 fqn = f"{dir_path}/MULTIMODE____TEST"         
                 try:
-                  with open(fqn, 'w') as f:
-                    f.write( f"this case is designated as a multimode case" )
-                    designated_multimode_case_count+=1
-                    f.close
-                  if DEBUG>2:
-                    print ( f"{PALE_GREEN}PRE_COMPRESS:     INFO:     segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[122C has been randomly flagged as '{ASPARAGUS}MULTIMODE____TEST{RESET}{PALE_GREEN}'  \r\033[204C (count= {MIKADO}{designated_multimode_case_count}{RESET}{PALE_GREEN})",  flush=True )
+                  with open(fqn, 'r') as f:                                                                  # have to check that the case (directory) was not already flagged as a multimode cases, else it will do it again and think it was an additional case, therebody creating one (or more) fewer cases
+                    pass
                 except Exception:
-                  print( f"{RED}PRE_COMPRESS:   FATAL:  could not create '{CYAN}MULTIMODE____TEST{RESET}' file" )
-                  time.sleep(10)
-                  sys.exit(0)
-  
-          except Exception:
-            if DEBUG>55:
-              print ( f"{RED}PRE_COMPRESS:   not a matched case" )
+                  fqn = f"{dir_path}/MULTIMODE____TEST"         
+                  try:
+                    with open(fqn, 'w') as f:
+                      f.write( f"this case is designated as a multimode case" )
+                      designated_multimode_case_count+=1
+                      f.close
+                    if DEBUG>2:
+                      print ( f"{PALE_GREEN}PRE_COMPRESS:     INFO:     segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[122C has been randomly flagged as '{ASPARAGUS}MULTIMODE____TEST{RESET}{PALE_GREEN}'  \r\033[204C (count= {MIKADO}{designated_multimode_case_count}{RESET}{PALE_GREEN})",  flush=True )
+                  except Exception:
+                    print( f"{RED}PRE_COMPRESS:   FATAL:  could not create '{CYAN}MULTIMODE____TEST{RESET}' file" )
+                    time.sleep(10)
+                    sys.exit(0)
     
-      directories_considered_count+=1
-      if DEBUG>555:
-        print ( f"c={c}" )      
-
-      if designated_multimode_case_count== args.cases_reserved_for_image_rna:
-        if DEBUG>55:
-          print ( f"{PALE_GREEN}PRE_COMPRESS:     INFO:  designated_multimode_case_count          = {AMETHYST}{designated_multimode_case_count}{RESET}",          flush=True )
-          print ( f"{PALE_GREEN}PRE_COMPRESS:     INFO:  cases_reserved_for_image_rna             = {AMETHYST}{args.cases_reserved_for_image_rna}{RESET}",             flush=True )
-        break
+            except Exception:
+              if DEBUG>55:
+                print ( f"{RED}PRE_COMPRESS:   not a matched case" )
+      
+        directories_considered_count+=1
+        if DEBUG>555:
+          print ( f"c={c}" )      
+  
+        if designated_multimode_case_count== args.cases_reserved_for_image_rna:
+          if DEBUG>55:
+            print ( f"{PALE_GREEN}PRE_COMPRESS:     INFO:  designated_multimode_case_count          = {AMETHYST}{designated_multimode_case_count}{RESET}",          flush=True )
+            print ( f"{PALE_GREEN}PRE_COMPRESS:     INFO:  cases_reserved_for_image_rna             = {AMETHYST}{args.cases_reserved_for_image_rna}{RESET}",             flush=True )
+          break
 
 
     # (1Cb) designate UNIMODE cases. Go through all MATCHED directories one time. Flag any MATCHED case other than those flagged as MULTIMODE____TEST case at 1Ci above with the UNIMODE_CASE____MATCHED
@@ -2157,6 +2176,14 @@ if __name__ == '__main__':
   p.add_argument('--debug_level_tiler',                                             type=int,   default=0                                       ) 
   p.add_argument('--debug_level_algorithm',                                         type=int,   default=0                                       ) 
   p.add_argument('--log_level',                                                     type=int,   default=11                                      ) 
+
+
+  p.add_argument('--mapping_file',                type=str, default="./mapping_file"                         )
+  p.add_argument('--class_numpy_filename',        type=str, default="class.npy"                              ) 
+  p.add_argument('--ensg_reference_file_name',    type=str, default="ENSG_reference"                         ) 
+  p.add_argument('--skip_image_preprocessing',    type=str,   default="False"                                ) 
+  p.add_argument('--skip_rna_preprocessing',      type=str,   default="False"                                ) 
+
 
   args, _ = p.parse_known_args()
 

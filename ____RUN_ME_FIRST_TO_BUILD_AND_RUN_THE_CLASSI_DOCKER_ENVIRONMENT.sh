@@ -3,7 +3,7 @@
 set -x
 
 clear
-sudo docker container stop
+sudo docker stop              classi
 sudo docker container rm      classi
 sudo docker           rmi -f  classi
 sudo DOCKER_BUILDKIT=1 docker build --progress=plain  -t classi .

@@ -9,6 +9,7 @@ import time
 import torch
 import cuda
 import pplog
+import shutil
 import argparse
 import datetime
 import matplotlib
@@ -51,7 +52,6 @@ from   torch.utils.tensorboard      import SummaryWriter
 from   torchvision                  import datasets, transforms
 
 from modes                          import loader
-from models.ttvae                   import vae_loss
 from modes.classify.config          import classifyConfig
 from modes.classify.generate        import generate
 from   models                       import COMMON
@@ -66,8 +66,9 @@ from   cuda_tsne                    import cuda_tsne
 from   sk_tsne                      import sk_tsne
 from   sk_agglom                    import sk_agglom
 from   sk_spectral                  import sk_spectral
-
-from constants  import *
+from   models.ttvae                 import vae_loss
+from   process_classes              import process_classes
+from   constants                    import *
 
 last_stain_norm = 'NULL'
 last_gene_norm  = 'NULL'
@@ -151,8 +152,9 @@ def main(args):
     print ( f"{os.system('/usr/local/cuda/bin/nvcc --version')}{RESET}\n",                                   flush=True    )
     print ( f"CLASSI:         INFO:     cuda driver  version via os command = \n{MIKADO}",                   flush=True    )  
     print ( f"{os.system('cat /proc/driver/nvidia/version')}{RESET}\n",                                      flush=True    )
-  
-  
+
+
+
 
   mode = 'TRAIN' if args.just_test!='True' else 'TEST'
 
@@ -260,6 +262,8 @@ has been set to {RESET}{BOLD_MIKADO}'False'{RESET}{GREENBLUE} (the dataset balan
   pretrain                      = args.pretrain
   skip_tiling                   = args.skip_tiling
   skip_generation               = args.skip_generation
+  skip_image_preprocessing      = args.skip_image_preprocessing
+  skip_rna_preprocessing        = args.skip_rna_preprocessing
   dataset                       = args.dataset
   cases                         = args.cases
   divide_cases                  = args.divide_cases
@@ -267,6 +271,7 @@ has been set to {RESET}{BOLD_MIKADO}'False'{RESET}{GREENBLUE} (the dataset balan
   data_source                   = args.data_source
   global_data                   = args.global_data
   mapping_file_name             = args.mapping_file_name
+  ensg_reference_file_name      = args.ensg_reference_file_name
   target_genes_reference_file   = args.target_genes_reference_file
   use_unfiltered_data           = args.use_unfiltered_data
   cancer_type                   = args.cancer_type
@@ -378,6 +383,18 @@ has been set to {RESET}{BOLD_MIKADO}'False'{RESET}{GREENBLUE} (the dataset balan
   global class_colors
 
   multimode_case_count = unimode_case_matched_count = unimode_case_unmatched_count = unimode_case____image_count = unimode_case____image_test_count = unimode_case____rna_count = unimode_case____rna_test_count = 0
+
+  if  (skip_image_preprocessing != 'True') & (skip_rna_preprocessing != True) &  (skip_generation != 'True') & (skip_tiling != 'True'):
+    
+    src = f"{global_data}/{mapping_file_name}"
+    dst = f"{data_dir}"
+    shutil.copy2( src, dst )
+
+    src = f"{global_data}/{ensg_reference_file_name}"
+    dst = f"{data_dir}"
+    shutil.copy2( src, dst )
+    
+    process_classes( args )
 
 
   ################################################################################################################################################################################################################################
@@ -3774,7 +3791,7 @@ def determine_class_counts ( args, n_classes, class_names, n_tiles, case_designa
 # ---------------------------------------------------------------------------------------------------------
 
 def segment_cases( args, n_classes, class_names, n_tiles, pct_test ):
-
+  
 
   # (1A) analyse dataset directory
 
@@ -6843,7 +6860,8 @@ if __name__ == '__main__':
 
   p.add_argument('--repeat',                                                        type=int,    default=1                                       )
   p.add_argument('--skip_tiling',                                                   type=str,    default='False'                                 )                                
-  p.add_argument('--skip_generation',                                               type=str,    default='False'                                 )                                
+  p.add_argument('--skip_generation',                                               type=str,    default='False'                                 )                           
+  p.add_argument('--skip_image_preprocessing',                                      type=str,    default='False'                                 )                           
   p.add_argument('--pretrain',                                                      type=str,    default='False'                                 )                                
   p.add_argument('--log_dir',                                                       type=str,    default='logs'                                  )                
   p.add_argument('--base_dir',                                                      type=str,    default='/home/peter/git/pipeline'              )
@@ -6983,6 +7001,10 @@ if __name__ == '__main__':
   p.add_argument('--debug_level_algorithm',                                         type=int,   default=0                                       ) 
   p.add_argument('--log_level',                                                     type=int,   default=11                                      ) 
 
+  p.add_argument('--mapping_file',                type=str, default="./mapping_file"                         )
+  p.add_argument('--class_numpy_filename',        type=str, default="class.npy"                              ) 
+  p.add_argument('--ensg_reference_file_name',    type=str, default="ENSG_reference"                         ) 
+  p.add_argument('--skip_rna_preprocessing',      type=str2bool, nargs='?', const=False, default=False, help="If true, don't preprocess RNA-Seq files")
 
   args, _ = p.parse_known_args()
 
