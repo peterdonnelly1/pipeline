@@ -1775,7 +1775,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
       if directories_processed>=cases_required:
         sufficient_cases_found=True
         if DEBUG>0:
-          print( f"{CAMEL}GENERATE:       INFO:   sufficient directories were found ({CYAN}cases_required{RESET}{CAMEL} = {MIKADO}{cases_required:<4d}{RESET})",  flush=True        )  
+          print( f"{CAMEL}GENERATE:       INFO:   sufficient directories were found ({CYAN}cases_required{RESET}{CAMEL} = {MIKADO}{cases_required:<4d}{RESET}{CAMEL}){RESET}{CLEAR_LINE}",  flush=True        )  
         break
 
   if sufficient_cases_found!=True:

@@ -16,7 +16,6 @@ import matplotlib
 import torchvision
 import torch.utils.data
 
-
 import scipy
 import sklearn
 
@@ -67,6 +66,8 @@ from   sk_tsne                      import sk_tsne
 from   sk_agglom                    import sk_agglom
 from   sk_spectral                  import sk_spectral
 from   models.ttvae                 import vae_loss
+from   filter_genes                 import filter_genes
+from   process_rna_seq              import process_rna_seq
 from   process_classes              import process_classes
 from   constants                    import *
 
@@ -359,6 +360,9 @@ has been set to {RESET}{BOLD_MIKADO}'False'{RESET}{GREENBLUE} (the dataset balan
   names_column                  = args.names_column
   case_column                   = args.case_column
   class_column                  = args.class_column
+  rna_exp_column                = args.rna_exp_column
+  rna_numpy_filename            = args.rna_numpy_filename
+  random_genes_count            = args.random_genes_count
 
   # Need to remember these across all runs in a job
   global top_up_factors_train
@@ -384,6 +388,45 @@ has been set to {RESET}{BOLD_MIKADO}'False'{RESET}{GREENBLUE} (the dataset balan
 
   multimode_case_count = unimode_case_matched_count = unimode_case_unmatched_count = unimode_case____image_count = unimode_case____image_test_count = unimode_case____rna_count = unimode_case____rna_test_count = 0
 
+  
+  if ( (input_mode == 'rna') | (input_mode == 'image_rna' ) ) &  (skip_rna_preprocessing != 'True'):
+
+  # Copy necessary reference files into the working data directory 
+    
+    files = glob.glob( global_data + '/*MASTER.csv' )
+    for f in files:
+      shutil.copy( f, data_dir )
+      
+    files = glob.glob( global_data + '/*ICGC*' )
+    for f in files:
+      shutil.copy( f, data_dir )
+      
+    files = glob.glob( global_data + '/*of_interest' )
+    for f in files:
+      shutil.copy( f, data_dir )
+
+    files = glob.glob( global_data + '/just_hg38_protein_coding_genes' )
+    for f in files:
+      shutil.copy( f, data_dir )
+
+    files = glob.glob( global_data + '/ENSG_UCSC_biomart_ENS_id_to_gene_name_table' )
+    for f in files:
+      shutil.copy( f, data_dir )
+      
+    # Possibly filter genes and then always process rna-seq data files
+
+    filter_genes    (args)
+    process_rna_seq (args)
+
+
+            # ~ cp ${GLOBAL_DATA}/*MASTER.csv                                  ${DATA_DIR} > /dev/null 2>&1
+            # ~ cp ${GLOBAL_DATA}/*ICGC*                                       ${DATA_DIR} > /dev/null 2>&1
+            # ~ cp ${GLOBAL_DATA}/*of_interest                                 ${DATA_DIR} > /dev/null 2>&1
+            # ~ cp ${GLOBAL_DATA}/just_hg38_protein_coding_genes               ${DATA_DIR} > /dev/null 2>&1
+            # ~ cp ${GLOBAL_DATA}/ENSG_UCSC_biomart_ENS_id_to_gene_name_table  ${DATA_DIR} > /dev/null 2>&1
+
+  # Process truth values for each example. process_classes() does the work
+  
   if  (skip_image_preprocessing != 'True') & (skip_rna_preprocessing != True) &  (skip_generation != 'True') & (skip_tiling != 'True'):
     
     src = f"{global_data}/{mapping_file_name}"
@@ -6974,8 +7017,8 @@ if __name__ == '__main__':
   p.add_argument('-g', '--gpus',                                                    type=int,   default=1,  help='number of gpus per node'      )  # only supported for 'NN_MODE=pre_compress' ATM (the auto-encoder front-end     )
   p.add_argument('-nr', '--nr',                                                     type=int,   default=0,  help='ranking within node'          )  # only supported for 'NN_MODE=pre_compress' ATM (the auto-encoder front-end     )
   
-  p.add_argument('--hidden_layer_neurons',                              nargs="+",  type=int,    default=2000                                   )     
-  p.add_argument('--embedding_dimensions',                              nargs="+",  type=int,    default=1000                                   )    
+  p.add_argument('--hidden_layer_neurons',                              nargs="+",  type=int,   default=2000                                   )     
+  p.add_argument('--embedding_dimensions',                              nargs="+",  type=int,   default=1000                                   )    
   
   p.add_argument('--use_autoencoder_output',                                        type=str,   default='False'                                 ) # if "True", use file containing auto-encoder output (which must exist, in log_dir     ) as input rather than the usual input (e.g. rna-seq values     )
   p.add_argument('--ae_add_noise',                                                  type=str,   default='False'                                 )
@@ -6988,9 +7031,9 @@ if __name__ == '__main__':
   p.add_argument('--min_cluster_size',                                              type=int,   default=3                                       )        
   p.add_argument('--render_clustering',                                             type=str,   default="False"                                 )        
 
-  p.add_argument('--names_column',                                                  type=str, default="type_s"                                  )
-  p.add_argument('--case_column',                                                   type=str, default="bcr_patient_uuid"                        )
-  p.add_argument('--class_column',                                                  type=str, default="type_n"                                  )
+  p.add_argument('--names_column',                                                  type=str,   default="type_s"                                )
+  p.add_argument('--case_column',                                                   type=str,   default="bcr_patient_uuid"                      )
+  p.add_argument('--class_column',                                                  type=str,   default="type_n"                                )
 
   p.add_argument('--debug_level_classify',                                          type=int,   default=1                                       ) 
   p.add_argument('--debug_level_generate',                                          type=int,   default=1                                       ) 
@@ -7001,10 +7044,16 @@ if __name__ == '__main__':
   p.add_argument('--debug_level_algorithm',                                         type=int,   default=0                                       ) 
   p.add_argument('--log_level',                                                     type=int,   default=11                                      ) 
 
-  p.add_argument('--mapping_file',                type=str, default="./mapping_file"                         )
-  p.add_argument('--class_numpy_filename',        type=str, default="class.npy"                              ) 
-  p.add_argument('--ensg_reference_file_name',    type=str, default="ENSG_reference"                         ) 
-  p.add_argument('--skip_rna_preprocessing',      type=str2bool, nargs='?', const=False, default=False, help="If true, don't preprocess RNA-Seq files")
+  p.add_argument('--mapping_file',                                                  type=str,   default="./mapping_file"                        )
+  p.add_argument('--class_numpy_filename',                                          type=str,   default="class.npy"                             ) 
+  p.add_argument('--ensg_reference_file_name',                                      type=str,   default="ENSG_reference"                        ) 
+  p.add_argument('--skip_rna_preprocessing',                                        type=str2bool, nargs='?', const=False, default=False, help="If true, don't preprocess RNA-Seq files")
+  
+  
+  p.add_argument('--rna_exp_column',                                                type=int,   default=1                                       )
+  p.add_argument('--rna_numpy_filename',                                            type=str,   default="rna.npy"                               )
+  
+  p.add_argument('--random_genes_count',                                            type=int,   default=0                                       )
 
   args, _ = p.parse_known_args()
 

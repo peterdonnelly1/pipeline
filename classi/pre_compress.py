@@ -1,11 +1,13 @@
-"""==========================================================================
+
+"""=============================================================================
 Code to support Dimensionality Reduction Mode
 ============================================================================="""
 
 import os
 import time
-import shutil
 import argparse
+import shutil
+
 import numpy    as np
 import seaborn  as sns
 import pandas   as pd
@@ -40,9 +42,13 @@ from tiler_threader                import *
 from tiler_set_target              import *
 from tiler                         import *
 
-from   schedulers                  import *
+from schedulers                   import *
 from modes                        import loader
 from modes.pre_compress.generate  import generate
+
+from   filter_genes                 import filter_genes
+from   process_rna_seq              import process_rna_seq
+from   process_classes              import process_classes
 
 from   itertools                   import product, permutations
 from   PIL                         import Image
@@ -67,7 +73,6 @@ torch.backends.cudnn.enabled     = True                                         
 LOG_EVERY        = 2
 SAVE_MODEL_EVERY = 100
 
-from process_classes     import process_classes
 from constants  import *
 
 
@@ -99,11 +104,13 @@ def main( args ):
     print ( f"{os.system('cat /proc/driver/nvidia/version')}{RESET}\n",                       flush=True    )
 
 
-  
+
+
     
 # THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 
 
   args.cases_reserved_for_image_rna=0
+  
   
 # COMMENTED OUT BECAUSE WE NOW WANT TO USE THE use_autoencoder_output FLAG TO INSTRUCT THE LOADER TO RANDOM SHUFFLE SELECTED TILES, WHICH IS SOMETHING WE DON'T DO FOR THE EXISTING USE OF JUST_TEST 
 # (WHERE WE CONSTRUCT A PATCH FROM A SEQUENTIAL SELECTION OF TILES) 
@@ -164,6 +171,8 @@ def run_job(gpu, args ):
 
   
   multimode_case_count = unimode_case_count = not_a_multimode_case_count = not_a_multimode_case____image_count = not_a_multimode_case____image_test_count = 0
+
+
 
   if args.ddp=='True':
     if gpu>0:
@@ -243,8 +252,8 @@ g_xform={WHITE}{ORANGE        if not args.gene_data_transform[0]=='NONE' else MA
   pretrain                      = args.pretrain
   skip_tiling                   = args.skip_tiling
   skip_generation               = args.skip_generation
-  skip_rna_preprocessing        = args.skip_rna_preprocessing
   skip_image_preprocessing      = args.skip_image_preprocessing
+  skip_rna_preprocessing        = args.skip_rna_preprocessing
   dataset                       = args.dataset
   cases                         = args.cases
   divide_cases                  = args.divide_cases
@@ -253,7 +262,6 @@ g_xform={WHITE}{ORANGE        if not args.gene_data_transform[0]=='NONE' else MA
   global_data                   = args.global_data
   mapping_file_name             = args.mapping_file_name
   target_genes_reference_file   = args.target_genes_reference_file
-  ensg_reference_file_name      = args.ensg_reference_file_name
   cancer_type                   = args.cancer_type
   cancer_type_long              = args.cancer_type_long    
   class_colours                 = args.class_colours
@@ -265,7 +273,7 @@ g_xform={WHITE}{ORANGE        if not args.gene_data_transform[0]=='NONE' else MA
   nn_type_rna                   = args.nn_type_rna
   use_same_seed                 = args.use_same_seed
   hidden_layer_neurons          = args.hidden_layer_neurons
-  embedding_dimensions                = args.embedding_dimensions
+  embedding_dimensions          = args.embedding_dimensions
   nn_dense_dropout_1            = args.nn_dense_dropout_1
   nn_dense_dropout_2            = args.nn_dense_dropout_2
   label_swap_pct                = args.label_swap_pct
@@ -326,6 +334,31 @@ g_xform={WHITE}{ORANGE        if not args.gene_data_transform[0]=='NONE' else MA
   case_column                 = args.case_column
   names_column                = args.names_column
   class_column                = args.class_column
+  
+  rna_exp_column                = args.rna_exp_column
+  rna_numpy_filename            = args.rna_numpy_filename
+  ensg_reference_file_name      = args.ensg_reference_file_name
+  
+
+  if ( (input_mode == 'rna') | (input_mode == 'image_rna' ) ) &  (skip_rna_preprocessing != 'True'):
+    
+    filter_genes    (args)
+    process_rna_seq (args)
+
+
+  if  (skip_image_preprocessing != 'True') & (skip_rna_preprocessing != True) &  (skip_generation != 'True') & (skip_tiling != 'True'):
+    
+    src = f"{global_data}/{mapping_file_name}"
+    dst = f"{data_dir}"
+    shutil.copy2( src, dst )
+
+    src = f"{global_data}/{ensg_reference_file_name}"
+    dst = f"{data_dir}"
+    shutil.copy2( src, dst )
+    
+    process_classes( args )
+  
+  
 
   last_stain_norm='NULL'
   last_gene_norm='NULL'
@@ -485,17 +518,6 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
       del batch_size[1:]
 
 
-  if  (skip_image_preprocessing != 'True') & (skip_rna_preprocessing != True) &  (skip_generation != 'True') & (skip_tiling != 'True'):
-    
-    src = f"{global_data}/{mapping_file_name}"
-    dst = f"{data_dir}"
-    shutil.copy2( src, dst )
-
-    src = f"{global_data}/{ensg_reference_file_name}"
-    dst = f"{data_dir}"
-    shutil.copy2( src, dst )
-
-    process_classes( args )
 
   # (A)  SET UP JOB LOOP
 
@@ -513,7 +535,7 @@ Ensure that at leat two subtypes are listed in the leftmost column, and that the
                         nn_type_img  =   nn_type_img,
                         nn_type_rna  =   nn_type_rna,
                hidden_layer_neurons  =   hidden_layer_neurons,
-               embedding_dimensions  =   embedding_dimensions,
+                     embedding_dimensions  =   embedding_dimensions,
                  nn_dense_dropout_1  =   nn_dense_dropout_1,
                  nn_dense_dropout_2  =   nn_dense_dropout_2,
                         nn_optimizer =  nn_optimizer,
@@ -1666,9 +1688,7 @@ def segment_cases( pct_test ):
       print ( f"{WHITE}PRE_COMPRESS:     INFO:     segment_cases():  about to segment cases by placing flags according to the following logic:         {CAMEL}UNIMODE_CASE____MATCHED{RESET}{DULL_WHITE}   XOR {RESET}{ASPARAGUS} MULTIMODE____TEST{RESET}",  flush=True )
       print ( f"{DULL_WHITE}PRE_COMPRESS:     INFO:     segment_cases():  config parameter '{CYAN}CASES_RESERVED_FOR_IMAGE_RNA{RESET}{DULL_WHITE}' = {MIKADO}{args.cases_reserved_for_image_rna}{RESET}{DULL_WHITE}, therefore {MIKADO}{args.cases_reserved_for_image_rna}{RESET}{DULL_WHITE} cases selected at random will be flagged with the    {ASPARAGUS}MULTIMODE____TEST{RESET}{DULL_WHITE} thereby exclusively setting them aside for multimode testing",  flush=True )
 
-    designated_multimode_case_count=0
-    
-    if args.cases_reserved_for_image_rna>0:
+
       
       # (1Ce) designate MULTIMODE cases.  Infinite loop with a break condition (necessary to give every case an equal chance of being randonly selected for inclusion in the MULTIMODE case set)
       
@@ -1730,6 +1750,8 @@ def segment_cases( pct_test ):
             print ( f"{PALE_GREEN}PRE_COMPRESS:     INFO:  designated_multimode_case_count          = {AMETHYST}{designated_multimode_case_count}{RESET}",          flush=True )
             print ( f"{PALE_GREEN}PRE_COMPRESS:     INFO:  cases_reserved_for_image_rna             = {AMETHYST}{args.cases_reserved_for_image_rna}{RESET}",             flush=True )
           break
+
+
 
 
     # (1Cb) designate UNIMODE cases. Go through all MATCHED directories one time. Flag any MATCHED case other than those flagged as MULTIMODE____TEST case at 1Ci above with the UNIMODE_CASE____MATCHED
@@ -2037,7 +2059,8 @@ if __name__ == '__main__':
 
   p.add_argument('--repeat',                                                        type=int,    default=1                                       )
   p.add_argument('--skip_tiling',                                                   type=str,    default='False'                                 )                                
-  p.add_argument('--skip_generation',                                               type=str,    default='False'                                 )                                
+  p.add_argument('--skip_generation',                                               type=str,    default='False'                                 )                           
+  p.add_argument('--skip_image_preprocessing',                                      type=str,    default='False'                                 )                           
   p.add_argument('--pretrain',                                                      type=str,    default='False'                                 )                                
   p.add_argument('--log_dir',                                                       type=str,    default='logs'                                  )                
   p.add_argument('--base_dir',                                                      type=str,    default='/home/peter/git/pipeline'              )
@@ -2085,7 +2108,7 @@ if __name__ == '__main__':
   p.add_argument('--tile_size',                                         nargs="+",  type=int,    default=128                                    )                                    
   p.add_argument('--gene_data_norm',                                    nargs="+",  type=str,    default='NONE'                                 )                                 
   p.add_argument('--gene_data_transform',                               nargs="+",  type=str,    default='NONE'                                 )
-  p.add_argument('--n_genes',                                                       type=int,    default=60483                                    )                                   
+  p.add_argument('--n_genes',                                                       type=int,    default=555                                    )                                   
   p.add_argument('--batch_size',                                        nargs="+",  type=int,   default=64                                      )                                     
   p.add_argument('--learning_rate',                                     nargs="+",  type=float, default=.007                                    )                                 
   p.add_argument('--tsne_learning_rate',                                nargs="+",  type=float, default=10.0                                    )                                 
@@ -2150,8 +2173,8 @@ if __name__ == '__main__':
   p.add_argument('-g', '--gpus',                                                    type=int,   default=1,  help='number of gpus per node'      )  # only supported for 'NN_MODE=pre_compress' ATM (the auto-encoder front-end     )
   p.add_argument('-nr', '--nr',                                                     type=int,   default=0,  help='ranking within node'          )  # only supported for 'NN_MODE=pre_compress' ATM (the auto-encoder front-end     )
   
-  p.add_argument('--hidden_layer_neurons',                              nargs="+",  type=int,    default=2000                                   )     
-  p.add_argument('--embedding_dimensions',                              nargs="+",  type=int,    default=1000                                   )    
+  p.add_argument('--hidden_layer_neurons',                              nargs="+",  type=int,   default=2000                                   )     
+  p.add_argument('--embedding_dimensions',                              nargs="+",  type=int,   default=1000                                   )    
   
   p.add_argument('--use_autoencoder_output',                                        type=str,   default='False'                                 ) # if "True", use file containing auto-encoder output (which must exist, in log_dir     ) as input rather than the usual input (e.g. rna-seq values     )
   p.add_argument('--ae_add_noise',                                                  type=str,   default='False'                                 )
@@ -2164,9 +2187,9 @@ if __name__ == '__main__':
   p.add_argument('--min_cluster_size',                                              type=int,   default=3                                       )        
   p.add_argument('--render_clustering',                                             type=str,   default="False"                                 )        
 
-  p.add_argument('--names_column',                                                  type=str, default="type_s"                                  )
-  p.add_argument('--case_column',                                                   type=str, default="bcr_patient_uuid"                        )
-  p.add_argument('--class_column',                                                  type=str, default="type_n"                                  )
+  p.add_argument('--names_column',                                                  type=str,   default="type_s"                                )
+  p.add_argument('--case_column',                                                   type=str,   default="bcr_patient_uuid"                      )
+  p.add_argument('--class_column',                                                  type=str,   default="type_n"                                )
 
   p.add_argument('--debug_level_classify',                                          type=int,   default=1                                       ) 
   p.add_argument('--debug_level_generate',                                          type=int,   default=1                                       ) 
@@ -2177,13 +2200,16 @@ if __name__ == '__main__':
   p.add_argument('--debug_level_algorithm',                                         type=int,   default=0                                       ) 
   p.add_argument('--log_level',                                                     type=int,   default=11                                      ) 
 
-
-  p.add_argument('--mapping_file',                type=str, default="./mapping_file"                         )
-  p.add_argument('--class_numpy_filename',        type=str, default="class.npy"                              ) 
-  p.add_argument('--ensg_reference_file_name',    type=str, default="ENSG_reference"                         ) 
-  p.add_argument('--skip_image_preprocessing',    type=str,   default="False"                                ) 
-  p.add_argument('--skip_rna_preprocessing',      type=str,   default="False"                                ) 
-
+  p.add_argument('--mapping_file',                                                  type=str,   default="./mapping_file"                        )
+  p.add_argument('--class_numpy_filename',                                          type=str,   default="class.npy"                             ) 
+  p.add_argument('--ensg_reference_file_name',                                      type=str,   default="ENSG_reference"                        ) 
+  p.add_argument('--skip_rna_preprocessing',                                        type=str2bool, nargs='?', const=False, default=False, help="If true, don't preprocess RNA-Seq files")
+  
+  
+  p.add_argument('--rna_exp_column',                                                type=int,   default=1                                       )
+  p.add_argument('--rna_numpy_filename',                                            type=str,   default="rna.npy"                               )
+  
+  p.add_argument('--random_genes_count',                                            type=int,   default=0                                       )
 
   args, _ = p.parse_known_args()
 

@@ -450,29 +450,30 @@ fi
 
     
 
-    if [[ ${INPUT_MODE} == "rna" ]] || [[ ${INPUT_MODE} == "image_rna" ]] ;
-      then
-        if [[ ${SKIP_RNA_PREPROCESSING} != "True" ]] 
-          then     
-            sleep ${SLEEP_TIME}
-            cp ${GLOBAL_DATA}/*MASTER.csv                                  ${DATA_DIR} > /dev/null 2>&1
-            cp ${GLOBAL_DATA}/*ICGC*                                       ${DATA_DIR} > /dev/null 2>&1
-            cp ${GLOBAL_DATA}/*of_interest                                 ${DATA_DIR} > /dev/null 2>&1
-            cp ${GLOBAL_DATA}/just_hg38_protein_coding_genes               ${DATA_DIR} > /dev/null 2>&1
-            cp ${GLOBAL_DATA}/ENSG_UCSC_biomart_ENS_id_to_gene_name_table  ${DATA_DIR} > /dev/null 2>&1
-            python reduce_FPKM_UQ_files.py --data_dir ${DATA_DIR} --target_genes_reference_file ${TARGET_GENES_REFERENCE_FILE} --rna_file_suffix ${RNA_FILE_SUFFIX} --rna_file_reduced_suffix ${RNA_FILE_REDUCED_SUFFIX}  \
-            --rna_exp_column ${RNA_EXP_COLUMN} --use_unfiltered_data ${USE_UNFILTERED_DATA} --random_genes_count ${RANDOM_GENES_COUNT} --skip_rna_preprocessing  ${SKIP_RNA_PREPROCESSING}
-  
-  
-            #~ echo "=====> EXTRACTING RNA EXPRESSION INFORMATION AND SAVING AS NUMPY FILES"
-            sleep ${SLEEP_TIME}
-            python process_rna_exp.py --data_dir ${DATA_DIR} --rna_file_suffix ${RNA_FILE_SUFFIX} --rna_file_reduced_suffix ${RNA_FILE_REDUCED_SUFFIX} --rna_exp_column ${RNA_EXP_COLUMN} \
-            --rna_numpy_filename ${RNA_NUMPY_FILENAME} --use_unfiltered_data ${USE_UNFILTERED_DATA} --skip_rna_preprocessing  ${SKIP_RNA_PREPROCESSING}
-        else
-          echo -e "${ORANGE}DO_ALL.SH: ${CYAN}SKIP_RNA_PREPROCESSING${RESET}${ORANGE} flag is set, so ${CYAN}reduce_FPKM_UQ_files${RESET}${ORANGE} will not be called${RESET}"
-          echo -e "${ORANGE}DO_ALL.SH: ${CYAN}SKIP_RNA_PREPROCESSING${RESET}${ORANGE} flag is set, so ${CYAN}process_rna_exp${RESET}${ORANGE}      will not be called${RESET}"
-        fi
-    fi
+#    if [[ ${INPUT_MODE} == "rna" ]] || [[ ${INPUT_MODE} == "image_rna" ]] ;
+#      then
+#        if [[ ${SKIP_RNA_PREPROCESSING} != "True" ]] 
+#          then     
+#            sleep ${SLEEP_TIME}
+#            cp ${GLOBAL_DATA}/*MASTER.csv                                  ${DATA_DIR} > /dev/null 2>&1
+#            cp ${GLOBAL_DATA}/*ICGC*                                       ${DATA_DIR} > /dev/null 2>&1
+#            cp ${GLOBAL_DATA}/*of_interest                                 ${DATA_DIR} > /dev/null 2>&1
+#            cp ${GLOBAL_DATA}/just_hg38_protein_coding_genes               ${DATA_DIR} > /dev/null 2>&1
+#            cp ${GLOBAL_DATA}/ENSG_UCSC_biomart_ENS_id_to_gene_name_table  ${DATA_DIR} > /dev/null 2>&1
+#            
+#            python reduce_FPKM_UQ_files.py --data_dir ${DATA_DIR} --target_genes_reference_file ${TARGET_GENES_REFERENCE_FILE} --rna_file_suffix ${RNA_FILE_SUFFIX} --rna_file_reduced_suffix ${RNA_FILE_REDUCED_SUFFIX}  \
+#            --rna_exp_column ${RNA_EXP_COLUMN} --use_unfiltered_data ${USE_UNFILTERED_DATA} --random_genes_count ${RANDOM_GENES_COUNT} --skip_rna_preprocessing  ${SKIP_RNA_PREPROCESSING}
+#  
+#  
+#            #~ echo "=====> EXTRACTING RNA EXPRESSION INFORMATION AND SAVING AS NUMPY FILES"
+#            sleep ${SLEEP_TIME}
+#            python process_rna_exp.py --data_dir ${DATA_DIR} --rna_file_suffix ${RNA_FILE_SUFFIX} --rna_file_reduced_suffix ${RNA_FILE_REDUCED_SUFFIX} --rna_exp_column ${RNA_EXP_COLUMN} \
+#            --rna_numpy_filename ${RNA_NUMPY_FILENAME} --use_unfiltered_data ${USE_UNFILTERED_DATA} --skip_rna_preprocessing  ${SKIP_RNA_PREPROCESSING}
+#        else
+#          echo -e "${ORANGE}DO_ALL.SH: ${CYAN}SKIP_RNA_PREPROCESSING${RESET}${ORANGE} flag is set, so ${CYAN}reduce_FPKM_UQ_files${RESET}${ORANGE} will not be called${RESET}"
+#          echo -e "${ORANGE}DO_ALL.SH: ${CYAN}SKIP_RNA_PREPROCESSING${RESET}${ORANGE} flag is set, so ${CYAN}process_rna_exp${RESET}${ORANGE}      will not be called${RESET}"
+#        fi
+#    fi
     
 
 # MOVED INTO CLASSI. NEED TO ALSO DO SO FOR THE OTHER TOP LEVEL PROCESSING MODES LIKE CLUSTERING 
