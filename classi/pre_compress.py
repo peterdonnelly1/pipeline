@@ -335,12 +335,12 @@ g_xform={WHITE}{ORANGE        if not args.gene_data_transform[0]=='NONE' else MA
   names_column                = args.names_column
   class_column                = args.class_column
   
-  rna_exp_column                = args.rna_exp_column
+  tcga_rna_seq_metric                = args.tcga_rna_seq_metric
   rna_numpy_filename            = args.rna_numpy_filename
   ensg_reference_file_name      = args.ensg_reference_file_name
   
 
-  if ( (input_mode == 'rna') | (input_mode == 'image_rna' ) ) &  (skip_rna_preprocessing != 'True'):
+  if ( (input_mode == 'rna') | (input_mode == 'image_rna' ) ) &  (skip_rna_preprocessing != True ):
     
     filter_genes    (args)
     process_rna_seq (args)
@@ -1576,7 +1576,7 @@ def segment_cases( pct_test ):
   # (1A) analyse dataset directory
 
   if args.use_unfiltered_data==True:
-    rna_suffix = args.rna_file_suffix[1:]
+    rna_suffix = args.tcga_rna_seq_file_suffix[1:]
   else:
     rna_suffix = args.rna_file_reduced_suffix
     
@@ -1646,7 +1646,7 @@ def segment_cases( pct_test ):
         dir_also_has_image  = False
   
         for f in sorted( files ):
-          if  ( f.endswith( args.rna_file_suffix[1:]) ):
+          if  ( f.endswith( args.tcga_rna_seq_file_suffix[1:]) ):
             dir_has_rna_data=True
             rna_file  = f
           if ( ( f.endswith( 'svs' ))  |  ( f.endswith( 'tif' ) )  |  ( f.endswith( 'tiff' ) )  ):
@@ -2069,7 +2069,10 @@ if __name__ == '__main__':
   p.add_argument('--save_model_name',                                               type=str,    default='model.pt'                              )                             
   p.add_argument('--save_model_every',                                              type=int,    default=10                                      )                                     
   p.add_argument('--rna_file_name',                                                 type=str,    default='rna.npy'                               )                              
-  p.add_argument('--rna_file_suffix',                                               type=str,    default='*FPKM-UQ.txt'                          )                        
+  p.add_argument('--tcga_rna_seq_file_suffix',                                      type=str,    default='*star_gene_counts.tsv'                 )                        
+  p.add_argument('--tcga_rna_seq_metric',                                    type=int,    default=8                                       )                        
+  p.add_argument('--tcga_rna_seq_start_row',                                        type=int,    default=6                                       )
+  p.add_argument('--rna_numpy_filename',                                            type=str,    default="rna.npy"                               )
   p.add_argument('--embedding_file_suffix_rna',                                     type=str                                                     )                        
   p.add_argument('--embedding_file_suffix_image',                                   type=str                                                     )                        
   p.add_argument('--embedding_file_suffix_image_rna',                               type=str                                                     )                        
@@ -2204,10 +2207,6 @@ if __name__ == '__main__':
   p.add_argument('--class_numpy_filename',                                          type=str,   default="class.npy"                             ) 
   p.add_argument('--ensg_reference_file_name',                                      type=str,   default="ENSG_reference"                        ) 
   p.add_argument('--skip_rna_preprocessing',                                        type=str2bool, nargs='?', const=False, default=False, help="If true, don't preprocess RNA-Seq files")
-  
-  
-  p.add_argument('--rna_exp_column',                                                type=int,   default=1                                       )
-  p.add_argument('--rna_numpy_filename',                                            type=str,   default="rna.npy"                               )
   
   p.add_argument('--random_genes_count',                                            type=int,   default=0                                       )
 

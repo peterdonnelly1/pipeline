@@ -40,24 +40,52 @@ def main(args):
   dataset          = args.dataset
   output_dir       = args.output_dir
   base_dir         = args.base_dir
-  uberlay          = args.uberlay
+  overlay          = args.overlay
   infill           = args.infill
   case_filter      = args.case_filter 
   file_filter      = args.file_filter
   portal           = args.gdc_portal
   cleanup          = args.cleanup
+  
+  max_cases            = args.max_cases
+  max_files_per_case   = args.max_files_per_case
+  global_max_downloads = max_files_per_case * max_cases
+  
 
+  afresh = 'no' 
+  
+  if DEBUG>0:
+    print( f"\n{MIKADO}GDC-FETCH:     INFO:    Here is the technique for downloading a new TCGA cancer dataset where you want {BOLD}only cases that contain BOTH an image file and an rna_seq file:{RESET}{MIKADO}" )
+    print( f"GDC-FETCH:     INFO:        1) define a case filter which requests all cases from the project which contain rna-seq files (see for example {CYAN}filters/TCGA-THYM_case_filter{RESET}{MIKADO})" )
+    print( f"GDC-FETCH:     INFO:        2) define a file filter which requests all files which contain svs files                      (see for example {CYAN}filters/GLOBAL_file_filter_UQ{RESET}{MIKADO})" )
+    print( f"GDC-FETCH:     INFO:     then run {CYAN}gdc-fetch{RESET}{MIKADO} two times, to get the rna_seq files and then the image files (order doesn't really matter but it's usually better to get the rna_seq files first because they're much smaller)" )
+    print( f"GDC-FETCH:     INFO:     important: use {UNDER}{RED}f{RESET}{BOLD}{MIKADO}inish{RESET}{MIKADO} option on the second run (this option downloads additional files for cases that have already been downloaded)" )
+    print( f'GDC-FETCH:     INFO:        3) {CYAN}./gdc-fetch.sh thym "filters/TCGA-THYM_case_filter" "filters/GLOBAL_file_filter_UQ"{RESET}{MIKADO}' )
+    print( f'GDC-FETCH:     INFO:        4) {CYAN}./gdc-fetch.sh thym "filters/TCGA-THYM_case_filter" "filters/GLOBAL_file_filter_SVS"{RESET}{MIKADO}' )
+    print( f"GDC-FETCH:     INFO:     explanation: because the file filter is applied to the already filtered cases, only cases which contain both svs and rna_seq files will be downloaded{RESET}\n" )
+
+    print( f"\n\n{ASPARAGUS}GDC-FETCH:     INFO:    Here is the technique for establishing a combined local dataset which amalgamtes multiple TCGA dataset{RESET}" )
+    print( f"{ASPARAGUS}GDC-FETCH:     INFO:    For example, TCGA has three separate datasets for kidney cancer: KIRC, KIRP and KICH{RESET}" )
+    print( f"{ASPARAGUS}GDC-FETCH:     INFO:    To estalish a combined dataset called KIDN to accumulate all three of these, do the following:{RESET}" )
+    print( f"{ASPARAGUS}GDC-FETCH:     INFO:       1) perform three runs of gdc-fetch, one for each of KIRC, KIRP and KICH {RESET}" )
+    print( f"{ASPARAGUS}GDC-FETCH:     INFO:       2) for the first run,  use the gdc-fetch {BOLD_RED}{UNDER}d{RESET}{ASPARAGUS} option, to delete any existing source directory named {BOLD_MAGENTA}source_data/kidn{RESET}" )
+    print( f"{ASPARAGUS}GDC-FETCH:     INFO:       3) for the other runs, use the gdc-fetch {BOLD_RED}{UNDER}o{RESET}{ASPARAGUS} option, to overlay new cases/folders into the (now existing) source directory {BOLD_MAGENTA}source_data/kidn{RESET}" )
+    print( f"{ASPARAGUS}GDC-FETCH:     INFO:       4) for ALL three runs, use --dataset    {CYAN}kidn {RESET}" )
+    print( f"{ASPARAGUS}GDC-FETCH:     INFO:       5) for ALL three runs, use --output_dir {BOLD_MAGENTA}source_data/kidn {RESET}" )
+    
+    print( f"\n\n{CARRIBEAN_GREEN}GDC-FETCH:     INFO:    Note that gdc-fetch downloads all files into sub-directories under source_data/  It does not touch the contents of directory working_data{RESET}" )
+    print( f"{CARRIBEAN_GREEN}GDC-FETCH:     INFO:    Once downloaded and processed by gdc-fetch, additional steps are necessary to establish a dataset which is usable by CLASSI.  See documentation.{RESET}" )
   
   if(os.path.isdir( output_dir )):
-    user_input = input( f"\033[1mWARNING: output directory \033[31;1;4m{output_dir}\033[m\033[1m already exists, perhaps from a previous interrupted run. \
+    user_input = input( f"\n\n{BOLD_ORANGE}WARNING: chosen output directory {BOLD_MAGENTA}{output_dir}{RESET}{BOLD_ORANGE} already exists, perhaps from a previous interrupted run.{RESET} \
 \n\noptions: \
-\n\033[31;1;4mf\033[m\033[1minish previous download {RESET}{ITALICS}or{RESET} \
-\n\033[31;1;4mp\033[m\033[1mromote all leaf files to their correct positions and delete all empty directories {RESET}{ITALICS}or{RESET} \
-\n\033[31;1;4mc\033[m\033[1mlean up unwanted files {RESET}{ITALICS}or{RESET} \
-\n\033[31;1;4mi\033[m\033[1mnfill.  Download new examples for existing cases only. Ignore cases which don't already exist locally\033[m {RESET}{ITALICS}or{RESET} \
-\n\033[31;1;4mu\033[m\033[1mberlay Download new cases / examples\033[m {RESET}{ITALICS}or{RESET} \
-\n\033[31;1;4md\033[m\033[1melete directory if it exists and start afresh?  \
-\033[m")
+\n{BOLD_RED}{UNDER}o{RESET}{BOLD_WHITE}verlay. Download new cases / examples\033[m {RESET}{ITALICS}or{RESET} \
+\n{BOLD_RED}{UNDER}f{RESET}{BOLD_WHITE}inish previous, possibly interrupted, download {RESET}{ITALICS}or{RESET} \
+\n{BOLD_RED}{UNDER}i{RESET}{BOLD_WHITE}nfill.  Download new examples for existing cases only. Ignore cases which don't already exist locally\033[m {RESET}{ITALICS}or{RESET} \
+\n{BOLD_RED}{UNDER}d{RESET}{BOLD_WHITE}elete directory if it exists and start afresh {RESET}{ITALICS}or{RESET} \
+\n{BOLD_RED}{UNDER}p{RESET}{BOLD_WHITE}romote all leaf files to their correct positions and delete all empty directories (doesn't download anything) {RESET}{ITALICS}or{RESET} \
+\n{BOLD_RED}{UNDER}c{RESET}{BOLD_WHITE}lean up unwanted files (doesn't download anything) \
+{RESET}")
   
     while True:
       if user_input=='f':
@@ -68,9 +96,10 @@ def main(args):
         except OSError:
           pass
         os.makedirs( output_dir )
+        afresh="yes"
         break
-      elif user_input=='u':
-        uberlay="yes"
+      elif user_input=='o':
+        overlay="yes"
         break
       elif user_input=='i':
         infill="yes"
@@ -82,25 +111,13 @@ def main(args):
         print ("sorry, no such option" )
         exit(0)
 
-  if DEBUG>0:
-    print( f"\n{MIKADO}GDC-FETCH:     INFO:    Here is the technique for downloading a new TCGA cancer class ('project') where you want {BOLD}only cases that contain BOTH an image file and an rna_seq file:{RESET}{MIKADO}" )
-    print( f"GDC-FETCH:     INFO:        1) define a case filter which requests all cases from the project which contain rna-seq files (see for example {CYAN}filters/TCGA-THYM_case_filter{RESET}{MIKADO})" )
-    print( f"GDC-FETCH:     INFO:        2) define a file filter which requests all files which contain svs files                      (see for example {CYAN}filters/GLOBAL_file_filter_UQ{RESET}{MIKADO})" )
-    print( f"GDC-FETCH:     INFO:     then run {CYAN}gdc-fetch{RESET}{MIKADO} two times, to get the rna_seq files and then the image files (order doesn't really matter but it's usually better to get the rna_seq files first because they're much smaller)" )
-    print( f"GDC-FETCH:     INFO:     important: use {UNDER}{RED}f{RESET}{BOLD}{MIKADO}inish{RESET}{MIKADO} option on the second run (this option downloads additional files for cases that have already been downloaded)" )
-    print( f'GDC-FETCH:     INFO:        3) {CYAN}./gdc-fetch.sh thym "filters/TCGA-THYM_case_filter" "filters/GLOBAL_file_filter_UQ"{RESET}{MIKADO}' )
-    print( f'GDC-FETCH:     INFO:        4) {CYAN}./gdc-fetch.sh thym "filters/TCGA-THYM_case_filter" "filters/GLOBAL_file_filter_SVS"{RESET}{MIKADO}' )
-    print( f"GDC-FETCH:     INFO:     explanation: because the file filter is applied to the already filtered cases, only cases which contain both svs and rna_seq files will be downloaded{RESET}\n" )
-
-  else:
-    pass
 
 ###########################################################################################################################################
 # STEP 1: RETRIEVE CASE UUIDs OF CASES WHICH MEET SEARCH CRITERIA PROVIDED TO THE GDC API
 ###########################################################################################################################################
 
   xxxxlay = "no"
-  if ( uberlay=="yes" ) | ( infill=="yes" ):
+  if ( overlay=="yes" ) | ( infill=="yes" ):
     xxxxlay="yes"
 
   if cleanup=="yes":
@@ -142,7 +159,7 @@ def main(args):
       
     if DEBUG>0:
       print( f"GDC-FETCH:    INFO:   filters:   {CYAN}{filters}{RESET}" )  
-      print( f"GDC-FETCH:    INFO:   max_cases: {CYAN}{args.max_cases}{RESET}" )  
+      print( f"GDC-FETCH:    INFO:   max_cases: {CYAN}{args.max_cases:,}{RESET}" )  
   
     params1 = {
         "filters": json.dumps(filters),
@@ -211,7 +228,7 @@ def main(args):
 #            for each SVS file (n, SVS file)
 #              make a new subdirectory at the case id level with the extension case_id-<n>             
 #              copy the SVS file plus the RNA-SEQ file into the new subdirectory
-#      2g  delete the original case_id directory                                                      - delete_unwanted_files()
+#      2g  delete unwanted files and empty directories                                                      - delete_unwanted_files()
 #      2h  create a new case level subdirectory named to flag that the case was handled successfully  - _all_downloaded_ok()
 #            checked on subsequent runs of gdc_fetch, so that files are not needlessly re-downloaded
 #            especially SVS files, which can be extremely large (multi-gigabyte)
@@ -234,36 +251,36 @@ def main(args):
     if DEBUG>9:
       print( f"GDC-FETCH:    INFO:   case_path = {MAGENTA}{case_path}{RESET}" )
   
-    if ( ( uberlay=="yes" ) & ( os.path.isdir( case_path )==True  )  ) :
-        print( f"GDC-FETCH:      {RAND}skipping {MAGENTA}{case_path}{RAND} and moving to next case{RESET}" )
+    if ( ( overlay=="yes" ) & ( os.path.isdir( case_path )==True  )  ) :
+        print( f"GDC-FETCH:    INFO:   {RAND}skipping case '{MAGENTA}{case_path}{RAND}' and moving to next case{RESET}" )
         already_have_counter +=1
 
     else:
       if DEBUG>0:
-        print( f"GDC-FETCH:    INFO:   files downloaded so far {MIKADO}{global_download_counter}{RESET} (user defined max = {MIKADO}{args.global_max_downloads:,}{RESET})" )
+        print( f"GDC-FETCH:    INFO:   {BOLD_MIKADO}{global_download_counter}{RESET} files downloaded so far in this run of gdc-fetch. (user defined max files that can be downloaded = {MIKADO}{args.max_cases:,}*{args.max_files_per_case:,}={global_max_downloads:,}{RESET})" )
   
-      if  global_download_counter >=  args.global_max_downloads:
+      if  global_download_counter >=  global_max_downloads:
         if DEBUG>0:
-          print( f"GDC-FETCH:    user defined maximumum number of files to be downloaded ({MIKADO}{RAND}{args.global_max_downloads}{RESET}) has been reached. Stopping." )
+          print( f"{BOLD_ORANGE}GDC-FETCH:    user defined maximumum number of files that are permitted to be downloaded ({MIKADO}{RAND}{global_max_downloads}{RESET}{BOLD_ORANGE}) has been reached. Stopping." )
         break
       
       n+=1
   
       if DEBUG>0:
-        if uberlay=="yes":
-          print( f"GDC-FETCH:    INFO:   case {MIKADO}{n}{RESET} of (at most) {MIKADO}{len( cases_uuid_list)-already_have_counter}{RESET} cases to be downloaded{RESET}"  )
+        if overlay=="yes":
+          print( f"GDC-FETCH:    INFO:   case {BOLD_MIKADO}{n}{RESET} of (at most) {BOLD_MIKADO}{len( cases_uuid_list)-already_have_counter}{RESET} cases to be processed{RESET}"  )
         else:
-          print( f"GDC-FETCH:    INFO:   case {MIKADO}{n}{RESET} of {MIKADO}{len( cases_uuid_list)}{RESET}"  )
+          print( f"GDC-FETCH:    INFO:   case {BOLD_MIKADO}{n}{RESET} of {MIKADO}{len( cases_uuid_list)}{RESET}"  )
   
       if DEBUG>0:
-        print( f"GDC-FETCH:    INFO:   case id {MIKADO}{case}{RESET}" )
+        print( f"GDC-FETCH:    INFO:   case id {BOLD_MIKADO}{case}{RESET}" )
   
-      already_have_svs_file = False                                                                          # will be changed to True if an SVS file already exists & we are in uberlay mode
+      already_have_svs_file = False                                                                          # will be changed to True if an SVS file already exists & we are in overlay mode
   
       already_have_flag = case_path[:-1] + already_have_suffix                                               # set on last download of this case, if there was one
   
       if DEBUG>99:
-        print( f"GDC-FETCH:    INFO:   'already_have_flag'  (would) =  {MAGENTA}{already_have_flag}{RESET}", flush=True )
+        print( f"GDC-FETCH:    INFO:   'already_have_flag'  (would be) =  {MAGENTA}{already_have_flag}{RESET}", flush=True )
   
       if ( xxxxlay=="no" ) & ( Path( already_have_flag ).is_dir()):
        # xxxxlay=="yes" & already_have_flag     set  - files for this case were already successfully downloaded, and user is not asking us to fetch further files for the case, so skip and move to the next case
@@ -273,10 +290,10 @@ def main(args):
        # xxxxlay=="yes" & already_have_flag not set  - download dir MUST exist (else xxxxlay option wouldn't have been offered). User explicitly specificed xxxxlay, but might also be first download of this case, or broken download or or else user selected 'xxxxlay'
        # xxxxlay=="yes" & already_have_flag     set  - download dir MUST exist (else xxxxlay option wouldn't have been offered). User explicitly specificed xxxxlay, so there should be NEW files to get. Normal scenario for 'xxxxlay' option.
   
-      if uberlay=="yes":
+      if overlay=="yes":
   
         if DEBUG>0:
-          print ("GDC-FETCH:                                                       \033[1m{:}!!! uberlay mode\033[m".format ( RAND ) )     
+          print (f"GDC-FETCH:    INFO:                                                {BOLD_ORANGE}!!! overlay mode{RESET}" )     
   
         walker = os.walk( case_path )
         for root, _, files in walker:
@@ -293,7 +310,7 @@ def main(args):
             print ("GDC-FETCH:                                                       \033[1m{:}!!! infill mode\033[m".format ( RAND ) )
             
         if DEBUG>1:
-          print( f"GDC-FETCH:    INFO:   {BOLD}2a: requesting file UUIDs for case                 {MAGENTA}{case}{RESET}", flush=True  )
+          print( f"GDC-FETCH:    INFO:   {BOLD}2a: requesting file UUIDs for case           {BOLD_CYAN}{case}{RESET}", flush=True  )
 
         if args.validate == True:
           RESULT = validate_case_file ( DEBUG, case )
@@ -301,7 +318,7 @@ def main(args):
           RESULT = FOUND
         
         if RESULT==FOUND:
-          RESULT, case_files = fetch_case_file_ids     ( RAND, DEBUG,                        case,                portal,  file_filter,  uberlay,  infill, already_have_flag   )
+          RESULT, case_files = fetch_case_file_ids     ( RAND, DEBUG,                        case,                portal,  file_filter,  overlay,  infill, afresh, already_have_flag   )
           if RESULT == SUCCESS:
             tarfile = download                         ( RAND, DEBUG, output_dir, case_path, case,  case_files,   portal                                                       )
             if tarfile != FAIL:
@@ -407,7 +424,7 @@ def validate_case_file ( DEBUG, case ):
 #====================================================================================================================================================
 # 2a FETCH CASE FILE IDs
 
-def fetch_case_file_ids( RAND, DEBUG, case, portal, file_filter, uberlay, infill, already_have_flag ):
+def fetch_case_file_ids( RAND, DEBUG, case, portal, file_filter, overlay, infill, afresh, already_have_flag ):
 
   if portal == "main":
     files_endpt = "https://api.gdc.cancer.gov/files"
@@ -422,32 +439,41 @@ def fetch_case_file_ids( RAND, DEBUG, case, portal, file_filter, uberlay, infill
     filters = json.load(this_file)
  
     if DEBUG>99:
-      print ( filters['content'][0]['content']['value'] )
+      print ( f"GDC-FETCH:    INFO:   file_filter             = {file_filter}" ) 
+      print ( f"GDC-FETCH:    INFO:   portal                  = {files_endpt}" ) 
+      print ( f"GDC-FETCH:    INFO:   case             (pre)  = {case}"   ) 
+      print ( f"GDC-FETCH:    INFO:   gdc field value  (pre)  = {filters['content'][0]['content']['value']}" ) 
 
-    if ( infill=="yes") | ( uberlay=="yes"):   
+
+    if ( infill=="yes") | ( overlay=="yes") | ( afresh=="yes"):
       filters['content'][0]['content']['field']  = 'cases.case_id'
-      filters['content'][0]['content']['value']  = case
+      filters['content'][0]['content']['value']  =  case
 
+    if DEBUG>99:
+      print ( f"GDC-FETCH:    INFO:   gdc field        (post) = {filters['content'][0]['content']['field']}" ) 
+      print ( f"GDC-FETCH:    INFO:   gdc field value  (post) = {filters['content'][0]['content']['value']}" ) 
   
   params2 = {
       "filters": json.dumps(filters),
       "fields": "file_id",
       "format": "JSON",
-      "size":    args.max_files
+      "size":    args.max_files_per_case
       }
 
-  if DEBUG>0:
+  if DEBUG>9:
     # ~ print ( filters['content'][0]['content']['value'] )
     print ( f"{CARRIBEAN_GREEN}{filters}{RESET}" )
 
   try:
     case_files = requests.get( files_endpt, params=params2 )
   except Exception as e:
-    print ( f"{RED}GDC-FETCH:   FATAL:  no internet connection? - cannot continue - halting now{RESET}" )                 
+    print ( f"{BOLD_RED}GDC-FETCH:    FATAL:  Can't reach host{RESET}"                           )                 
+    print ( f"{BOLD_RED}GDC-FETCH:    FATAL:  Possible cause: No internet connection???{RESET}"  )                 
+    print ( f"{BOLD_RED}GDC-FETCH:    FATAL:  Cannot continue - halting now{RESET}"              )                 
     sys.exit(0)
   
   if DEBUG>0:
-    print( "GDC-FETCH:    INFO:   response (json list of file ids of hits)  =   {:}{:}\033[m".format(RAND, case_files.text ) )
+    print( "GDC-FETCH:    INFO:   response (json list of file ids of hits)  =  {:}{:}\033[m".format(RAND, case_files.text ) )
 
   hits = json.loads( case_files.content.decode("utf-8"))["data"]["hits"]
   
@@ -458,12 +484,12 @@ def fetch_case_file_ids( RAND, DEBUG, case, portal, file_filter, uberlay, infill
     if DEBUG>9:
       print ( 'GDC-FETCH:          already_have_flag:                           \033[32;1m{:}\033[m'.format( already_have_flag )   )
 
-    if ( infill=="yes" ) | ( uberlay=="yes" ) :
-      if Path( already_have_flag ).is_dir():	                                                             # uberlay or infill mode and there are new files, so delete the already have flag to ensure integrity checking for this download	      
+    if ( infill=="yes" ) | ( overlay=="yes" ) :
+      if Path( already_have_flag ).is_dir():	                                                             # overlay or infill mode and there are new files, so delete the already have flag to ensure integrity checking for this download	      
         os.rmdir ( already_have_flag )
 
       if DEBUG>0:
-        print ( f'GDC-FETCH:    INFO:   {GREEN}new files to be downloaded so deleting:      {CYAN}{already_have_flag}{RESET}'  )
+        print ( f'GDC-FETCH:    INFO:   {BOLD_GREEN}new files to be downloaded so deleting flag  {MAGENTA}{already_have_flag}{RESET}'  )
 
     return SUCCESS, case_files
 
@@ -491,7 +517,7 @@ def download( RAND, DEBUG, output_dir, case_path, case, case_files, portal ):
     file_uuid_list.append(file_entry["file_id"])
       
   if DEBUG>0:
-    print( "GDC-FETCH:    INFO:   files to be downloaded for this case     =  {:}{:}\033[m".format( RAND, file_uuid_list) )
+    print( "GDC-FETCH:    INFO:   files to be downloaded for this case      =  {:}{:}\033[m".format( RAND, file_uuid_list) )
                                                                             # if the file in '.svs' (there can sometimes be one or more than one slide file)
 
 # (ii) Request, download and save the files (there will only ever be ONE actual file downloded because the GDC portal will put multiple files into a tar archive)
@@ -506,15 +532,15 @@ def download( RAND, DEBUG, output_dir, case_path, case, case_files, portal ):
   params = {"ids": file_uuid_list}
  
   if DEBUG>0:
-    print( f"GDC-FETCH:    INFO:   params           =  {CYAN}{params}{RESET}",            flush=True)
-    print( f"GDC-FETCH:    INFO:   data_endpt       =  {CYAN}{data_endpt}{RESET}",        flush=True)
+    print( f"GDC-FETCH:    INFO:   params                                    =  {CYAN}{params}{RESET}",            flush=True)
+    print( f"GDC-FETCH:    INFO:   data_endpt                                =  {CYAN}{data_endpt}{RESET}",        flush=True)
   
   response = requests.post( data_endpt, data = json.dumps(params), headers = {"Content-Type": "application/json"})
 
   response_head_cd = response.headers["Content-Disposition"]
 
   if DEBUG>0:
-    print( f"GDC-FETCH:    INFO:   response.headers =  {CYAN}{response.headers}{RESET}",  flush=True)
+    print( f"GDC-FETCH:    INFO:   response.headers                          =  {CYAN}{response.headers}{RESET}",  flush=True)
   
   # ~ if response.headers["Access-Control-Expose-Headers"] == "Content-Disposition":
     # ~ if DEBUG>0:
@@ -522,7 +548,7 @@ def download( RAND, DEBUG, output_dir, case_path, case, case_files, portal ):
     # ~ return FAIL    
 
   if DEBUG>0:
-    print( "GDC-FETCH:    INFO:   response.headers[Content-Type]             = {:}'{:}'\033[m".format( RAND, response_head_cd ) )
+    print( "GDC-FETCH:    INFO:   response.headers[Content-Type]            = {:}'{:}'\033[m".format( RAND, response_head_cd ) )
   
   download_file_name = re.findall("filename=(.+)", response_head_cd)[0]                                    # extract filename from HTTP response header using regular expression
  
@@ -589,6 +615,9 @@ def download( RAND, DEBUG, output_dir, case_path, case, case_files, portal ):
  
 def unpack_tarball ( RAND, DEBUG, case_path, tarfile_name ):
 
+  if DEBUG>0:
+    print( f"GDC-FETCH:    INFO:   {BOLD}2c:{RESET} unpacking tarball{RESET}"  )
+          
   tarfile_fq_name = "{:}/{:}".format( case_path, tarfile_name )   
   tar = tarfile.open( tarfile_fq_name )
 
@@ -620,7 +649,7 @@ def unpack_tarball ( RAND, DEBUG, case_path, tarfile_name ):
 def decompress_gz_files( RAND, DEBUG, case_path ):
 
   if DEBUG>1:
-    print( "GDC-FETCH:    \033[1m2d:\033[m unzipping all gz files in case path           {:}'{:}'\033[m, using match pattern {:}'{:}*.gz'\033[m".format( RAND, case_path, RAND, case_path ) )
+    print( "GDC-FETCH:    INFO:   \033[1m2d:\033[m unzipping all gz files in case path     {:}'{:}'\033[m, using match pattern {:}'{:}*.gz'\033[m".format( RAND, case_path, RAND, case_path ) )
     
   for dir_path, _, files in os.walk( case_path ):
     
@@ -654,13 +683,13 @@ def decompress_gz_files( RAND, DEBUG, case_path ):
   return SUCCESS
   
 #====================================================================================================================================================
-# 2e PROMOTE LEAF FILES UP INTO CASE DIRECTORY
+# 2e PROMOTE LEAF FILES UP INTO PARENT CASE DIRECTORY
 
 
 def promote_leaf_files( RAND, DEBUG, output_dir, case_path  ):
 
   if DEBUG>1:
-    print( f"GDC-FETCH:    {WHITE}2e:{RESET} about to promote leaf files of interest up into the case directory{RESET}" ) 
+    print( f"GDC-FETCH:    INFO:   {WHITE}2e:{RESET} about to promote leaf files of interest up into the parent case directory{RESET}" ) 
 
   for run in range (0,4):                                                                                   # assuming that files are nested at most 3 deep
 
@@ -745,7 +774,7 @@ def promote_leaf_files( RAND, DEBUG, output_dir, case_path  ):
 def setup_and_fill_case_subdirs    ( RAND, DEBUG, case_path ):
 
   if DEBUG>1:
-    print( "GDC-FETCH:    \033[1m2f:\033[m about to set up and populate a new case_id subdirectory for each svs file found" )
+    print( "GDC-FETCH:    INFO:   \033[1m2f:\033[m about to set up and populate a new case_id subdirectory for each svs file found" )
     
     svs_count   = 0
     other_count = 0
@@ -808,7 +837,7 @@ def setup_and_fill_case_subdirs    ( RAND, DEBUG, case_path ):
 def delete_unwanted_files( RAND, DEBUG, output_dir ):
 	
   if DEBUG>1:
-    print( "GDC-FETCH:    \033[1m2g:\033[m about to delete temp files and directories" )
+    print( "GDC-FETCH:    INFO:   \033[1m2g:\033[m about to delete temp files and directories" )
     
 
   if DEBUG>9:
@@ -822,7 +851,7 @@ def delete_unwanted_files( RAND, DEBUG, output_dir ):
       fqf = root + '/' + f
       if DEBUG>99:
         print( "GDC-FETCH:          examining file:                              {:}{:}\033[m".format( RAND, fqf ) )
-      if ( f.endswith("tar") ) | ( f.endswith("gz") ): 
+      if ( f.endswith("tar") ) | ( f.endswith("gz") ) | ( f.startswith("MANIFEST") ): 
         try:
           if DEBUG>99:
             print( "GDC-FETCH:              will delete                              {:}{:}\033[m".format( RAND, fqf ) )
@@ -847,12 +876,12 @@ def delete_unwanted_files( RAND, DEBUG, output_dir ):
   return SUCCESS
 
 #====================================================================================================================================================
-#  2h  create a new case level subdirectory named to indicate the case was handled successfully
+#  2h  create a new case level subdirectory named to indicate that this case was handled successfully
 
 def _all_downloaded_ok( RAND, DEBUG, case_path ):
 
   if DEBUG>1:
-    print( "GDC-FETCH:    \033[1m2h:\033[m about to create new case level subdirectory, named to indicate the case was handled successfully" )
+    print( "GDC-FETCH:    INFO:   \033[1m2h:\033[m about to create new case level subdirectory, named to indicate that this case was handled successfully" )
     
   try:
     fqn = case_path[:-1] + already_have_suffix
@@ -880,18 +909,17 @@ if __name__ == '__main__':
 
   p = argparse.ArgumentParser()
 
-  p.add_argument('--debug',                type=int, default=1)
+  p.add_argument('--debug',                type=int, default=1                                                )
   p.add_argument('--dataset',              type=str,                                          required=True   )
   p.add_argument('--output_dir',           type=str,                                          required=True   )
   p.add_argument('--base_dir',             type=str, default="/home/peter/git/pipeline"                       )
   p.add_argument('--gdc_portal',           type=str, default="main"                                           )
   p.add_argument('--case_filter',          type=str,                                                          )
   p.add_argument('--file_filter',          type=str,                                                          )
-  p.add_argument('--max_cases',            type=int, default=5                                                ) 
-  p.add_argument('--max_files',            type=int, default=10                                               )
-  p.add_argument('--global_max_downloads', type=int, default=200                                              )
-  p.add_argument('--uberlay',              type=str, default="no"                                             )
-  p.add_argument('--infill',              type=str, default="no"                                             )
+  p.add_argument('--max_cases',            type=int, default=500                                              ) 
+  p.add_argument('--max_files_per_case',   type=int, default=10                                               )
+  p.add_argument('--overlay',              type=str, default="no"                                             )
+  p.add_argument('--infill',               type=str, default="no"                                             )
   p.add_argument('--delete_compressed',    type=str, default="yes"                                            )
   p.add_argument('--cleanup',              type=str, default="no"                                             )
   p.add_argument('--validate',             type=str2bool, nargs='?', const=True, default=False, help="If true, only download cases that appear in the applicable xxx_mappping_file_MASTER file")

@@ -109,12 +109,13 @@ def main(args):
   print(time.strftime(f"\nCREATE_MASTER:     INFO:    {MIKADO}%Y-%m-%d %H:%M:%S %Z{RESET}", now))
   start_time = time.time()
 
-  base_dir            = args.base_dir
-  data_source         = args.data_source  
-  global_data_dir     = args.global_data_dir  
-  dataset             = args.dataset
-  case_column         = args.case_column
-  class_column        = args.class_column
+  base_dir                 = args.base_dir
+  data_source              = args.data_source  
+  global_data_dir          = args.global_data_dir  
+  dataset                  = args.dataset
+  case_column              = args.case_column
+  class_column             = args.class_column
+  tcga_rna_seq_file_suffix = args.tcga_rna_seq_file_suffix
  
  
   image_column        = 3
@@ -271,7 +272,7 @@ def main(args):
               
               df.iloc[i, image_column] = clone_found_slide_file
               
-            elif f.endswith("FPKM-UQ.txt"):
+            elif f.endswith(tcga_rna_seq_file_suffix[1:]):
               found_rna_seq_file               +=1
               clone_found_rna_seq_file         +=1
               global_found_rna_seq_file        +=1
@@ -419,6 +420,7 @@ if __name__ == '__main__':
     p.add_argument('--mapping_file_name',                   type=str                                                )
     p.add_argument('--case_column',                         type=str, default="bcr_patient_uuid"                    )
     p.add_argument('--class_column',                        type=str, default="type_n"                              )
+    p.add_argument('--tcga_rna_seq_file_suffix',            type=str, default='*star_gene_counts.tsv'                 )
 
     args, _ = p.parse_known_args()
 

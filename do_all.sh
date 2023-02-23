@@ -114,7 +114,7 @@ ENCODER_ACTIVATION="none"                                                       
 EPSILON="0.5"                                                                                         
 GENE_DATA_NORM="GAUSSIAN"                                                                                  # supported options are NONE JUST_SCALE GAUSSIAN 
 GENE_DATA_TRANSFORM="LOG2PLUS1"                                                                            # supported options are NONE LN LOG2 LOG2PLUS1 LOG10 LOG10PLUS1 RANKED
-EMBEDDING_DIMENSIONS="100"
+EMBEDDING_DIMENSIONS="0"
 HIDDEN_LAYER_NEURONS="1100"
 IGNORE_TILE_QUALITY_HYPERPARAMETERS="False"                                                                # (Use when whole image is used as a single tile) Don't apply tests that use MINIMUM_PERMITTED_GREYSCALE_RANGE, MINIMUM_PERMITTED_UNIQUE_VALUES or MINIMUM_TILE_SD
 INPUT_MODE="rna"
@@ -143,7 +143,7 @@ N_EPOCHS="10"                                                                   
 N_EPOCHS_TEST="1"
 N_ITERATIONS="250"                                                                                         # 
 N_TESTS=1                                                                                                  # (test mode only) Number of examples to put through the model when just_test=='True'
-N_SAMPLES=98765
+N_SAMPLES=987654
 PCT_TEST=".2"
 PCT_TEST___JUST_TEST="1.0"
 PCT_TEST___TRAIN="0.2"
@@ -159,6 +159,9 @@ SKIP_TILING="False"                                                             
 SKIP_TRAINING="False"
 STRONG_SUPERVISION='False'                                                                                 # Convenience variable. all it does is change --extract_from_centre to 'True', '--ignore_tile_quality_hyperparameters' to 'True' and 'n_tiles' to 1 in classify.py.  Could achieve same effect the these flags separately, but may also want to othe things with those flags.
 SUPERGRID_SIZE="2"
+#TCGA_RNA_SEQ_METRIC=${FPKM_UQ_UNSTRANDED}                                                           # TCGA RNA-Seq metric. Options are: UNSTRANDED, STRANDED_FIRST, STRANDED_SECOND, TPM_UNSTRANDED, FPKM_UNSTRANDED, FPKM_UQ_UNSTRANDED.  Usage: e.g. ${STRANDED_FIRST}
+TCGA_RNA_SEQ_METRIC=${TPM_UNSTRANDED}                                                           # TCGA RNA-Seq metric. Options are: UNSTRANDED, STRANDED_FIRST, STRANDED_SECOND, TPM_UNSTRANDED, FPKM_UNSTRANDED, FPKM_UQ_UNSTRANDED.  Usage: e.g. ${STRANDED_FIRST}
+#TCGA_RNA_SEQ_METRIC=${FPKM_UQ_UNSTRANDED}                                                           # TCGA RNA-Seq metric. Options are: UNSTRANDED, STRANDED_FIRST, STRANDED_SECOND, TPM_UNSTRANDED, FPKM_UNSTRANDED, FPKM_UQ_UNSTRANDED.  Usage: e.g. ${STRANDED_FIRST}
 TILES_PER_IMAGE="10"
 TILE_SIZE="64"
 USE_AUTOENCODER_OUTPUT="False"
@@ -166,9 +169,11 @@ USE_AUTOENCODER_OUTPUT="False"
 HIDDEN_LAYER_ENCODER_TOPOLOGY="40 20"                                                                      # This parameter can only be used with the DEEPDENSE, AEDEEPDENSE and TTVAE models. Ignored for other models                                                             
 STAIN_NORMALIZATION='NONE'
 
+#USE_UNFILTERED_DATA="False"                                                      
 USE_UNFILTERED_DATA="True"                                                      
-TARGET_GENES_REFERENCE_FILE="just_hg38_protein_coding_genes"                                               # file specifying genes to be used if USE_UNFILTERED_DATA=False 
-TARGET_GENES_REFERENCE_FILE_NAME="pmcc_cancer_genes_of_interest"                                           # To allow "data_comp.sh" to pass in just the file name, so that the user does not need to specify the whole path
+#TARGET_GENES_REFERENCE_FILE_NAME="randomly_selected_genes"                                               # file specifying genes to be used if USE_UNFILTERED_DATA=False 
+TARGET_GENES_REFERENCE_FILE_NAME="just_hg38_protein_coding_genes"                                               # file specifying genes to be used if USE_UNFILTERED_DATA=False 
+#TARGET_GENES_REFERENCE_FILE_NAME="pmcc_cancer_genes_of_interest"                                           # To allow "data_comp.sh" to pass in just the file name, so that the user does not need to specify the whole path
 
 RANDOM_GENES_COUNT=0
 
@@ -461,13 +466,13 @@ fi
 #            cp ${GLOBAL_DATA}/just_hg38_protein_coding_genes               ${DATA_DIR} > /dev/null 2>&1
 #            cp ${GLOBAL_DATA}/ENSG_UCSC_biomart_ENS_id_to_gene_name_table  ${DATA_DIR} > /dev/null 2>&1
 #            
-#            python reduce_FPKM_UQ_files.py --data_dir ${DATA_DIR} --target_genes_reference_file ${TARGET_GENES_REFERENCE_FILE} --rna_file_suffix ${RNA_FILE_SUFFIX} --rna_file_reduced_suffix ${RNA_FILE_REDUCED_SUFFIX}  \
-#            --rna_exp_column ${RNA_EXP_COLUMN} --use_unfiltered_data ${USE_UNFILTERED_DATA} --random_genes_count ${RANDOM_GENES_COUNT} --skip_rna_preprocessing  ${SKIP_RNA_PREPROCESSING}
+#            python reduce_FPKM_UQ_files.py --data_dir ${DATA_DIR} --target_genes_reference_file ${TARGET_GENES_REFERENCE_FILE} --rna_file_suffix ${TCGA_RNA_SEQ_FILE_SUFFIX} --rna_file_reduced_suffix ${RNA_FILE_REDUCED_SUFFIX}  \
+#            --rna_exp_column ${TCGA_RNA_SEQ_METRIC} --use_unfiltered_data ${USE_UNFILTERED_DATA} --random_genes_count ${RANDOM_GENES_COUNT} --skip_rna_preprocessing  ${SKIP_RNA_PREPROCESSING}
 #  
 #  
 #            #~ echo "=====> EXTRACTING RNA EXPRESSION INFORMATION AND SAVING AS NUMPY FILES"
 #            sleep ${SLEEP_TIME}
-#            python process_rna_exp.py --data_dir ${DATA_DIR} --rna_file_suffix ${RNA_FILE_SUFFIX} --rna_file_reduced_suffix ${RNA_FILE_REDUCED_SUFFIX} --rna_exp_column ${RNA_EXP_COLUMN} \
+#            python process_rna_exp.py --data_dir ${DATA_DIR} --rna_file_suffix ${TCGA_RNA_SEQ_FILE_SUFFIX} --rna_file_reduced_suffix ${RNA_FILE_REDUCED_SUFFIX} --rna_exp_column ${TCGA_RNA_SEQ_METRIC} \
 #            --rna_numpy_filename ${RNA_NUMPY_FILENAME} --use_unfiltered_data ${USE_UNFILTERED_DATA} --skip_rna_preprocessing  ${SKIP_RNA_PREPROCESSING}
 #        else
 #          echo -e "${ORANGE}DO_ALL.SH: ${CYAN}SKIP_RNA_PREPROCESSING${RESET}${ORANGE} flag is set, so ${CYAN}reduce_FPKM_UQ_files${RESET}${ORANGE} will not be called${RESET}"
@@ -507,7 +512,7 @@ CUDA_LAUNCH_BLOCKING=1 python ${MAIN_APPLICATION_NAME} \
 --log_dir ${LOG_DIR} --save_model_name ${SAVE_MODEL_NAME} \
 --ddp ${DDP} --use_autoencoder_output ${USE_AUTOENCODER_OUTPUT} --ae_add_noise ${AE_ADD_NOISE} --pretrain ${PRETRAIN} \
 --clustering ${CLUSTERING} --render_clustering ${RENDER_CLUSTERING} --n_clusters ${N_CLUSTERS} --metric ${METRIC} --epsilon ${EPSILON} --repeat ${REPEAT} --min_cluster_size ${MIN_CLUSTER_SIZE} --perplexity ${PERPLEXITY} --momentum ${MOMENTUM} \
---rna_file_name ${RNA_NUMPY_FILENAME} --rna_file_suffix ${RNA_FILE_SUFFIX}  --use_unfiltered_data ${USE_UNFILTERED_DATA} \
+--rna_file_name ${RNA_NUMPY_FILENAME} --tcga_rna_seq_file_suffix ${TCGA_RNA_SEQ_FILE_SUFFIX} --tcga_rna_seq_metric ${TCGA_RNA_SEQ_METRIC} --tcga_rna_seq_start_row ${TCGA_RNA_SEQ_START_ROW}  --use_unfiltered_data ${USE_UNFILTERED_DATA} \
 --embedding_file_suffix_rna ${EMBEDDING_FILE_SUFFIX_RNA} --embedding_file_suffix_image ${EMBEDDING_FILE_SUFFIX_IMAGE} --embedding_file_suffix_image_rna ${EMBEDDING_FILE_SUFFIX_IMAGE_RNA} \
 --low_expression_threshold ${LOW_EXPRESSION_THRESHOLD} --remove_unexpressed_genes ${REMOVE_UNEXPRESSED_GENES} --target_genes_reference_file ${TARGET_GENES_REFERENCE_FILE} \
 --do_covariance ${DO_COVARIANCE} --do_correlation ${DO_CORRELATION} --a_d_use_cupy ${A_D_USE_CUPY} --high_correlation_threshold ${HIGH_CORRELATION_THRESHOLD} --cutoff_percentile ${CUTOFF_PERCENTILE} \

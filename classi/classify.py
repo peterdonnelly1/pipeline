@@ -297,7 +297,7 @@ has been set to {RESET}{BOLD_MIKADO}'False'{RESET}{GREENBLUE} (the dataset balan
   nn_optimizer                  = args.optimizer
   n_samples                     = args.n_samples
   n_tiles                       = args.n_tiles
-  extract_from_centre         = args.extract_from_centre
+  extract_from_centre           = args.extract_from_centre
   make_balanced                 = args.make_balanced
   make_balanced_margin          = args.make_balanced_margin
   n_iterations                  = args.n_iterations
@@ -360,9 +360,25 @@ has been set to {RESET}{BOLD_MIKADO}'False'{RESET}{GREENBLUE} (the dataset balan
   names_column                  = args.names_column
   case_column                   = args.case_column
   class_column                  = args.class_column
-  rna_exp_column                = args.rna_exp_column
+  tcga_rna_seq_file_suffix      = args.tcga_rna_seq_file_suffix
+  tcga_rna_seq_metric           = args.tcga_rna_seq_metric
+  tcga_rna_seq_start_row        = args.tcga_rna_seq_start_row
   rna_numpy_filename            = args.rna_numpy_filename
   random_genes_count            = args.random_genes_count
+  
+  rna_seq_metric='not assigned'
+  if tcga_rna_seq_metric == 3:
+    rna_seq_metric='unstranded'
+  if tcga_rna_seq_metric == 4:
+    rna_seq_metric='stranded_first'
+  if tcga_rna_seq_metric == 5:
+    rna_seq_metric='stranded_first'
+  if tcga_rna_seq_metric == 6:
+    rna_seq_metric='stranded_first'
+  if tcga_rna_seq_metric == 7:
+    rna_seq_metric='stranded_first'
+  if tcga_rna_seq_metric == 8:
+    rna_seq_metric='fpkm_uq_unstranded'
 
   # Need to remember these across all runs in a job
   global top_up_factors_train
@@ -413,7 +429,7 @@ has been set to {RESET}{BOLD_MIKADO}'False'{RESET}{GREENBLUE} (the dataset balan
     for f in files:
       shutil.copy( f, data_dir )
       
-    # Possibly filter genes and then always process rna-seq data files
+    # Possibly filter genes, and then always process rna-seq data files
 
     filter_genes    (args)
     process_rna_seq (args)
@@ -436,8 +452,21 @@ has been set to {RESET}{BOLD_MIKADO}'False'{RESET}{GREENBLUE} (the dataset balan
     src = f"{global_data}/{ensg_reference_file_name}"
     dst = f"{data_dir}"
     shutil.copy2( src, dst )
-    
+
     process_classes( args )
+  
+  else:
+    if  skip_image_preprocessing == True:
+      print( f"{ORANGE}CLASSI:         INFO: '{CYAN}skip_image_preprocessing{RESET}{ORANGE}' flag = {MIKADO}{skip_image_preprocessing}{RESET}{ORANGE}. This also suppress processing of subytypes (=classes=truth values) from the master spreadsheet, and production of '{MAGENTA}class.npy{RESET}{ORANGE}' files{RESET}" )
+    if  skip_rna_preprocessing == True:
+      print( f"{ORANGE}CLASSI:         INFO: '{CYAN}skip_rna_preprocessing{RESET}{ORANGE}' flag = {MIKADO}{skip_rna_preprocessing}{RESET}{ORANGE}. This also suppress processing of subytypes (=classes=truth values) from the master spreadsheet, and production of '{MAGENTA}class.npy{RESET}{ORANGE}' files{RESET}" )
+    if  skip_rna_preprocessing == 'True':
+      print( f"{ORANGE}CLASSI:         INFO: '{CYAN}skip_generation{RESET}{ORANGE}' flag = {MIKADO}{skip_generation}{RESET}{ORANGE}. This also suppress processing of subytypes (=classes=truth values) from the master spreadsheet, and production of '{MAGENTA}class.npy{RESET}{ORANGE}' files{RESET}" )
+    if  skip_rna_preprocessing == 'True':
+      print( f"{ORANGE}CLASSI:         INFO: '{CYAN}skip_tiling{RESET}{ORANGE}' flag = {MIKADO}{skip_tiling}{RESET}{ORANGE}. This also suppress processing of subytypes (=classes=truth values), from the master spreadsheet and production of '{MAGENTA}class.npy{RESET}{ORANGE}' files{RESET}" )
+  
+    print( f"{ORANGE}CLASSI:         INFO: This may be intentional on your part: the required files may alreay exist, and you may be using this flag to avoid repeatedly generating the same files. {RESET}" )
+  
 
 
   ################################################################################################################################################################################################################################
@@ -1005,7 +1034,7 @@ has been set to {RESET}{BOLD_MIKADO} [ 'plane', 'car', 'bird', 'cat', 'deer', 'd
             rna_file_count +=1
           
     if rna_file_count<np.max(args.n_samples):
-      print( f"{BOLD_ORANGE}CLASSI:         WARN:  there are not {MIKADO}{np.max(args.n_samples)}{BOLD_ORANGE} RNA-Seq examples available to be used. A file count reveals a total of {MIKADO}{rna_file_count}{RESET}{BOLD_ORANGE} rna files in {MAGENTA}{args.data_dir}{RESET}{BOLD_ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES{RESET}{BOLD_ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET}" ) 
+      print( f"{BOLD_ORANGE}CLASSI:         WARN:  there are not {MIKADO}{np.max(args.n_samples):,}{BOLD_ORANGE} RNA-Seq examples available to be used. A file count reveals a total of {MIKADO}{rna_file_count}{RESET}{BOLD_ORANGE} rna files in {MAGENTA}{args.data_dir}{RESET}{BOLD_ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES{RESET}{BOLD_ORANGE}' = {MIKADO}{np.max(args.n_samples):,}{RESET}" ) 
       print( f"{BOLD_ORANGE}CLASSI:         WARN:  changing all values in the user configuration parameter '{CYAN}N_SAMPLES{RESET}{BOLD_ORANGE}' that are greater than {RESET}{BOLD}{MIKADO}{rna_file_count}{RESET}{BOLD_ORANGE} to exactly {MIKADO}{rna_file_count}{RESET}{BOLD_ORANGE}{RESET}" )
       args.n_samples = [  el if el<=rna_file_count else rna_file_count for el in args.n_samples   ]
       n_samples      = args.n_samples
@@ -1076,7 +1105,7 @@ has been set to {RESET}{BOLD_MIKADO} [ 'plane', 'car', 'bird', 'cat', 'deer', 'd
 
   start_column  = 0
   offset        = 12
-  second_offset = 12
+  second_offset = 10
 
   total_runs_in_job = len(list(product(*param_values)))
 
@@ -1144,14 +1173,15 @@ f"\
 \r\033[{start_column+3*offset}Cbatch_size\
 \r\033[{start_column+4*offset}Cnetwork\
 \r\033[{start_column+5*offset}Chidden\
-\r\033[{start_column+6*offset}CFPKM percentile/threshold\
-\r\033[{start_column+8*offset}Cembedded\
-\r\033[{start_column+9*offset}Cdropout_1\
-\r\033[{start_column+10*offset}Cdropout_2\
-\r\033[{start_column+11*offset}Coptimizer\
-\r\033[{start_column+12*offset}Cnormalisation\
-\r\033[{start_column+13*offset+3}Ctransform\
-\r\033[{start_column+14*offset+3}Clabel_swap\
+\r\033[{start_column+6*offset}Cmetric\
+\r\033[{start_column+7*offset+1*second_offset}Cpercentile/threshold\
+\r\033[{start_column+9*offset+1*second_offset}Cembedding_dims\
+\r\033[{start_column+10*offset+2*second_offset}Cdropout_1\
+\r\033[{start_column+11*offset+2*second_offset}Cdropout_2\
+\r\033[{start_column+12*offset+2*second_offset}Coptimizer\
+\r\033[{start_column+13*offset+2*second_offset}Cnormalisation\
+\r\033[{start_column+14*offset+2*second_offset+3}Ctransform\
+\r\033[{start_column+15*offset+2*second_offset+3}Clabel_swap\
 "
  
   
@@ -1214,15 +1244,16 @@ f"\
 \r\033[{start_column+3*offset}C{batch_size:<5d}\
 \r\033[{start_column+4*offset}C{nn_type_rna:<10s}\
 \r\033[{start_column+5*offset}C{hidden_layer_neurons:<5d}\
-\r\033[{start_column+6*offset}C{cutoff_percentile:<4.0f}\
-\r\033[{start_column+7*offset}C{low_expression_threshold:<9.6f}\
-\r\033[{start_column+8*offset}C{embedding_dimensions:<5d}\
-\r\033[{start_column+9*offset}C{dropout_1:<5.2f}\
-\r\033[{start_column+10*offset}C{dropout_2:<5.2f}\
-\r\033[{start_column+11*offset}C{nn_optimizer:<8s}\
-\r\033[{start_column+12*offset}C{gene_data_norm:<10s}\
-\r\033[{start_column+13*offset+3}C{gene_data_transform:<10s}\
-\r\033[{start_column+14*offset+3}C{label_swap_pct:<6.1f}\
+\r\033[{start_column+6*offset}C{rna_seq_metric:<20s}\
+\r\033[{start_column+7*offset+1*second_offset}C{cutoff_percentile:<4.0f}\
+\r\033[{start_column+8*offset+1*second_offset}C{low_expression_threshold:<9.6f}\
+\r\033[{start_column+9*offset+1*second_offset}C{embedding_dimensions:<5d}\
+\r\033[{start_column+10*offset+2*second_offset}C{dropout_1:<5.2f}\
+\r\033[{start_column+11*offset+2*second_offset}C{dropout_2:<5.2f}\
+\r\033[{start_column+12*offset+2*second_offset}C{nn_optimizer:<8s}\
+\r\033[{start_column+13*offset+2*second_offset}C{gene_data_norm:<10s}\
+\r\033[{start_column+14*offset+2*second_offset+3}C{gene_data_transform:<10s}\
+\r\033[{start_column+15*offset+2*second_offset+3}C{label_swap_pct:<6.1f}\
 {RESET}" )
   
 
@@ -1256,11 +1287,6 @@ f"\
   second_best = { 'run':0, 'number_correct':0, 'pct_correct':0, 'batch_size':0 }
 
   for repeater, stain_norm, tile_size, lr, pct_test, n_samples, batch_size, n_tiles, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, low_expression_threshold, cutoff_percentile, embedding_dimensions, dropout_1, dropout_2, nn_optimizer, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values): 
-
-    now = time.localtime(time.time())
-    if DEBUG>0:
-      print(time.strftime( f"CLASSI:         INFO:  run start time = %Y-%m-%d %H:%M:%S %Z", now ))
-    run_start_time = time.time()  
 
     if input_mode=='image':  
       if ( (len(args.zoom_out_mags)>=5)  & (len(args.zoom_out_prob)>=5) ):
@@ -1348,14 +1374,14 @@ f"\
     nb ="NOTBLNCD"
     if input_mode=='image':
       descriptor = f"_{run+1:02d}_OF_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{b if make_balanced=='level_up' else nb}_{args.cases[0:20]:_<20s}_{nn_type_img:_<15s}_\
-{stain_norm:_<4s}_{nn_optimizer:_<8s}_e_{args.n_epochs:03d}_N_{n_samples:05d}_hi_{n_classes:02d}_bat_{batch_size:03d}_test_{int(100*pct_test):03d}_lr_{lr:09.6f}_tiles_{n_tiles:04d}_tlsz_{tile_size:04d}\
+{stain_norm:_<4s}_{nn_optimizer:_<8s}_E_{args.n_epochs:03d}_N_{n_samples:05d}_hi_{n_classes:02d}_bat_{batch_size:03d}_test_{int(100*pct_test):03d}_lr_{lr:09.6f}_tiles_{n_tiles:04d}_tlsz_{tile_size:04d}\
 __mag_{mags}__prob_{prob:_<20s}"
       descriptor = descriptor[0:200]
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}  Tiles/Slide={n_tiles:d}   Tile size={tile_size}x{tile_size}\n\
 Magnif'n vector={mags}   Stain Norm={stain_norm}   Peer Noise Pct={peer_noise_pct}   Grey Scale Pct={make_grey_pct}   Batch Size={batch_size:d}   Held Out={int(100*pct_test):03d}%   Learning Rate={lr:<09.6f}   Selected from cases subset: {args.cases[0:50]}"
 
-      descriptor_clustering = f'{args.dataset.upper()}_HighClass_{highest_class_number:d}_Encoder_{nn_type_img}_e_{args.n_epochs:d}_tiles_{n_tiles:d}_tsz_{tile_size:d}x{tile_size:d}_\
+      descriptor_clustering = f'{args.dataset.upper()}_HighClass_{highest_class_number:d}_Encoder_{nn_type_img}_E_{args.n_epochs:d}_tiles_{n_tiles:d}_tsz_{tile_size:d}x{tile_size:d}_\
 Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_pct}_Grey_Pct_{make_grey_pct}_Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_samples:d}_Cases_{args.cases[0:50]}'
 
 
@@ -1367,17 +1393,17 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_pct}_Grey_Pct_{make_g
     
       topology_as_whitespace_free_string = '-'.join(map(str, hidden_layer_encoder_topology))
      
-      descriptor = f"_{run+1:02d}_OF_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases[0:10]:_<10s}__{rna_genes_tranche[0:10].upper():_<10s}________{nn_type_rna:_<15s}______{nn_optimizer[0:8]:_<8s}\
-_e_{args.n_epochs:03d}_N_{n_samples:05d}_hi_{n_classes:02d}_bat_{batch_size:03d}_test_{int(100*pct_test):03d}_lr_{lr:09.6f}_hid_{hidden_layer_neurons:04d}_lo_{low_expression_threshold:<02.2e}_low_{cutoff_percentile:04.0f}\
+      descriptor = f"_{run+1:02d}_OF_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases[0:10]:_<10s}__{rna_genes_tranche[0:10].upper():_<10s}________{nn_type_rna:_<15s}______{nn_optimizer[0:8]:_<8s}___________________{rna_seq_metric[0:18]:_<18s} \
+_E_{args.n_epochs:03d}_N_{n_samples:05d}_hi_{n_classes:02d}_bat_{batch_size:03d}_test_{int(100*pct_test):03d}_lr_{lr:09.6f}_hid_{hidden_layer_neurons:04d}_lo_{low_expression_threshold:<02.2e}_low_{cutoff_percentile:04.0f}\
 _dr_{100*dropout_1:4.1f}_xfrm_{gene_data_transform:_<8s}_shape_{topology_as_whitespace_free_string}"                                                                                                # need to abbreviate everything because the long topology string will make the file name too long and it will crash
-      if topology_length > 14:
-        descriptor = descriptor[0:200-topology_length]
+      if len(descriptor) > 200:
+        descriptor = descriptor[0:200]
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={n_classes:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}\n\
 Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:<9.6f}   Cases from subset: {args.cases[0:50]} Genes subset: {rna_genes_tranche}"
 
       descriptor_clustering = f"_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases[0:10]:_<10s}__{rna_genes_tranche[0:10].upper():_<10s}__{nn_type_rna:_<9s}_{nn_optimizer[0:8]:_<8s}\
-_e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:03d}_test_{int(100*pct_test):03d}_lr_{lr:09.6f}_hid_{hidden_layer_neurons:04d}"
+_E_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:03d}_test_{int(100*pct_test):03d}_lr_{lr:09.6f}_hid_{hidden_layer_neurons:04d}"
 
 
     # ~ if just_test=='True':
@@ -1447,12 +1473,16 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
         print ( f"CLASSI:         INFO:      test: n_classes                        = {PALE_GREEN}{n_classes}{RESET}"                     )
         print ( f"CLASSI:         INFO:      test: probabilities_matrix.shape       = {PALE_GREEN}{probabilities_matrix.shape}{RESET}"    )                                    
 
+    now = time.localtime(time.time())
+    if DEBUG>0:
+      print(time.strftime( f"\n\r\033[220C{ITALICS}{DIM_WHITE}run {run} start time = %Y-%m-%d %H:%M:%S %Z{RESET}", now ))
+    run_start_time = time.time()
 
     if DEBUG>0:
       if input_mode=='image':
         if run !=1:
           print( f"\033[12B")                                                                              # cursor to bottom of screen
-        print( f"\n\n{UNDER}{BOLD}RUN: {run} of {total_runs_in_job}{RESET}")
+        print( f"{UNDER}{BOLD}RUN: {run} of {total_runs_in_job}{RESET}")
         print( f"\033[2C{image_headings}{RESET}") 
         print( f"{BITTER_SWEET}\
 \r\033[2C\
@@ -1475,25 +1505,26 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
       elif input_mode=='rna':
         if run !=1: 
           print( f"\033[12B")                                                                              # cursor to bottom of screen
-        print( f"\n\n{UNDER}{BOLD}RUN: {run} of {total_runs_in_job}{RESET}")
+        print( f"{UNDER}{BOLD}RUN: {run} of {total_runs_in_job}{RESET}")
         print(f"\033[2C\{rna_headings}{RESET}")
         print( f"{CARRIBEAN_GREEN}\
 \r\033[{start_column+0*offset}C{lr:<9.6f}\
-\r\033[{start_column+1*offset}C{pct_test:<9.2f}\
+\r\033[{start_column+1*offset}C{100*pct_test:<9.0f}\
 \r\033[{start_column+2*offset}C{n_samples:<5d}\
 \r\033[{start_column+3*offset}C{batch_size:<5d}\
 \r\033[{start_column+4*offset}C{nn_type_rna:<10s}\
 \r\033[{start_column+5*offset}C{hidden_layer_neurons:<5d}\
-\r\033[{start_column+6*offset}C{low_expression_threshold:<02.2e}\
-\r\033[{start_column+7*offset}C{cutoff_percentile:<4.0f}\
-\r\033[{start_column+8*offset}C{embedding_dimensions:<5d}\
-\r\033[{start_column+9*offset}C{dropout_1:<5.2f}\
-\r\033[{start_column+10*offset}C{dropout_2:<5.2f}\
-\r\033[{start_column+11*offset}C{nn_optimizer:<8s}\
-\r\033[{start_column+12*offset}C{gene_data_norm:<10s}\
-\r\033[{start_column+13*offset+3}C{gene_data_transform:<10s}\
-\r\033[{start_column+14*offset+3}C{label_swap_pct:<6.1f}\
-{RESET}" ) 
+\r\033[{start_column+6*offset}C{rna_seq_metric:<20s}\
+\r\033[{start_column+7*offset+1*second_offset}C{cutoff_percentile:<4.0f}\
+\r\033[{start_column+8*offset+1*second_offset}C{low_expression_threshold:<9.6f}\
+\r\033[{start_column+9*offset+1*second_offset}C{embedding_dimensions:<5d}\
+\r\033[{start_column+10*offset+2*second_offset}C{dropout_1:<5.2f}\
+\r\033[{start_column+11*offset+2*second_offset}C{dropout_2:<5.2f}\
+\r\033[{start_column+12*offset+2*second_offset}C{nn_optimizer:<8s}\
+\r\033[{start_column+13*offset+2*second_offset}C{gene_data_norm:<10s}\
+\r\033[{start_column+14*offset+2*second_offset+3}C{gene_data_transform:<10s}\
+\r\033[{start_column+15*offset+2*second_offset+3}C{label_swap_pct:<6.1f}\
+{RESET}" )
 
       if DEBUG>0:
         print ("")
@@ -2133,9 +2164,9 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
     for epoch in range(1, n_epochs+1):
   
         if   args.input_mode=='image':
-          print( f'\nCLASSI:         INFO:  {CARRIBEAN_GREEN}(RUN {run} of {total_runs_in_job}){RESET} in epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  dataset:{CYAN}{dataset}{RESET}  input:{CYAN}{input_mode}{RESET} network:{BOLD}{CYAN}{nn_type_img}{RESET}  stain norm:{MAGENTA if stain_norm=="spcn" else CYAN}{stain_norm}{RESET}  lr:{MIKADO}{lr:<9.6f}{RESET}  samples:{MIKADO}{n_samples}{RESET}  batch size:{MIKADO}{batch_size}{RESET}  tile size:{MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide:{MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {BOLD_MAGENTA}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+          print( f'\nCLASSI:         INFO:  {CARRIBEAN_GREEN}(RUN {run} of {total_runs_in_job}){RESET} in epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  dataset:{CYAN}{dataset}{RESET}  input:{CYAN}{input_mode}{RESET} network:{BOLD}{CYAN}{nn_type_img}{RESET}  stain norm:{MAGENTA if stain_norm=="spcn" else CYAN}{stain_norm}{RESET}  lr:{MIKADO}{lr:<9.6f}{RESET}  samples:{MIKADO}{n_samples}{RESET}  batch size:{MIKADO}{batch_size}{RESET}  tile size:{MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide:{MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {BOLD_AMETHYST}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
         else:
-          print( f'\nCLASSI:         INFO:  {CARRIBEAN_GREEN}(RUN {run} of {total_runs_in_job}){RESET} in epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  dataset:{CYAN}{dataset}{RESET}  input:{CYAN}{input_mode}{RESET}  lr:{MIKADO}{lr:<9.6f}{RESET}  samples:{MIKADO}{n_samples}{RESET}  batch size:{MIKADO}{batch_size}{RESET}  hidden layer neurons:{MIKADO}{hidden_layer_neurons}{RESET}  embedded dimensions:{MIKADO}{batch_size if args.use_autoencoder_output==True  else "N/A" }{RESET}.  {DULL_WHITE}will halt if test loss increases for {BOLD_MAGENTA}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+          print( f'\nCLASSI:         INFO:  {CARRIBEAN_GREEN}(RUN {run} of {total_runs_in_job}){RESET} in epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  dataset:{CYAN}{dataset}{RESET}  input:{CYAN}{input_mode}{RESET}  lr:{MIKADO}{lr:<9.6f}{RESET}  samples:{MIKADO}{n_samples}{RESET}  batch size:{MIKADO}{batch_size}{RESET}  hidden layer neurons:{MIKADO}{hidden_layer_neurons}{RESET}  embedded dimensions:{MIKADO}{batch_size if args.use_autoencoder_output==True  else "N/A" }{RESET}.  {DULL_WHITE}will halt if test loss increases for {BOLD_AMETHYST}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
 
     
         if just_test=='True':                                                                              # skip training in 'test mode'
@@ -2165,7 +2196,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   \r\033[27Ctrain:\
   \r\033[49Craw loss_images={train_loss_images_sum_ave:5.2f}\
   \r\033[120CBATCH AVE LOSS {WHITE}OVER EPOCH{DULL_WHITE} (LOSS PER 1000 TILES) = {PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{train_total_loss_sum_ave*1000/batch_size:6.3f}{DULL_WHITE}\
-  \r\033[251C{BLACK if epoch<2 else WHITE}min loss: {train_lowest_total_loss_observed_so_far*1000/batch_size:>6.4f} at epoch {train_lowest_total_loss_observed_so_far_epoch+1:<2d}"
+  \r\033[252C{BLACK if epoch<2 else WHITE}min loss: {train_lowest_total_loss_observed_so_far*1000/batch_size:>6.4f} at epoch {train_lowest_total_loss_observed_so_far_epoch+1:<2d}"
   , end=''  )
             else:
               print ( f"\
@@ -2173,7 +2204,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   \r\033[27Ctrain:\
   \r\033[73Craw loss_rna={train_loss_genes_sum_ave:5.4f}\
   \r\033[120CBATCH AVE LOSS {WHITE}OVER EPOCH{DULL_WHITE} (LOSS PER 1000 EXAMPLES) = {PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{train_total_loss_sum_ave*1000/batch_size:6.3f}{DULL_WHITE}\
-  \r\033[251C{BLACK if epoch<2 else WHITE}min loss: {train_lowest_total_loss_observed_so_far*1000/batch_size:>6.4f} at epoch {train_lowest_total_loss_observed_so_far_epoch+1:<2d}"
+  \r\033[252C{BLACK if epoch<2 else WHITE}min loss: {train_lowest_total_loss_observed_so_far*1000/batch_size:>6.4f} at epoch {train_lowest_total_loss_observed_so_far_epoch+1:<2d}"
   , end=''  )
 
             if last_epoch_loss_increased == True:
@@ -2229,7 +2260,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   \r\033[27Ctest:\
   \r\033[49Craw loss_images={CARRIBEAN_GREEN}{test_loss_images_sum_ave:5.2f}{DULL_WHITE}\
   \r\033[120CBATCH AVE LOSS {WHITE}OVER EPOCH{DULL_WHITE} (LOSS PER 1000 TILES) = {GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave*1000/batch_size:6.3f}{DULL_WHITE}\
-  \r\033[251C{BLACK if epoch<2 else WHITE}min loss: {test_lowest_total_loss_observed_so_far*1000/batch_size:6.4f} at epoch {test_lowest_total_loss_observed_so_far_epoch+1:<2d}{DULL_WHITE}\
+  \r\033[252C{BLACK if epoch<2 else WHITE}min loss: {test_lowest_total_loss_observed_so_far*1000/batch_size:6.4f} at epoch {test_lowest_total_loss_observed_so_far_epoch+1:<2d}{DULL_WHITE}\
   \033[5B\
   ", end=''  )
           elif ( input_mode=='rna' ):
@@ -2239,7 +2270,7 @@ _e_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:0
   \r\033[27Ctest:\
   \r\033[73Craw loss_rna={test_loss_genes_sum_ave:5.4f}\
   \r\033[120CBATCH AVE LOSS {WHITE}OVER EPOCH{DULL_WHITE} (LOSS PER 1000 EXAMPLES) = {GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave*1000/batch_size:6.3f}{DULL_WHITE}\
-  \r\033[251C{BLACK if epoch<2 else WHITE}min loss: {test_lowest_total_loss_observed_so_far*1000/batch_size:6.4f} at epoch {test_lowest_total_loss_observed_so_far_epoch+1:<2d}{DULL_WHITE} \
+  \r\033[252C{BLACK if epoch<2 else WHITE}min loss: {test_lowest_total_loss_observed_so_far*1000/batch_size:6.4f} at epoch {test_lowest_total_loss_observed_so_far_epoch+1:<2d}{DULL_WHITE} \
   \033[5B\
   ", end=''  )
   
@@ -2886,7 +2917,7 @@ def train( args, epoch, train_loader, model, optimizer, loss_function, loss_type
         
         if DEBUG>0:
           if ( args.input_mode=='image' ):
-            offset=162
+            offset=163
             print ( f"\
 \033[2K\r\033[27C{DULL_WHITE}train:\
 \r\033[40Cn={i+1:>3d}{CLEAR_LINE}\
@@ -3839,9 +3870,9 @@ def segment_cases( args, n_classes, class_names, n_tiles, pct_test ):
   # (1A) analyse dataset directory
 
   if args.use_unfiltered_data==True:
-    rna_suffix = args.rna_file_suffix[1:]
+    tcga_rna_seq_file_suffix = args.tcga_rna_seq_file_suffix[1:]
   else:
-    rna_suffix = args.rna_file_reduced_suffix
+    tcga_rna_seq_file_suffix = args.rna_file_reduced_suffix
     
   cumulative_svs_file_count   = 0
   cumulative_tif_file_count   = 0
@@ -3860,7 +3891,7 @@ def segment_cases( args, n_classes, class_names, n_tiles, pct_test ):
       svs_file_count     = 0
       spcn_file_count    = 0
       tif_file_count     = 0
-      jpeg_file_count     = 0
+      jpeg_file_count    = 0
       rna_file_count     = 0
       png_file_count     = 0
       other_file_count   = 0
@@ -3883,7 +3914,7 @@ def segment_cases( args, n_classes, class_names, n_tiles, pct_test ):
         elif  ( f.endswith( 'png' ) ):
           png_file_count              +=1
           cumulative_png_file_count   +=1
-        elif  ( f.endswith( rna_suffix ) ):
+        elif  ( f.endswith( tcga_rna_seq_file_suffix ) ):
           rna_file_count              +=1
           cumulative_rna_file_count   +=1
         else:
@@ -3899,7 +3930,7 @@ def segment_cases( args, n_classes, class_names, n_tiles, pct_test ):
     print( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():    jpeg  file  count  =  {MIKADO}{cumulative_jpeg_file_count:<6d}{RESET}",   flush=True  )
     print( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():    spcn  file  count  =  {MIKADO}{cumulative_spcn_file_count:<6d}{RESET}",  flush=True  )
     print( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():    png   file  count  =  {MIKADO}{cumulative_png_file_count:<6d}{RESET}",   flush=True  )
-    print( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():    rna   file  count  =  {MIKADO}{cumulative_rna_file_count:<6d}{RESET}{DULL_WHITE}  <<< note: same cases (sub-directories) may have more than one {MAGENTA}FPKM-UQ.txt{RESET}{DULL_WHITE} file. Nonetheless, only one per case will be used{RESET}",   flush=True  )
+    print( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():    rna   file  count  =  {MIKADO}{cumulative_rna_file_count:<6d}{RESET}{DULL_WHITE}  <<< note: same cases (sub-directories) may have more than one {MAGENTA}{args.tcga_rna_seq_file_suffix}{RESET}{DULL_WHITE} file. Nonetheless, only one per case will be used{RESET}",   flush=True  )
     print( f"{DULL_WHITE}CLASSI:         INFO:    segment_cases():    other file  count  =  {MIKADO}{cumulative_other_file_count:<6d}{RESET}", flush=True  )
   
 
@@ -3925,7 +3956,7 @@ def segment_cases( args, n_classes, class_names, n_tiles, pct_test ):
         dir_also_has_image  = False
   
         for f in sorted( files ):
-          if  ( f.endswith( args.rna_file_suffix[1:]) ):
+          if  ( f.endswith( args.tcga_rna_seq_file_suffix[1:]) ):
             dir_has_rna_data=True
             fqn = f"{dir_path}/HAS_RNA"
             has_rna_count += 1
@@ -6913,7 +6944,10 @@ if __name__ == '__main__':
   p.add_argument('--save_model_name',                                               type=str,    default='model.pt'                              )                             
   p.add_argument('--save_model_every',                                              type=int,    default=10                                      )                                     
   p.add_argument('--rna_file_name',                                                 type=str,    default='rna.npy'                               )                              
-  p.add_argument('--rna_file_suffix',                                               type=str,    default='*FPKM-UQ.txt'                          )                        
+  p.add_argument('--tcga_rna_seq_file_suffix',                                      type=str,    default='*star_gene_counts.tsv'                 )                        
+  p.add_argument('--tcga_rna_seq_metric',                                           type=int,    default=8                                       )                        
+  p.add_argument('--tcga_rna_seq_start_row',                                        type=int,    default=6                                       )
+  p.add_argument('--rna_numpy_filename',                                            type=str,    default="rna.npy"                               )                          
   p.add_argument('--embedding_file_suffix_rna',                                     type=str                                                     )                        
   p.add_argument('--embedding_file_suffix_image',                                   type=str                                                     )                        
   p.add_argument('--embedding_file_suffix_image_rna',                               type=str                                                     )                        
@@ -7049,9 +7083,6 @@ if __name__ == '__main__':
   p.add_argument('--ensg_reference_file_name',                                      type=str,   default="ENSG_reference"                        ) 
   p.add_argument('--skip_rna_preprocessing',                                        type=str2bool, nargs='?', const=False, default=False, help="If true, don't preprocess RNA-Seq files")
   
-  
-  p.add_argument('--rna_exp_column',                                                type=int,   default=1                                       )
-  p.add_argument('--rna_numpy_filename',                                            type=str,   default="rna.npy"                               )
   
   p.add_argument('--random_genes_count',                                            type=int,   default=0                                       )
 

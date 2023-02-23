@@ -44,7 +44,7 @@ def tiler_scheduler( args, r_norm, case_subset_flag_file, slide_count, tiles_nee
   divide_cases            = args.divide_cases
   input_mode              = args.input_mode
   rna_file_reduced_suffix = args.rna_file_reduced_suffix
-  rna_file_suffix         = args.rna_file_suffix  
+  tcga_rna_seq_file_suffix         = args.tcga_rna_seq_file_suffix  
   just_test               = args.just_test
   multimode               = args.multimode
   

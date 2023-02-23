@@ -81,7 +81,7 @@ def generate( args, class_names, n_samples, highest_class_number, multimode_case
   cases                        = args.cases
   cases_reserved_for_image_rna = args.cases_reserved_for_image_rna
   rna_file_name                = args.rna_file_name
-  rna_file_suffix              = args.rna_file_suffix  
+  tcga_rna_seq_file_suffix              = args.tcga_rna_seq_file_suffix  
   rna_file_reduced_suffix      = args.rna_file_reduced_suffix
   class_numpy_file_name        = args.class_numpy_file_name
   use_autoencoder_output       = args.use_autoencoder_output
@@ -110,7 +110,7 @@ def generate( args, class_names, n_samples, highest_class_number, multimode_case
   # (1) analyse data directory
 
   if use_unfiltered_data==True:
-    rna_suffix = rna_file_suffix[1:]
+    rna_suffix = tcga_rna_seq_file_suffix[1:]
   else:
     rna_suffix = rna_file_reduced_suffix
 
@@ -747,7 +747,7 @@ def generate( args, class_names, n_samples, highest_class_number, multimode_case
           for f in sorted(files):                                                                        # examine every file in the current directory
             if found_one==True:
               break
-            if ( f.endswith( rna_file_suffix[1:]) ):                                                     # have to leave out the asterisk apparently
+            if ( f.endswith( tcga_rna_seq_file_suffix[1:]) ):                                                     # have to leave out the asterisk apparently
               if DEBUG>999:
                 print (f)     
               rna_file      = os.path.join(dir_path, rna_file_name)
@@ -803,7 +803,7 @@ def generate( args, class_names, n_samples, highest_class_number, multimode_case
       print( f"P_C_GENERATE:   INFO:  input_mode is '{RESET}{CYAN}{input_mode}{RESET}', so image and other data will not be generated{RESET}" )  
 
     if use_unfiltered_data==True:
-      rna_suffix = rna_file_suffix[1:]
+      rna_suffix = tcga_rna_seq_file_suffix[1:]
       print( f"{ORANGE}P_C_GENERATE:   INFO:  flag {CYAN}'USE_UNFILTERED_DATA'{CYAN}{RESET}{ORANGE} is set, so all genes listed in file '{CYAN}ENSG_UCSC_biomart_ENS_id_to_gene_name_table{RESET}{ORANGE}' will be used{RESET}" )        
     else:
       rna_suffix = rna_file_reduced_suffix
@@ -1054,7 +1054,7 @@ def generate( args, class_names, n_samples, highest_class_number, multimode_case
   if ( input_mode=='rna' )  | ( input_mode=='image_rna'):
  
  
- # THIS IS DIFFERENT TO THE CLASSIFY VERSION - WE ARE SAVING A COPY OF THE ENTIRE GENES DATASET FOR USE IN reduce_FPKM_UQ and in analyse_data
+ # THIS IS DIFFERENT TO THE CLASSIFY VERSION - WE ARE SAVING A COPY OF THE ENTIRE GENES DATASET FOR USE IN filter_genes() AND IN analyse_data()
  
     # convert to pandas dataframe, then pickle and save for possible use with analyse_data
      
@@ -1090,7 +1090,7 @@ def generate( args, class_names, n_samples, highest_class_number, multimode_case
       print ( f"P_C_GENERATE:   INFO:      saving cupy array to {MAGENTA}{save_file_name}{RESET} for possible subsequent use in {CYAN}analyse_data{RESET} mode", flush=True )
     cupy.save( save_file_name, df_cpy, allow_pickle=True) 
    
- # THIS IS DIFFERENT TO THE DLBCL VERSION - WE ARE SAVING A COPY OF THE ENTIRE GENES DATASET FOR USE IN reduce_FPKM_UQ and in analyse_data
+ # THIS IS DIFFERENT TO THE DLBCL VERSION - WE ARE SAVING A COPY OF THE ENTIRE GENES DATASET FOR USE IN filter_genes() AND IN analyse_data()
  
  
  

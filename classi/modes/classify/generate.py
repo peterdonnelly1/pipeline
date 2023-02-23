@@ -51,7 +51,7 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
   cases                        = args.cases
   cases_reserved_for_image_rna = args.cases_reserved_for_image_rna
   rna_file_name                = args.rna_file_name
-  rna_file_suffix              = args.rna_file_suffix  
+  tcga_rna_seq_file_suffix              = args.tcga_rna_seq_file_suffix  
   rna_file_reduced_suffix      = args.rna_file_reduced_suffix
   class_numpy_file_name        = args.class_numpy_file_name
   use_autoencoder_output       = args.use_autoencoder_output
@@ -132,7 +132,7 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
   # (1) analyse working data directory and save statistics for later use
 
   if use_unfiltered_data==True:
-    rna_suffix = rna_file_suffix[1:]
+    rna_suffix = tcga_rna_seq_file_suffix[1:]
   else:
     rna_suffix = rna_file_reduced_suffix
 
@@ -719,18 +719,19 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
           for f in sorted(files):                                                                        # examine every file in the current directory
             if found_one==True:
               break
-            if ( f.endswith( rna_file_suffix[1:]) ):                                                     # have to leave out the asterisk apparently
-              if DEBUG>999:
-                print (f)     
+            if ( f.endswith( tcga_rna_seq_file_suffix[1:]) ):                                                     # have to leave out the asterisk apparently
+              if DEBUG>0:
+                print ( f"GENERATE:       INFO:   f                      =  '{MIKADO}{f}{RESET}' "             )   
               rna_file      = os.path.join(dir_path, rna_file_name)
+              print ( f"GENERATE:       INFO:   rna_file               =  '{MIKADO}{rna_file}{RESET}' "        )   
               try:
-                rna = np.load( rna_file )
+                rna = np.load( rna_file )  ################################################################################### NEED TO LOAD AS PANDA
                 n_genes=rna.shape[0]
                 found_one=True
                 if DEBUG>9:
-                  print ( f"GENERATE:       INFO:   rna.shape             =  '{MIKADO}{rna.shape}{RESET}' "      )
+                  print ( f"GENERATE:       INFO:   rna.shape             =  '{MIKADO}{rna.shape}{RESET}' "    )
                 if DEBUG>2:
-                  print ( f"GENERATE:       INFO:  n_genes (determined)  = {MIKADO}{n_genes}{RESET}"        )
+                  print ( f"GENERATE:       INFO:  n_genes (determined)  = {MIKADO}{n_genes}{RESET}"           )
               except Exception as e:
                   print ( f"{BOLD_RED}GENERATE:       FATAL: error message: '{e}'{RESET}" )
                   print ( f"{BOLD_RED}GENERATE:       FATAL: explanation: a required rna class file doesn't exist. (Probably none exist){RESET}" )                 
@@ -760,7 +761,7 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
         print( f"GENERATE:       NOTE:  input_mode is '{RESET}{CYAN}{input_mode}{RESET}', so image and other data will not be generated{RESET}" )  
 
     if use_unfiltered_data==True:
-      rna_suffix = rna_file_suffix[1:]
+      rna_suffix = tcga_rna_seq_file_suffix[1:]
       print( f"{BOLD}{ORANGE}GENERATE:       NOTE:  flag '{CYAN}USE_UNFILTERED_DATA{CYAN}{RESET}{BOLD}{ORANGE}' is set, so all genes listed in file '{CYAN}ENSG_UCSC_biomart_ENS_id_to_gene_name_table{RESET}{BOLD}{ORANGE}' are being used{RESET}" )        
     else:
       rna_suffix = rna_file_reduced_suffix
@@ -853,7 +854,7 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
             global_rna_files_processed_train, n_genes = generate_rna_dataset ( args, class_names, target, cases_required, highest_class_number, case_designation_flag, n_genes, low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform, use_autoencoder_output )
 
             if DEBUG>0:
-              print ( f"{WHITE}GENERATE:       INFO:    global_rna_files_processed_train  (this run)................................................. = {MIKADO}{global_rna_files_processed_train}{RESET}{CLEAR_LINE}", flush=True )
+              print ( f"{WHITE}GENERATE:       INFO:  global_rna_files_processed_train  (this run)..................................................... = {MIKADO}{global_rna_files_processed_train}{RESET}{CLEAR_LINE}", flush=True )
 
 
           if target=='rna_test':
@@ -869,7 +870,7 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
             global_rna_files_processed_test, n_genes = generate_rna_dataset ( args, class_names, target, cases_required, highest_class_number, case_designation_flag, n_genes, low_expression_threshold, cutoff_percentile, gene_data_norm, gene_data_transform, use_autoencoder_output )
 
             if DEBUG>0:
-              print ( f"{WHITE}GENERATE:       INFO:    global_rna_files_processed_test  (this run)................................................. = {MIKADO}{global_rna_files_processed_test}{RESET}{CLEAR_LINE}", flush=True )
+              print ( f"{WHITE}GENERATE:       INFO:  global_rna_files_processed_test  (this run)...................................................... = {MIKADO}{global_rna_files_processed_test}{RESET}{CLEAR_LINE}", flush=True )
     
   
 
@@ -1444,9 +1445,9 @@ def generate_rna_dataset ( args, class_names, target, cases_required, highest_cl
   
   if  ( args.just_test!='True' ):
     
-    if DEBUG>0:  
-      print ( f"GENERATE:       INFO:  SANITY CHECK: number of unique classes represented in the cases                       = {MIKADO}{len(np.unique(rna_labels_new))}{RESET}"                                                            ) 
-      print ( f"GENERATE:       INFO:  SANITY CHECK: classes in {CYAN}CLASS_NAMES{RESET}                                                  = {CYAN}{class_names}{RESET}"                                                                    ) 
+    if DEBUG>12:  
+      print ( f"GENERATE:       INFO:  SANITY CHECK: number of unique classes represented in the cases                                   = {MIKADO}{len(np.unique(rna_labels_new))}{RESET}"                                                            ) 
+      print ( f"GENERATE:       INFO:  SANITY CHECK: classes in {CYAN}CLASS_NAMES{RESET}                                                              = {CYAN}{class_names}{RESET}"                                                                    ) 
     
     if len(np.unique(rna_labels_new)) != len(class_names):
       print ( f"{RED}GENERATE:       FATAL: different number of cancer types represented in the cases to be trained than in the configuration parameter {CYAN}CLASS_NAMES{RESET}{RESET}"                                                   ) 
@@ -1481,7 +1482,7 @@ def generate_rna_dataset ( args, class_names, target, cases_required, highest_cl
   if target=='rna_train':
     
     if DEBUG>0:  
-      print( f"GENERATE:       INFO:    {COTTON_CANDY}now saving save numpy version of RNA-Seq vectors and labels arrays for possible subsequent use by clustering functions{RESET}{CLEAR_LINE}")
+      print( f"GENERATE:       INFO:  {COTTON_CANDY}now saving save numpy version of RNA-Seq vectors and labels arrays for possible subsequent use by clustering functions{RESET}{CLEAR_LINE}")
       
     fqn =  f"{args.base_dir}/logs/all_rna_seq_vectors_from_last_run_of_generate"
     np.save ( fqn, genes_new )
@@ -1816,7 +1817,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
   if target=='image_train':
     
     if DEBUG>0:  
-      print( f"GENERATE:       INFO:    {COTTON_CANDY}now saving save numpy version of image and labels arrays for possible subsequent use by clustering functions{RESET}{CLEAR_LINE}")
+      print( f"GENERATE:       INFO:  {COTTON_CANDY}now saving save numpy version of image and labels arrays for possible subsequent use by clustering functions{RESET}{CLEAR_LINE}")
       
     fqn =  f"{args.base_dir}/logs/all_images_from_last_run_of_generate"
     np.save ( fqn, images_new )

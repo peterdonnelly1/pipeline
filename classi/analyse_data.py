@@ -1394,7 +1394,7 @@ if __name__ == '__main__':
   p.add_argument('--save_model_name',                type=str,   default='model.pt')
   p.add_argument('--save_model_every',               type=int,   default=10)
   p.add_argument('--rna_file_name',                  type=str,   default='rna.npy')
-  p.add_argument('--rna_file_suffix',                type=str,   default='*FPKM-UQ.txt' )
+  p.add_argument('--tcga_rna_seq_file_suffix',                type=str,   default='*FPKM-UQ.txt' )
   p.add_argument('--use_unfiltered_data',            type=str2bool, nargs='?', const=True, default=True, help="If true, don't filter the genes, but rather use all of them")
   p.add_argument('--rna_file_reduced_suffix',        type=str,   default='_reduced')
   p.add_argument('--class_numpy_file_name',          type=str,   default='class.npy')

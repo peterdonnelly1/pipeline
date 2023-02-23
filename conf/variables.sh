@@ -8,6 +8,12 @@ RED='\e[38;2;255;0;0m'
 CYAN='\e[36;1m'
 RESET='\e[m'
 
+UNSTRANDED=3                                                                                               # column number for this metric in "*star_gene_counts.tsv" file
+STRANDED_FIRST=4                                                                                           # column number for this metric in "*star_gene_counts.tsv" file
+STRANDED_SECOND=5                                                                                          # column number for this metric in "*star_gene_counts.tsv" file
+TPM_UNSTRANDED=6                                                                                           # column number for this metric in "*star_gene_counts.tsv" file
+FPKM_UNSTRANDED=7                                                                                          # column number for this metric in "*star_gene_counts.tsv" file
+FPKM_UQ_UNSTRANDED=8                                                                                       # column number for this metric in "*star_gene_counts.tsv" file
 
 alias cls='printf "\033c"'
 SLEEP_TIME=0
@@ -42,7 +48,6 @@ PROBS_MATRIX_INTERPOLATION="spline16"                                           
 PATCH_POINTS_TO_SAMPLE=500                                                                                 # How many points to sample when selecting a 'good' patch (i.e. few background tiles) from the slide
 FIGURE_WIDTH=8
 FIGURE_HEIGHT=8
-
 
 
 # 'pre-sets' for the five processing modes
@@ -83,16 +88,27 @@ LATENT_DIM=1
 FLAG_DIR_SUFFIX="*_all_downloaded_ok"
 MASK_FILE_NAME_SUFFIX="*_mask.png"
 RESIZED_FILE_NAME_SUFFIX="*_resized.png"
-RNA_FILE_SUFFIX="*FPKM-UQ.txt"
-RNA_FILE_REDUCED_SUFFIX="_reduced"
-RNA_NUMPY_FILENAME="rna.npy"
+
 EMBEDDING_FILE_SUFFIX_RNA="___rna.npy"
 EMBEDDING_FILE_SUFFIX_IMAGE="___image.npy"
 EMBEDDING_FILE_SUFFIX_IMAGE_RNA="___image_rna.npy"
 ENSG_REFERENCE_FILE_NAME='ENSG_reference'
 ENS_ID_TO_GENE_NAME_TABLE='ENSG_UCSC_biomart_ENS_id_to_gene_name_table'
 ENSG_REFERENCE_COLUMN=0
-RNA_EXP_COLUMN=1                                                                                           # correct for "*FPKM-UQ.txt" files (where the Gene name is in the first column and the normalized data is in the second column)
+
+# OLD TCGA GDC FORMAT FOR RNA-SEQ FILES
+#TCGA_RNA_SEQ_FILE_SUFFIX="*FPKM-UQ.txt"
+#TCGA_RNA_SEQ_METRIC=1                                                                              # correct for "*FPKM-UQ.txt"         files (where the gene name is in the first column and the normalized data is in the second column)
+#TCGA_RNA_SEQ_START_ROW=0
+
+# NEW TCGA GDC FORMAT FOR RNA-SEQ FILES
+# only used for rna-seq
+TCGA_RNA_SEQ_FILE_SUFFIX="*star_gene_counts.tsv"
+TCGA_RNA_SEQ_METRIC=${FPKM_UQ_UNSTRANDED}                                                                               # correct for "*star_gene_counts.tsv" files (where the gene name is in the first column and the normalized data is in the ninth column)
+TCGA_RNA_SEQ_START_ROW=6
+
+RNA_FILE_REDUCED_SUFFIX="_reduced"
+RNA_NUMPY_FILENAME="rna.npy"
 CLASS_NUMPY_FILENAME="class.npy"
 NAMES_COLUMN="type_s"
 CASE_COLUMN="bcr_patient_uuid"
