@@ -84,7 +84,6 @@ echo ""
 ./do_all.sh -d stad   -i rna  -z ${NN_TYPE_RNA}  -H ${HIDDEN_LAYER_NEURONS}                                                       -b ${BATCH_SIZE}   -c UNIMODE_CASE -A ${HIGHEST_CLASS_NUMBER}  -j True
 
 
-
 #
 # Meaning of options:
 #

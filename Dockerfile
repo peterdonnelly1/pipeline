@@ -1,29 +1,30 @@
 ######################################################################################################################################################################################################################################################################################################################################
 #
-# First, install the NVIDIA Container Runtime on your host machine (instructions below)
+# FIRST install the NVIDIA Container Runtime on your host machine (instructions are in the second section below)
 #
-# To build docker image:
+# SECOND:
 #
-#    sudo DOCKER_BUILDKIT=1 docker build --progress=plain  -t classi .
+# To build and run the docker CLASSI image
 #
-# To run experiment:
+#    ____RUN_ME_FIRST_TO_BUILD_AND_RUN_THE_CLASSI_DOCKER_ENVIRONMENT.sh
+# 
+#    gimp (image viewer) and geany (text editor) should start automatically when the container runs. Put these in background
+#    tensorboard will likewise also be started
+#    The X output from these gimp, geany and tensorboard will be redirected to the local host
+#
+# To run an experiment:
 #
 #    from host console:
 #       sudo docker container rm -f classi                              <<< not necessary for the very first run after a build
-#       sudo docker run  -it --name classi --env TZ=$(cat /etc/timezone)  --gpus device=0  --network=host --shm-size 2g -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY   classi:latest
-#    then, in the classi container:
-#       ./start.sh                                                      <<< this will start tensorboard. Press Enter to get the console back.
+#    from the classi docker container:
 #       cd pipeline
 #       ./do_all_RUN_ME_TO_SEE_RNASEQ_PROCESSING.sh    or   ./do_all_RUN_ME_TO_SEE_IMAGE_PROCESSING.sh    or  ./do_all_RUN_ME_TO_SEE_CLUSTERING_USING_SCIKIT_SPECTRAL.sh
 #
-#    gimp (image viewer) and geany (text editor) will be started automatically when the container runs
-#
-#
-# To monitor experiment and see results:
+# To monitor experiments and see graphical and other experimental outputs:
 #
 #    _during_ the experiment:
-#       monitor progress via container console output
-#       observe learning curves with any browser pointing to http://localhost:6006
+#       monitor progress via the console output
+#       observe learning curves with any browser by pointing to http://localhost:6006 on the local host (not the docker container)
 #    _after_ the experiment has completed:
 #       run 'gimp' inside the container to view images produced by classi. eg. cd logs; gimp 230102_0247__01 ... bar_chart_AL.png &
 #
@@ -61,7 +62,7 @@
 #
 #    If you use standard docker, CLASSI will only make use of CPUs; GPUs will be ignored. All CLASSI capabilities except cuda_tsne (which is expicitly designed to use a GPU) will work, albeit a lot slower.
 #    For GPU support, the NVIDIA Container Runtime is required on the system running Docker. The "FROM nvidia/cuda ... directive below creates an image that supports GPUs, but you _also_ require the NVIDIA Container Runtime. 
-#    Installation instructions (4 steps) follow (these are from https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html). Note: there is no  NVIDIA Container Runtime for Windows.
+#    Installation instructions (there are 4 steps) follow (these are from https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html). 
 #
 #    distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
 #       && curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
@@ -71,6 +72,8 @@
 #    sudo apt-get update
 #    sudo apt-get install -y nvidia-docker2
 #    sudo systemctl restart docker
+#
+#   Note: there is no  NVIDIA Container Runtime for Windows.  This means CLASSI cannot run with GPU support on Windows
 #
 ######################################################################################################################################################################################################################################################################################################################################
 #
@@ -115,7 +118,7 @@ RUN --mount=type=cache,target=/root/.cache/pip python3 -m pip install -r Dockerf
 #RUN   pip   install hdbscan==0.8.29
 RUN   pip   install tsnecuda==3.0.1+cu112 -f https://tsnecuda.isx.ai/tsnecuda_stable.html
 
-RUN git clone --depth 16 https://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@github.com/peterdonnelly1/pipeline
+RUN git clone --depth 17 https://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@github.com/peterdonnelly1/pipeline
 
 
 # START UP SHENANIGANS
