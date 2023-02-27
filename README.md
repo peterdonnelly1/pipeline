@@ -2,8 +2,9 @@
 
 I greatefully acknowledge the following, who developed software that is used by CLASSI:
 
+**dpcca**  
 The core learning engine of ‘CLASSI’ buids on Gregory Gundersen’s ‘dpcca'  
-**An attractive feature of this software is that it permits neural network models to be dynamically selected at run-time**  
+An attractive feature of this software is that it permits neural network models to be dynamically selected at run-time  
 Code: https://github.com/gwgundersen/dpcca  
 Paper: "End-to-end Training of Deep Probabilistic CCA on Paired Biomedical Observations"  
 Paper: http://auai.org/uai2019/proceedings/papers/340.pdf  
