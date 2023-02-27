@@ -1,6 +1,6 @@
 # pipeline
 
-I greatefully acknowledge the efforts of the following, who developied software used by CLASSI
+I greatefully acknowledge the following, who developed software which is used by CLASSI
 
 The core learning engine of ‘CLASSI’ buids on Gregory Gundersen’s ‘dpcca'. An attractive feature of this software is that it permits neural network models to be dynamically selected at run-time
 Code: https://github.com/gwgundersen/dpcca 
