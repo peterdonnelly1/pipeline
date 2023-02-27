@@ -9,8 +9,8 @@ Code: https://github.com/gwgundersen/dpcca
 Paper: "End-to-end Training of Deep Probabilistic CCA on Paired Biomedical Observations"  
 Paper: http://auai.org/uai2019/proceedings/papers/340.pdf  
 
-**SPCN Stain Colour Normalisation:**  
-GPU version of 'Structure Preserving Stain Normalisation' by D. Anand, G. Ramakrishnan and A. Sethi  
+**SPCN**  
+GPU version of 'Structure Preserving Color Normalisation' by D. Anand, G. Ramakrishnan and A. Sethi  
 Code:  https://github.com/goutham7r/spcn  
 Paper: "Fast GPU-enabled Color Normalization for Digital pathology, International Conference on Systems, Signals and Image Processing, Osijek, Croatia (2019), pp. 219-224  
 Paper: https://ieeexplore.ieee.org/document/8787328/  
