@@ -1,4 +1,4 @@
-# pipeline
+# CLASSI
 
 I greatefully acknowledge the following, who developed software that is used by CLASSI:
 
