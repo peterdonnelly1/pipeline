@@ -1,6 +1,6 @@
 # CLASSI
 
-I greatefully acknowledge the following, who developed software that is used by CLASSI:
+The following software is used by CLASSI. I gratefuly acknowledge the authors.
 
 **dpcca**  
 The core learning engine of ‘CLASSI’ buids on Gregory Gundersen’s ‘dpcca'. An attractive feature of this software is that it permits neural network models to be dynamically selected at run-time  
