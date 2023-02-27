@@ -372,11 +372,11 @@ has been set to {RESET}{BOLD_MIKADO}'False'{RESET}{GREENBLUE} (the dataset balan
   if tcga_rna_seq_metric == 4:
     rna_seq_metric='stranded_first'
   if tcga_rna_seq_metric == 5:
-    rna_seq_metric='stranded_first'
+    rna_seq_metric='stranded_second'
   if tcga_rna_seq_metric == 6:
-    rna_seq_metric='stranded_first'
+    rna_seq_metric='tpm_unstranded'
   if tcga_rna_seq_metric == 7:
-    rna_seq_metric='stranded_first'
+    rna_seq_metric='fpkm_unstranded'
   if tcga_rna_seq_metric == 8:
     rna_seq_metric='fpkm_uq_unstranded'
 
@@ -1370,6 +1370,9 @@ f"\
         print( f"{RED}CLASSI:         FATAL:    ... cannot continue, halting now{RESET}" )
         sys.exit(0)
 
+
+#### ESTABLISH DESCRIPTOR. USED TO MAKE MORE USEFUL AND INFORMATIVE LOG FILENAMES, TENSORBOARD LABELS ETC
+
     b  ="BALANCED"
     nb ="NOTBLNCD"
     if input_mode=='image':
@@ -1393,9 +1396,9 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_pct}_Grey_Pct_{make_g
     
       topology_as_whitespace_free_string = '-'.join(map(str, hidden_layer_encoder_topology))
      
-      descriptor = f"_{run+1:02d}_OF_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases[0:10]:_<10s}__{rna_genes_tranche[0:10].upper():_<10s}________{nn_type_rna:_<15s}______{nn_optimizer[0:8]:_<8s}___________________{rna_seq_metric[0:18]:_<18s} \
-_E_{args.n_epochs:03d}_N_{n_samples:05d}_hi_{n_classes:02d}_bat_{batch_size:03d}_test_{int(100*pct_test):03d}_lr_{lr:09.6f}_hid_{hidden_layer_neurons:04d}_lo_{low_expression_threshold:<02.2e}_low_{cutoff_percentile:04.0f}\
-_dr_{100*dropout_1:4.1f}_xfrm_{gene_data_transform:_<8s}_shape_{topology_as_whitespace_free_string}"                                                                                                # need to abbreviate everything because the long topology string will make the file name too long and it will crash
+      descriptor = f"_{run+1:02d}_OF_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases[0:10]:_<10s}__{rna_genes_tranche[0:10].upper():_<10s}________{nn_type_rna:_<15s}______{nn_optimizer[0:8]:_<8s}_{rna_seq_metric[0:18]:_<18s}\
+_E_{args.n_epochs:03d}_N_{n_samples:05d}_hi_{n_classes:02d}_bat_{batch_size:03d}_test_{int(100*pct_test):03d}_lr_{lr:09.6f}_hid_{hidden_layer_neurons:04d}_dr_{100*dropout_1:4.1f}_xfrm_{gene_data_transform:_<8s}_lo_{low_expression_threshold:<02.2e}_low_{cutoff_percentile:04.0f}\
+_shape_{topology_as_whitespace_free_string}"                                                                                                # need to abbreviate everything because the long topology string will make the file name too long and it will crash
       if len(descriptor) > 200:
         descriptor = descriptor[0:200]
 
@@ -1404,6 +1407,8 @@ Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:
 
       descriptor_clustering = f"_{args.dataset.upper()}_{input_mode.upper():_<9s}_{args.cases[0:10]:_<10s}__{rna_genes_tranche[0:10].upper():_<10s}__{nn_type_rna:_<9s}_{nn_optimizer[0:8]:_<8s}\
 _E_{args.n_epochs:03d}_N_{n_samples:04d}_hicls_{n_classes:02d}_bat_{batch_size:03d}_test_{int(100*pct_test):03d}_lr_{lr:09.6f}_hid_{hidden_layer_neurons:04d}"
+
+
 
 
     # ~ if just_test=='True':
@@ -7093,7 +7098,7 @@ if __name__ == '__main__':
   args.n_workers  = 0 if is_local else 12
   args.pin_memory = torch.cuda.is_available()
 
-  if DEBUG>12:
-    print ( f"{GOLD}args.final_test_batch_size{RESET} =           ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------>    {YELLOW}{args.final_test_batch_size}{RESET}", flush=True)
+  if DEBUG>999:
+    print ( f"{GOLD}args.tcga_rna_seq_metric{RESET} =           ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------>    {YELLOW}{args.tcga_rna_seq_metric}{RESET}", flush=True)
   
   main(args)

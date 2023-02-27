@@ -1179,7 +1179,7 @@ def generate_rna_dataset ( args, class_names, target, cases_required, highest_cl
               if label[0]>highest_class_number:
                 if DEBUG>0:
                   if args.multimode!='image_rna' and args.input_mode!='image_rna':
-                    print ( f"\033[1A{PALE_ORANGE}GENERATE:       INFO:    {MAGENTA}{os.path.basename(os.path.normpath(dir_path))}{RESET}{PALE_ORANGE} \r\033[66C <<< this case's class label (subtype) ({MIKADO}{label[0]:2d}{RESET}{PALE_ORANGE}) is greater than {CYAN}HIGHEST_CLASS_NUMBER{RESET}{PALE_ORANGE} ({MIKADO}{highest_class_number:2d}{RESET}{PALE_ORANGE}) so it won't be used {RESET}")
+                    print ( f"\033[1A{PALE_ORANGE}GENERATE:       INFO:    {MAGENTA}{os.path.basename(os.path.normpath(dir_path))}{RESET}{PALE_ORANGE} \r\033[100C <<< this case's class label (subtype) ({MIKADO}{label[0]:2d}{RESET}{PALE_ORANGE}) is greater than {CYAN}HIGHEST_CLASS_NUMBER{RESET}{PALE_ORANGE} ({MIKADO}{highest_class_number:2d}{RESET}{PALE_ORANGE}) so it won't be used {RESET}")
                 break
             except Exception as e:
               print ( f"{BOLD_RED}GENERATE:       FATAL: '{e}'{RESET}" )

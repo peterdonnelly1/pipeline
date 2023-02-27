@@ -15,7 +15,7 @@
       "content":
       {
         "field": "files.file_name",
-        "value": ["*UQ*"]
+        "value": ["*star_gene_counts*"]
       }
     }
   ]

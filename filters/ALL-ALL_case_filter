@@ -7,7 +7,7 @@
       "content":
       {
         "field": "files.file_name",
-        "value": ["*FPKM*"]
+        "value": ["*star_gene_counts*"]
       }
     }
   ]

@@ -57,7 +57,8 @@ else
 fi
 
 MINIMUM_JOB_SIZE=2                                                                                         # Only do a box plot if the job has at least this many runs
-CASES_RESERVED_FOR_IMAGE_RNA=16  # SUGGEST 16 TO ENSURE ALL SUBTYPES HAVE TEST CASES                       # number of cases to be reserved for image+rna testing. <<< HAS TO BE ABOVE ABOUT 5 FOR SOME REASON -- NO IDEA WHY ATM
+#CASES_RESERVED_FOR_IMAGE_RNA=16  # SUGGEST 16 TO ENSURE ALL SUBTYPES HAVE TEST CASES                       # number of cases to be reserved for image+rna testing. <<< HAS TO BE ABOVE ABOUT 5 FOR SOME REASON -- NO IDEA WHY ATM
+CASES_RESERVED_FOR_IMAGE_RNA=0
 USE_SAME_SEED="False"                                                                                      # set to TRUE to use the same seed every time for random numbers generation, for reproducability across runs (i.e. so that results can be more validly compared)
 JUST_PROFILE="False"                                                                                       # if "True" just analyse slide/tiles then exit
 DDP="False"                                                                                                # PRE_COMPRESS mode only: if "True", use PyTorch 'Distributed Data Parallel' to make use of multiple GPUs. (Works on single GPU machines, but is of no benefit and has additional overhead, so should be disabled)
@@ -159,9 +160,6 @@ SKIP_TILING="False"                                                             
 SKIP_TRAINING="False"
 STRONG_SUPERVISION='False'                                                                                 # Convenience variable. all it does is change --extract_from_centre to 'True', '--ignore_tile_quality_hyperparameters' to 'True' and 'n_tiles' to 1 in classify.py.  Could achieve same effect the these flags separately, but may also want to othe things with those flags.
 SUPERGRID_SIZE="2"
-#TCGA_RNA_SEQ_METRIC=${FPKM_UQ_UNSTRANDED}                                                           # TCGA RNA-Seq metric. Options are: UNSTRANDED, STRANDED_FIRST, STRANDED_SECOND, TPM_UNSTRANDED, FPKM_UNSTRANDED, FPKM_UQ_UNSTRANDED.  Usage: e.g. ${STRANDED_FIRST}
-TCGA_RNA_SEQ_METRIC=${TPM_UNSTRANDED}                                                           # TCGA RNA-Seq metric. Options are: UNSTRANDED, STRANDED_FIRST, STRANDED_SECOND, TPM_UNSTRANDED, FPKM_UNSTRANDED, FPKM_UQ_UNSTRANDED.  Usage: e.g. ${STRANDED_FIRST}
-#TCGA_RNA_SEQ_METRIC=${FPKM_UQ_UNSTRANDED}                                                           # TCGA RNA-Seq metric. Options are: UNSTRANDED, STRANDED_FIRST, STRANDED_SECOND, TPM_UNSTRANDED, FPKM_UNSTRANDED, FPKM_UQ_UNSTRANDED.  Usage: e.g. ${STRANDED_FIRST}
 TILES_PER_IMAGE="10"
 TILE_SIZE="64"
 USE_AUTOENCODER_OUTPUT="False"
@@ -270,6 +268,10 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:H:h:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:
   done
   
 source conf/variables.sh
+
+#TCGA_RNA_SEQ_METRIC=${FPKM_UQ_UNSTRANDED}                                                           # TCGA RNA-Seq metric. Options are: UNSTRANDED, STRANDED_FIRST, STRANDED_SECOND, TPM_UNSTRANDED, FPKM_UNSTRANDED, FPKM_UQ_UNSTRANDED.  Usage: e.g. ${STRANDED_FIRST}
+#TCGA_RNA_SEQ_METRIC=${TPM_UNSTRANDED}                                                           # TCGA RNA-Seq metric. Options are: UNSTRANDED, STRANDED_FIRST, STRANDED_SECOND, TPM_UNSTRANDED, FPKM_UNSTRANDED, FPKM_UQ_UNSTRANDED.  Usage: e.g. ${STRANDED_FIRST}
+TCGA_RNA_SEQ_METRIC=${FPKM_UQ_UNSTRANDED}                                                           # TCGA RNA-Seq metric. Options are: UNSTRANDED, STRANDED_FIRST, STRANDED_SECOND, TPM_UNSTRANDED, FPKM_UNSTRANDED, FPKM_UQ_UNSTRANDED.  Usage: e.g. ${STRANDED_FIRST}
 
 TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/${TARGET_GENES_REFERENCE_FILE_NAME}
 
