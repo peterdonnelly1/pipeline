@@ -1,17 +1,3 @@
----
-layout: default
-title: My Markdown File
----
-
-<style>
-    .container {
-        max-width: 400px;
-        margin: 0 auto;
-    }
-</style>
-
-<div class="container">
-
 
 # GETTING STARTED
 
@@ -27,7 +13,8 @@ title: My Markdown File
 
     from host console:
         sudo docker container rm -f classi                              <<< not necessary for the very first run after a build
-        sudo docker run  -it --name classi --env TZ=$(cat /etc/timezone)  --gpus device=0  --network=host --shm-size 2g -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY   classi:latest
+        sudo docker run  -it --name classi --env TZ=$(cat /etc/timezone)  --gpus device=0 \
+         --network=host --shm-size 2g -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY   classi:latest
 
     then, in the classi container:
        cd pipeline
@@ -119,4 +106,3 @@ Code: [https://github.com/tand826]
   
 Each portion of the code is governed by ... respective licenses - however our code is governed by the ...
 
-</div>
