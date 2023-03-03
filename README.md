@@ -13,8 +13,9 @@
 
     from host console:
         sudo docker container rm -f classi                              <<< not necessary for the very first run after a build
-        sudo docker run  -it --name classi --env TZ=$(cat /etc/timezone)  --gpus device=0 \
-         --network=host --shm-size 2g -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY   classi:latest
+        sudo docker run  -it --name classi --env TZ=$(cat /etc/timezone) --gpus device=0 \
+         --network=host --shm-size 2g -v /tmp/.X11-unix:/tmp/.X11-unix \
+         -e DISPLAY=unix$DISPLAY classi:latest
 
     then, in the classi container:
        cd pipeline
@@ -22,7 +23,7 @@
        ./do_all_RUN_ME_TO_SEE_IMAGE_PROCESSING.sh                      or
        ./do_all_RUN_ME_TO_SEE_CLUSTERING_USING_SCIKIT_SPECTRAL.sh      or
 
-    'gimp' (image viewer) and 'geany' (text editor) will be started automatically when the container runs
+    'gimp' (image viewer) and 'geany' (text editor) will be started automatically  when the container runs
 
  To monitor experiment and see results:
 
