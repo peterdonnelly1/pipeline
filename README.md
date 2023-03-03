@@ -13,8 +13,7 @@
        ./do_all_RUN_ME_TO_SEE_IMAGE_PROCESSING.sh                      or
        ./do_all_RUN_ME_TO_SEE_CLUSTERING_USING_SCIKIT_SPECTRAL.sh      or
 
-    'gimp' (image viewer) and 'geany' (text editor) will be started automatically
-    when the container runs
+    'gimp' (image viewer) and 'geany' (text editor) will start automatically
 
  To monitor experiments and see results:
 
