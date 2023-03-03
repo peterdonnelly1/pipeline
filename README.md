@@ -90,7 +90,7 @@
 ---
 
 
-I gratefuly acknowledge the authors of the following software which is used by CLASSI.  
+I gratefuly acknowledge the authors of the following software used in CLASSI:
 
 **dpcca**  
 The core learning engine of ‘CLASSI’ buids on Gregory Gundersen’s ‘dpcca'. 
