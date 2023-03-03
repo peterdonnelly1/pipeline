@@ -5,20 +5,11 @@
 ** First, install the NVIDIA Container Runtime on your host machine !!! (instructions below) **
 
 ---
- To build the CLASSI docker image:
+ To build and run the CLASSI docker image:
 
-    sudo DOCKER_BUILDKIT=1 docker build --progress=plain  -t classi .
-
- To run a CLASSI experiment from within the docker image just built:
-
-    from host console:
-        sudo docker container rm -f classi
-        sudo docker run  -it --name classi --env TZ=$(cat /etc/timezone) --gpus device=0 \
-         --network=host --shm-size 2g -v /tmp/.X11-unix:/tmp/.X11-unix \
-         -e DISPLAY=unix$DISPLAY classi:latest
+    ____RUN_ME_FIRST_TO_BUILD_AND_RUN_THE_CLASSI_DOCKER_ENVIRONMENT.sh
 
     then, from within the classi docker container:
-       cd pipeline
        ./do_all_RUN_ME_TO_SEE_RNASEQ_PROCESSING.sh                     or
        ./do_all_RUN_ME_TO_SEE_IMAGE_PROCESSING.sh                      or
        ./do_all_RUN_ME_TO_SEE_CLUSTERING_USING_SCIKIT_SPECTRAL.sh      or
@@ -26,7 +17,7 @@
     'gimp' (image viewer) and 'geany' (text editor) will be started automatically
     when the container runs
 
- To monitor experiment and see results:
+ To monitor experiments and see results:
 
     _during_ the experiment:
        monitor progress via container console output
@@ -74,7 +65,7 @@
     require NVIDIA Container Runtime
     Note: there is no  NVIDIA Container Runtime for Windows
     
-    Installation instructions (4 steps) follow 
+    Installation instructions (4 steps) follow. 
     From the NVIDIA installation guide https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html
 
     distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \

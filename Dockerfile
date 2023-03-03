@@ -17,7 +17,6 @@
 #    from host console:
 #       sudo docker container rm -f classi                              <<< not necessary for the very first run after a build
 #    from the classi docker container:
-#       cd pipeline
 #       ./do_all_RUN_ME_TO_SEE_RNASEQ_PROCESSING.sh    or   ./do_all_RUN_ME_TO_SEE_IMAGE_PROCESSING.sh    or  ./do_all_RUN_ME_TO_SEE_CLUSTERING_USING_SCIKIT_SPECTRAL.sh
 #
 # To monitor experiments and see graphical and other experimental outputs:
@@ -118,12 +117,12 @@ RUN --mount=type=cache,target=/root/.cache/pip python3 -m pip install -r Dockerf
 #RUN   pip   install hdbscan==0.8.29
 RUN   pip   install tsnecuda==3.0.1+cu112 -f https://tsnecuda.isx.ai/tsnecuda_stable.html
 
-RUN git clone --depth 18 https://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@github.com/peterdonnelly1/pipeline
+RUN git clone --depth 1 https://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@github.com/peterdonnelly1/pipeline
 
 
 # START UP SHENANIGANS
 RUN mkdir -p /home/peter/git/pipeline/classi/runs
-RUN echo '#!/bin/bash\ngimp > /dev/null 2>&1 &\ngeany > /dev/null 2>&1 &\nnohup tensorboard --logdir=/home/peter/git/pipeline/classi/runs --samples_per_plugin images=0 --reload_interval=1 --bind_all &' > start.sh
+RUN echo '#!/bin/bash\nmkdir -p pipeline/working_data\nmkdir -p pipeline/source_data\nmkdir -p pipeline/logs\nmkdir -p pipeline/classi/runs\ncd pipeline\ngimp > /dev/null 2>&1 &\ngeany > /dev/null 2>&1 &\nnohup tensorboard --logdir=/home/peter/git/pipeline/classi/runs --samples_per_plugin images=0 --reload_interval=1 --bind_all &' > start.sh
 RUN chmod +x start.sh
 RUN echo "alias cls='printf \"\033c\"'" >> /root/.bashrc
 CMD ["/bin/bash", "-c", "source /home/peter/git/start.sh && source /root/.bashrc && bash"]
