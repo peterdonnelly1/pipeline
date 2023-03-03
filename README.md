@@ -17,11 +17,11 @@
 
  To monitor experiments and see results:
 
-    _during_ the experiment:
+    during an experiment:
        monitor progress via container console output
        observe learning curves with any browser pointing to http://localhost:6006
        
-    _after_ the experiment has completed:
+    after an experiment has completed:
        run 'gimp' inside the container to view images produced by classi. 
         eg. cd logs; gimp 230102_0247__01 ... bar_chart_AL.png &
 
