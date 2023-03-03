@@ -1,3 +1,18 @@
+---
+layout: default
+title: My Markdown File
+---
+
+<style>
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+</style>
+
+<div class="container">
+
+
 # GETTING STARTED
 
 
@@ -103,3 +118,5 @@ Code: [https://github.com/tand826]
   
   
 Each portion of the code is governed by ... respective licenses - however our code is governed by the ...
+
+</div>
