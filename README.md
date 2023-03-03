@@ -75,7 +75,7 @@
     Note: there is no  NVIDIA Container Runtime for Windows
     
     Installation instructions (4 steps) follow 
-    These are from he official NVIDIA installation guide] https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html
+    From the NVIDIA installation guide https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html
 
     distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
        && curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | \
@@ -101,7 +101,7 @@
 ---
 
 
-I gratefuly acknowledge the authors of the following software used by CLASSI.  
+I gratefuly acknowledge the authors of the following software which is used by CLASSI.  
 
 **dpcca**  
 The core learning engine of ‘CLASSI’ buids on Gregory Gundersen’s ‘dpcca'. 
@@ -112,7 +112,7 @@ Paper: http://auai.org/uai2019/proceedings/papers/340.pdf
 
 **SPCN**  
 GPU version of 'Structure Preserving Color Normalisation' by D. Anand, G. Ramakrishnan and A. Sethi  
-Code:  [https://github.com/goutham7r/spcn  
+Code:  https://github.com/goutham7r/spcn  
 Paper: "Fast GPU-enabled Color Normalization for Digital pathology, International Conference on Systems, 
         Signals and Image Processing, Osijek, Croatia (2019), pp. 219-224  
 Paper: https://ieeexplore.ieee.org/document/8787328/  
