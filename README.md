@@ -60,7 +60,8 @@
 
     sudo docker rmi -f classi
 
-    you will have to build it again if you do this. Building should be very fast since Docker will have cached everything that did not change since the last build.
+    you will have to build it again if you do this. 
+    Building should be fast since Docker will have cached everything that did not change since the last build.
 
 ---
 
@@ -91,7 +92,10 @@
 
  To run with datasets external to the container, in the default location (don't use: this is for me during development):
 
-    sudo docker run -it --name classi --env TZ=$(cat /etc/timezone)  --gpus device=0  --network=host --shm-size 2g -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY -v /home/peter/git/pipeline/working_data:/home/peter/git/pipeline/working_data -v /home/peter/git/pipeline/source_data:/home/peter/git/pipeline/source_data  classi:latest
+    sudo docker run -it --name classi --env TZ=$(cat /etc/timezone)  --gpus device=0  --network=host \
+    --shm-size 2g -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY \
+    -v /home/peter/git/pipeline/working_data:/home/peter/git/pipeline/working_data \
+    -v /home/peter/git/pipeline/source_data:/home/peter/git/pipeline/source_data  classi:latest
 
 ---
 
@@ -99,7 +103,8 @@
 I gratefuly acknowledge the authors of the following software used by CLASSI.  
 
 **dpcca**  
-The core learning engine of ‘CLASSI’ buids on Gregory Gundersen’s ‘dpcca'. An attractive feature of this software is that it permits neural network models to be dynamically selected at run-time  
+The core learning engine of ‘CLASSI’ buids on Gregory Gundersen’s ‘dpcca'. 
+      An attractive feature of this software is that it permits neural network models to be dynamically selected at run-time  
 Code: [https://github.com/gwgundersen/dpcca]  
 Paper: "End-to-end Training of Deep Probabilistic CCA on Paired Biomedical Observations"  
 Paper: http://auai.org/uai2019/proceedings/papers/340.pdf  
@@ -107,7 +112,8 @@ Paper: http://auai.org/uai2019/proceedings/papers/340.pdf
 **SPCN**  
 GPU version of 'Structure Preserving Color Normalisation' by D. Anand, G. Ramakrishnan and A. Sethi  
 Code:  [https://github.com/goutham7r/spcn]  
-Paper: "Fast GPU-enabled Color Normalization for Digital pathology, International Conference on Systems, Signals and Image Processing, Osijek, Croatia (2019), pp. 219-224  
+Paper: "Fast GPU-enabled Color Normalization for Digital pathology, International Conference on Systems, 
+        Signals and Image Processing, Osijek, Croatia (2019), pp. 219-224  
 Paper: https://ieeexplore.ieee.org/document/8787328/  
 
 **Reinhard Stain Colour Normalisation:**  
