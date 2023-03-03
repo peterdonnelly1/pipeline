@@ -1,7 +1,4 @@
 
-# START HERE 
-
-
 ** First, install the NVIDIA Container Runtime on your host machine !!! (instructions below) **
 
 ---
