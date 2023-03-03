@@ -75,7 +75,7 @@
     Note: there is no  NVIDIA Container Runtime for Windows
     
     Installation instructions (4 steps) follow 
-    These are from https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html
+    These are from [https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html]
 
     distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
        && curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | \
