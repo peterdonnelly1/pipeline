@@ -17,7 +17,7 @@
          --network=host --shm-size 2g -v /tmp/.X11-unix:/tmp/.X11-unix \
          -e DISPLAY=unix$DISPLAY classi:latest
 
-    then, in the classi container:
+    then, from within the classi docker container:
        cd pipeline
        ./do_all_RUN_ME_TO_SEE_RNASEQ_PROCESSING.sh                     or
        ./do_all_RUN_ME_TO_SEE_IMAGE_PROCESSING.sh                      or
@@ -31,6 +31,7 @@
     _during_ the experiment:
        monitor progress via container console output
        observe learning curves with any browser pointing to http://localhost:6006
+       
     _after_ the experiment has completed:
        run 'gimp' inside the container to view images produced by classi. 
         eg. cd logs; gimp 230102_0247__01 ... bar_chart_AL.png &
@@ -65,7 +66,8 @@
 
  *** To install the NVIDIA Container Runtime on your host machine (highly recommended) ***:
 
-    If you use standard docker, CLASSI will only make use of CPUs; GPUs will be ignored. All CLASSI capabilities except cuda_tsne (which is expicitly designed to use a GPU) will work, albeit a lot slower.  
+    If you use standard docker, CLASSI will only make use of CPUs; GPUs will be ignored. 
+    All CLASSI capabilities except cuda_tsne (which is expicitly designed to use a GPU) will work, albeit much slower.  
     For GPU support, the NVIDIA Container Runtime is required on the system running Docker. The "FROM nvidia/cuda ... directive below creates an image that supports GPUs, but you _also_ require the NVIDIA Container Runtime. 
     Installation instructions (4 steps) follow (these are from https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html). Note: there is no  NVIDIA Container Runtime for Windows.
 
