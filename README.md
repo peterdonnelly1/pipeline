@@ -1,5 +1,5 @@
 
-# GETTING STARTED
+# START HERE 
 
 
 ** First, install the NVIDIA Container Runtime on your host machine !!! (instructions below) **
@@ -66,8 +66,8 @@
 
  *** To install the NVIDIA Container Runtime on your host machine (highly recommended) ***:
 
-    If you use standard docker, CLASSI will only make use of CPUs; GPUs will be ignored
-    All CLASSI capabilities except cuda_tsne (which requires a GPU) will work, albeit much slower
+    If you use standard docker, CLASSI will only make use of CPUs; GPUs will be ignored. All 
+    CLASSI capabilities except cuda_tsne (which requires a GPU) will work, albeit much slower
     For GPU support, the NVIDIA Container Runtime is required on the system running Docker
     The "FROM nvidia/cuda ..." directive below creates an image that supports GPUs, but you also 
     require NVIDIA Container Runtime
@@ -77,9 +77,11 @@
       These are from https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html
 
     distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
-       && curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
+       && curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | \
+          sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
        && curl -s -L https://nvidia.github.io/libnvidia-container/$distribution/libnvidia-container.list | \
-          sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+          sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] \
+          https://#g' | \
           sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
     sudo apt-get update
     sudo apt-get install -y nvidia-docker2
