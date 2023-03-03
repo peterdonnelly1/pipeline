@@ -12,7 +12,7 @@
  To run a CLASSI experiment from within the docker image just built:
 
     from host console:
-        sudo docker container rm -f classi                              <<< not necessary for the very first run after a build
+        sudo docker container rm -f classi
         sudo docker run  -it --name classi --env TZ=$(cat /etc/timezone) --gpus device=0 \
          --network=host --shm-size 2g -v /tmp/.X11-unix:/tmp/.X11-unix \
          -e DISPLAY=unix$DISPLAY classi:latest
@@ -23,7 +23,8 @@
        ./do_all_RUN_ME_TO_SEE_IMAGE_PROCESSING.sh                      or
        ./do_all_RUN_ME_TO_SEE_CLUSTERING_USING_SCIKIT_SPECTRAL.sh      or
 
-    'gimp' (image viewer) and 'geany' (text editor) will be started automatically  when the container runs
+    'gimp' (image viewer) and 'geany' (text editor) will be started automatically
+    when the container runs
 
  To monitor experiment and see results:
 
@@ -31,7 +32,8 @@
        monitor progress via container console output
        observe learning curves with any browser pointing to http://localhost:6006
     _after_ the experiment has completed:
-       run 'gimp' inside the container to view images produced by classi. eg. cd logs; gimp 230102_0247__01 ... bar_chart_AL.png &
+       run 'gimp' inside the container to view images produced by classi. 
+        eg. cd logs; gimp 230102_0247__01 ... bar_chart_AL.png &
 
  To edit configuration files:
 
