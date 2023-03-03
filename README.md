@@ -69,9 +69,12 @@
     If you use standard docker, CLASSI will only make use of CPUs; GPUs will be ignored
     All CLASSI capabilities except cuda_tsne (which requires a GPU) will work, albeit much slower
     For GPU support, the NVIDIA Container Runtime is required on the system running Docker
-    The "FROM nvidia/cuda ... directive below creates an image that supports GPUs, but you _also_ require the NVIDIA Container Runtime
+    The "FROM nvidia/cuda ..." directive below creates an image that supports GPUs, but you also 
+    require NVIDIA Container Runtime
+    Note: there is no  NVIDIA Container Runtime for Windows
     
-    Installation instructions (4 steps) follow (these are from https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html). Note: there is no  NVIDIA Container Runtime for Windows.
+    Installation instructions (4 steps) follow 
+      These are from https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html
 
     distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
        && curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
