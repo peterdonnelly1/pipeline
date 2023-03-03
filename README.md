@@ -7,7 +7,7 @@
  To build the CLASSI docker image:
 
     sudo DOCKER_BUILDKIT=1 docker build --progress=plain  -t classi .
----
+
  To run a CLASSI experiment from within the docker image just built:
 
     from host console:
@@ -21,7 +21,7 @@
        ./do_all_RUN_ME_TO_SEE_CLUSTERING_USING_SCIKIT_SPECTRAL.sh      or
 
     'gimp' (image viewer) and 'geany' (text editor) will be started automatically when the container runs
----
+
  To monitor experiment and see results:
 
     _during_ the experiment:
@@ -29,27 +29,27 @@
        observe learning curves with any browser pointing to http://localhost:6006
     _after_ the experiment has completed:
        run 'gimp' inside the container to view images produced by classi. eg. cd logs; gimp 230102_0247__01 ... bar_chart_AL.png &
----
+
  To edit configuration files:
 
     geany                   > /dev/null 2>&1 &
     geany do_all.sh         > /dev/null 2>&1 &
     geany conf/variables.sh > /dev/null 2>&1 &
----
+
  To enter running classi container with a bash shell
 
     sudo docker exec -it classi bash
----
+
  To stop/start classi container:
 
     sudo docker stop  classi
     sudo docker start classi
----
+
  To delete classi container:
     sudo docker rm classi
 
     this does not delete the classi image
----
+
  To delete the classi image:
 
     sudo docker rmi -f classi
