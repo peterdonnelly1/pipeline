@@ -6,8 +6,10 @@
 
 ---
  To build and run the CLASSI docker image:
+ 
+    first:
 
-    ____RUN_ME_FIRST_TO_BUILD_AND_RUN_THE_CLASSI_DOCKER_ENVIRONMENT.sh
+      ./____RUN_ME_FIRST_TO_BUILD_AND_RUN_THE_CLASSI_DOCKER_ENVIRONMENT.sh
 
     then, from within the classi docker container:
        ./do_all_RUN_ME_TO_SEE_RNASEQ_PROCESSING.sh                     or
