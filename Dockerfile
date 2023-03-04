@@ -100,8 +100,7 @@ RUN \
     --mount=type=cache,target=/var/cache/apt \
       apt-get update && apt-get install -y git python3 python3-pip python3-numpy libvips openslide-tools wget git tree vim rsync libsm6 libxext6 mlocate gimp firefox python3-tk geany
 
-WORKDIR /home/peter/git
-RUN mkdir pipeline
+WORKDIR /
 
 COPY Dockerfile_pip_requirements.txt   .                                               
 
@@ -113,12 +112,11 @@ RUN --mount=type=cache,target=/root/.cache/pip python3 -m pip install -r Dockerf
 #RUN   pip   install hdbscan==0.8.29
 RUN   pip   install tsnecuda==3.0.1+cu112 -f https://tsnecuda.isx.ai/tsnecuda_stable.html
 
-RUN git clone --depth 4 https://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@github.com/peterdonnelly1/pipeline
+RUN git clone --depth 5 https://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@github.com/peterdonnelly1/pipeline
 
 
 # START UP SHENANIGANS
-RUN mkdir -p /home/peter/git/pipeline/classi/runs
-RUN echo '#!/bin/bash\ncd pipeline\ngimp > /dev/null 2>&1 &\ngeany > /dev/null 2>&1 &\nnohup tensorboard --logdir=/home/peter/git/pipeline/classi/runs --samples_per_plugin images=0 --reload_interval=1 --bind_all &' > start.sh
+RUN echo '#!/bin/bash\ncd pipeline\ngimp > /dev/null 2>&1 &\ngeany > /dev/null 2>&1 &\nnohup tensorboard --logdir=classi/runs --samples_per_plugin images=0 --reload_interval=1 --bind_all &' > start.sh
 RUN chmod +x start.sh
 RUN echo "alias cls='printf \"\033c\"'" >> /root/.bashrc
-CMD ["/bin/bash", "-c", "source /home/peter/git/start.sh && source /root/.bashrc && bash"]
+CMD ["/bin/bash", "-c", "source start.sh && source /root/.bashrc && bash"]
