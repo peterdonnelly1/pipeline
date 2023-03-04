@@ -1050,10 +1050,10 @@ def generate( args, class_names, n_samples, highest_class_number, multimode_case
 
 
 #############
-"""
+
   if ( input_mode=='rna' )  | ( input_mode=='image_rna'):
  
- 
+"""
  # THIS IS DIFFERENT TO THE CLASSIFY VERSION - WE ARE SAVING A COPY OF THE ENTIRE GENES DATASET FOR USE IN filter_genes() AND IN analyse_data()
  
     # convert to pandas dataframe, then pickle and save for possible use with analyse_data
@@ -1091,9 +1091,9 @@ def generate( args, class_names, n_samples, highest_class_number, multimode_case
     cupy.save( save_file_name, df_cpy, allow_pickle=True) 
    
  # THIS IS DIFFERENT TO THE DLBCL VERSION - WE ARE SAVING A COPY OF THE ENTIRE GENES DATASET FOR USE IN filter_genes() AND IN analyse_data()
+""" 
  
  
-"""
  
  
 # THIS IS DIFFERENT TO THE DLBCL VERSION, BECAUSE WE ALWAYS WANT TO GENERATE A PYTORCH DICTIONARY IN THE CASE OF PRECOMPRESS     
