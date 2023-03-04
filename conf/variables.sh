@@ -20,7 +20,7 @@ SLEEP_TIME=0
 
 # main directory paths & file names
 
-BASE_DIR=$(pwd)                                                                                            # root directory for everything (shell scripts, code, datasets, logs ...)
+BASE_DIR=${PWD}                                                                                                 # root directory for everything (shell scripts, code, datasets, logs ...)
 APPLICATION_DIR=classi
 DATA_ROOT=working_data                                                                                     # holds working copy of the dataset. Cleaned each time if "do_all" script used. Fully regenerated if "regen" option specified. Not cleaned if "just_.. or _only_ scripts used (to save time. Regeneration i particular can take a lot of time)
 DATA_SOURCE=${BASE_DIR}/source_data/${DATASET}                                                             # structured directory containing dataset. A copy is made to DATA_ROOT. DATA_SOURCE is left untouched
