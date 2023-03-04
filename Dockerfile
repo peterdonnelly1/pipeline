@@ -103,15 +103,9 @@ RUN \
 WORKDIR /home/peter/git
 RUN mkdir pipeline
 
-COPY Dockerfile_pip_requirements_1.txt   .                                               
-COPY Dockerfile_pip_requirements_2.txt   .                                               
-COPY Dockerfile_pip_requirements_3.txt   .                                               
-
 RUN --mount=type=cache,target=/root/.cache/pip python3 -m pip install --upgrade pip setuptools wheel
 RUN --mount=type=cache,target=/root/.cache/pip python3 -m pip install --upgrade numpy
-RUN --mount=type=cache,target=/root/.cache/pip python3 -m pip install -r Dockerfile_pip_requirements_1.txt
-RUN --mount=type=cache,target=/root/.cache/pip python3 -m pip install -r Dockerfile_pip_requirements_2.txt
-RUN --mount=type=cache,target=/root/.cache/pip python3 -m pip install -r Dockerfile_pip_requirements_3.txt
+RUN --mount=type=cache,target=/root/.cache/pip python3 -m pip install numpy==1.21.6  multimethod==1.9.1  Pillow==9.3.0  six==1.16.0  pandas==1.1.5  openTSNE==0.4.3  psutil==5.7.0  tensorboard==2.8.0  tensorflow==2.8.3  pyvips==2.2.1  tsnecuda==3.0.1  seaborn==0.11.0  joblib==1.1.0  #spams==2.6.1  tabulate==0.8.7  ipython==7.32.0  cycler==0.11.0  opencv-python==4.1.2.30  openslide-python==1.2.0  matplotlib==3.1.3  matplotlib-inline==0.1.3  cupy-cuda112==10.6.0  nvidia-cuda-nvrtc-cu11==11.7.99  nvidia-cuda-runtime-cu11==11.7.99  scikit-image==0.19.3  scikit-learn==1.0.2  mkl==2018.0.3  intel-openmp==2018.0.3  hdbscan==0.8.29  torch==1.13.1  torchvision==0.14.1
 
 #RUN   pip uninstall -y hdbscan
 #RUN   pip   install hdbscan==0.8.29
