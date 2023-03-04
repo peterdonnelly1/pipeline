@@ -1050,7 +1050,7 @@ def generate( args, class_names, n_samples, highest_class_number, multimode_case
 
 
 #############
-
+"""
   if ( input_mode=='rna' )  | ( input_mode=='image_rna'):
  
  
@@ -1093,7 +1093,7 @@ def generate( args, class_names, n_samples, highest_class_number, multimode_case
  # THIS IS DIFFERENT TO THE DLBCL VERSION - WE ARE SAVING A COPY OF THE ENTIRE GENES DATASET FOR USE IN filter_genes() AND IN analyse_data()
  
  
- 
+"""
  
  
 # THIS IS DIFFERENT TO THE DLBCL VERSION, BECAUSE WE ALWAYS WANT TO GENERATE A PYTORCH DICTIONARY IN THE CASE OF PRECOMPRESS     
