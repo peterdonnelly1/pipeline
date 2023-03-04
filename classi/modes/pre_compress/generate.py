@@ -1053,45 +1053,45 @@ def generate( args, class_names, n_samples, highest_class_number, multimode_case
 
   if ( input_mode=='rna' )  | ( input_mode=='image_rna'):
  
-"""
- # THIS IS DIFFERENT TO THE CLASSIFY VERSION - WE ARE SAVING A COPY OF THE ENTIRE GENES DATASET FOR USE IN filter_genes() AND IN analyse_data()
+
+ # ~ # THIS IS DIFFERENT TO THE CLASSIFY VERSION - WE ARE SAVING A COPY OF THE ENTIRE GENES DATASET FOR USE IN filter_genes() AND IN analyse_data()
  
-    # convert to pandas dataframe, then pickle and save for possible use with analyse_data
+    # ~ # convert to pandas dataframe, then pickle and save for possible use with analyse_data
      
-    ensg_reference_file_name = f"{data_dir}/ENSG_reference"
-    if DEBUG>0:  
-      print ( f"P_C_GENERATE:   INFO:      ensg_reference_file_name (containing genes ENSG names to be used as column headings) = {MAGENTA}{ensg_reference_file_name}{RESET}", flush=True )
-      print ( f"P_C_GENERATE:   INFO:      about to add pandas column headings for the genes dataframe  {RESET}" )       
-    with open( ensg_reference_file_name ) as f:
-      ensg_reference = f.read().splitlines()
-    df = pd.DataFrame(np.squeeze( genes_new ), columns=ensg_reference)
+    # ~ ensg_reference_file_name = f"{data_dir}/ENSG_reference"
+    # ~ if DEBUG>0:  
+      # ~ print ( f"P_C_GENERATE:   INFO:      ensg_reference_file_name (containing genes ENSG names to be used as column headings) = {MAGENTA}{ensg_reference_file_name}{RESET}", flush=True )
+      # ~ print ( f"P_C_GENERATE:   INFO:      about to add pandas column headings for the genes dataframe  {RESET}" )       
+    # ~ with open( ensg_reference_file_name ) as f:
+      # ~ ensg_reference = f.read().splitlines()
+    # ~ df = pd.DataFrame(np.squeeze( genes_new ), columns=ensg_reference)
     
-    if DEBUG>9:
-      print ( f"P_C_GENERATE:   INFO:       len(ensg_reference.shape) = {MAGENTA}{len(ensg_reference)}{RESET}", flush=True ) 
-      print ( f"P_C_GENERATE:   INFO:       df.shape = {MAGENTA}{df.shape}{RESET}", flush=True )   
-    if DEBUG>9:
-      print (df)
+    # ~ if DEBUG>9:
+      # ~ print ( f"P_C_GENERATE:   INFO:       len(ensg_reference.shape) = {MAGENTA}{len(ensg_reference)}{RESET}", flush=True ) 
+      # ~ print ( f"P_C_GENERATE:   INFO:       df.shape = {MAGENTA}{df.shape}{RESET}", flush=True )   
+    # ~ if DEBUG>9:
+      # ~ print (df)
     
-    # save a pickled pandas version
-    save_file_name  = f'{args.base_dir}/{args.application_dir}/modes/analyse_data/genes.pickle'
-    print( f"P_C_GENERATE:   INFO:      about to label, squeeze, convert to pandas dataframe, pickle and save {MIKADO}'genes_new'{RESET} to {MAGENTA}{save_file_name}{RESET}" )   
-    df.to_pickle( save_file_name )  
-    print( f"P_C_GENERATE:   INFO:      finished labeling, converting to dataframe, pickling and saving       {MIKADO}'genes_new'{RESET} to {MAGENTA}{save_file_name}{RESET}" )
+    # ~ # save a pickled pandas version
+    # ~ save_file_name  = f'{args.base_dir}/{args.application_dir}/modes/analyse_data/genes.pickle'
+    # ~ print( f"P_C_GENERATE:   INFO:      about to label, squeeze, convert to pandas dataframe, pickle and save {MIKADO}'genes_new'{RESET} to {MAGENTA}{save_file_name}{RESET}" )   
+    # ~ df.to_pickle( save_file_name )  
+    # ~ print( f"P_C_GENERATE:   INFO:      finished labeling, converting to dataframe, pickling and saving       {MIKADO}'genes_new'{RESET} to {MAGENTA}{save_file_name}{RESET}" )
     
-    # save a pickled cupy version. we'll lose the headers because numpy and cupy are number-only data structures
-    save_file_name  = f'{args.base_dir}/{args.application_dir}/modes/analyse_data/genes_cupy.pickle.npy'
-    if DEBUG>0:
-      print ( f"P_C_GENERATE:   INFO:      converting pandas dataframe to numpy array", flush=True ) 
-    df_npy = df.to_numpy()                                                                                # convert pandas dataframe to numpy
-    if DEBUG>0:
-      print ( f"P_C_GENERATE:   INFO:      converting numpy array to cupy array", flush=True )     
-    df_cpy = cupy.asarray( df_npy )
-    if DEBUG>0:
-      print ( f"P_C_GENERATE:   INFO:      saving cupy array to {MAGENTA}{save_file_name}{RESET} for possible subsequent use in {CYAN}analyse_data{RESET} mode", flush=True )
-    cupy.save( save_file_name, df_cpy, allow_pickle=True) 
+    # ~ # save a pickled cupy version. we'll lose the headers because numpy and cupy are number-only data structures
+    # ~ save_file_name  = f'{args.base_dir}/{args.application_dir}/modes/analyse_data/genes_cupy.pickle.npy'
+    # ~ if DEBUG>0:
+      # ~ print ( f"P_C_GENERATE:   INFO:      converting pandas dataframe to numpy array", flush=True ) 
+    # ~ df_npy = df.to_numpy()                                                                                # convert pandas dataframe to numpy
+    # ~ if DEBUG>0:
+      # ~ print ( f"P_C_GENERATE:   INFO:      converting numpy array to cupy array", flush=True )     
+    # ~ df_cpy = cupy.asarray( df_npy )
+    # ~ if DEBUG>0:
+      # ~ print ( f"P_C_GENERATE:   INFO:      saving cupy array to {MAGENTA}{save_file_name}{RESET} for possible subsequent use in {CYAN}analyse_data{RESET} mode", flush=True )
+    # ~ cupy.save( save_file_name, df_cpy, allow_pickle=True) 
    
- # THIS IS DIFFERENT TO THE DLBCL VERSION - WE ARE SAVING A COPY OF THE ENTIRE GENES DATASET FOR USE IN filter_genes() AND IN analyse_data()
-""" 
+ # ~ # THIS IS DIFFERENT TO THE DLBCL VERSION - WE ARE SAVING A COPY OF THE ENTIRE GENES DATASET FOR USE IN filter_genes() AND IN analyse_data()
+ 
  
  
  
