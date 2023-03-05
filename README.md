@@ -1,36 +1,61 @@
 
-** First, install the NVIDIA Container Runtime on your host machine !!! (instructions below) **
+---
+1   Install the NVIDIA Container Runtime on your host machine:
+
+    If you use standard docker, CLASSI will only use CPUs
+    For GPU support, the NVIDIA Container Runtime is required on the system running Docker
+    The "FROM nvidia/cuda ..." directive below creates an image that supports GPUs, but you also 
+    require NVIDIA Container Runtime
+    Note: there is no  NVIDIA Container Runtime for Windows
+    
+    Installation instructions (4 steps) follow. 
+    From the NVIDIA installation guide https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html
+
+    distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
+       && curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | \
+          sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
+       && curl -s -L https://nvidia.github.io/libnvidia-container/$distribution/libnvidia-container.list | \
+          sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] \
+          https://#g' | \
+          sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+    sudo apt-get update
+    sudo apt-get install -y nvidia-docker2
+    sudo systemctl restart docker
 
 ---
- Then get some data:
+2   Build the CLASSI docker image:  
  
-  eg: fetch and pre-process TCGA Sarcoma RNA-Seq data (takes about 60min):  
+      ./____BUILD_THE_CLASSI_DOCKER_ENVIRONMENT.sh  
+      
+---
+3  Get some TCGA data to run experiments on:  
+ 
+    eg: fetch and pre-process TCGA Sarcoma RNA-Seq data (takes about 60min):  
     
-      mkdir -p pipeline/source_data/sarc    
+      cd pipeline  
       python ./gdc-fetch.py --debug=9 --dataset sarc --case_filter="filters/TCGA-SARC_case_filter" \  
       --file_filter="filters/GLOBAL_file_filter_UQ" --max_cases=5000 --max_files=10  --output_dir=source_data/sarc  
 
-  eg: fetch and pre-process TCGA stomach cancer dataset (image and RNA-Seq) (can take 1-2 days):   
+    eg: fetch and pre-process TCGA stomach cancer dataset (image and RNA-Seq) (can take 1-2 days):   
     
-      mkdir -p pipeline/source_data/stad   
+      cd pipeline  
       python ./gdc-fetch.py --debug=9 --dataset stad --case_filter="filters/TCGA-STAD_case_filter" \  
       --file_filter="filters/GLOBAL_file_filter_UQ"  --max_cases=5000 --max_files=10  --output_dir=source_data/stad  
       python ./gdc-fetch.py --debug=9 --dataset stad --case_filter="filters/TCGA-STAD_case_filter" \  
       --file_filter="filters/GLOBAL_file_filter_SVS" --max_cases=5000 --max_files=10  --output_dir=source_data/stad  
 
 ---
- To build and run the CLASSI docker image:
- 
-    first:
+4   Run the CLASSI Docker container  
 
-      ./____RUN_ME_FIRST_TO_BUILD_AND_RUN_THE_CLASSI_DOCKER_ENVIRONMENT.sh
-
+    ./____BUILD_THE_CLASSI_DOCKER_ENVIRONMENT.sh
+      
     then, from within the classi docker container:
        ./do_all_RUN_ME_TO_SEE_RNASEQ_PROCESSING.sh                     or
        ./do_all_RUN_ME_TO_SEE_IMAGE_PROCESSING.sh                      or
        ./do_all_RUN_ME_TO_SEE_CLUSTERING_USING_SCIKIT_SPECTRAL.sh      or
 
     'gimp' (image viewer) and 'geany' (text editor) will start automatically
+    
 
  To monitor experiments and see results:
 
@@ -71,42 +96,12 @@
 
 ---
 
-    To install the NVIDIA Container Runtime on your host machine:
 
-    If you use standard docker, CLASSI will only make use of CPUs; GPUs will be ignored. All 
-    CLASSI capabilities except cuda_tsne (which requires a GPU) will work, albeit much slower
-    For GPU support, the NVIDIA Container Runtime is required on the system running Docker
-    The "FROM nvidia/cuda ..." directive below creates an image that supports GPUs, but you also 
-    require NVIDIA Container Runtime
-    Note: there is no  NVIDIA Container Runtime for Windows
-    
-    Installation instructions (4 steps) follow. 
-    From the NVIDIA installation guide https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html
 
-    distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
-       && curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | \
-          sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
-       && curl -s -L https://nvidia.github.io/libnvidia-container/$distribution/libnvidia-container.list | \
-          sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] \
-          https://#g' | \
-          sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
-    sudo apt-get update
-    sudo apt-get install -y nvidia-docker2
-    sudo systemctl restart docker
+
+
 
 ---
-
- To run with datasets external to the container, in the default location (
- don't use: this is for me during development):
-
-    sudo docker run -it --name classi --env TZ=$(cat /etc/timezone)  --gpus device=0  --network=host \
-    --shm-size 2g -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY \
-    -v /home/peter/git/pipeline/working_data:/home/peter/git/pipeline/working_data \
-    -v /home/peter/git/pipeline/source_data:/home/peter/git/pipeline/source_data  classi:latest
-
----
-
-
 I gratefuly acknowledge the authors of the following software used in CLASSI:
 
 **dpcca**  
