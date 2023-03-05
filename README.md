@@ -43,9 +43,9 @@
       --file_filter="filters/GLOBAL_file_filter_SVS" --max_cases=5000 --max_files=10  --output_dir=source_data/stad  
 
 ---
-4   Run the CLASSI Docker container  
+4   Run the CLASSI Docker container (use source so that it will execute in the current shell session)
 
-    ./____RUN_THE_CLASSI_DOCKER_ENVIRONMENT.sh
+    source ./____RUN_THE_CLASSI_DOCKER_ENVIRONMENT.sh
       
     then, from within the classi docker container:
        ./do_all_RUN_ME_TO_SEE_RNASEQ_PROCESSING.sh                     or

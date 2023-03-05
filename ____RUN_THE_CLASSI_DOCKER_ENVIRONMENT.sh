@@ -9,3 +9,5 @@ sudo docker run -it --name classi --env TZ=$(cat /etc/timezone)  --gpus device=0
     -v $(pwd)/logs:/pipeline/logs  \
     -v $(pwd)/classi/runs:/pipeline/classi/runs  \
     classi:latest
+
+set +x
