@@ -2,7 +2,7 @@
 
 set -x
 
-mkdir -p pipline
+mkdir -p pipeline
 cd pipeline 2>/dev/null || true
 mkdir -p working_data
 mkdir -p source_data

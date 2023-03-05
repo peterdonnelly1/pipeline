@@ -6943,7 +6943,7 @@ if __name__ == '__main__':
   p.add_argument('--skip_image_preprocessing',                                      type=str,    default='False'                                 )                           
   p.add_argument('--pretrain',                                                      type=str,    default='False'                                 )                                
   p.add_argument('--log_dir',                                                       type=str,    default='logs'                                  )                
-  p.add_argument('--base_dir',                                                      type=str,    default='/home/peter/git/pipeline'              )
+  p.add_argument('--base_dir',                                                      type=str,                                                    )
   p.add_argument('--application_dir',                                               type=str,    default='/home/peter/git/pipeline/classi'       )
   p.add_argument('--data_dir',                                                      type=str,    default='/home/peter/git/pipeline/working_data' )     
   p.add_argument('--save_model_name',                                               type=str,    default='model.pt'                              )                             

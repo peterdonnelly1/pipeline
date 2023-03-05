@@ -509,7 +509,7 @@ CUDA_LAUNCH_BLOCKING=1 python ${MAIN_APPLICATION_NAME} \
 --debug_level_classify ${DEBUG_LEVEL_CLASSIFY}  --debug_level_config ${DEBUG_LEVEL_CONFIG}  DEBUG_LEVEL_CONFIG --debug_level_tiler ${DEBUG_LEVEL_TILER} --debug_level_generate ${DEBUG_LEVEL_GENERATE} --debug_level_dataset ${DEBUG_LEVEL_DATASET} --log_level ${LOG_LEVEL} \
 --debug_level_loader ${DEBUG_LEVEL_LOADER} --debug_level_algorithm ${DEBUG_LEVEL_ALGORITHM} --input_mode ${INPUT_MODE}   --strong_supervision ${STRONG_SUPERVISION} --multimode ${MULTIMODE} \
 --just_profile ${JUST_PROFILE} --just_test ${JUST_TEST} --skip_tiling ${SKIP_TILING} --skip_generation ${SKIP_GENERATION} --skip_image_preprocessing ${SKIP_IMAGE_PREPROCESSING} --skip_rna_preprocessing ${SKIP_RNA_PREPROCESSING} \
---dataset ${DATASET} --cases ${CASES} --application_dir ${APPLICATION_DIR}  --data_dir ${DATA_DIR} --data_source ${DATA_SOURCE} --divide_cases ${DIVIDE_CASES} --cases_reserved_for_image_rna ${CASES_RESERVED_FOR_IMAGE_RNA} \
+--dataset ${DATASET} --cases ${CASES} --application_dir ${APPLICATION_DIR} --base_dir ${BASE_DIR} --data_dir ${DATA_DIR} --data_source ${DATA_SOURCE} --divide_cases ${DIVIDE_CASES} --cases_reserved_for_image_rna ${CASES_RESERVED_FOR_IMAGE_RNA} \
 --global_data ${GLOBAL_DATA} --mapping_file ${MAPPING_FILE} --mapping_file_name ${MAPPING_FILE_NAME} --ensg_reference_file_name${ENSG_REFERENCE_FILE_NAME} \
 --log_dir ${LOG_DIR} --save_model_name ${SAVE_MODEL_NAME} \
 --ddp ${DDP} --use_autoencoder_output ${USE_AUTOENCODER_OUTPUT} --ae_add_noise ${AE_ADD_NOISE} --pretrain ${PRETRAIN} \
