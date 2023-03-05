@@ -4,22 +4,19 @@
 ---
  Then get some data:
  
-  eg: TCGA sarcoma dataset: (just RNA-Seq)
-    fetch and pre-process TCGA kidney RNA-Seq data (takes about 60min):
-      mkdir -p pipeline/source_data/kidn
-      python ./gdc-fetch.py --debug=9 --dataset sarc --case_filter="filters/TCGA-SARC_case_filter" --file_filter="filters/GLOBAL_file_filter_UQ" --max_cases=5000 --max_files=10  --output_dir=source_data/sarc
+  eg: TCGA sarcoma dataset: (just RNA-Seq)  
+    fetch and pre-process TCGA sarcoma RNA-Seq data (takes about 60min):  
+      mkdir -p pipeline/source_data/sarc    
+      python ./gdc-fetch.py --debug=9 --dataset sarc --case_filter="filters/TCGA-SARC_case_filter" \  
+        --file_filter="filters/GLOBAL_file_filter_UQ" --max_cases=5000 --max_files=10  --output_dir=source_data/sarc  
 
-  eg: TCGA stomach cancer dataset: (both images and RNA-Seq)
-    fetch and pre-process TCGA image and RNA-Seq data (can take 1-2 days):
-      mkdir -p pipeline/source_data/kidn
-      python ./gdc-fetch.py --debug=9 --dataset stad --case_filter="filters/TCGA-STAD_case_filter" --file_filter="filters/GLOBAL_file_filter_UQ"  --max_cases=5000 --max_files=10  --output_dir=source_data/stad
-      python ./gdc-fetch.py --debug=9 --dataset stad --case_filter="filters/TCGA-STAD_case_filter" --file_filter="filters/GLOBAL_file_filter_SVS" --max_cases=5000 --max_files=10  --output_dir=source_data/stad
-
----
- Then get some data:
- 
-  fetch and pre-process TCGA kidney RNA-Seq data (takes about 60min):
-    python ./gdc-fetch.py --debug=9 --dataset kidn --case_filter="filters/TCGA-KIDN_case_filter" --file_filter="filters/GLOBAL_file_filter_UQ" --max_cases=5000 --max_files=10  --output_dir=source_data/kidn
+  eg: TCGA stomach cancer dataset: (both images and RNA-Seq)   
+    fetch and pre-process TCGA image and RNA-Seq data (can take 1-2 days):   
+      mkdir -p pipeline/source_data/stad   
+      python ./gdc-fetch.py --debug=9 --dataset stad --case_filter="filters/TCGA-STAD_case_filter" \  
+        --file_filter="filters/GLOBAL_file_filter_UQ"  --max_cases=5000 --max_files=10  --output_dir=source_data/stad  
+      python ./gdc-fetch.py --debug=9 --dataset stad --case_filter="filters/TCGA-STAD_case_filter" \  
+        --file_filter="filters/GLOBAL_file_filter_SVS" --max_cases=5000 --max_files=10  --output_dir=source_data/stad  
 
 ---
  To build and run the CLASSI docker image:
