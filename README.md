@@ -2,14 +2,13 @@
 ---
 1   Install the NVIDIA Container Runtime on your host machine:
 
-    If you use standard docker, CLASSI will only use CPUs
-    For GPU support, the NVIDIA Container Runtime is required on the system running Docker
+    With the standard version of Docker, CLASSI will only use CPUs.
+    For GPU support, the NVIDIA Container Runtime is required on the system running Docker.
     The "FROM nvidia/cuda ..." directive below creates an image that supports GPUs, but you also 
-    require NVIDIA Container Runtime
     Note: there is no  NVIDIA Container Runtime for Windows
     
     Installation instructions (4 steps) follow. 
-    From the NVIDIA installation guide https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html
+    From https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html
 
     distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
        && curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | \
