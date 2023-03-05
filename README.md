@@ -45,7 +45,7 @@
 ---
 4   Run the CLASSI Docker container  
 
-    ./____BUILD_THE_CLASSI_DOCKER_ENVIRONMENT.sh
+    ./____RUN_THE_CLASSI_DOCKER_ENVIRONMENT.sh
       
     then, from within the classi docker container:
        ./do_all_RUN_ME_TO_SEE_RNASEQ_PROCESSING.sh                     or
