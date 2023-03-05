@@ -21,9 +21,9 @@
     sudo systemctl restart docker
 
 ---
-2   Build the CLASSI docker image:  
+2   Build the CLASSI docker image (use 'source' so that it will execute within the current shell session) 
  
-      ./____BUILD_THE_CLASSI_DOCKER_ENVIRONMENT.sh  
+      source ./____BUILD_THE_CLASSI_DOCKER_ENVIRONMENT.sh  
       
 ---
 3  Get some TCGA data to run experiments on:  
