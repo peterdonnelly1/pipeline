@@ -94,7 +94,7 @@ LABEL org.opencontainers.image.authors="pd@red.com.au"
 
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
-RUN adduser --disabled-password --gecos 'default classi user' user_1
+#RUN adduser --disabled-password --gecos 'default classi user' user_1
 
 RUN \
     --mount=type=cache,target=/var/cache/apt \
@@ -112,7 +112,7 @@ RUN --mount=type=cache,target=/root/.cache/pip python3 -m pip install -r Dockerf
 #RUN   pip   install hdbscan==0.8.29
 RUN   pip   install tsnecuda==3.0.1+cu112 -f https://tsnecuda.isx.ai/tsnecuda_stable.html
 
-RUN git clone --depth 8 https://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@github.com/peterdonnelly1/pipeline
+RUN git clone --depth 9 https://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@github.com/peterdonnelly1/pipeline
 
 
 # START UP SHENANIGANS

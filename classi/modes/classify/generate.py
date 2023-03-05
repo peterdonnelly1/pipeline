@@ -746,7 +746,7 @@ def generate( args, class_names, n_samples, total_slides_counted_train, total_sl
       print ( f"{RED}GENERATE:       FATAL: No rna files at all exist in the dataset directory ({MAGENTA}{data_dir}{RESET}{RED})"                                                                          )                 
       print ( f"{PALE_RED}GENERATE:                 Possible explanations:{RESET}"                                                                                                                       )
       print ( f"{PALE_RED}GENERATE:                   (1) The dataset '{CYAN}{args.dataset}{RESET}{PALE_RED}' doesn't have any rna-seq data. It might only have image data{RESET}" )
-      print ( f"{PALE_RED}GENERATE:                   (2) Did you change from image mode to rna mode but neglect to run '{CYAN}./do_all.sh{RESET}{PALE_RED}' to generate the files requiPALE_RED for rna mode ? {RESET}" )
+      print ( f"{PALE_RED}GENERATE:                   (2) Did you change from image mode to rna mode but neglect to run '{CYAN}./do_all.sh{RESET}{PALE_RED}' to generate the files required for rna mode ? {RESET}" )
       print ( f"{PALE_RED}GENERATE:                       If so, run '{CYAN}./do_all.sh <cancer_type_code> rna{RESET}{PALE_RED}' to generate the rna files{RESET}{PALE_RED}. After that, you will be able to use '{CYAN}./just_run.sh <cancer_type_code> rna{RESET}{PALE_RED}'" )                 
       print ( f"{PALE_RED}GENERATE:               Halting now{RESET}" )                 
       sys.exit(0)
