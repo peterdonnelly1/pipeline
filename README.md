@@ -1,24 +1,16 @@
 
+(use 'source' so shell scripts will execute within the current shell session)  
+ 
 ---
-1   Install the NVIDIA Docker Container Runtime on your host machine:
+1   Install the NVIDIA Docker Container Runtime:
 
     For GPU support, the NVIDIA Container Runtime is required on the system running Docker.
     Note: there is no  NVIDIA Container Runtime for Windows
     
-    Installation instructions (4 steps) follow. 
-    From https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html
-
-    distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
-      && curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
-      && curl -s -L https://nvidia.github.io/libnvidia-container/$distribution/libnvidia-container.list | \
-            sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
-            sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
-    sudo apt-get update
-    sudo apt-get install -y nvidia-docker2
-    sudo systemctl restart docker
+      source ./SCRIPT_TO_INSTALL_NVIDIA_CONTAINER_RUNTIME.sh
 
 ---
-2   Build and run the CLASSI docker image (use 'source' so it will execute within the current shell session) 
+2   Build and run the CLASSI docker image 
  
       source ./____BUILD_AND_RUN_THE_CLASSI_DOCKER_ENVIRONMENT.sh  
       
