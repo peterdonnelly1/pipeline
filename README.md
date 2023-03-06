@@ -2,7 +2,6 @@
 ---
 1   Install the NVIDIA Container Runtime on your host machine:
 
-    With the standard version of Docker, CLASSI will only use CPUs.
     For GPU support, the NVIDIA Container Runtime is required on the system running Docker.
     Note: there is no  NVIDIA Container Runtime for Windows
     
@@ -10,12 +9,10 @@
     From https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html
 
     distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
-       && curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | \
-          sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
-       && curl -s -L https://nvidia.github.io/libnvidia-container/$distribution/libnvidia-container.list | \
-          sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] \
-          https://#g' | \
-          sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+      && curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
+      && curl -s -L https://nvidia.github.io/libnvidia-container/$distribution/libnvidia-container.list | \
+            sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+            sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
     sudo apt-get update
     sudo apt-get install -y nvidia-docker2
     sudo systemctl restart docker
@@ -25,28 +22,29 @@
  
       source ./____BUILD_AND_RUN_THE_CLASSI_DOCKER_ENVIRONMENT.sh  
       
-    You will be left in the docker CLASSI container, in a directory called pipeline
-    'gimp' (image viewer) and 'geany' (text editor) will start automaticall
+    You will be left in the docker CLASSI container in directory 'pipeline'
+    'gimp' (image viewer) and 'geany' (text editor) will start automatically.
       
 ---
-3  Get some TCGA data to run experiments on:  
+3  Use gdc-fetch ('d' option to begin with) to get some TCGA data:  
  
-    eg: fetch and pre-process TCGA Sarcoma RNA-Seq data (takes about 60min):  
+    eg: fetch and pre-process TCGA Sarcoma RNA-Seq data (1.1GB - <60min):  
     
       python ./gdc-fetch.py --debug=9 --dataset sarc --case_filter="filters/TCGA-SARC_case_filter"  --file_filter="filters/GLOBAL_file_filter_UQ" --max_cases=5000 --max_files=10  --output_dir=source_data/sarc  
 
-    eg: fetch and pre-process TCGA stomach cancer dataset (image and RNA-Seq) (can take 1-2 days):   
+    eg: fetch and pre-process TCGA stomach cancer dataset (image and RNA-Seq) (~650GB - allow 24hrs+):   
     
       python ./gdc-fetch.py --debug=9 --dataset stad --case_filter="filters/TCGA-STAD_case_filter"  --file_filter="filters/GLOBAL_file_filter_UQ"  --max_cases=5000 --max_files=10  --output_dir=source_data/stad  
       python ./gdc-fetch.py --debug=9 --dataset stad --case_filter="filters/TCGA-STAD_case_filter"  --file_filter="filters/GLOBAL_file_filter_SVS" --max_cases=5000 --max_files=10  --output_dir=source_data/stad  
 
 ---
-4   Run an experiment. This ones are scripted:
+4   Run an experiment. These ones are fully scripted:
 
-     ./do_all_RUN_ME_TO_SEE_RNASEQ_PROCESSING.sh                     <<< requires sarc dataset
-     ./do_all_RUN_ME_TO_SEE_IMAGE_PROCESSING.sh                      <<< requires stad dataset
-     ./do_all_RUN_ME_TO_SEE_CLUSTERING_USING_SCIKIT_SPECTRAL.sh      <<< requires kidn dataset
-     ./experiment_1.sh                                               <<< requires lots of datasets
+     ./do_all_RUN_ME_TO_SEE_RNASEQ_PROCESSING.sh                     <<< requires sarc rna-seq       dataset
+     ./do_all_RUN_ME_TO_SEE_IMAGE_PROCESSING.sh                      <<< requires stad image         dataset
+     ./do_all_RUN_ME_TO_SEE_CLUSTERING_USING_SCIKIT_SPECTRAL.sh      <<< requires kidn rna-seq       dataset
+     ./do_all_RUN_ME_TO_SEE_MULTIMODAL_IMAGE_PLUS_RNA_PROCESSING.sh  <<< requires stad image and rna datasets
+     ./experiment_1.sh                                               <<< requires lots of rna-seq    datasets
     
     once you're comfortable, use CLASSI commands to run experiments:
     
