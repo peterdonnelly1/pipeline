@@ -76,9 +76,7 @@ def main(args):
     print( f"\n\n{CARRIBEAN_GREEN}GDC-FETCH:     INFO:    Note that gdc-fetch downloads all files into sub-directories under source_data/  It does not touch the contents of directory working_data{RESET}" )
     print( f"{CARRIBEAN_GREEN}GDC-FETCH:     INFO:    Once downloaded and processed by gdc-fetch, additional steps are necessary to establish a dataset which is usable by CLASSI.  See documentation.{RESET}" )
   
-  if(os.path.isdir( output_dir )):
-    user_input = input( f"\n\n{BOLD_ORANGE}WARNING: chosen output directory {BOLD_MAGENTA}{output_dir}{RESET}{BOLD_ORANGE} already exists, perhaps from a previous interrupted run.{RESET} \
-\n\noptions: \
+  user_input = input( f"\n\noptions: \
 \n{BOLD_RED}{UNDER}o{RESET}{BOLD_WHITE}verlay. Download new cases / examples\033[m {RESET}{ITALICS}or{RESET} \
 \n{BOLD_RED}{UNDER}f{RESET}{BOLD_WHITE}inish previous, possibly interrupted, download {RESET}{ITALICS}or{RESET} \
 \n{BOLD_RED}{UNDER}i{RESET}{BOLD_WHITE}nfill.  Download new examples for existing cases only. Ignore cases which don't already exist locally\033[m {RESET}{ITALICS}or{RESET} \
@@ -86,30 +84,30 @@ def main(args):
 \n{BOLD_RED}{UNDER}p{RESET}{BOLD_WHITE}romote all leaf files to their correct positions and delete all empty directories (doesn't download anything) {RESET}{ITALICS}or{RESET} \
 \n{BOLD_RED}{UNDER}c{RESET}{BOLD_WHITE}lean up unwanted files (doesn't download anything) \
 {RESET}")
-  
-    while True:
-      if user_input=='f':
-        break
-      elif user_input=='d':
-        try:
-          sh.rmtree(output_dir)
-        except OSError:
-          pass
-        os.makedirs( output_dir )
-        afresh="yes"
-        break
-      elif user_input=='o':
-        overlay="yes"
-        break
-      elif user_input=='i':
-        infill="yes"
-        break
-      elif user_input=='p':
-        cleanup="yes"
-        break
-      else:
-        print ("sorry, no such option" )
-        exit(0)
+
+  while True:
+    if user_input=='f':
+      break
+    elif user_input=='d':
+      try:
+        sh.rmtree(output_dir)
+      except OSError:
+        pass
+      os.makedirs( output_dir )
+      afresh="yes"
+      break
+    elif user_input=='o':
+      overlay="yes"
+      break
+    elif user_input=='i':
+      infill="yes"
+      break
+    elif user_input=='p':
+      cleanup="yes"
+      break
+    else:
+      print ("sorry, no such option" )
+      exit(0)
 
 
 ###########################################################################################################################################

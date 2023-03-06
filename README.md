@@ -21,18 +21,18 @@
     sudo systemctl restart docker
 
 ---
-2   Build the CLASSI docker image (use 'source' so that it will execute within the current shell session) 
+2   Build and the CLASSI docker image (use 'source' so that it will execute within the current shell session) 
  
-      source ./____BUILD_THE_CLASSI_DOCKER_ENVIRONMENT.sh  
+      source ./____BUILD_AND_RUN_THE_CLASSI_DOCKER_ENVIRONMENT.sh  
+      
+    You will be left in the docker CLASSI container, in a directory called pipeline
       
 ---
 3  Get some TCGA data to run experiments on:  
  
     eg: fetch and pre-process TCGA Sarcoma RNA-Seq data (takes about 60min):  
     
-      cd pipeline  
-      python ./gdc-fetch.py --debug=9 --dataset sarc --case_filter="filters/TCGA-SARC_case_filter" \  
-      --file_filter="filters/GLOBAL_file_filter_UQ" --max_cases=5000 --max_files=10  --output_dir=source_data/sarc  
+      python ./gdc-fetch.py --debug=9 --dataset sarc --case_filter="filters/TCGA-SARC_case_filter"  --file_filter="filters/GLOBAL_file_filter_UQ" --max_cases=5000 --max_files=10  --output_dir=source_data/sarc  
 
     eg: fetch and pre-process TCGA stomach cancer dataset (image and RNA-Seq) (can take 1-2 days):   
     
