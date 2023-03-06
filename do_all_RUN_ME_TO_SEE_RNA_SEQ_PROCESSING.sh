@@ -5,13 +5,13 @@
 #
 # PREQEQUISITE:
 #
-# The image dataset must first be downloaded (from NIH TCGA data repository) and pre-processed. Use the following command.  
+# The sarc RNA-Seq dataset must first be downloaded (from NIH TCGA data repository) and pre-processed. Use the following command.  
 #
-#    ./gdc-fetch.sh stad TCGA-stad_case_filter GLOBAL_file_filter_UQ
+#    ./gdc-fetch.sh sarc TCGA-SARC_case_filter GLOBAL_file_filter_UQ
 #
-# Don't use the TCGA download tool - the downloaded files have to extensively pre-processed, and gdc_fetch does that in addition to downloading them
+# Don't use the TCGA download tool - the downloaded files have to extensively pre-processed, and MY gdc_fetch does that in addition to downloading them
 #
-# "-A 4" means that Only cancer subtypes 0,1,2,3 and 4, corresponding to tubular, intest_nos, stomach_nos, diffuse, mucinous, will be used.  Subtypes 5 and 6 (, signet, papillary) which have a very small number of examples, are excluded.
+# "-A 4" means that only cancer subtypes 0,1,2,3 and 4, corresponding to tubular, intest_nos, stomach_nos, diffuse, mucinous, will be used.  Subtypes 5 and 6 (, signet, papillary) which have a very small number of examples, are excluded.
 #
 # A lot of console output will be seen. This is deliberate, to enable you to see what's going on. You can suppress console output using the DEBUG_LEVEL_xxx parameters in 'do_all.sh'
 #
@@ -27,7 +27,7 @@
 #
 # defaults for use if user doesn't set an option:
 
-HIGHEST_CLASS_NUMBER=4
+HIGHEST_CLASS_NUMBER=6
 BATCH_SIZE=16
 DIVIDE_CASES="True"
 HIDDEN_LAYER_NEURONS=2100
@@ -38,7 +38,7 @@ N_SAMPLES=98765
 NN_DENSE_DROPOUT_1="0.2"
 NN_TYPE_RNA="DENSE"
 #~ REGEN="True"
-REGEN="False"
+REGEN="True"
 REPEAT=1
 SKIP_GENERATION="False"                                                                                    
 
@@ -68,7 +68,7 @@ echo "TRAINING RUN"
 echo "========================================================================================================================================================================"
 echo ""
 
-./do_all.sh -d stad   -i rna   -z ${NN_TYPE_RNA}  -H ${HIDDEN_LAYER_NEURONS}   -L ${LEARNING_RATE}  -7 ${NN_DENSE_DROPOUT_1}    -b ${BATCH_SIZE}  -o ${N_EPOCHS}  -A ${HIGHEST_CLASS_NUMBER} -c UNIMODE_CASE -v ${DIVIDE_CASES} -r ${REGEN}
+./do_all.sh -d sarc   -i rna   -z ${NN_TYPE_RNA}  -H ${HIDDEN_LAYER_NEURONS}   -L ${LEARNING_RATE}  -7 ${NN_DENSE_DROPOUT_1}    -b ${BATCH_SIZE}  -o ${N_EPOCHS}  -A ${HIGHEST_CLASS_NUMBER} -c UNIMODE_CASE -v ${DIVIDE_CASES} -r ${REGEN}
 
 
 sleep 5
@@ -81,13 +81,13 @@ echo "TEST RUN"
 echo "========================================================================================================================================================================"
 echo ""
 
-./do_all.sh -d stad   -i rna  -z ${NN_TYPE_RNA}  -H ${HIDDEN_LAYER_NEURONS}                                                       -b ${BATCH_SIZE}   -c UNIMODE_CASE -A ${HIGHEST_CLASS_NUMBER}  -j True
+./do_all.sh -d sarc   -i rna  -z ${NN_TYPE_RNA}  -H ${HIDDEN_LAYER_NEURONS}                                                       -b ${BATCH_SIZE}   -c UNIMODE_CASE -A ${HIGHEST_CLASS_NUMBER}  -j True
 
 
 #
 # Meaning of options:
 #
-# DATASET              -d   Which named dataset to use (eg. ‘stad’). Must exist locally.
+# DATASET              -d   Which named dataset to use (eg. ‘sarc’). Must exist locally.
 # INPUT_MODE           -i   Type of input data: allowed values are image, rna and image_rna (always lower case)
 # TILES_PER_IMAGE      -f   Number of tiles to extract from each Whole Slide Image
 # NN_TYPE_IMG          -a   neural network model to be used for Image processing (e.g. VGG16, INCEPT4, RESNET152)
@@ -98,7 +98,7 @@ echo ""
 # HIGHEST_CLASS_NUMBER -A   Include only classes (cancer subtypes) with class numbers in the range 0 through HIGHEST_CLASS_NUMBER. 
 #                           This parameter may be used to instruct the platform to ignore certain classes – for example “Not Otherwise Specified” cancer types. 
 #                           This requires planning: classes which the experimenter may later wish to ignore in certain experiments should be given the highest class numbers.
-#                           Class numbers are specified in the applicable master spreadsheet, in this case 'stad_mapping_file_MASTER.csv' in folder '<BASE_DIR>/global/stad_global'
+#                           Class numbers are specified in the applicable master spreadsheet, in this case 'sarc_mapping_file_MASTER.csv' in folder '<BASE_DIR>/global/sarc_global'
 # DIVIDE_CASES         -v   Divide the working directory of cases into pre-defined subsets, which may then or subsequently be selected for use in an experiment by means of the ‘CASES flags’
 # PCT_TEST             -1   (Numeral 1) Proportion of examples to be held out for testing. (Number in the range 0.0 to 1.0, despite the name)
 

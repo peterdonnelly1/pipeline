@@ -26,6 +26,7 @@
       source ./____BUILD_AND_RUN_THE_CLASSI_DOCKER_ENVIRONMENT.sh  
       
     You will be left in the docker CLASSI container, in a directory called pipeline
+    'gimp' (image viewer) and 'geany' (text editor) will start automaticall
       
 ---
 3  Get some TCGA data to run experiments on:  
@@ -36,25 +37,26 @@
 
     eg: fetch and pre-process TCGA stomach cancer dataset (image and RNA-Seq) (can take 1-2 days):   
     
-      cd pipeline  
-      python ./gdc-fetch.py --debug=9 --dataset stad --case_filter="filters/TCGA-STAD_case_filter" \  
-      --file_filter="filters/GLOBAL_file_filter_UQ"  --max_cases=5000 --max_files=10  --output_dir=source_data/stad  
-      python ./gdc-fetch.py --debug=9 --dataset stad --case_filter="filters/TCGA-STAD_case_filter" \  
-      --file_filter="filters/GLOBAL_file_filter_SVS" --max_cases=5000 --max_files=10  --output_dir=source_data/stad  
+      python ./gdc-fetch.py --debug=9 --dataset stad --case_filter="filters/TCGA-STAD_case_filter"  --file_filter="filters/GLOBAL_file_filter_UQ"  --max_cases=5000 --max_files=10  --output_dir=source_data/stad  
+      python ./gdc-fetch.py --debug=9 --dataset stad --case_filter="filters/TCGA-STAD_case_filter"  --file_filter="filters/GLOBAL_file_filter_SVS" --max_cases=5000 --max_files=10  --output_dir=source_data/stad  
 
 ---
-4   Run the CLASSI Docker container (use source so that it will execute in the current shell session)
+4   Run an experiment. This ones are scripted:
 
-    source ./____RUN_THE_CLASSI_DOCKER_ENVIRONMENT.sh
-      
-    then, from within the classi docker container:
-       ./do_all_RUN_ME_TO_SEE_RNASEQ_PROCESSING.sh                     or
-       ./do_all_RUN_ME_TO_SEE_IMAGE_PROCESSING.sh                      or
-       ./do_all_RUN_ME_TO_SEE_CLUSTERING_USING_SCIKIT_SPECTRAL.sh      or
-
-    'gimp' (image viewer) and 'geany' (text editor) will start automatically
+     ./do_all_RUN_ME_TO_SEE_RNASEQ_PROCESSING.sh                     <<< requires sarc dataset
+     ./do_all_RUN_ME_TO_SEE_IMAGE_PROCESSING.sh                      <<< requires stad dataset
+     ./do_all_RUN_ME_TO_SEE_CLUSTERING_USING_SCIKIT_SPECTRAL.sh      <<< requires kidn dataset
+     ./experiment_1.sh                                               <<< requires lots of datasets
     
-
+    once you're comfortable, use CLASSI commands to run experiments:
+    
+    ./do_all.sh -d sarc -i rna   -z DENSE     -b 22 -o 50  -H 2200  -7 0.2                -c UNIMODE_CASE -A 3  -r True
+    ./do_all.sh -d sarc -i rna   -z DENSE     -b 22 -o 50  -H 2200  -7 0.2                -c UNIMODE_CASE -A 3  -R 8
+    ./do_all.sh -d stad -i rna   -z DENSE     -b 88 -o 100 -H "1000 2000"   -7 ".18 .20"  -c UNIMODE_CASE -A 2
+    ./do_all.sh -d stad -i image -a VGG11     -b 64 -o 4  -1 .2  -L .0003 -f 100  -T  64  -c UNIMODE_CASE -A 4
+    ./do_all.sh -d stad -i image -a RESNET152 -b 64 -o 4  -1 .2  -L .0003 -f 9    -T 256  -c UNIMODE_CASE -A 4  -r True
+     
+---
  To monitor experiments and see results:
 
     during an experiment:

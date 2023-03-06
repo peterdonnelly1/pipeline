@@ -26,7 +26,7 @@ RUN --mount=type=cache,target=/root/.cache/pip python3 -m pip install -r Dockerf
 #RUN   pip   install hdbscan==0.8.29
 RUN   pip   install tsnecuda==3.0.1+cu112 -f https://tsnecuda.isx.ai/tsnecuda_stable.html
 
-RUN git clone --depth 11 https://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@github.com/peterdonnelly1/pipeline
+RUN git clone --depth 12 https://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@github.com/peterdonnelly1/pipeline
 
 
 # START UP SHENANIGANS
