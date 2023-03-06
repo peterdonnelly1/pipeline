@@ -14,7 +14,6 @@ mkdir -p working_data
 mkdir -p source_data
 mkdir -p logs
 mkdir -p classi/runs
-mv ../gdc-fetch.py .
 
 sudo xhost +local:docker
 sudo docker run -it --name classi --env TZ=$(cat /etc/timezone)  --gpus device=0  --network=host --shm-size 2g -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=:1 \
