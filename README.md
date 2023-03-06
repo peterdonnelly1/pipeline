@@ -1,6 +1,6 @@
 
 ---
-1   Install the NVIDIA Container Runtime on your host machine:
+1   Install the NVIDIA Docker Container Runtime on your host machine:
 
     For GPU support, the NVIDIA Container Runtime is required on the system running Docker.
     Note: there is no  NVIDIA Container Runtime for Windows
@@ -18,12 +18,11 @@
     sudo systemctl restart docker
 
 ---
-2   Build and the CLASSI docker image (use 'source' so that it will execute within the current shell session) 
+2   Build and run the CLASSI docker image (use 'source' so it will execute within the current shell session) 
  
       source ./____BUILD_AND_RUN_THE_CLASSI_DOCKER_ENVIRONMENT.sh  
       
-    You will be left in the docker CLASSI container in directory 'pipeline'
-    'gimp' (image viewer) and 'geany' (text editor) will start automatically.
+    You will be left in the CLASSI container in directory 'pipeline'
       
 ---
 3  Use gdc-fetch ('d' option to begin with) to get some TCGA data:  
