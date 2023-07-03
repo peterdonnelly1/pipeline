@@ -83,8 +83,6 @@
     you will have to build it again if you do this. 
     Building should be fast since Docker will have cached everything that did not change since the last build.
 
----
-
 
 
 
@@ -111,7 +109,10 @@ Paper: https://ieeexplore.ieee.org/document/8787328/
 Takumi Ando, University of Tokyo, Tokyo, Japan  
 Code: https://github.com/tand826  
   
-  
-  
-Each portion of the code is governed by ... respective licenses - however our code is governed by the ...
+---
+Each portion of the code is governed by its owner's respective licence(s)
+
+All of our code portions are governed by the CC BY-NC, as follows:
+Copyright © 2020-2023, Peter Donnelly. This work is licensed under the Creative Commons Attribution-NonCommercial 4.0 International license.
+To view a copy of this license, visit https://creativecommons.org/licenses/by-nc/4.0/
 
