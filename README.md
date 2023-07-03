@@ -1,5 +1,5 @@
 
-(Note: use 'source' so shell scripts will execute in the current shell session)  
+(Note: use 'source' as shown, so that the shell scripts will execute in the current shell session)  
  
 ---
 1   Install the NVIDIA Docker Container Runtime:
